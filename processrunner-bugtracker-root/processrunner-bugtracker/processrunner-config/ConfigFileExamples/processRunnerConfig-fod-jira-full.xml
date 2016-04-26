@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!-- NOTE: This file has not yet been updated according to the latest code changes,
+	           so will probably not work out of the box. However it does show the 
+	           general principles of manually configuring processor chains to submit
+	           vulnerabilities to a bug tracker. -->
+	
+	<!-- This example configuration file shows the manual configuration of the full 
+	     processing chain. For most scenarios, this is over-complicated and you should
+	     use processRunnerConfig-fod-jira-short.xml instead. 
+	-->
+	
+	<!-- TODO: Review ACTIVE/INACTIVE comment accuracy. -->
+	
+	<!-- ACTIVE: Allow JSON property accessor to register itself. Do not remove. -->
+	<bean class="com.fortify.util.json.JsonPropertyAccessor" />
+	
+	<!-- INACTIVE: Define a proxy configuration -->
+	<bean id="proxy" class="com.fortify.util.rest.ProxyConfiguration">
+		<property name="uri" value="http://proxy:port/"/>
+		<property name="userName" value="proxy user (optional)"/>
+		<property name="password" value="proxy password (optional)"/>
+	</bean>
+
+	<!-- ACTIVE: Define the FoD connection information like base URL, user
+	     credentials, and optional proxy. For connecting to FoD using client
+	     credentials, please see FoDConnectionFactoryClientCredentialsEmeaDemo
+	     below.
+	     
+	     Tenant, username and password can be configured here. Each of these
+	     can be overridden on the command line by setting the
+	     -Dfod.tenant=..., -Dfod.username=... and/or -Dfod.password=...
+	     system properties. If any of these values is not configured here,
+	     and the corresponding system property is not set on the command line,
+	     the user will be prompted to enter the tenant, username and/or password.
+    -->
+	<bean id="FoDConnectionFactoryUserCredentialsEmeaDemo" class="com.fortify.fod.connection.FoDConectionFactoryUserCredentials">
+		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<property name="tenant" value="emeademo"/>
+		<!-- <property name="userName" value="username"/> -->
+		<!-- <property name="password" value="password"/> -->
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- INACTIVE: Define the FoD connection information like base URL, client
+	     credentials, and optional proxy. -->
+	<bean id="FoDConnectionFactoryClientCredentialsEmeaDemo" class="com.fortify.fod.connection.FoDConnectionFactoryClientCredentials">
+		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<property name="clientId" value="API key"/>
+		<property name="clientSecret" value="client secret"/>
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- ACTIVE: This processor adds the FoD connection as retrieved from the configured
+	     connection factory to the processor context. -->
+	<bean id="processorFoDAddConnectionToContextEmeaDemoUserCredentials" class="com.fortify.processrunner.fod.processor.FoDProcessorAddConnectionToContext">
+		<property name="connectionFactory" ref="FoDConnectionFactoryUserCredentialsEmeaDemo"/>
+	</bean>
+	
+	<!-- These two processors allow access to additional vulnerability information like summary, 
+	     details, recommendations, ... The necessary information will be loaded on demand from 
+	     FoD whenever the information is first accessed. Usually you will not need to customize 
+	     these beans.
+	     ACTIVE: The MultiSmallRequest bean uses individual REST requests to get additional data. This
+	     is best used if your configuration only uses information from only one or two
+	     detail objects like summary.
+	     EXAMPLE: The SingleLargeRequest bean uses a single REST request to get all additional data. This
+	     is best used if your configuration uses information from multiple detail objects
+	     like summary, details, recommendations and history.
+	 -->
+	<bean id="processorFoDAddOnDemandJSONDataMultiSmallRequest" class="com.fortify.processrunner.fod.processor.FoDProcessorAddOnDemandJSONDataMultiSmallRequest"/>
+	<bean id="processorFoDAddOnDemandJSONDataSingleLargeRequest" class="com.fortify.processrunner.fod.processor.FoDProcessorAddOnDemandJSONDataSingleLargeRequest"/>
+	
+	<!-- ACTIVE: This is a test processor that will print the current processing context -->
+	<bean id="processorPrintContext" class="com.fortify.processrunner.processor.test.ProcessorPrintContext"/>
+	
+	<!-- EXAMPLE: This is a test processor that will print the current grouping information -->
+	<bean id="processorPrintGroups" class="com.fortify.processrunner.processor.test.ProcessorPrintGroups"/>
+	
+	<!-- ACTIVE: This is a test processor that will print the current string map -->
+	<bean id="processorPrintStringMap" class="com.fortify.processrunner.processor.test.ProcessorPrintStringMap"/>
+	
+	
+	<!-- ACTIVE: This processor will generate a string map -->
+	<bean id="processorStringMap" class="com.fortify.processrunner.processor.ProcessorBuildStringMap">
+		<property name=""rootExpression value="CurrentGroup[0]"/>
+		<property name="appenderExpression" value="CurrentGroup"/>
+		<property name="rootExpressionTemplates"><map>
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="Category: ${category} at ${primaryLocationFull}\n${details.summary}"/>
+			<!-- <entry key="description" value="Category: ${[0]?.category} at ${[0]?.primaryLocationFull}"/> -->
+		</map></property>
+		<property name="appenderExpressionTemplates"><map>
+			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}"/>
+		</map></property>
+	</bean>
+	
+	<bean id="processorAddCommentToVulnerabilities" class="com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilities">
+		<property name="iterableExpression" value="CurrentGroup.Objects"/>
+		<property name="vulnIdExpression" value="vulnId"/>
+		<property name="commentTemplate" value="${SubmittedIssueBugTrackerName}: ID ${SubmittedIssueId} URL ${SubmittedIssueBrowserURL}"/>
+	</bean>
+	
+	<!-- ACTIVE: This filter defines one or more filters on top-level vulnerability fields. These filters
+	     are based on simple string comparison. The main advantage compared to more advanced filters 
+	     is that these filters will be passed on to the FoD REST request that retrieves the vulnerability 
+	     listing. As such, even if you also require more advanced filters, it is useful to add these 
+	     top-level field filters where appropriate, in order to reduce the amount of data returned by FoD. 
+	     
+	     TODO FoD filtering doesn't seem to work correctly if multiple filtering fields are used 
+	          (resulting in too much data being returned that has to be filtered afterwards). -->
+	<bean id="filterOnTopLevelFieldsSimple" class="com.fortify.processrunner.fod.processor.FoDFilterOnTopLevelFields">
+		<property name="filters"><map>
+				<!-- <entry key="severityString" value="Critical"/> -->
+				<!-- <entry key="hasComments" value="true"/> -->
+				<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
+		</map></property>
+	</bean>
+	
+	<!-- ACTIVE: This filter defines one or more RegEx-based filters on top-level vulnerability fields. -->
+	<bean id="filterOnTopLevelFieldsRegEx" class="com.fortify.processrunner.filter.FilterRegEx">
+		<property name="filterPatterns"><map>
+			<entry key="['FoDCurrentVulnerability'].vulnId" value="7.*"/>
+		</map></property>
+	</bean>
+	
+	<!-- ACTIVE: This filter defines one or more RegEx-based filters on arbitrary vulnerability fields. 
+	     If necessary, this will trigger additional vulnerability data to be retrieved from FoD. -->
+	<bean id="filterOnAllFieldsRegEx" class="com.fortify.processrunner.filter.FilterRegEx">
+		<property name="filterPatterns"><map>
+			<!-- <entry key="['FoDCurrentVulnerability'].summary.developerStatus" value="Open"/> -->
+		</map></property>
+	</bean>
+	
+	<!-- ACTIVE: Group the vulnerability objects -->
+	<bean id="groupVulnerabilities" class="com.fortify.processrunner.processor.ProcessorGroupByExpressions">
+		<property name="rootExpression" value="FoDCurrentVulnerability"/>
+		<property name="groupTemplateExpression" value="${category}${primaryLocationFull}"/>
+		<property name="processor.processors"><list>
+			<ref bean="processorStringMap"/>
+			<ref bean="processorPrintStringMap"/>
+		</list></property>
+		<!-- <property name="processor.processors" value="processorStringMap,processorSubmitJiraIssue,processorAddCommentToVulnerabilities,processorPrintStringMap"/> -->
+	</bean>
+	
+	<bean id="processorSubmitJiraIssue" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueFromStringMap">
+		<property name="connectionFactory">
+			<bean class="com.fortify.processrunner.jira.connection.JiraConnectionFactory">
+				<property name="baseUrl" value="http://192.168.99.100:32768/"/>
+				<property name="userName" value="rsenden"/>
+				<property name="password" value="password"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- ACTIVE: This processor will load the list of vulnerabilities from FoD, and then call each of the 
+	     configured processors for every individual vulnerability. The list of configured processors
+	     usually includes (in this order):
+	     - Filters on top-level fields 
+	     - Processor that allows access to additional vulnerability information
+	     - Advanced filters 
+	     - Bug-tracker specific processor(s) that will group and submit the vulnerabilities -->
+	<bean id="processorFoDRootVulnerabilityArray" class="com.fortify.processrunner.fod.processor.FoDProcessorRootVulnerabilityArray">
+		<property name="processor.processors"><list>
+			<ref bean="filterOnTopLevelFieldsSimple"/>
+			<ref bean="filterOnTopLevelFieldsRegEx"/>
+			<ref bean="processorFoDAddOnDemandJSONDataMultiSmallRequest"/>
+			<ref bean="processorPrintContext"/>
+			<ref bean="filterOnAllFieldsRegEx"/>
+			<ref bean="groupVulnerabilities"/>
+		</list></property>
+	</bean>
+	
+	<!-- ACTIVE: This abstract processor runner defines the processors to run when invoking a concrete
+	     runner configuration. Usually this includes the processor to set up the FoD connection,
+	     and the processor to process the list of vulnerability from FoD. -->
+	<bean id="abstractFoDEmeaDemoUserCredentialsProcessorRunner" class="com.fortify.processrunner.ProcessRunner" abstract="true">	
+		<property name="processor.processors"><list>
+			<ref bean="processorFoDAddConnectionToContextEmeaDemoUserCredentials"/>
+			<ref bean="processorFoDRootVulnerabilityArray"/>
+		</list></property>
+	</bean>
+	
+	<!-- INVOKE: This processor runner will get the vulnerabilities for release ID as
+	     specified by system property fod.releaseId, and process them as defined by 
+	     abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<bean id="EmeaDemo-generic" parent="abstractFoDEmeaDemoUserCredentialsProcessorRunner">
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<!-- TODO Possible to throw exception if required system properties not set? -->
+				<entry key="FoDReleaseId" value="#{systemProperties['fod.releaseId']}"/>
+				<!--  EXAMPLE: Set JIRA Project Key from system property (not yet implemented) -->
+				<entry key="JiraProjectKey" value="#{systemProperties['jira.projectKey']}"/>
+			</util:map>
+		</property>		
+	</bean>
+	
+	<!-- INVOKE: This processor runner will get the vulnerabilities for release ID 294, and process them as defined by abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<bean id="EmeaDemo-294" parent="abstractFoDEmeaDemoUserCredentialsProcessorRunner">
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<entry key="FoDReleaseId" value="294"/>
+				<!--  EXAMPLE: Set JIRA Project Key (not yet implemented) -->
+				<entry key="JiraProjectKey" value="TST"/>
+			</util:map>
+		</property>		
+	</bean>
+	
+	<!-- INVOKE: This processor runner will get the vulnerabilities for release ID 2465, and process them as defined by abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<bean id="EmeaDemo-2465" parent="abstractFoDEmeaDemoUserCredentialsProcessorRunner">
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<entry key="FoDReleaseId" value="2465"/>
+				<!--  EXAMPLE: Set JIRA Project Key (not yet implemented) -->
+				<entry key="JiraProjectKey" value="TST"/>
+			</util:map>
+		</property>		
+	</bean>
+</beans>

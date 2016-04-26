@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>processrunner-bugtracker</artifactId>
+	<parent>
+		<groupId>com.fortify.processrunner.bugtracker</groupId>
+		<artifactId>processrunner-bugtracker-root</artifactId>
+		<version>1.0</version>
+	</parent>
+	<!-- TODO Add description, developers, license, ... -->
+	<inceptionYear>2016</inceptionYear>
+	<dependencies>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-fod</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-jira</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-file</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.fortify.processrunner.Main</mainClass>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target</outputDirectory>
+							<resources>
+								<resource>
+									<directory>processrunner-config</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<description>This module provides processrunner-related functionality that is based on multiple/all available bugtracker-related modules. This includes (composite) processors that combine for example FoD with JIRA, and example configuration files.
+
+This module also generates the shaded JAR-file that includes all generic processrunner-related code, processrunner-related code for bug tracker integrations, and all dependencies.</description>
+</project>

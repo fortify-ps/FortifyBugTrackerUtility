@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>processrunner-bugtracker-common</artifactId>
+	<parent>
+		<groupId>com.fortify.processrunner.bugtracker</groupId>
+		<artifactId>processrunner-bugtracker-root</artifactId>
+		<version>1.0</version>
+	</parent>
+	<!-- TODO Add description, developers, license, ... -->
+	<inceptionYear>2016</inceptionYear>
+	<dependencies>
+		<dependency>
+			<groupId>com.fortify.processrunner</groupId>
+			<artifactId>processrunner</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+	</dependencies>
+	<description>This module provides common processrunner-related functionality for submitting Fortify/FoD vulnerabilities to bug trackers.</description>
+</project>

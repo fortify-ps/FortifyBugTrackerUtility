@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.fortify.processrunner.bugtracker</groupId>
+	<artifactId>processrunner-bugtracker-root</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+	<!-- TODO Add description, developers, license, ... -->
+	<inceptionYear>2016</inceptionYear>
+	<modules>
+		<module>../fortify-util</module>
+		<module>../processrunner</module>
+		<module>processrunner-bugtracker-common</module>
+		<module>processrunner-bugtracker-fod</module>
+		<module>processrunner-bugtracker-jira</module>
+		<module>processrunner-bugtracker-file</module>
+		<module>processrunner-bugtracker</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-common</artifactId>
+				<version>1.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-fod</artifactId>
+				<version>1.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-jira</artifactId>
+				<version>1.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-file</artifactId>
+				<version>1.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner</groupId>
+				<artifactId>processrunner</artifactId>
+				<version>1.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.2</version>
+				<scope>compile</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<description>This module contains several sub-modules that together make up the code for submitting FoD vulnerabilities to bug trackers.
+
+This includes the generic processrunner module for running arbitrary processes, the fortify-util module that provides various utility classes used by this integration, and various modules specific for submitting FoD vulnerabilities to bug trackers.</description>
+</project>
