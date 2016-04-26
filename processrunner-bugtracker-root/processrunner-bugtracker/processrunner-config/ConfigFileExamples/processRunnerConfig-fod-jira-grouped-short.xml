@@ -59,15 +59,12 @@
 			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
-			<entry key="vulnId" value="1.*"/>
+			<entry key="vulnId" value="b.*"/>
 		</map></property>
 		<property name="fod.allFieldRegExFilters"><map>
 			<!-- <entry key="summary.developerStatus" value="Open"/> -->
 		</map></property>
 		
-		<!-- Grouping can be disabled by removing this property. Note that the
-		     issue fields also need to be updated in order to include vulnerability
-		     id and link to the description field (see below). -->
 		<property name="issue.grouping" value="${category}+${primaryLocationFull}"/>
 		
 		<property name="issue.fields"><map>
@@ -75,10 +72,8 @@
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
 		</map></property> 
 		<property name="issue.appendedFields"><map>
-			<!-- Note: if grouping is disabled, the description value here must be added to
-			     the description field value above. -->
-			<!-- TODO Add FoD vulnerability deep link if possible (so users can directly navigate to the FoD vulnerability when viewing the JIRA issue) -->
-			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}"/>
+			<!-- TODO Check FoD vulnerability deep link -->
+			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/Issues/${releaseId}/#/page/Issues/viewMode/detail/selectedVulnId/${vulnId}"/>
 		</map></property>
 		
 	</bean>

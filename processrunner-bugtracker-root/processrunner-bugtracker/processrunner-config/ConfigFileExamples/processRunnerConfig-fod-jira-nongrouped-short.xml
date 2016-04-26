@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!-- EXAMPLE: Define a proxy configuration -->
+	<bean id="proxy" class="com.fortify.util.rest.ProxyConfiguration">
+		<property name="uri" value="http://proxy:port/"/>
+		<property name="userName" value="proxy user (optional)"/>
+		<property name="password" value="proxy password (optional)"/>
+	</bean>
+	
+	<!-- ACTIVE: Define the FoD connection information like base URL, user
+	     credentials, and optional proxy. For connecting to FoD using client
+	     credentials, please see FoDConnectionFactoryClientCredentialsEmeaDemo
+	     below.
+	     
+	     Tenant, username and password can be configured here. Each of these
+	     can be overridden on the command line by setting the corresponding
+	     context properties. If any of these values is not configured here or
+	     on the command line, the user will be prompted to enter the tenant, 
+	     username and/or password.
+    -->
+	<bean id="FoDConnectionFactoryUserCredentials" class="com.fortify.fod.connection.FoDConnectionFactoryUserCredentials">
+		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<property name="tenant" value="emeademo"/>
+		<!-- <property name="userName" value="username"/> -->
+		<!-- <property name="password" value="password"/> -->
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- EXAMPLE: Define the FoD connection information like base URL, client
+	     credentials, and optional proxy. -->
+	<bean id="FoDConnectionFactoryClientCredentials" class="com.fortify.fod.connection.FoDConnectionFactoryClientCredentials">
+		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<property name="clientId" value="API key"/>
+		<property name="clientSecret" value="client secret"/>
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- ACTIVE: Define the JIRA connection information. -->
+	<bean id="jiraConnectionFactory" class="com.fortify.processrunner.jira.connection.JiraConnectionFactory">
+		<property name="baseUrl" value="http://192.168.99.100:32768/"/>
+		<property name="userName" value="rsenden"/>
+		<property name="password" value="password"/>
+	</bean>
+	
+	<bean id="fodToJiraProcessor" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
+		<property name="fod.connectionFactory" ref="FoDConnectionFactoryUserCredentials"/>
+		<property name="jira.connectionFactory" ref="jiraConnectionFactory"/>
+		
+		<property name="fod.topLevelFieldSimpleFilters"><map>
+			<!-- <entry key="severityString" value="Critical"/> -->
+			<!-- <entry key="hasComments" value="true"/> -->
+			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
+		</map></property>
+		<property name="fod.topLevelFieldRegExFilters"><map>
+			<entry key="vulnId" value="a.*"/>
+		</map></property>
+		<property name="fod.allFieldRegExFilters"><map>
+			<!-- <entry key="summary.developerStatus" value="Open"/> -->
+		</map></property>
+		
+		<property name="issue.fields"><map>
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="Category: ${category} at ${primaryLocationFull}\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/Issues/${releaseId}/#/page/Issues/viewMode/detail/selectedVulnId/${vulnId}"/>
+		</map></property> 
+	</bean>
+	
+	<!-- INVOKE: This processor runner will get the vulnerabilities for release ID as
+	     specified by system property fod.releaseId, and process them as defined by 
+	     abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<bean id="defaultProcessorRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="processor" ref="fodToJiraProcessor"/>
+	</bean>
+	
+	<!-- EXAMPLE: This processor runner predefines the FoD release id (294) and JIRA
+	              project key (TST) such that these do not need to be specified on the
+	              command line. -->
+	<bean id="EmeaDemo-294" class="com.fortify.processrunner.ProcessRunner">
+		<property name="processor" ref="fodToJiraProcessor"/>
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<entry key="FoDReleaseId" value="294"/>
+				<entry key="JiraProjectKey" value="TST"/>
+			</util:map>
+		</property>		
+	</bean>
+	
+	<!-- EXAMPLE: This processor runner predefines the FoD release id (2465) and JIRA
+	              project key (TST) such that these do not need to be specified on the
+	              command line. -->
+	<!-- EXAMPLE: This processor runner will get the vulnerabilities for release ID 2465, and process them as defined by abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<bean id="EmeaDemo-2465" class="com.fortify.processrunner.ProcessRunner">
+		<property name="processor" ref="fodToJiraProcessor"/>
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<entry key="FoDReleaseId" value="2465"/>
+				<entry key="JiraProjectKey" value="TST"/>
+			</util:map>
+		</property>		
+	</bean>
+</beans>
