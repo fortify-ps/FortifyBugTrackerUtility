@@ -148,7 +148,7 @@ public class Main {
 	 * @param context
 	 */
 	private static final void printUsage(ApplicationContext context, List<ContextProperty> contextProperties, int returnCode) {
-		System.out.println("Usage: java -jar <jarName> [--config <configFile>] <processorRunnerId> [--help] [options]");
+		System.out.println("Usage: java -jar <jarName> [--config <configFile>] [processorRunnerId] [--help] [options]");
 		System.out.println("\n\t--config <configFile> specifies the configuration file to use. Default is "+DEFAULT_CONFIG_FILE);
 		if ( contextProperties != null && contextProperties.size()>0 ) {
 			System.out.println("\n\t[options] for this process runner:");

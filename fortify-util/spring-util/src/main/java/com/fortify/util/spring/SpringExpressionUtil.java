@@ -69,6 +69,6 @@ public final class SpringExpressionUtil {
 	}
 
 	public static final <T> T evaluateTemplateExpression(EvaluationContext context, Object input, String expression, Class<T> returnType) {
-		return evaluateExpression(context, input, parseTemplateExpression(expression), returnType);
+		return evaluateExpression(context, input, parseTemplateExpression(expression.replace("\\n", "\n")), returnType);
 	}
 }

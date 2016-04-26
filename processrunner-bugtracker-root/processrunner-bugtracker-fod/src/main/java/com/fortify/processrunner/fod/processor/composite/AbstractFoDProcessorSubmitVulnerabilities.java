@@ -8,17 +8,30 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
 
-// TODO Current (template) expressions will not work if issues are submitted without grouping
 public abstract class AbstractFoDProcessorSubmitVulnerabilities extends AbstractCompositeProcessor {
 	private final FoDProcessorRetrieveFilteredVulnerabilities fod = new FoDProcessorRetrieveFilteredVulnerabilities();
 	private final FoDProcessorBuildIssueStringMap issue = new FoDProcessorBuildIssueStringMap();
-	
-	protected void init(IProcessor submitVulnerabilityProcessor) {
-		getFod().setVulnerabilityProcessor(getIssue());
-		getIssue().setIssueProcessor(new CompositeProcessor(
-				submitVulnerabilityProcessor, 
-				new ProcessorPrintMessage(null, "Submitted ${CurrentGroup.size()} vulnerabilities to ${SubmittedIssueBugTrackerName} issue ${SubmittedIssueId}\n", null),
+	private FoDProcessorRetrieveFilteredVulnerabilities initializedProcessor;
+
+	@Override
+	public IProcessor[] getProcessors() {
+		if ( initializedProcessor == null ) {
+			initializedProcessor = getFod();
+			initializedProcessor.setVulnerabilityProcessor(getIssue());
+			getIssue().setIssueProcessor(new CompositeProcessor(
+				getSubmitVulnerabilityProcessor(), 
+				createPrintMessageProcessor(),
 				createAddCommentToVulnerabilitiesProcessor()));
+		}
+		return new IProcessor[]{initializedProcessor};
+	}
+
+	private ProcessorPrintMessage createPrintMessageProcessor() {
+		if ( StringUtils.isBlank(getIssue().getGrouping()) ) {
+			return new ProcessorPrintMessage(null, "Submitted vulnerability ${FoDCurrentVulnerability.vulnId} to ${SubmittedIssueBugTrackerName} issue ${SubmittedIssueId}\n", null);
+		} else {
+			return new ProcessorPrintMessage(null, "Submitted ${CurrentGroup.size()} vulnerabilities to ${SubmittedIssueBugTrackerName} issue ${SubmittedIssueId}\n", null);
+		}
 	}
 	
 	protected IProcessor createAddCommentToVulnerabilitiesProcessor() {
@@ -33,11 +46,8 @@ public abstract class AbstractFoDProcessorSubmitVulnerabilities extends Abstract
 		result.setCommentTemplate("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ID ${SubmittedIssueId} URL ${SubmittedIssueBrowserURL}");
 		return result;
 	}
-
-	@Override
-	public IProcessor[] getProcessors() {
-		return new IProcessor[]{getFod()};
-	}
+	
+	protected abstract IProcessor getSubmitVulnerabilityProcessor();
 
 
 	public FoDProcessorRetrieveFilteredVulnerabilities getFod() {

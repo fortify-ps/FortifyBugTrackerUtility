@@ -16,8 +16,8 @@
 			Please overwrite the processRunnerConfig.xml file in
 			the current directory with an appropriate configuration
 			file, or point to an appropriate configuration file 
-			using the -Dcom.fortify.processrunner.config=&lt;configFilePathAndName&gt;
-			Java option.
+			using the --config &lt;configFilePathAndName&gt;
+			command line option.
 		</value></property>
 	</bean>
 	
