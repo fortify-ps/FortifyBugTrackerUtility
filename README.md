@@ -12,21 +12,21 @@ After building the utility (see below), one of the following pre-defined process
 
 JIRA
 ----
-Copy the 'processRunnerConfig-fod-jira-short.xml' to a location and name of your liking (referred to as <configFile> below. Edit <configFile> to update connection properties like base URL's and credentials for FoD and Jira, and optional proxy. Optionally, you can also change filter criteria, issue grouping criteria, and issue format. See the comments in <configFile> for details. 
+Copy the 'processRunnerConfig-fod-jira-short.xml' to a location and name of your liking (referred to as [configFile] below. Edit [configFile] to update connection properties like base URL's and credentials for FoD and Jira, and optional proxy. Optionally, you can also change filter criteria, issue grouping criteria, and issue format. See the comments in [configFile] for details. 
 
-Once <configFile> has been updated, the utility can be started as follows:
+Once [configFile] has been updated, the utility can be started as follows:
 
-  java -jar processrunner-bugtracker-1.0.jar --config <configFile> -FoDReleaseId <FoD release id> -JiraProjectKey <JIRA project key>
+  java -jar processrunner-bugtracker-1.0.jar --config [configFile] -FoDReleaseId [FoD release id] -JiraProjectKey [JIRA project key]
   
 For all FoD vulnerabilities in the given release id that match the filter criteria, new issues will be submitted to JIRA according to the configured grouping criteria and issue format.
 
 Export to file
 ----
-Copy the 'processRunnerConfig-fod-file-short.xml' to a location and name of your liking (referred to as <configFile> below. Edit <configFile> to update connection properties like FoD base URL and credentials, and optional proxy. Optionally, you can also change filter criteria and file output format. See the comments in <configFile> for details. 
+Copy the 'processRunnerConfig-fod-file-short.xml' to a location and name of your liking (referred to as [configFile] below. Edit [configFile] to update connection properties like FoD base URL and credentials, and optional proxy. Optionally, you can also change filter criteria and file output format. See the comments in [configFile] for details. 
 
-Once <configFile> has been updated, the utility can be started as follows:
+Once [configFile] has been updated, the utility can be started as follows:
 
-  java -jar processrunner-bugtracker-1.0.jar --config <configFile> -FoDReleaseId <FoD release id> -OutputFile <output file>
+  java -jar processrunner-bugtracker-1.0.jar --config [configFile] -FoDReleaseId [FoD release id] -OutputFile [output file]
   
 For all FoD vulnerabilities in the given release id that match the filter criteria, new records will be appended to the given output file.
 
@@ -35,9 +35,9 @@ General usage
 ====
 After building the utility (see below), it can be invoked as follows:
 
-  java -jar processrunner-bugtracker-1.0.jar [--config <configFile>] [processorRunnerId] [--help] [options]
+  java -jar processrunner-bugtracker-1.0.jar [--config [configFile]] [processorRunnerId] [--help] [options]
 
-  - [--config <configFile>] can be used to specify a configuration file path and name. By default, 'processRunnerConfig.xml' in the current working directory is used.
+  - [--config [configFile]] can be used to specify a configuration file path and name. By default, 'processRunnerConfig.xml' in the current working directory is used.
   - [processRunnerId] identifies the process runner to run. This option is required if the configuration file contains multiple process runner definitions and none of them is named 'defaultProcessRunner'.
   - [--help] shows the available options for the current process runner.
   - [options] are additional options specific for the current process runner.
@@ -64,7 +64,7 @@ Module overview
 Adding support for new bug trackers
 ====
 Given the generic architecture of the utility, it should be quite easy to add support for new bug trackers. In general, the following steps should be followed:
-- Create a new Maven module named processrunner-bugtracker-<name> under processrunner-bugtracker-root. Use processrunner-bugtracker-root as the parent module.
+- Create a new Maven module named processrunner-bugtracker-[name] under processrunner-bugtracker-root. Use processrunner-bugtracker-root as the parent module.
 - Add the module to pom.xml in processrunner-bugtracker-root, both as a module-element and in the dependencyManagement section
 - Add the module as a dependency in the pom.xml in processrunner-bugtracker
 - Implement the actual functionality for submitting issues by implementing one or more IProcessor implementations and supporting classes
