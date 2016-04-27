@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.processor.ProcessorBuildStringMap;
+import com.fortify.processrunner.processor.ProcessorBuildObjectMap;
 import com.fortify.processrunner.processor.ProcessorGroupByExpressions;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
 
@@ -48,7 +48,7 @@ public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor 
 	}
 
 	protected IProcessor createGroupedBuildStringMapProcessor() {
-		ProcessorBuildStringMap result = new ProcessorBuildStringMap();
+		ProcessorBuildObjectMap result = new ProcessorBuildObjectMap();
 		result.setRootExpression("CurrentGroup[0]");
 		result.setRootExpressionTemplates(getFields());
 		result.setAppenderExpression("CurrentGroup");
@@ -64,7 +64,7 @@ public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor 
 	}
 
 	protected IProcessor createNonGroupedBuildStringMapProcessor() {
-		ProcessorBuildStringMap result = new ProcessorBuildStringMap();
+		ProcessorBuildObjectMap result = new ProcessorBuildObjectMap();
 		result.setRootExpression("FoDCurrentVulnerability");
 		result.setRootExpressionTemplates(getFields());
 		return result;

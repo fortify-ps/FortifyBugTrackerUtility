@@ -50,26 +50,46 @@
 	</bean>
 	
 	<bean id="fodToJiraProcessor" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
+		<!-- Define the connection factories for FoD and JIRA. -->
 		<property name="fod.connectionFactory" ref="FoDConnectionFactoryUserCredentials"/>
 		<property name="jira.connectionFactory" ref="jiraConnectionFactory"/>
 		
+		<!-- Define the filters that determine which issues will
+		     be submitted to JIRA. The three different filter types
+		     have different performance characteristics; 
+		     fod.topLevelFieldSimpleFilters provides best performance,
+		     whereas fod.allFieldRegExFilters provides worst performance.
+		-->
 		<property name="fod.topLevelFieldSimpleFilters"><map>
 			<!-- <entry key="severityString" value="Critical"/> -->
 			<!-- <entry key="hasComments" value="true"/> -->
 			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
+			<entry key="isSuppressed" value="false"/>
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
-			<entry key="vulnId" value="b.*"/>
+			<entry key="severityString" value="Critical|High"/>
 		</map></property>
 		<property name="fod.allFieldRegExFilters"><map>
 			<!-- <entry key="summary.developerStatus" value="Open"/> -->
 		</map></property>
 		
+		<!-- Define the issue grouping. -->
 		<property name="issue.grouping" value="${category}+${primaryLocationFull}"/>
 		
+		<!-- Define the fields that will be submitted to JIRA. You can add
+		     any supported JIRA field here, but you must adhere to the field
+		     format described at 
+		     https://docs.atlassian.com/jira/REST/latest/#api/2/issue-createIssue
+		     For example, some fields require a nested object (see 'priority.name'
+		     field below), or require the value to be an array (see 'labels' field
+		     below). 
+		-->
 		<property name="issue.fields"><map>
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
+			<!-- TODO: map priority.name from FoD severity -->
+			<entry key="priority.name" value="Highest"/>
+			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property> 
 		<property name="issue.appendedFields"><map>
 			<!-- TODO Check FoD vulnerability deep link -->
@@ -78,14 +98,16 @@
 		
 	</bean>
 	
-	<!-- INVOKE: This processor runner will get the vulnerabilities for release ID as
-	     specified by system property fod.releaseId, and process them as defined by 
-	     abstractFoDEmeaDemoUserCredentialsProcessorRunner -->
+	<!-- INVOKE: This default process runner runs the fodToJiraProcessor
+	             defined above. This process runner doesn't configure
+	             the default context, so requires the -FoDReleaseId 
+	             and -JiraProjectKey parameters to be specified on the
+	             command line. -->
 	<bean id="defaultProcessorRunner" class="com.fortify.processrunner.ProcessRunner">
 		<property name="processor" ref="fodToJiraProcessor"/>
 	</bean>
 	
-	<!-- EXAMPLE: This processor runner predefines the FoD release id (294) and JIRA
+	<!-- EXAMPLE: This process runner predefines the FoD release id (294) and JIRA
 	              project key (TST) such that these do not need to be specified on the
 	              command line. -->
 	<bean id="EmeaDemo-294" class="com.fortify.processrunner.ProcessRunner">
@@ -98,7 +120,7 @@
 		</property>		
 	</bean>
 	
-	<!-- EXAMPLE: This processor runner predefines the FoD release id (2465) and JIRA
+	<!-- EXAMPLE: This process runner predefines the FoD release id (2465) and JIRA
 	              project key (TST) such that these do not need to be specified on the
 	              command line. -->
 	<!-- EXAMPLE: This processor runner will get the vulnerabilities for release ID 2465, and process them as defined by abstractFoDEmeaDemoUserCredentialsProcessorRunner -->

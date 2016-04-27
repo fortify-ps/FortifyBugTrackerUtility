@@ -1,19 +1,21 @@
 package com.fortify.processrunner.jira.processor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.context.IContextJira;
-import com.fortify.processrunner.processor.ProcessorBuildStringMap.IContextStringMap;
+import com.fortify.processrunner.processor.ProcessorBuildObjectMap.IContextStringMap;
 
-public class ProcessorJiraSubmitIssueFromStringMap extends AbstractProcessorJiraSubmitIssue {
+public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJiraSubmitIssue {
 	private String defaultIssueType = "Task";
 	
 	@Override
@@ -28,16 +30,16 @@ public class ProcessorJiraSubmitIssueFromStringMap extends AbstractProcessorJira
 	protected JSONObject getIssueToBeSubmitted(Context context) {
 		JSONObject result = new JSONObject();
 		IContextJira contextJira = context.as(IContextJira.class);
-		Map<String, String> fields = context.as(IContextStringMap.class).getStringMap();
+		Map<String, Object> fields = context.as(IContextStringMap.class).getObjectMap();
 		fields.put("project.key", contextJira.getJiraProjectKey());
 		fields.put("issuetype.name", getIssueType(contextJira));
-		for ( Map.Entry<String,String> field : fields.entrySet() ) {
+		for ( Map.Entry<String,Object> field : fields.entrySet() ) {
 			addField(result, "fields."+field.getKey(), field.getValue());
 		}
 		return result;
 	}
 	
-	private void addField(JSONObject json, String key, String value) {
+	private void addField(JSONObject json, String key, Object value) {
 		try {
 			String[] propertyPath = StringUtils.split(key, ".");
 			for ( int i = 0 ; i<propertyPath.length-1 ; i++ ) {
@@ -47,10 +49,37 @@ public class ProcessorJiraSubmitIssueFromStringMap extends AbstractProcessorJira
 				}
 				json = json.optJSONObject(property);
 			}
-			json.put(propertyPath[propertyPath.length-1], value);
+			json.put(propertyPath[propertyPath.length-1], convertValue(value));
 		} catch ( JSONException e ) {
 			throw new RuntimeException("Error creating JSON object for issue to be submitted", e);
 		}
+	}
+
+	private Object convertValue(Object value) {
+		if ( value != null ) {
+			if ( value.getClass().isArray() ) {
+				return convertArrayToJSONArray((Object[])value);
+			} else if ( value instanceof Collection ) {
+				return convertCollectionToJSONArray((Collection<?>)value);
+			}
+		}
+		return value;
+	}
+
+	private Object convertArrayToJSONArray(Object[] array) {
+		JSONArray result = new JSONArray();
+		for ( Object entry : array ) {
+			result.put(entry);
+		}
+		return result;
+	}
+	
+	private Object convertCollectionToJSONArray(Collection<?> collection) {
+		JSONArray result = new JSONArray();
+		for ( Object entry : collection ) {
+			result.put(entry);
+		}
+		return result;
 	}
 
 	protected String getIssueType(IContextJira context) {

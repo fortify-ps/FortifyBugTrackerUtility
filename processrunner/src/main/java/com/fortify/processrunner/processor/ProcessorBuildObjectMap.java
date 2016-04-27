@@ -10,7 +10,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * This {@link IProcessor} implementation allows for building a 
  * String {@link Map} based on the configured expressions.
  */
-public class ProcessorBuildStringMap extends AbstractProcessor {
+public class ProcessorBuildObjectMap extends AbstractProcessor {
 	private String rootExpression;
 	private String appenderExpression;
 	private Map<String,String> rootExpressionTemplates;
@@ -18,11 +18,11 @@ public class ProcessorBuildStringMap extends AbstractProcessor {
 	
 	@Override
 	protected boolean process(Context context) {
-		Map<String,String> map = new HashMap<String,String>(rootExpressionTemplates.size());
+		Map<String,Object> map = new HashMap<String,Object>(rootExpressionTemplates.size());
 		if ( getRootExpressionTemplates() != null ) {
 			Object rootObject = SpringExpressionUtil.evaluateExpression(context, rootExpression, Object.class);
 			for ( Map.Entry<String, String> rootExpressionTemplate : getRootExpressionTemplates().entrySet() ) {
-				map.put(rootExpressionTemplate.getKey(), SpringExpressionUtil.evaluateTemplateExpression(rootObject, rootExpressionTemplate.getValue(), String.class));
+				map.put(rootExpressionTemplate.getKey(), SpringExpressionUtil.evaluateTemplateExpression(rootObject, rootExpressionTemplate.getValue(), Object.class));
 			}
 		}
 		if ( getAppenderExpressionTemplates() != null ) {
@@ -30,15 +30,18 @@ public class ProcessorBuildStringMap extends AbstractProcessor {
 			for ( Object appenderValue : appenderValues ) {
 				for ( Map.Entry<String, String> appenderExpressionTemplate : getAppenderExpressionTemplates().entrySet() ) {
 					String key = appenderExpressionTemplate.getKey();
-					String value = map.get(key);
+					Object value = map.get(key);
 					if ( value == null ) { value = ""; }
-					value += ""+SpringExpressionUtil.evaluateTemplateExpression(appenderValue, appenderExpressionTemplate.getValue(), Object.class);
+					if ( !(value instanceof String) ) {
+						throw new RuntimeException("Cannot append value to non-String value");
+					}
+					value = value+""+SpringExpressionUtil.evaluateTemplateExpression(appenderValue, appenderExpressionTemplate.getValue(), Object.class);
 					map.put(key, value);
 				}
 			}
 		}
 		
-		context.as(IContextStringMap.class).setStringMap(map);
+		context.as(IContextStringMap.class).setObjectMap(map);
 		
 		return true;
 	}
@@ -78,7 +81,7 @@ public class ProcessorBuildStringMap extends AbstractProcessor {
 	}
 	
 	public static interface IContextStringMap {
-		public void setStringMap(Map<String, String> map);
-		public Map<String, String> getStringMap();
+		public void setObjectMap(Map<String, Object> map);
+		public Map<String, Object> getObjectMap();
 	}
 }
