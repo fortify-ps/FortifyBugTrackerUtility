@@ -7,6 +7,6 @@ public interface IContextSubmittedIssueData {
 	public void setSubmittedIssueId(String id);
 	public String getSubmittedIssueId();
 	
-	public void setSubmittedIssueBrowserURL(String url);
+	public void setSubmittedIssueLocation(String url);
 	public String getSubmittedIssueBrowserURL();
 }

@@ -58,8 +58,8 @@
 			<!-- <entry key="summary.developerStatus" value="Open"/> -->
 		</map></property>
 		
-		<property name="file.fieldHeaders" value="vulnId,category"/>
-		<property name="file.fieldExpressionTemplates" value="${vulnId},${category}"/>
+		<property name="file.fieldHeaders" value="vulnId,category,primaryLocationFull"/>
+		<property name="file.fieldExpressionTemplates" value="${vulnId},${category},${primaryLocationFull}"/>
 		
 	</bean>
 	

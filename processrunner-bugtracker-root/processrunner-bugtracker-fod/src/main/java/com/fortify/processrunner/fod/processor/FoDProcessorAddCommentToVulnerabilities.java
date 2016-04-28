@@ -26,7 +26,7 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private SimpleExpression rootExpression;
 	private SimpleExpression iterableExpression;
 	private SimpleExpression vulnIdExpression = SpringExpressionUtil.parseSimpleExpression("vulnId");
-	private TemplateExpression commentTemplateExpression = SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ID ${SubmittedIssueId} URL ${SubmittedIssueBrowserURL}");
+	private TemplateExpression commentTemplateExpression = SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ${SubmittedIssueId==null?'':'ID '+SubmittedIssueId} Location ${SubmittedIssueLocation}");
 	
 	@Override
 	protected boolean process(Context context) {

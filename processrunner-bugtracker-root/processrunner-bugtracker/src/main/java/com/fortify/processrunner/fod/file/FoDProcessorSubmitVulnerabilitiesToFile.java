@@ -8,11 +8,9 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 public class FoDProcessorSubmitVulnerabilitiesToFile extends AbstractCompositeProcessor {
 	private static final SimpleExpression EXPR_ROOT = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability");
-	private static final TemplateExpression EXPR_COMMENT = SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}");
 	
 	private final FoDProcessorRetrieveFilteredVulnerabilities fod = new FoDProcessorRetrieveFilteredVulnerabilities();
 	private final FileProcessorSubmitIssue file = new FileProcessorSubmitIssue();
@@ -23,9 +21,7 @@ public class FoDProcessorSubmitVulnerabilitiesToFile extends AbstractCompositePr
 	}
 	
 	protected IProcessor createAddCommentToVulnerabilitiesProcessor() {
-		FoDProcessorAddCommentToVulnerabilitiesNonGrouped result = new FoDProcessorAddCommentToVulnerabilitiesNonGrouped();
-		result.setCommentTemplate(EXPR_COMMENT);
-		return result;
+		return new FoDProcessorAddCommentToVulnerabilitiesNonGrouped();
 	}
 
 	@Override

@@ -59,6 +59,7 @@ public class Main {
 		try {
 			ProcessRunner runner = context.getBean(processRunnerBeanName, ProcessRunner.class);
 			updateContext(runner, args);
+			checkContext(runner);
 			runner.run();
 		} catch (Throwable t) {
 			LOG.fatal("Error during process run", t);
@@ -76,6 +77,16 @@ public class Main {
 			if ( "--help".equals(opt) ) { printUsage(null, contextProperties, 0); }
 			context.put(opt.substring(1), args.remove(0));
 			// TODO Check that all required context properties have been set
+		}
+	}
+	
+	private static final void checkContext(ProcessRunner runner) {
+		Context ctx = runner.getContext();
+		List<ContextProperty> contextProperties = runner.getProcessor().getContextProperties(ctx);
+		for ( ContextProperty contextProperty : contextProperties ) {
+			if ( contextProperty.isRequired() && !ctx.containsKey(contextProperty.getName()) ) {
+				handleErrorAndExit(null, contextProperties, "ERROR: Required option -"+contextProperty.getName()+" not set", 4);
+			}
 		}
 	}
 

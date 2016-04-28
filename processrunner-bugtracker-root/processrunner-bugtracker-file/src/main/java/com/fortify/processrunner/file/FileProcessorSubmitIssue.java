@@ -70,7 +70,8 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		pw.println(line);
 		
 		IContextSubmittedIssueData ctx = context.as(IContextSubmittedIssueData.class);
-		ctx.setSubmittedIssueBugTrackerName((String)context.get("OutputFile"));
+		ctx.setSubmittedIssueBugTrackerName("File");
+		ctx.setSubmittedIssueLocation((String)context.get("OutputFile"));
 		return true;
 	}
 	

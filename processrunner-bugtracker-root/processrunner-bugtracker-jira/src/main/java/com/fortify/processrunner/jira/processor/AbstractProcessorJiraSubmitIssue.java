@@ -75,7 +75,7 @@ public abstract class AbstractProcessorJiraSubmitIssue extends AbstractProcessor
 				.path("/browse/").path(submittedIssueKey).getURI().toString();
 		contextJira.setSubmittedIssueId(submittedIssueKey);
 		contextJira.setSubmittedIssueBugTrackerName("JIRA");
-		contextJira.setSubmittedIssueBrowserURL(submittedIssueBrowserURL);
+		contextJira.setSubmittedIssueLocation(submittedIssueBrowserURL);
 		return true;
 	}
 	
