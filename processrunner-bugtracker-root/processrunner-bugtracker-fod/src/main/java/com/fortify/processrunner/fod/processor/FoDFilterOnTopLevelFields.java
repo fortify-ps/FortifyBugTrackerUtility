@@ -27,7 +27,7 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		LOG.debug("Adding top-level field filters to request parameter value: "+getFilters()!=null);
+		LOG.info("Adding top-level field filters to request parameter value: "+getFilters()!=null);
 		if ( getFilters() != null ) {
 			try {
 				for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {
@@ -55,7 +55,6 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 	// Since FoD doesn't support URL filtering on all top level fields (for example criticalityString),
 	// we explicitly filter the results again.
 	protected boolean process(Context context) {
-		LOG.debug("Filtering top-level fields: "+getFilters()!=null);
 		if ( getFilters() != null ) {
 			JSONObject vuln = context.as(IContextFoD.class).getFoDCurrentVulnerability();
 			for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {

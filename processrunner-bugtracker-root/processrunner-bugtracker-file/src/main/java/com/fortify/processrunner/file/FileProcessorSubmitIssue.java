@@ -38,10 +38,12 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		System.out.println("Writing issues to file "+context.get("OutputFile"));
+		String fileName = (String)context.get("OutputFile");
+		System.out.println("Writing issues to file "+fileName);
 		try {
-			File f = new File((String)context.get("OutputFile"));
+			File f = new File(fileName);
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(f, true)));
+			LOG.debug("Opened file "+fileName);
 			appendHeaders(f, pw);
 		} catch ( IOException e ) {
 			throw new RuntimeException("Error opening file appender", e);
@@ -66,7 +68,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		}
 		
 		String line = StringUtils.join(values, getFieldSeparator());
-		LOG.trace("Writing issue to "+(String)context.get("OutputFile")+": "+line);
+		LOG.info("Writing issue to "+(String)context.get("OutputFile")+": "+line);
 		pw.println(line);
 		
 		IContextSubmittedIssueData ctx = context.as(IContextSubmittedIssueData.class);
@@ -78,6 +80,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	@Override
 	protected boolean postProcess(Context context) {
 		pw.close();
+		LOG.debug("Close file "+context.get("OutputFile"));
 		return true;
 	}
 

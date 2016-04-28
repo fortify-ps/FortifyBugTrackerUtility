@@ -16,6 +16,7 @@ import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.util.rest.IRestConnectionFactory;
 
 // TODO Add constants for constant strings (FoDTenant, FoDUserName, ...)
+// TODO Make FoD URL configurable via context
 // TODO Clean up the code for setting credentials from context/console
 public class FoDProcessorAddConnectionToContext extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorAddConnectionToContext.class);
@@ -118,7 +119,7 @@ public class FoDProcessorAddConnectionToContext extends AbstractProcessor {
 	@Override
 	protected boolean preProcess(Context context) {
 		IRestConnectionFactory cf = getConnectionFactory();
-		LOG.debug("Adding connection to context");
+		LOG.info("Adding connection to context");
 		addCredentialsFromContext(context, cf);
 		context.as(IContextFoD.class).setFoDConnection(
 				cf.getConnection());

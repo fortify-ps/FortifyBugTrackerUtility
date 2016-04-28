@@ -39,7 +39,7 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private void bulkEditComments(Context context, JSONArray vulnIds, String comment) {
 		if ( LOG.isDebugEnabled() ) {
 			try {
-				LOG.debug("Adding comment '"+comment+"' to vulnerability id's "+vulnIds.join(", "));
+				LOG.info("Adding comment '"+comment+"' to vulnerability id's "+vulnIds.join(", "));
 			} catch (JSONException e) {
 				LOG.error("Error joining JSONArray", e);
 			}

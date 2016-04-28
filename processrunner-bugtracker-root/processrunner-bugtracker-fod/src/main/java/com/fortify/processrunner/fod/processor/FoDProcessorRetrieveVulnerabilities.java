@@ -49,7 +49,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	
 	@Override
 	public boolean process(Context context) {
-		LOG.debug("Retrieving and processing vulnerabilities");
+		LOG.info("Retrieving and processing vulnerabilities");
 		IProcessor processor = getVulnerabilityProcessor();
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextFoD contextFoD = context.as(IContextFoD.class);
