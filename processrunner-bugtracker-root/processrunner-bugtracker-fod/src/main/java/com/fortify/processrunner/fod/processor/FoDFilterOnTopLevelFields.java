@@ -1,5 +1,7 @@
 package com.fortify.processrunner.fod.processor;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,24 +29,26 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 	protected boolean preProcess(Context context) {
 		LOG.debug("Adding top-level field filters to request parameter value: "+getFilters()!=null);
 		if ( getFilters() != null ) {
-			for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {
-				appendTopLevelFieldFilterParamValue(context, filter.getKey(), filter.getValue());
+			try {
+				for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {
+					appendTopLevelFieldFilterParamValue(context, filter.getKey(), filter.getValue());
+				}
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
 			}
 		}
 		return true;
 	}
 
-	private void appendTopLevelFieldFilterParamValue(Context context, String key, String value) {
+	private void appendTopLevelFieldFilterParamValue(Context context, String key, String value) throws UnsupportedEncodingException {
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		String currentParamValue = contextFoD.getFoDTopLevelFilterParamValue();
 		if ( StringUtils.isBlank(currentParamValue) ) {
 			currentParamValue = "";
 		} else {
-			currentParamValue += "+";
+			currentParamValue += "%2B";
 		}
-		// TODO Use better URL encoding algorithm
-		// TODO Filtering doesn't work if multiple filters are specified 
-		contextFoD.setFoDTopLevelFilterParamValue(currentParamValue + key+":"+value.replace(" ", "%20"));
+		contextFoD.setFoDTopLevelFilterParamValue(currentParamValue + key+":"+URLEncoder.encode(value,"UTF-8"));
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.fortify.processrunner.processor;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link IProcessor} implementation can print arbitrary messages
@@ -13,66 +14,66 @@ import com.fortify.util.spring.SpringExpressionUtil;
 // TODO Add rootExpression configuration option, to allow easy 
 //      access from the message templates to a specific root object.
 public class ProcessorPrintMessage extends AbstractProcessor {
-	private String messageTemplatePreProcess;
-	private String messageTemplateProcess;
-	private String messageTemplatePostProcess;
+	private TemplateExpression messageTemplatePreProcess;
+	private TemplateExpression messageTemplateProcess;
+	private TemplateExpression messageTemplatePostProcess;
 
 	public ProcessorPrintMessage() {}
 	
 	public ProcessorPrintMessage(String messageTemplatePreProcess, String messageTemplateProcess, String messageTemplatePostProcess) {
-		this.messageTemplatePreProcess = messageTemplatePreProcess;
-		this.messageTemplateProcess = messageTemplateProcess;
-		this.messageTemplatePostProcess = messageTemplatePostProcess;
+		this.messageTemplatePreProcess = messageTemplatePreProcess==null?null:SpringExpressionUtil.parseTemplateExpression(messageTemplatePreProcess);
+		this.messageTemplateProcess = messageTemplateProcess==null?null:SpringExpressionUtil.parseTemplateExpression(messageTemplateProcess);
+		this.messageTemplatePostProcess = messageTemplatePostProcess==null?null:SpringExpressionUtil.parseTemplateExpression(messageTemplatePostProcess);
 	}
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		String template = getMessageTemplatePreProcess();
+		TemplateExpression template = getMessageTemplatePreProcess();
 		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateTemplateExpression(context, template, String.class));
+			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
 		}
 		return true;
 	}
 	
 	@Override
 	protected boolean process(Context context) {
-		String template = getMessageTemplateProcess();
+		TemplateExpression template = getMessageTemplateProcess();
 		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateTemplateExpression(context, template, String.class));
+			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
 		}
 		return true;
 	}
 	
 	@Override
 	protected boolean postProcess(Context context) {
-		String template = getMessageTemplatePostProcess();
+		TemplateExpression template = getMessageTemplatePostProcess();
 		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateTemplateExpression(context, template, String.class));
+			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
 		}
 		return true;
 	}
 
-	public String getMessageTemplatePreProcess() {
+	public TemplateExpression getMessageTemplatePreProcess() {
 		return messageTemplatePreProcess;
 	}
 
-	public void setMessageTemplatePreProcess(String messageTemplatePreProcess) {
+	public void setMessageTemplatePreProcess(TemplateExpression messageTemplatePreProcess) {
 		this.messageTemplatePreProcess = messageTemplatePreProcess;
 	}
 
-	public String getMessageTemplateProcess() {
+	public TemplateExpression getMessageTemplateProcess() {
 		return messageTemplateProcess;
 	}
 
-	public void setMessageTemplateProcess(String messageTemplateProcess) {
+	public void setMessageTemplateProcess(TemplateExpression messageTemplateProcess) {
 		this.messageTemplateProcess = messageTemplateProcess;
 	}
 
-	public String getMessageTemplatePostProcess() {
+	public TemplateExpression getMessageTemplatePostProcess() {
 		return messageTemplatePostProcess;
 	}
 
-	public void setMessageTemplatePostProcess(String messageTemplatePostProcess) {
+	public void setMessageTemplatePostProcess(TemplateExpression messageTemplatePostProcess) {
 		this.messageTemplatePostProcess = messageTemplatePostProcess;
 	}
 	

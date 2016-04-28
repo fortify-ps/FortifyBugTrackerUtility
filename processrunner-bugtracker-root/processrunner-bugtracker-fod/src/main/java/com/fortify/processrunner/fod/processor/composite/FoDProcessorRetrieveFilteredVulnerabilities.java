@@ -12,7 +12,6 @@ import com.fortify.processrunner.fod.processor.FoDProcessorRetrieveVulnerabiliti
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
-import com.fortify.util.json.JsonPropertyAccessor;
 import com.fortify.util.rest.IRestConnectionFactory;
 
 public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
@@ -22,11 +21,6 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	private Map<String,Pattern> allFieldRegExFilters;
 	
 	private IProcessor vulnerabilityProcessor;
-	
-	public FoDProcessorRetrieveFilteredVulnerabilities() {
-		// Allow JsonPropertyAccessor to register itself
-		new JsonPropertyAccessor();
-	}
 	
 	@Override
 	public IProcessor[] getProcessors() {

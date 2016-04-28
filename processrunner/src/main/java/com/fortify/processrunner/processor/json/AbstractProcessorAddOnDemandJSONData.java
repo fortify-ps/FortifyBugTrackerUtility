@@ -2,7 +2,6 @@ package com.fortify.processrunner.processor.json;
 
 import java.beans.PropertyEditorSupport;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.util.json.ondemand.IOnDemandJSONData;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 import com.sun.jersey.api.client.WebResource;
 
 /**
@@ -32,7 +32,7 @@ import com.sun.jersey.api.client.WebResource;
 public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorAddOnDemandJSONData.class);
 	private Map<String,RootExpressionAndUri> nameToRootExpressionAndUriMap;
-	private Map<String,Map<String,String>> uriToNamesAndRootExpressionMap;
+	private Map<String,Map<String,SimpleExpression>> uriToNamesAndRootExpressionMap;
 	
 	@Override
 	protected boolean process(Context context) {
@@ -41,7 +41,8 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 				IRestConnection conn = getRestconnection(context);
 				RootExpressionAndUri rootExpressionAndUri = entry.getValue();
 				
-				WebResource resource = conn.getBaseResource().uri(processUri(context, rootExpressionAndUri.uri));
+				WebResource resource = conn.getBaseResource().uri(
+					SpringExpressionUtil.evaluateTemplateExpression(context, rootExpressionAndUri.uri, URI.class));
 				OnDemandJSONObject od = new OnDemandJSONObject(conn, resource, getNameToRootExpressionMap(rootExpressionAndUri.uri));
 				
 				String name = entry.getKey();
@@ -65,29 +66,20 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 
 	public void setNameToRootExpressionAndUriMap(Map<String, RootExpressionAndUri> nameToRootExpressionAndUriMap) {
 		this.nameToRootExpressionAndUriMap = nameToRootExpressionAndUriMap;
-		this.uriToNamesAndRootExpressionMap = new HashMap<String,Map<String,String>>();
+		this.uriToNamesAndRootExpressionMap = new HashMap<String,Map<String,SimpleExpression>>();
 		for ( Map.Entry<String,RootExpressionAndUri> entry : nameToRootExpressionAndUriMap.entrySet() ) {
 			getNameToRootExpressionMap(entry.getValue().uri)
 				.put(entry.getKey(), entry.getValue().rootExpression);
 		}
 	}
 	
-	private Map<String,String> getNameToRootExpressionMap(String uri) {
-		Map<String, String> nameToRootExpressionMap = uriToNamesAndRootExpressionMap.get(uri);
+	private Map<String,SimpleExpression> getNameToRootExpressionMap(String uri) {
+		Map<String, SimpleExpression> nameToRootExpressionMap = uriToNamesAndRootExpressionMap.get(uri);
 		if ( nameToRootExpressionMap == null ) {
-			nameToRootExpressionMap = new HashMap<String,String>();
+			nameToRootExpressionMap = new HashMap<String,SimpleExpression>();
 			uriToNamesAndRootExpressionMap.put(uri, nameToRootExpressionMap);
 		}
 		return nameToRootExpressionMap;
-	}
-
-	private URI processUri(Context context, String unprocessedUriString) {
-		String uriString = SpringExpressionUtil.evaluateTemplateExpression(context, unprocessedUriString, String.class);
-		try {
-			return new URI(uriString);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("On-Demand JSONObject URI "+uriString+" is not a valid URI");
-		}
 	}
 
 	protected abstract IRestConnection getRestconnection(Context context);
@@ -96,9 +88,9 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 		private static final Log LOG = LogFactory.getLog(OnDemandJSONObject.class);
 		private final IRestConnection connection;
 		private final WebResource resource;
-		private final Map<String,String> fieldToExpressionMap;
+		private final Map<String,SimpleExpression> fieldToExpressionMap;
 		
-		public OnDemandJSONObject(IRestConnection connection, WebResource resource, Map<String,String> fieldToExpressionMap) {
+		public OnDemandJSONObject(IRestConnection connection, WebResource resource, Map<String,SimpleExpression> fieldToExpressionMap) {
 			this.connection = connection;
 			this.resource = resource;
 			this.fieldToExpressionMap = fieldToExpressionMap;
@@ -113,7 +105,7 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 					LOG.debug("Getting on-demand JSON data from "+resource);
 				}
 				JSONObject json = connection.executeRequest(HttpMethod.GET, resource, JSONObject.class);
-				for ( Map.Entry<String, String> entry : fieldToExpressionMap.entrySet() ) {
+				for ( Map.Entry<String, SimpleExpression> entry : fieldToExpressionMap.entrySet() ) {
 					String key = entry.getKey();
 					Object value = SpringExpressionUtil.evaluateExpression(json, entry.getValue(), Object.class);
 					target.put(key, value);
@@ -134,9 +126,9 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 	}
 	
 	public static final class RootExpressionAndUri {
-		public final String rootExpression;
+		public final SimpleExpression rootExpression;
 		public final String uri;
-		public RootExpressionAndUri(String rootExpression, String uri) {
+		public RootExpressionAndUri(SimpleExpression rootExpression, String uri) {
 			this.rootExpression = rootExpression;
 			this.uri = uri;
 		}
@@ -153,7 +145,7 @@ public abstract class AbstractProcessorAddOnDemandJSONData extends AbstractProce
 		public static final RootExpressionAndUri parse(String rootExpressionAndUriString) {
 			try {
 				Object[] array = FMT_ROOT_EXPRESSION_AND_URI.parse(rootExpressionAndUriString);
-				return new RootExpressionAndUri((String)array[0], (String)array[1]);
+				return new RootExpressionAndUri(SpringExpressionUtil.parseSimpleExpression((String)array[0]), (String)array[1]);
 			} catch (ParseException e) {
 				throw new RuntimeException("Error parsing root expression and URI. Expected: <rootExpression>|<uri>, actual: "+rootExpressionAndUriString);
 			}

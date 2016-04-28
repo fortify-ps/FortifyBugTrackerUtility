@@ -1,5 +1,6 @@
 package com.fortify.processrunner.filter;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -7,6 +8,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * <p>This {@link IProcessor} implementation provides filtering functionality
@@ -24,21 +26,29 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * indicate that the current entry can be processed further.</p>
  */
 public class FilterRegEx extends AbstractProcessor {
-	private String rootExpression;
-	private Map<String, Pattern> filterPatterns;
+	private SimpleExpression rootExpression;
+	private Map<SimpleExpression, Pattern> filterPatterns;
 	
 	public FilterRegEx() {}
 	
 	public FilterRegEx(String rootExpression, Map<String, Pattern> filterPatterns) {
-		this.rootExpression = rootExpression;
-		this.filterPatterns = filterPatterns;
+		this.rootExpression = SpringExpressionUtil.parseSimpleExpression(rootExpression);
+		this.filterPatterns = getFilterPatterns(filterPatterns);
 	}
 	
+	private static final Map<SimpleExpression, Pattern> getFilterPatterns(Map<String, Pattern> map) {
+		Map<SimpleExpression, Pattern> result = new HashMap<SimpleExpression, Pattern>(map.size());
+		for ( Map.Entry<String, Pattern> entry : map.entrySet() ) {
+			result.put(SpringExpressionUtil.parseSimpleExpression(entry.getKey()), entry.getValue());
+		}
+		return result;
+	}
+
 	@Override
 	protected boolean process(Context context) {
 		if ( getFilterPatterns() != null ) {
 			Object root = getRootExpression()==null?context:SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
-			for ( Map.Entry<String, Pattern> filterPattern : getFilterPatterns().entrySet() ) {
+			for ( Map.Entry<SimpleExpression, Pattern> filterPattern : getFilterPatterns().entrySet() ) {
 				String expressionValue = SpringExpressionUtil.evaluateExpression(root, filterPattern.getKey(), String.class);
 				if ( !filterPattern.getValue().matcher(expressionValue).matches() ) {
 					return false;
@@ -48,19 +58,19 @@ public class FilterRegEx extends AbstractProcessor {
 		return true;
 	}
 
-	public String getRootExpression() {
+	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
-	public void setRootExpression(String rootExpression) {
+	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 
-	public Map<String, Pattern> getFilterPatterns() {
+	public Map<SimpleExpression, Pattern> getFilterPatterns() {
 		return filterPatterns;
 	}
 
-	public void setFilterPatterns(Map<String, Pattern> filterPatterns) {
+	public void setFilterPatterns(Map<SimpleExpression, Pattern> filterPatterns) {
 		this.filterPatterns = filterPatterns;
 	}
 }

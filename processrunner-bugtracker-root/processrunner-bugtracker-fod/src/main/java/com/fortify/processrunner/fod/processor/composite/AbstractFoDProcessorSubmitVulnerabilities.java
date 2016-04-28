@@ -1,8 +1,7 @@
 package com.fortify.processrunner.fod.processor.composite;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilities;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilitiesGrouped;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilitiesNonGrouped;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -27,7 +26,7 @@ public abstract class AbstractFoDProcessorSubmitVulnerabilities extends Abstract
 	}
 
 	private ProcessorPrintMessage createPrintMessageProcessor() {
-		if ( StringUtils.isBlank(getIssue().getGrouping()) ) {
+		if ( getIssue().getGrouping()==null ) {
 			return new ProcessorPrintMessage(null, "Submitted vulnerability ${FoDCurrentVulnerability.vulnId} to ${SubmittedIssueBugTrackerName} issue ${SubmittedIssueId}\n", null);
 		} else {
 			return new ProcessorPrintMessage(null, "Submitted ${CurrentGroup.size()} vulnerabilities to ${SubmittedIssueBugTrackerName} issue ${SubmittedIssueId}\n", null);
@@ -35,16 +34,11 @@ public abstract class AbstractFoDProcessorSubmitVulnerabilities extends Abstract
 	}
 	
 	protected IProcessor createAddCommentToVulnerabilitiesProcessor() {
-		FoDProcessorAddCommentToVulnerabilities result = new FoDProcessorAddCommentToVulnerabilities();
-		if ( StringUtils.isBlank(getIssue().getGrouping()) ) {
-			result.setRootExpression("FoDCurrentVulnerability");
-			result.setVulnIdExpression("vulnId");
+		if ( getIssue().getGrouping()==null ) {
+			return new FoDProcessorAddCommentToVulnerabilitiesNonGrouped();
 		} else {
-			result.setIterableExpression("CurrentGroup");
-			result.setVulnIdExpression("vulnId");
+			return new FoDProcessorAddCommentToVulnerabilitiesGrouped();
 		}
-		result.setCommentTemplate("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ID ${SubmittedIssueId} URL ${SubmittedIssueBrowserURL}");
-		return result;
 	}
 	
 	protected abstract IProcessor getSubmitVulnerabilityProcessor();

@@ -1,26 +1,30 @@
 package com.fortify.processrunner.fod.file;
 
 import com.fortify.processrunner.file.FileProcessorSubmitIssue;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilities;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilitiesNonGrouped;
 import com.fortify.processrunner.fod.processor.composite.FoDProcessorRetrieveFilteredVulnerabilities;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 public class FoDProcessorSubmitVulnerabilitiesToFile extends AbstractCompositeProcessor {
+	private static final SimpleExpression EXPR_ROOT = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability");
+	private static final TemplateExpression EXPR_COMMENT = SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}");
+	
 	private final FoDProcessorRetrieveFilteredVulnerabilities fod = new FoDProcessorRetrieveFilteredVulnerabilities();
 	private final FileProcessorSubmitIssue file = new FileProcessorSubmitIssue();
 	
 	public FoDProcessorSubmitVulnerabilitiesToFile() {
 		fod.setVulnerabilityProcessor(new CompositeProcessor(file, createAddCommentToVulnerabilitiesProcessor()));
-		file.setRootExpression("FoDCurrentVulnerability");
+		file.setRootExpression(EXPR_ROOT);
 	}
 	
 	protected IProcessor createAddCommentToVulnerabilitiesProcessor() {
-		FoDProcessorAddCommentToVulnerabilities result = new FoDProcessorAddCommentToVulnerabilities();
-		result.setRootExpression("FoDCurrentVulnerability");
-		result.setVulnIdExpression("vulnId");
-		result.setCommentTemplate("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}");
+		FoDProcessorAddCommentToVulnerabilitiesNonGrouped result = new FoDProcessorAddCommentToVulnerabilitiesNonGrouped();
+		result.setCommentTemplate(EXPR_COMMENT);
 		return result;
 	}
 

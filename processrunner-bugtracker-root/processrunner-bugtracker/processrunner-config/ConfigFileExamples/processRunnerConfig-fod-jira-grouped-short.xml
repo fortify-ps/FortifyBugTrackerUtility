@@ -62,8 +62,9 @@
 		-->
 		<property name="fod.topLevelFieldSimpleFilters"><map>
 			<!-- <entry key="severityString" value="Critical"/> -->
-			<!-- <entry key="hasComments" value="true"/> -->
+			<!-- <entry key="hasComments" value="false"/> -->
 			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
+			<!-- TODO: Add all possible fields in comments -->
 			<entry key="isSuppressed" value="false"/>
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
@@ -85,6 +86,7 @@
 		     below). 
 		-->
 		<property name="issue.fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
 			<!-- TODO: map priority.name from FoD severity -->

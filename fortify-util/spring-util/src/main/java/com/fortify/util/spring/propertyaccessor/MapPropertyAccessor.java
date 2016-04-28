@@ -6,11 +6,13 @@ import org.springframework.expression.AccessException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.TypedValue;
+import org.springframework.stereotype.Component;
 
 /**
  * A SpEL {@link PropertyAccessor} that knows how to read on Map objects.
  * This allows Map keys to be treated as regular object properties.
  */
+@Component
 public class MapPropertyAccessor implements PropertyAccessor {
 	/**
 	 * Return the types that are supported by this {@link PropertyAccessor}

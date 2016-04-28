@@ -17,14 +17,16 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 public class FileProcessorSubmitIssue extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FileProcessorSubmitIssue.class);
 	
 	private String fieldSeparator = ",";
-	private String rootExpression;
+	private SimpleExpression rootExpression;
 	private List<String> fieldHeaders;
-	private List<String> fieldExpressionTemplates;
+	private List<TemplateExpression> fieldExpressionTemplates;
 	private PrintWriter pw;
 	
 	@Override
@@ -58,8 +60,8 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	protected boolean process(Context context) {
 		Object root = getRootExpression()==null?context:SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
 		List<String> values = new ArrayList<String>();
-		for ( String fieldExpressionTemplate : getFieldExpressionTemplates() ) {
-			String value = SpringExpressionUtil.evaluateTemplateExpression(root, fieldExpressionTemplate, String.class);
+		for ( TemplateExpression fieldExpressionTemplate : getFieldExpressionTemplates() ) {
+			String value = SpringExpressionUtil.evaluateExpression(root, fieldExpressionTemplate, String.class);
 			values.add(value);
 		}
 		
@@ -94,19 +96,19 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		this.fieldHeaders = fieldHeaders;
 	}
 
-	public List<String> getFieldExpressionTemplates() {
+	public List<TemplateExpression> getFieldExpressionTemplates() {
 		return fieldExpressionTemplates;
 	}
 
-	public void setFieldExpressionTemplates(List<String> fieldExpressionTemplates) {
+	public void setFieldExpressionTemplates(List<TemplateExpression> fieldExpressionTemplates) {
 		this.fieldExpressionTemplates = fieldExpressionTemplates;
 	}
 
-	public String getRootExpression() {
+	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
-	public void setRootExpression(String rootExpression) {
+	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 	

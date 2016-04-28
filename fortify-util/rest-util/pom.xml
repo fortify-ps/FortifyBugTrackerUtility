@@ -7,7 +7,24 @@
 		<artifactId>fortify-util</artifactId>
 		<version>1.0</version>
 	</parent>
-	<!-- TODO Add description, developers, license, ... -->
+	<organization>
+		<name>HPE Security Fortify</name>
+		<url>http://www8.hp.com/us/en/software-solutions/application-security/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>rsenden</id>
+			<name>Ruud Senden</name>
+			<organization>HPE Security Fortify</organization>
+		</developer>
+	</developers>
 	<inceptionYear>2016</inceptionYear>
 	<dependencyManagement>
 		<dependencies>

@@ -10,6 +10,8 @@ import org.springframework.util.MultiValueMap;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link IProcessor} implementation allows for collecting
@@ -21,8 +23,8 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * {@link IContextGrouping#getCurrentGroup()} method.
  */
 public class ProcessorGroupByExpressions extends AbstractProcessor {
-	private String rootExpression;
-	private String groupTemplateExpression;
+	private SimpleExpression rootExpression;
+	private TemplateExpression groupTemplateExpression;
 	private IProcessor groupProcessor = new CompositeProcessor();
 	
 	@Override
@@ -40,7 +42,7 @@ public class ProcessorGroupByExpressions extends AbstractProcessor {
 	protected boolean process(Context context) {
 		IContextGrouping contextGrouping = context.as(IContextGrouping.class);
 		Object rootObject = SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
-		String groupKey = SpringExpressionUtil.evaluateTemplateExpression(rootObject, getGroupTemplateExpression(), String.class);
+		String groupKey = SpringExpressionUtil.evaluateExpression(rootObject, getGroupTemplateExpression(), String.class);
 		addGroupObject(contextGrouping, groupKey, rootObject);
 		return true;
 	}
@@ -77,19 +79,19 @@ public class ProcessorGroupByExpressions extends AbstractProcessor {
 	
 	
 
-	public String getRootExpression() {
+	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
-	public void setRootExpression(String rootExpression) {
+	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 
-	public String getGroupTemplateExpression() {
+	public TemplateExpression getGroupTemplateExpression() {
 		return groupTemplateExpression;
 	}
 
-	public void setGroupTemplateExpression(String groupTemplateExpression) {
+	public void setGroupTemplateExpression(TemplateExpression groupTemplateExpression) {
 		this.groupTemplateExpression = groupTemplateExpression;
 	}
 

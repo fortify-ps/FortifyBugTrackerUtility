@@ -1,7 +1,6 @@
 package com.fortify.processrunner.fod.processor;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
@@ -17,31 +16,24 @@ import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 import com.sun.jersey.api.client.WebResource;
 
 public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
-	private String uri = "/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities/BulkEdit";
-	private String rootExpression;
-	private String iterableExpression;
-	private String vulnIdExpression;
-	private String commentTemplate;
+	private TemplateExpression uriTemplateExpression = SpringExpressionUtil.parseTemplateExpression("/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities/BulkEdit");
+	private SimpleExpression rootExpression;
+	private SimpleExpression iterableExpression;
+	private SimpleExpression vulnIdExpression = SpringExpressionUtil.parseSimpleExpression("vulnId");
+	private TemplateExpression commentTemplateExpression = SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ID ${SubmittedIssueId} URL ${SubmittedIssueBrowserURL}");
 	
 	@Override
 	protected boolean process(Context context) {
 		JSONArray vulnIds = getVulnIds(context);
-		String comment = SpringExpressionUtil.evaluateTemplateExpression(context, getCommentTemplate(), String.class);
+		String comment = SpringExpressionUtil.evaluateExpression(context, getCommentTemplateExpression(), String.class);
 		bulkEditComments(context, vulnIds, comment);
 		return true;
-	}
-	
-	private URI processUri(Context context, String unprocessedUriString) {
-		String uriString = SpringExpressionUtil.evaluateTemplateExpression(context, unprocessedUriString, String.class);
-		try {
-			return new URI(uriString);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("Root URI "+uriString+" is not a valid URI");
-		}
 	}
 
 	private void bulkEditComments(Context context, JSONArray vulnIds, String comment) {
@@ -55,7 +47,8 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 		IContextFoD contextFod = context.as(IContextFoD.class);
 		IRestConnection conn = contextFod.getFoDConnection();
 		
-		WebResource resource = conn.getBaseResource().uri(processUri(context, uri));
+		WebResource resource = conn.getBaseResource().uri(
+				SpringExpressionUtil.evaluateExpression(context, getUriTemplateExpression(), URI.class));
 		LOG.debug("Add bulk comments using "+resource);
 		JSONObject data = getBulkEditCommentsJSONObject(vulnIds, comment);
 		conn.executeRequest(HttpMethod.POST, resource.entity(data,MediaType.APPLICATION_JSON), JSONObject.class);
@@ -88,46 +81,46 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 		return vulnIds;
 	}
 
-	public String getUri() {
-		return uri;
+	public TemplateExpression getUriTemplateExpression() {
+		return uriTemplateExpression;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	public void setUriTemplateExpression(TemplateExpression uriTemplateExpression) {
+		this.uriTemplateExpression = uriTemplateExpression;
 	}
 	
 	
 
-	public String getRootExpression() {
+	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
-	public void setRootExpression(String rootExpression) {
+	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 
-	public String getIterableExpression() {
+	public SimpleExpression getIterableExpression() {
 		return iterableExpression;
 	}
 
-	public void setIterableExpression(String iterableExpression) {
+	public void setIterableExpression(SimpleExpression iterableExpression) {
 		this.iterableExpression = iterableExpression;
 	}
 
-	public String getVulnIdExpression() {
+	public SimpleExpression getVulnIdExpression() {
 		return vulnIdExpression;
 	}
 
-	public void setVulnIdExpression(String vulnIdExpression) {
+	public void setVulnIdExpression(SimpleExpression vulnIdExpression) {
 		this.vulnIdExpression = vulnIdExpression;
 	}
 
-	public String getCommentTemplate() {
-		return commentTemplate;
+	public TemplateExpression getCommentTemplateExpression() {
+		return commentTemplateExpression;
 	}
 
-	public void setCommentTemplate(String commentTemplate) {
-		this.commentTemplate = commentTemplate;
+	public void setCommentTemplate(TemplateExpression commentTemplateExpression) {
+		this.commentTemplateExpression = commentTemplateExpression;
 	}
 	
 }

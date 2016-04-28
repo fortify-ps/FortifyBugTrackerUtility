@@ -1,6 +1,5 @@
-package com.fortify.util.json;
+package com.fortify.util.spring.propertyaccessor;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.expression.AccessException;
 import org.springframework.expression.EvaluationContext;
@@ -9,25 +8,18 @@ import org.springframework.expression.TypedValue;
 import org.springframework.stereotype.Component;
 
 import com.fortify.util.json.ondemand.IOnDemandJSONData;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * A SpEL {@link PropertyAccessor} that knows how to read on Jettison JSON objects.
+ * A SpEL {@link PropertyAccessor} that knows how to read on {@link JSONObject} instances.
  * It can optionally gather additional data when a given property value implements 
  * the {@link IOnDemandJSONData}.
- * TODO: Fix support for indexed JSONArray properties (if possible)
  */
 @Component
-public class JsonPropertyAccessor implements PropertyAccessor {
-	public JsonPropertyAccessor() {
-		// Register ourselves with the standard evaluation context in SpringUtil
-		SpringExpressionUtil.getStandardEvaluationContext().addPropertyAccessor(this);
-	}
-	
+public class JsonObjectPropertyAccessor implements PropertyAccessor {
 	/**
 	 * The kind of types this can work with.
 	 */
-	private static final Class<?>[] SUPPORTED_CLASSES = new Class[] { JSONObject.class, JSONArray.class };
+	private static final Class<?>[] SUPPORTED_CLASSES = new Class[] { JSONObject.class };
 
 	/**
 	 * Return the types that are supported by this {@link PropertyAccessor}
@@ -40,21 +32,7 @@ public class JsonPropertyAccessor implements PropertyAccessor {
 	 * Indicate whether the given property name can be read from the given target object.
 	 */
 	public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-		Integer index = getIndex(name);
-		return (target instanceof JSONObject) || 
-			   (target instanceof JSONArray && index != null && ((JSONArray)target).length() > index);
-	}
-
-	/**
-	 * Return an integer if the String property name can be parsed as an int, or null otherwise.
-	 */
-	private Integer getIndex(String name) {
-		try {
-			return Integer.valueOf(name);
-		}
-		catch (NumberFormatException e) {
-			return null;
-		}
+		return (target instanceof JSONObject);
 	}
 
 	/**
@@ -70,14 +48,8 @@ public class JsonPropertyAccessor implements PropertyAccessor {
 					value = ((IOnDemandJSONData)value).replaceOnDemandJSONData(context, targetJSONObject, name);
 				}
 			}
-		} else if ( target instanceof JSONArray && getIndex(name) != null ) {
-			JSONArray targetJSONArray = (JSONArray)target;
-			int index = getIndex(name);
-			if ( !targetJSONArray.isNull(index) ) {
-				value = targetJSONArray.opt(index);
-			}
 		}
-		// For some reason the JSONObject|JSONArray.isNull() checks do not work, so we manually compare the class name
+		// For some reason the JSONObject.isNull() checks do not work, so we manually compare the class name
 		value = value!=null && value.getClass().getName().equals("org.codehaus.jettison.json.JSONObject$Null") ? null : value; 
 		return new TypedValue(value);
 	}

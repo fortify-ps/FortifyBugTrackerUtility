@@ -1,7 +1,6 @@
 package com.fortify.processrunner.fod.processor;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +20,15 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 import com.sun.jersey.api.client.WebResource;
 
 public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
 	private static final String KEY_START = "FoDProcessorRootVulnerabilityArray_start";
-	private String uri = "/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities?start=${["+KEY_START+"]}";
-	private String rootExpression = "data";
+	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("count");
+	private String uriTemplateExpression = "/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities?limit=50&start=${["+KEY_START+"]}";
+	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
@@ -59,15 +60,19 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		int count=50;
 		while ( start < count ) {
 			context.put(KEY_START, start);
-			WebResource resource = conn.getBaseResource()
-				.uri(processUri(context, uri+filterParam));
+			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
+			WebResource resource = conn.getBaseResource().uri(uri);
 			LOG.debug("Retrieving vulnerabilities from "+resource);
 			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
-			count = SpringExpressionUtil.evaluateExpression(data, "count", Integer.class);
+			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
 			JSONArray vulnerabilitiesArray = SpringExpressionUtil.evaluateExpression(data, getRootExpression(), JSONArray.class);
 			start += vulnerabilitiesArray.length();
 			for ( int i = 0 ; i < vulnerabilitiesArray.length() ; i++ ) {
-				contextFoD.setFoDCurrentVulnerability(vulnerabilitiesArray.optJSONObject(i));
+				JSONObject vuln = vulnerabilitiesArray.optJSONObject(i);
+				if ( LOG.isTraceEnabled() ) {
+					LOG.trace("Processing vulnerability "+vuln.optString("vulnId"));
+				}
+				contextFoD.setFoDCurrentVulnerability(vuln);
 				// We ignore the boolean result as we want to continue processing next vulnerabilities
 				processor.process(Phase.PROCESS, context);
 				contextFoD.setFoDCurrentVulnerability(null);
@@ -77,28 +82,19 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		return processor.process(Phase.POST_PROCESS, context);
 	}
 	
-	private URI processUri(Context context, String unprocessedUriString) {
-		String uriString = SpringExpressionUtil.evaluateTemplateExpression(context, unprocessedUriString, String.class);
-		try {
-			return new URI(uriString);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("Root URI "+uriString+" is not a valid URI");
-		}
-	}
-	
-	public String getUri() {
-		return uri;
+	public String getUriTemplateExpression() {
+		return uriTemplateExpression;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	public void setUriTemplateExpression(String uriTemplateExpression) {
+		this.uriTemplateExpression = uriTemplateExpression;
 	}
 
-	public String getRootExpression() {
+	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
-	public void setRootExpression(String rootExpression) {
+	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 

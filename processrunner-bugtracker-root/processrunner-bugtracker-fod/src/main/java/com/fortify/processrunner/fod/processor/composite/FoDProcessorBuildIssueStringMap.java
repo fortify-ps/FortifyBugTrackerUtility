@@ -2,24 +2,24 @@ package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorBuildObjectMap;
 import com.fortify.processrunner.processor.ProcessorGroupByExpressions;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor {
-	private String grouping;
-	private Map<String,String> fields;
-	private Map<String,String> appendedFields;
+	private TemplateExpression grouping;
+	private Map<String,TemplateExpression> fields;
+	private Map<String,TemplateExpression> appendedFields;
 	private IProcessor issueProcessor;
 	
 	@Override
 	public IProcessor[] getProcessors() {
-		if ( StringUtils.isNotBlank(getGrouping()) ) {
+		if ( getGrouping()!=null ) {
 			return createGroupedIssueProcessor();
 		} else {
 			return createNonGroupedIssueProcessor();
@@ -34,7 +34,7 @@ public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor 
 
 	protected IProcessor createGroupingProcessor() {
 		ProcessorGroupByExpressions result = new ProcessorGroupByExpressions();
-		result.setRootExpression("FoDCurrentVulnerability");
+		result.setRootExpression(SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability"));
 		result.setGroupTemplateExpression(getGrouping());
 		result.setGroupProcessor(new CompositeProcessor(
 				createGroupedStatusMessageProcessor(), 
@@ -49,9 +49,9 @@ public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor 
 
 	protected IProcessor createGroupedBuildStringMapProcessor() {
 		ProcessorBuildObjectMap result = new ProcessorBuildObjectMap();
-		result.setRootExpression("CurrentGroup[0]");
+		result.setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup[0]"));
 		result.setRootExpressionTemplates(getFields());
-		result.setAppenderExpression("CurrentGroup");
+		result.setAppenderExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup"));
 		result.setAppenderExpressionTemplates(getAppendedFields());
 		return result;
 	}
@@ -65,32 +65,32 @@ public class FoDProcessorBuildIssueStringMap extends AbstractCompositeProcessor 
 
 	protected IProcessor createNonGroupedBuildStringMapProcessor() {
 		ProcessorBuildObjectMap result = new ProcessorBuildObjectMap();
-		result.setRootExpression("FoDCurrentVulnerability");
+		result.setRootExpression(SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability"));
 		result.setRootExpressionTemplates(getFields());
 		return result;
 	}
 
-	public String getGrouping() {
+	public TemplateExpression getGrouping() {
 		return grouping;
 	}
 
-	public void setGrouping(String grouping) {
+	public void setGrouping(TemplateExpression grouping) {
 		this.grouping = grouping;
 	}
 
-	public Map<String, String> getFields() {
+	public Map<String, TemplateExpression> getFields() {
 		return fields;
 	}
 
-	public void setFields(Map<String, String> fields) {
+	public void setFields(Map<String, TemplateExpression> fields) {
 		this.fields = fields;
 	}
 
-	public Map<String, String> getAppendedFields() {
+	public Map<String, TemplateExpression> getAppendedFields() {
 		return appendedFields;
 	}
 
-	public void setAppendedFields(Map<String, String> appendedFields) {
+	public void setAppendedFields(Map<String, TemplateExpression> appendedFields) {
 		this.appendedFields = appendedFields;
 	}
 

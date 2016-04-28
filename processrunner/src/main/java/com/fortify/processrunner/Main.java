@@ -9,13 +9,14 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.util.spring.SpringContextUtil;
 
 /**
  * <p>This is the Main class used to run a {@link ProcessRunner} configuration
@@ -51,7 +52,7 @@ public class Main {
 		List<String> args = new ArrayList<String>(Arrays.asList(argsArray));
 		String configFile = getConfigFileName(args);
 		
-		FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(configFile);
+		GenericApplicationContext context = SpringContextUtil.loadApplicationContextFromFiles(true, configFile);
 		
 		String processRunnerBeanName = getProcessRunnerBeanName(args, context);
 		LOG.info("Using process runner "+processRunnerBeanName);
