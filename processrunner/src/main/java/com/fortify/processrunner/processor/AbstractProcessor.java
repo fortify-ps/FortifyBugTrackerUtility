@@ -31,10 +31,24 @@ public abstract class AbstractProcessor implements IProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
 	private static final List<ContextProperty> EMPTY_CP_LIST = new ArrayList<ContextProperty>();
 	
+	/**
+	 * Get the {@link List} of {@link ContextProperty} instances that
+	 * describe the context properties supported by this {@link IProcessor}
+	 * implementation. By default, this method returns an empty {@link List}. 
+	 */
 	public List<ContextProperty> getContextProperties(Context context) {
 		return EMPTY_CP_LIST;
 	}
 	
+	/**
+	 * Process the given {@link Phase} with the given {@link Context}.
+	 * This will log the current {@link Phase}, {@link IProcessor} and
+	 * {@link Context} at trace level on entry and exit, and depending
+	 * on the given {@link Phase} invoke either the 
+	 * {@link #preProcess(Context)}, {@link #process(Context)}
+	 * or {@link #postProcess(Context)} method (via the private
+	 * {@link #_process(Phase, Context)} method).
+	 */
 	public final boolean process(Phase phase, Context context) {
 		if ( LOG.isTraceEnabled() ) {
 			LOG.trace("[ENTER] Phase: "+phase+"\nProcessor: "+this+"\nContext: "+context);
@@ -46,6 +60,15 @@ public abstract class AbstractProcessor implements IProcessor {
 		return result;
 	}
 
+	/**
+	 * Depending on the given {@link Phase}, this method will
+	 * invoke either the {@link #preProcess(Context)}, 
+	 * {@link #process(Context)} or {@link #postProcess(Context)} 
+	 * method.
+	 * @param phase
+	 * @param context
+	 * @return
+	 */
 	private boolean _process(Phase phase, Context context) {
 		switch ( phase ) {
 			case PRE_PROCESS: return preProcess(context);
@@ -55,18 +78,43 @@ public abstract class AbstractProcessor implements IProcessor {
 		throw new RuntimeException("Unsupported phase: "+phase);
 	}
 
+	/**
+	 * Pre-process the given {@link Context}. By default this
+	 * method does nothing and simply returns true.
+	 * @param context
+	 * @return
+	 */
 	protected boolean preProcess(Context context) {
 		return true;
 	}
 	
+	/**
+	 * Process the given {@link Context}. By default this
+	 * method does nothing and simply returns true.
+	 * @param context
+	 * @return
+	 */
 	protected boolean process(Context context) {
 		return true;
 	}
 	
+	/**
+	 * Post-process the given {@link Context}. By default this
+	 * method does nothing and simply returns true.
+	 * @param context
+	 * @return
+	 */
 	protected boolean postProcess(Context context) {
 		return true;
 	}
 	
+	/**
+	 * This {@link #toString()} implementation uses
+	 * {@link ReflectionToStringBuilder} to generate a string
+	 * representation of this {@link IProcessor} implementation
+	 * showing all instance field values for diagnostic
+	 * information.
+	 */
 	@Override
 	public String toString() {
 		return new ReflectionToStringBuilder(this).toString();

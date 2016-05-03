@@ -8,6 +8,20 @@ import org.apache.commons.lang.StringUtils;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
+/**
+ * <p>This {@link FoDProcessorAddOnDemandJSONData} implementation adds
+ * on-demand JSON data to the vulnerability that is currently
+ * being processed for all vulnerability data that is available through 
+ * the current FoD REST API, like summary, details, recommendations, ...
+ * Each detail object is retrieved separately when it is being accessed
+ * for the first time, using the corresponding FoD API call.</p> 
+ * 
+ * <p>If a configuration requires access to multiple of
+ * these detail objects, it may be better to use 
+ * {@link FoDProcessorAddOnDemandJSONDataSingleLargeRequest}
+ * instead, as this will retrieve all available data in a single
+ * (large) request.</p>
+ */
 public class FoDProcessorAddOnDemandJSONDataMultiSmallRequest extends FoDProcessorAddOnDemandJSONData {
 	private static final SimpleExpression EXPR_DATA = SpringExpressionUtil.parseSimpleExpression("data.data");
 	

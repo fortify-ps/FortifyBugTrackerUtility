@@ -14,6 +14,16 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
 import com.fortify.util.rest.IRestConnectionFactory;
 
+/**
+ * This composite {@link IProcessor} implementation combines various
+ * {@link IProcessor} implementations for retrieving and filtering
+ * FoD vulnerabilities, and processing each vulnerability using the
+ * {@link IProcessor} implementation configured via 
+ * {@link #setVulnerabilityProcessor(IProcessor)}. Various filters
+ * can be defined using the {@link #setTopLevelFieldRegExFilters(Map)},
+ * {@link #setTopLevelFieldRegExFilters(Map)} and 
+ * {@link #setAllFieldRegExFilters(Map)} methods.
+ */
 public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
 	private IRestConnectionFactory connectionFactory;
 	private Map<String,String> topLevelFieldSimpleFilters;

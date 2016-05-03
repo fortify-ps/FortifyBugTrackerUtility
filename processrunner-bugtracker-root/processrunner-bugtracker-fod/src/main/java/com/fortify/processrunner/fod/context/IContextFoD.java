@@ -2,10 +2,14 @@ package com.fortify.processrunner.fod.context;
 
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.IRestConnection;
 
-// As a naming convention, every method name includes 'FoD' to avoid
-// naming conflicts with other types of contexts in the backing map.
+/**
+ * This interface can be used with the {@link Context#as(Class)} method to allow
+ * access to FoD data like REST connection, release id and vulnerability currently
+ * being processed.
+ */
 public interface IContextFoD {
 	public void setFoDConnection(IRestConnection conn);
 	public IRestConnection getFoDConnection();

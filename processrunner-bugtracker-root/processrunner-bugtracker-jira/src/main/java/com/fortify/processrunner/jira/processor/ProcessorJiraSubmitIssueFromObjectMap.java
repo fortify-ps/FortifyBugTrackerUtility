@@ -13,8 +13,13 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.context.IContextJira;
-import com.fortify.processrunner.processor.ProcessorBuildObjectMap.IContextStringMap;
+import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMap.IContextObjectMap;
 
+/**
+ * This concrete {@link AbstractProcessorJiraSubmitIssue} implementation 
+ * generates the {@link JSONObject} to be posted to JIRA, based on {@link Context}
+ * data provided via the {@link IContextObjectMap} interface. 
+ */
 public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJiraSubmitIssue {
 	private String defaultIssueType = "Task";
 	
@@ -30,9 +35,10 @@ public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJira
 	protected JSONObject getIssueToBeSubmitted(Context context) {
 		JSONObject result = new JSONObject();
 		IContextJira contextJira = context.as(IContextJira.class);
-		Map<String, Object> fields = context.as(IContextStringMap.class).getObjectMap();
+		Map<String, Object> fields = context.as(IContextObjectMap.class).getObjectMap();
 		fields.put("project.key", contextJira.getJiraProjectKey());
 		fields.put("issuetype.name", getIssueType(contextJira));
+		fields.put("summary", StringUtils.abbreviate((String)fields.get("summary"), 254));
 		for ( Map.Entry<String,Object> field : fields.entrySet() ) {
 			addField(result, "fields."+field.getKey(), field.getValue());
 		}

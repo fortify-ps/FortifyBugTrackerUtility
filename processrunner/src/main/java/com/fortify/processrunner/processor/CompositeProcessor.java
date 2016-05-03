@@ -11,17 +11,38 @@ package com.fortify.processrunner.processor;
 public class CompositeProcessor extends AbstractCompositeProcessor {
 	private IProcessor[] processors;
 	
+	/**
+	 * Default constructor, allowing manual configuration
+	 * of the list of {@link IProcessor} instances to be 
+	 * configured via the {@link #setProcessors(IProcessor...)}
+	 * method. 
+	 */
 	public CompositeProcessor() {}
 	
+	/**
+	 * This constructor allows configuring the list
+	 * of {@link IProcessor} instances that make up this
+	 * composite processor.
+	 * @param processors
+	 */
 	public CompositeProcessor(IProcessor... processors) {
 		this.processors = processors;
 	}
 	
+	/**
+	 * Get the list of configured {@link IProcessor} instances
+	 * that make up this composite processor.
+	 */
 	@Override
 	public IProcessor[] getProcessors() {
 		return processors;
 	}
 	
+	/**
+	 * Configure the list of {@link IProcessor} instances
+	 * that make up this composite processor.
+	 * @param processors
+	 */
 	public void setProcessors(IProcessor... processors) {
 		this.processors = processors;
 	}

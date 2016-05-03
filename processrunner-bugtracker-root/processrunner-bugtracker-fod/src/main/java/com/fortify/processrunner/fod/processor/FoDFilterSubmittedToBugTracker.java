@@ -7,8 +7,15 @@ import org.springframework.expression.Expression;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 
+/**
+ * This {@link IProcessor} implementation will filter any FoD vulnerability that
+ * has already been submitted to a bug tracker before. Currently this will check
+ * whether the FoD vulnerability currently being processed contains a comment
+ * starting with '--- Vulnerability submitted to'.
+ */
 public class FoDFilterSubmittedToBugTracker extends AbstractProcessor {
 	private static final Expression EXPR_COMMENTS = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability.summary.comments");
 	private static final Expression EXPR_COMMENT = SpringExpressionUtil.parseSimpleExpression("comment");

@@ -18,6 +18,10 @@ import java.util.Map;
  * interface. This will generate a Java proxy that provides access to 
  * the {@link Map} via regular bean methods like getX() and setX(value).</p>
  * 
+ * <p>Note that interfaces used with the {@link #as(Class)} method should
+ * use unique method names (for example based on the interface name) to avoid
+ * naming conflicts in the map between different types of functionality.</p>
+ * 
  * <p>Currently the following method declarations are supported in interfaces
  * passed to the {@link #as(Class)} method:</p>
  * <ul>

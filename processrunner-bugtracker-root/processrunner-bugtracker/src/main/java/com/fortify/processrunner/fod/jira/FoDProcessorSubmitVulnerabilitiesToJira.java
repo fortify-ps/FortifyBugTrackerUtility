@@ -4,6 +4,10 @@ import com.fortify.processrunner.fod.processor.composite.AbstractFoDProcessorSub
 import com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueFromObjectMap;
 import com.fortify.processrunner.processor.IProcessor;
 
+/**
+ * This composite {@link IProcessor} implementation allows for submitting FoD
+ * vulnerabilities to JIRA issues.
+ */
 public class FoDProcessorSubmitVulnerabilitiesToJira extends AbstractFoDProcessorSubmitVulnerabilities {
 	private final ProcessorJiraSubmitIssueFromObjectMap jira = new ProcessorJiraSubmitIssueFromObjectMap();
 	

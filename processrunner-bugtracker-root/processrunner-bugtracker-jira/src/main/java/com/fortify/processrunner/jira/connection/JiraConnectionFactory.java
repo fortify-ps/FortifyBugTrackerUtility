@@ -4,6 +4,11 @@ import com.fortify.util.rest.AuthenticatingRestConnection;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionFactory;
 
+/**
+ * This {@link IRestConnectionFactory} implementation is used to 
+ * generate {@link IRestConnection} instances for JIRA based on
+ * configured connection properties like JIRA base URL and credentials. 
+ */
 public class JiraConnectionFactory implements IRestConnectionFactory {
 	private String baseUrl;
 	private String userName;

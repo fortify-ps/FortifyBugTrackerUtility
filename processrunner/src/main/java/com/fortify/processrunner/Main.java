@@ -31,9 +31,13 @@ import com.fortify.util.spring.SpringContextUtil;
  * from the command line. By default it will load the available 
  * {@link ProcessRunner} configurations from the processRunnerConfig.xml file 
  * in the current directory. The file location and name can optionally be
- * overridden using the <code>--config</code> command line parameter.</p>
+ * overridden using the <code>--configFile</code> command line parameter.</p>
  * 
- * <p>If no command line arguments are provided to this Main class, and the
+ * <p>Logging can be controlled using the --logFile and --logLevel parameters.
+ * Any remaining command line arguments will identify the process to run,
+ * together with process-specific parameters.</p>
+ * 
+ * <p>If no {@link ProcessRunner} configuration id argument is given, and the
  * configuration file only contains a single {@link ProcessRunner} configuration
  * or a {@link ProcessRunner} configuration named 'defaultPRocessRunner', then
  * this {@link ProcessRunner} configuration will be invoked. Otherwise, it is
@@ -80,6 +84,8 @@ public class Main {
 			checkContext(runner);
 			runner.run();
 		} catch (Throwable t) {
+			System.out.println("Error during process run:\n");
+			t.printStackTrace();
 			LOG.fatal("Error during process run", t);
 		} finally {
 			context.close();

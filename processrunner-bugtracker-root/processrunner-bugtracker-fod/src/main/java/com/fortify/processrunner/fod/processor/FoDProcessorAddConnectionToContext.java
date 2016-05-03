@@ -13,11 +13,23 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionFactory;
 
-// TODO Add constants for constant strings (FoDTenant, FoDUserName, ...)
-// TODO Make FoD URL configurable via context
-// TODO Clean up the code for setting credentials from context/console
+/**
+ * <p>This {@link IProcessor} implementation adds the {@link IRestConnection}
+ * for accessing FoD to the {@link Context} for easy access by other 
+ * {@link IProcessor} implementation.</p>
+ * 
+ * <p>The {@link IRestConnection} is instantiated using the configured
+ * {@link IRestConnectionFactory} instance. Optionally, connection
+ * properties like tenant, user name and password can be set/overridden
+ * using {@link Context} properties.
+ */
+// TODO (Low) Add constants for constant strings (FoDTenant, FoDUserName, ...)
+// TODO (Low) Make FoD URL configurable via context
+// TODO (Low) Clean up the code for setting credentials from context/console?
 public class FoDProcessorAddConnectionToContext extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorAddConnectionToContext.class);
 	private IRestConnectionFactory connectionFactory;

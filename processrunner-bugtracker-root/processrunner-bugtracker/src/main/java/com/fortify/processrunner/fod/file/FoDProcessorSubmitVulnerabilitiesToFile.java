@@ -9,6 +9,10 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
+/**
+ * This composite {@link IProcessor} implementation allows for submitting FoD
+ * vulnerabilities to a file.
+ */
 public class FoDProcessorSubmitVulnerabilitiesToFile extends AbstractCompositeProcessor {
 	private static final SimpleExpression EXPR_ROOT = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability");
 	

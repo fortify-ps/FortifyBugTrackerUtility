@@ -16,19 +16,28 @@ import com.fortify.processrunner.common.context.IContextSubmittedIssueData;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
+/**
+ * This {@link IProcessor} implementation allows for writing data from the 
+ * current {@link Context} instance to a file based on a list of configured 
+ * {@link TemplateExpression} instances.
+ */
 public class FileProcessorSubmitIssue extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FileProcessorSubmitIssue.class);
 	
 	private String fieldSeparator = ",";
 	private SimpleExpression rootExpression;
 	private List<String> fieldHeaders;
-	private List<TemplateExpression> fieldExpressionTemplates;
+	private List<TemplateExpression> fieldTemplateExpressions;
 	private PrintWriter pw;
 	
+	/**
+	 * Define the OutputFile context property.
+	 */
 	@Override
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>(2);
@@ -36,6 +45,11 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		return result;
 	}
 	
+	/**
+	 * Get the output file name from the current {@link Context},
+	 * open this file for writing, and add configured headers to this 
+	 * file if the file has been newly created. 
+	 */
 	@Override
 	protected boolean preProcess(Context context) {
 		String fileName = (String)context.get("OutputFile");
@@ -51,6 +65,12 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		return true;
 	}
 	
+	/**
+	 * Append the configured headers to the current output file
+	 * during the pre-processing phase..
+	 * @param f
+	 * @param pw
+	 */
 	protected void appendHeaders(File f, PrintWriter pw) {
 		List<String> headers = getFieldHeaders();
 		if ( (!f.exists() || f.length()==0) && headers!=null) {
@@ -58,11 +78,22 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		}
 	}
 
+	/** 
+	 * <p>Process the current context by iterating over the configured 
+	 * {@link TemplateExpression} instances, evaluating each configured
+	 * {@link TemplateExpression} on the current root object, and writing
+	 * the result to the configured file.</p>
+	 * 
+	 * <p>If root expression has been configured, it will be evaluated on
+	 * the current {@link Context} instance and then used as the root object.
+	 * If no root expression has been configured, the current {@link Context}
+	 * instance will be used as the root object.</p> 
+	 */
 	@Override
 	protected boolean process(Context context) {
 		Object root = getRootExpression()==null?context:SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
 		List<String> values = new ArrayList<String>();
-		for ( TemplateExpression fieldExpressionTemplate : getFieldExpressionTemplates() ) {
+		for ( TemplateExpression fieldExpressionTemplate : getFieldTemplateExpressions() ) {
 			String value = SpringExpressionUtil.evaluateExpression(root, fieldExpressionTemplate, String.class);
 			values.add(value);
 		}
@@ -100,12 +131,12 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		this.fieldHeaders = fieldHeaders;
 	}
 
-	public List<TemplateExpression> getFieldExpressionTemplates() {
-		return fieldExpressionTemplates;
+	public List<TemplateExpression> getFieldTemplateExpressions() {
+		return fieldTemplateExpressions;
 	}
 
-	public void setFieldExpressionTemplates(List<TemplateExpression> fieldExpressionTemplates) {
-		this.fieldExpressionTemplates = fieldExpressionTemplates;
+	public void setFieldTemplateExpressions(List<TemplateExpression> fieldTemplateExpressions) {
+		this.fieldTemplateExpressions = fieldTemplateExpressions;
 	}
 
 	public SimpleExpression getRootExpression() {
@@ -115,8 +146,4 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
-	
-	
-
-	
 }

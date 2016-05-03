@@ -10,14 +10,31 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.processrunner.common.context.IContextSubmittedIssueData;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.IRestConnection;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * <p>This abstract {@link IProcessor} implementation allows for submitting
+ * an issue to JIRA. It allows for setting up a JIRA connection by 
+ * configuring a {@link JiraConnectionFactory} instance, optionally
+ * setting/overriding the JIRA user name and password based on context
+ * properties.</p>
+ * 
+ * <p>Concrete implementations must implement the {@link #getIssueToBeSubmitted(Context)}
+ * method to return the JSONObject with issue data to be posted to JIRA.</p>
+ * 
+ * <p>Once an issue has been submitted, the {@link Context} will be updated
+ * with information as specified in the {@link IContextSubmittedIssueData}
+ * interface.</p>
+ */
+// TODO (Low) Make this a concrete class and retrieve JSONObject from context?
 public abstract class AbstractProcessorJiraSubmitIssue extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorJiraSubmitIssue.class);
 	private JiraConnectionFactory connectionFactory;

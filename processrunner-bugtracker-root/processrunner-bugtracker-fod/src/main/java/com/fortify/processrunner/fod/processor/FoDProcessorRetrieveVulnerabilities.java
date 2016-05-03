@@ -23,6 +23,24 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * <p>This {@link IProcessor} implementation retrieves a list of
+ * vulnerabilities from FoD for the release id specified as
+ * a {@link Context} property.</p>
+ * 
+ * <p>For each individual vulnerability, the {@link IProcessor} 
+ * implementation configured via 
+ * {@link #setVulnerabilityProcessor(IProcessor)} will be called
+ * to process the current vulnerability. The current vulnerability
+ * can be accessed by the vulnerability processor using the
+ * 'FoDCurrentVulnerability' {@link Context} property.</p>
+ * 
+ * <p>If the 'FoDTopLevelFilterParamValue' {@link Context} property 
+ * has been set (usually by adding filters via 
+ * {@link FoDFilterOnTopLevelFields}), this filter parameter value 
+ * will be passed on to FoD to allow FoD to filter the vulnerabilities 
+ * being returned.</p>
+ */
 public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
 	private static final String KEY_START = "FoDProcessorRootVulnerabilityArray_start";

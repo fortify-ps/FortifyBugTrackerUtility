@@ -20,7 +20,25 @@ import com.fortify.processrunner.context.ContextProperty;
  * but instead extend from the {@link AbstractProcessor} class.</p>
  */
 public interface IProcessor {
+	/**
+	 * Enumeration describing the available processing phases.
+	 */
 	public static enum Phase { PRE_PROCESS, PROCESS, POST_PROCESS }
+	
+	/**
+	 * Process the given {@link Phase} with the given {@link Context}.
+	 * @param phase
+	 * @param context
+	 * @return
+	 */
 	public boolean process(Phase phase, Context context);
+	
+	/**
+	 * Get the {@link List} of {@link ContextProperty} instances
+	 * that describe the context properties supported/required
+	 * by the current {@link IProcessor} implementation. 
+	 * @param context
+	 * @return
+	 */
 	public List<ContextProperty> getContextProperties(Context context);
 }

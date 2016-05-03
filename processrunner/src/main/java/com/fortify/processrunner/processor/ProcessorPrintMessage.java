@@ -10,8 +10,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * processing phase, a corresponding (optional) message template can 
  * be configured.
  */
-// TODO Make output stream configurable (default to System.out)
-// TODO Add rootExpression configuration option, to allow easy 
+// TODO (Low) Make output stream configurable (default to System.out)
+// TODO (Low) Add rootExpression configuration option, to allow easy 
 //      access from the message templates to a specific root object.
 public class ProcessorPrintMessage extends AbstractProcessor {
 	private TemplateExpression messageTemplatePreProcess;

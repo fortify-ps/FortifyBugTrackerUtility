@@ -14,12 +14,36 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * <p>This {@link IProcessor} implementation will add a comment to one or more FoD
+ * vulnerabilities indicating that the vulnerability has been submitted to a
+ * bug tracker. The vulnerability id's for which to add a comment are determined
+ * by evaluating configured expressions.</p>
+ * 
+ * <p>Configured expressions are evaluated as follows:</p>
+ * <ul>
+ * <li>{@link #setRootExpression(SimpleExpression)} defines the root object on which other 
+ *     expressions will be evaluated. If not defined, the current {@link Context} instance 
+ *     will be used as the root object.</li>
+ * <li>{@link #setIterableExpression(SimpleExpression)} defines the expression to retrieve 
+ *     an {@link Iterable} instance from the root object. If not defined, the current root 
+ *     object will be used for determining the vulnerability id for which to add a comment.</li>
+ * <li>{@link #setVulnIdExpression(SimpleExpression)} defines the expression to retrieve
+ *     the actual vulnerability id from either the root object, or from each object returned
+ *     by the {@link Iterable} instance. The default expression is 'vulnId'.</li>   
+ * </ul>
+ * 
+ * <p>Usually this class is not used directly, but either 
+ * {@link FoDProcessorAddCommentToVulnerabilitiesNonGrouped} or
+ * {@link FoDProcessorAddCommentToVulnerabilitiesGrouped} is used.</p>
+ */
 public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
 	private TemplateExpression uriTemplateExpression = SpringExpressionUtil.parseTemplateExpression("/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities/BulkEdit");

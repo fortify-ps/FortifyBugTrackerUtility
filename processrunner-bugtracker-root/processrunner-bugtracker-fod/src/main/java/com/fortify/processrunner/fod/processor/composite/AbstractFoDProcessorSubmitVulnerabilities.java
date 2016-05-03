@@ -7,9 +7,17 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
 
+/**
+ * <p>This abstract {@link IProcessor} implementation combines various processors
+ * for retrieving and filtering FoD vulnerability data, building bug tracker 
+ * issue data, and actually submitting the issue data to an arbitrary bug tracker.
+ * Concrete implementations must implement the {@link #getSubmitVulnerabilityProcessor()}
+ * method to return an {@link IProcessor} implementation that can actually submit
+ * an issue to a bug tracker.</p> 
+ */
 public abstract class AbstractFoDProcessorSubmitVulnerabilities extends AbstractCompositeProcessor {
 	private final FoDProcessorRetrieveFilteredVulnerabilities fod = new FoDProcessorRetrieveFilteredVulnerabilities();
-	private final FoDProcessorBuildIssueStringMap issue = new FoDProcessorBuildIssueStringMap();
+	private final FoDProcessorBuildIssueObjectMap issue = new FoDProcessorBuildIssueObjectMap();
 	private FoDProcessorRetrieveFilteredVulnerabilities initializedProcessor;
 
 	@Override
@@ -48,7 +56,7 @@ public abstract class AbstractFoDProcessorSubmitVulnerabilities extends Abstract
 		return fod;
 	}
 
-	public FoDProcessorBuildIssueStringMap getIssue() {
+	public FoDProcessorBuildIssueObjectMap getIssue() {
 		return issue;
 	}
 }
