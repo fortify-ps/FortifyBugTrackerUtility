@@ -46,7 +46,7 @@ public final class SpringExpressionUtil {
 		}
 	}
 	
-	private static final StandardEvaluationContext createStandardEvaluationContext() {
+	public static final StandardEvaluationContext createStandardEvaluationContext() {
 		StandardEvaluationContext result = new StandardEvaluationContext();
 		for ( PropertyAccessor propertyAccessor : PROPERTY_ACCESSORS ) {
 			result.addPropertyAccessor(propertyAccessor);
