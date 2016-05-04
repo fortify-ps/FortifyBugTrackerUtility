@@ -67,7 +67,7 @@
 			<entry key="isSuppressed" value="false"/>
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
-			<!-- <entry key="severityString" value="Critical|High"/> -->
+			<entry key="severityString" value="Critical|High"/>
 		</map></property>
 		<property name="fod.allFieldRegExFilters"><map>
 			<!-- <entry key="summary.developerStatus" value="Open"/> -->
