@@ -89,13 +89,11 @@
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
-			<!-- TODO: map priority.name from FoD severity -->
-			<entry key="priority.name" value="Highest"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property> 
 		<property name="issue.appendedFields"><map>
-			<!-- TODO Check FoD vulnerability deep link -->
-			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/Issues/${releaseId}/#/page/Issues/viewMode/detail/selectedVulnId/${vulnId}"/>
+			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/${releaseId}/Issues#/page/Issues/pgIdx/1/rpp/10/asc/true/viewMode/detail/selectedVulnId/${vulnId}"/>
 		</map></property>
 		
 	</bean>

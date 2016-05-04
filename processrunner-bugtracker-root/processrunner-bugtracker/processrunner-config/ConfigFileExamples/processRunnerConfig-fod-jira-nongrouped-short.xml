@@ -67,7 +67,7 @@
 			<entry key="isSuppressed" value="false"/>
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
-			<entry key="severityString" value="Critical|High"/>
+			<!-- <entry key="severityString" value="Critical|High"/> -->
 		</map></property>
 		<property name="fod.allFieldRegExFilters"><map>
 			<!-- <entry key="summary.developerStatus" value="Open"/> -->
@@ -83,9 +83,8 @@
 		-->
 		<property name="issue.fields"><map>
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="description" value="Category: ${category} at ${primaryLocationFull}\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/Issues/${releaseId}/#/page/Issues/viewMode/detail/selectedVulnId/${vulnId}"/>
-			<!-- TODO: map priority.name from FoD severity -->
-			<entry key="priority.name" value="Highest"/>
+			<entry key="description" value="Category: ${category} at ${primaryLocationFull}\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/${releaseId}/Issues#/page/Issues/pgIdx/1/rpp/10/asc/true/viewMode/detail/selectedVulnId/${vulnId}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property> 
 	</bean>
