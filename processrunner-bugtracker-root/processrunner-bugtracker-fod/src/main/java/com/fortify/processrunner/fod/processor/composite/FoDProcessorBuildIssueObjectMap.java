@@ -2,15 +2,20 @@ package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Map;
 
+import org.springframework.util.MultiValueMap;
+
+import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorBuildObjectMapFromIterable;
 import com.fortify.processrunner.processor.ProcessorBuildObjectMapFromObject;
 import com.fortify.processrunner.processor.ProcessorGroupByExpressions;
+import com.fortify.processrunner.processor.ProcessorGroupByExpressions.IContextGrouping;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
+import com.javamex.classmexer.MemoryUtil;
 
 /**
  * <p>This {@link IProcessor} implementation allows mapping FoD 
@@ -64,13 +69,35 @@ public class FoDProcessorBuildIssueObjectMap extends AbstractCompositeProcessor 
 		result.setGroupTemplateExpression(getGrouping());
 		result.setGroupProcessor(new CompositeProcessor(
 				createGroupedStatusMessageProcessor(), 
+				createGroupedMemoryUsageProcessor(),
 				createGroupedBuildStringMapProcessor(), 
 				getIssueProcessor()));
 		return result;
 	}
 
 	protected IProcessor createGroupedStatusMessageProcessor() {
-		return new ProcessorPrintMessage("Grouped ${TotalCount} vulnerabilities in ${Groups==null?'0':Groups.size()} issues\n",null,null);
+		// TODO (Low) Make this processor a top-level class in processrunner project so it can be re-used by non-FoD processor chains?
+		return new ProcessorPrintMessage("Grouped ${TotalCount} vulnerabilities in ${Groups==null?'0':Groups.size()} issues",null,null);
+	}
+	
+	protected IProcessor createGroupedMemoryUsageProcessor() {
+		// TODO (Low) Make this processor a top-level class in processrunner project so it can be re-used by non-FoD processor chains?
+		return new ProcessorPrintMessage() {
+			@Override
+			protected boolean preProcess(Context context) {
+				try {
+					MultiValueMap<String, Object> groups = context.as(IContextGrouping.class).getGroups();
+					if ( groups != null ) {
+						printAndLog("Grouped vulnerabilities memory usage: "+MemoryUtil.deepMemoryUsageOf(groups)+" bytes");
+					}
+				} catch ( IllegalStateException e ) {
+					LOG.debug("Agent unavailable; memory information cannot be displayed.\n"
+							+"To enable memory information, add -javaagent:path/to/classmexer-0.03.jar to Java command line.\n"
+							+"Classmexer can be downloaded from http://www.javamex.com/classmexer/classmexer-0_03.zip");
+				}
+				return true;
+			}
+		};
 	}
 
 	protected IProcessor createGroupedBuildStringMapProcessor() {

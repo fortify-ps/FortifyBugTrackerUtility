@@ -39,7 +39,7 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		LOG.info("Adding top-level field filters to request parameter value: "+getFilters()!=null);
+		LOG.debug("Adding top-level field filters to request parameter value: "+(getFilters()!=null));
 		if ( getFilters() != null ) {
 			try {
 				for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {

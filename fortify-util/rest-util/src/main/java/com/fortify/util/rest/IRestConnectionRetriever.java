@@ -1,5 +1,5 @@
 package com.fortify.util.rest;
 
-public interface IRestConnectionFactory {
+public interface IRestConnectionRetriever {
 	public IRestConnection getConnection();
 }

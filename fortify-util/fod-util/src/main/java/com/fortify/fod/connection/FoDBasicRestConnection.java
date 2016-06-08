@@ -13,9 +13,9 @@ import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
  * chunked encoding for data sent to FoD.
  */
 public class FoDBasicRestConnection extends RestConnection {
-	public FoDBasicRestConnection(String baseUrl, ProxyConfiguration proxyConfig) {
-		super( baseUrl );
-		setProxyConfiguration(proxyConfig);
+	public FoDBasicRestConnection(String baseUrl, ProxyConfiguration proxy) {
+		super(baseUrl);
+		setProxy(proxy);
 	}
 	
 	/**

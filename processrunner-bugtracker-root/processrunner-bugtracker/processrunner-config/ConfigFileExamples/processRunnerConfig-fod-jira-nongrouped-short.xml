@@ -54,6 +54,20 @@
 		<property name="fod.connectionFactory" ref="FoDConnectionFactoryUserCredentials"/>
 		<property name="jira.connectionFactory" ref="jiraConnectionFactory"/>
 		
+		<!-- Define any extra data that must be loaded from FoD for filtering 
+		     and/or building the issue contents. Note that summary data will
+		     always be loaded and thus does not need to be added here.  -->
+		<property name="fod.extraFields"><list>
+			<!-- <value>details</value> -->
+			<!-- <value>recommendations</value> -->
+			<!-- <value>screenshots</value> -->
+			<!-- <value>history</value> -->
+			<!-- <value>requestResponse</value> -->
+			<!-- <value>headers</value> -->
+			<!-- <value>parameters</value> -->
+			<!-- <value>traces</value> -->
+		</list></property>
+		
 		<!-- Define the filters that determine which issues will
 		     be submitted to JIRA. The three different filter types
 		     have different performance characteristics; 

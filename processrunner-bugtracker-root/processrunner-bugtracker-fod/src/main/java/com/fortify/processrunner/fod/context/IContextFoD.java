@@ -2,8 +2,8 @@ package com.fortify.processrunner.fod.context;
 
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.fod.connection.IFoDConnectionRetriever;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.rest.IRestConnection;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow
@@ -11,8 +11,8 @@ import com.fortify.util.rest.IRestConnection;
  * being processed.
  */
 public interface IContextFoD {
-	public void setFoDConnection(IRestConnection conn);
-	public IRestConnection getFoDConnection();
+	public void setFoDConnectionRetriever(IFoDConnectionRetriever connectionRetriever);
+	public IFoDConnectionRetriever getFoDConnectionRetriever();
 	
 	public void setFoDReleaseId(String releaseId);
 	public String getFoDReleaseId();

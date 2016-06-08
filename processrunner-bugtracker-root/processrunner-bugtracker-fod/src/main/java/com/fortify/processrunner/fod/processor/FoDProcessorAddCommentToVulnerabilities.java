@@ -46,7 +46,7 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
-	private TemplateExpression uriTemplateExpression = SpringExpressionUtil.parseTemplateExpression("/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities/BulkEdit");
+	private TemplateExpression uriTemplateExpression = SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/bulk-edit");
 	private SimpleExpression rootExpression;
 	private SimpleExpression iterableExpression;
 	private SimpleExpression vulnIdExpression = SpringExpressionUtil.parseSimpleExpression("vulnId");
@@ -63,14 +63,13 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	private void bulkEditComments(Context context, JSONArray vulnIds, String comment) {
 		if ( LOG.isDebugEnabled() ) {
 			try {
-				LOG.info("Adding comment '"+comment+"' to vulnerability id's "+vulnIds.join(", "));
+				LOG.debug("Adding comment '"+comment+"' for vulnerability id's "+vulnIds.join(", "));
 			} catch (JSONException e) {
 				LOG.error("Error joining JSONArray", e);
 			}
 		}
-		IContextFoD contextFod = context.as(IContextFoD.class);
-		IRestConnection conn = contextFod.getFoDConnection();
-		
+
+		IRestConnection conn = context.as(IContextFoD.class).getFoDConnectionRetriever().getConnection();
 		WebResource resource = conn.getBaseResource().uri(
 				SpringExpressionUtil.evaluateExpression(context, getUriTemplateExpression(), URI.class));
 		LOG.debug("Add bulk comments using "+resource);
@@ -80,10 +79,10 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 
 	private JSONObject getBulkEditCommentsJSONObject(JSONArray vulnIds, String comment) {
 		try {
-			JSONObject editData = new JSONObject();
-			editData.put("comment", comment);
+			JSONObject root = new JSONObject();
 			JSONObject data = new JSONObject();
-			data.put("editData", editData);
+			root.put("requestModel", data);
+			data.put("comment", comment);
 			data.put("vulnerabilityIds", vulnIds);
 			return data;
 		} catch ( JSONException e ) {
@@ -146,5 +145,4 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractProcessor {
 	public void setCommentTemplate(TemplateExpression commentTemplateExpression) {
 		this.commentTemplateExpression = commentTemplateExpression;
 	}
-	
 }

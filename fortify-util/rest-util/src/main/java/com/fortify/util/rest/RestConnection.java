@@ -30,7 +30,7 @@ import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 public class RestConnection implements IRestConnection {
 	private final String baseUrl;
 	private Client client;
-	private ProxyConfiguration proxyConfiguration;
+	private ProxyConfiguration proxy;
 
 	/**
 	 * This constructor determines the various connection properties used
@@ -238,11 +238,11 @@ public class RestConnection implements IRestConnection {
 	 */
 	protected ApacheHttpClient4Config getApacheHttpClient4Config() {
 		DefaultApacheHttpClient4Config cc = new DefaultApacheHttpClient4Config();
-		if ( proxyConfiguration != null && StringUtils.isNotBlank(proxyConfiguration.getUri()) ) {
-			cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_URI, proxyConfiguration.getUri());
-			if ( StringUtils.isNotBlank(proxyConfiguration.getUserName()) && StringUtils.isNotBlank( proxyConfiguration.getPassword()) ) {
-				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_USERNAME, proxyConfiguration.getUserName());
-				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_PASSWORD, proxyConfiguration.getPassword());
+		if ( proxy != null && StringUtils.isNotBlank(proxy.getUri()) ) {
+			cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_URI, proxy.getUri());
+			if ( StringUtils.isNotBlank(proxy.getUserName()) && StringUtils.isNotBlank( proxy.getPassword()) ) {
+				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_USERNAME, proxy.getUserName());
+				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_PASSWORD, proxy.getPassword());
 			}
 		}
 		return cc;
@@ -278,16 +278,16 @@ public class RestConnection implements IRestConnection {
 	 * Get the proxy configuration to use for the connection.
 	 * @return The proxy configuration
 	 */
-	public ProxyConfiguration getProxyConfiguration() {
-		return proxyConfiguration;
+	public ProxyConfiguration getProxy() {
+		return proxy;
 	}
 	
 	/**
 	 * Set the proxy configuration to use for the connection.
 	 * @param proxyConfiguration The proxy configuration to use for the connection.
 	 */
-	public void setProxyConfiguration(ProxyConfiguration proxyConfiguration) {
-		this.proxyConfiguration = proxyConfiguration;
+	public void setProxy(ProxyConfiguration proxy) {
+		this.proxy = proxy;
 	}
 	
 	@Override

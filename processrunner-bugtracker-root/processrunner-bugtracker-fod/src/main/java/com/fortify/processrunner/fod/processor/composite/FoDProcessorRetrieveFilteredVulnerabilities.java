@@ -1,18 +1,19 @@
 package com.fortify.processrunner.fod.processor.composite;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.fod.processor.FoDFilterOnTopLevelFields;
 import com.fortify.processrunner.fod.processor.FoDFilterSubmittedToBugTracker;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddConnectionToContext;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddOnDemandJSONDataMultiSmallRequest;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddJSONData;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddVulnDeepLink;
 import com.fortify.processrunner.fod.processor.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorPrintMessage;
-import com.fortify.util.rest.IRestConnectionFactory;
 
 /**
  * This composite {@link IProcessor} implementation combines various
@@ -25,7 +26,7 @@ import com.fortify.util.rest.IRestConnectionFactory;
  * {@link #setAllFieldRegExFilters(Map)} methods.
  */
 public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
-	private IRestConnectionFactory connectionFactory;
+	private Set<String> extraFields = new HashSet<String>();
 	private Map<String,String> topLevelFieldSimpleFilters;
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
@@ -35,25 +36,33 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	@Override
 	public IProcessor[] getProcessors() {
 		return new IProcessor[] {
-			new ProcessorPrintMessage(null, "Retrieving vulnerabilities for release ${FoDReleaseId} from ${FoDConnection.baseUrl}\n", null),
-			createAddConnectionToContextProcessor(),
+			new ProcessorPrintMessage(null, "Retrieving vulnerabilities for release ${FoDReleaseId} from ${FoDConnectionRetriever.baseUrl}", null),
 			createRootVulnerabilityArrayProcessor()
 		};
-	}
-	
-	protected FoDProcessorAddConnectionToContext createAddConnectionToContextProcessor() {
-		return new FoDProcessorAddConnectionToContext(getConnectionFactory());
 	}
 	
 	protected FoDProcessorRetrieveVulnerabilities createRootVulnerabilityArrayProcessor() {
 		return new FoDProcessorRetrieveVulnerabilities(
 			createTopLevelFieldSimpleFilter(),
 			createTopLevelFieldRegExFilter(),
-			createAddOnDemandJSONDataProcessor(),
+			createAddVulnDeepLinkProcessor(),
+			createAddJSONDataProcessor(),
 			new FoDFilterSubmittedToBugTracker(),
 			createSubLevelFieldRegExFilter(),
 			getVulnerabilityProcessor()
 		);
+	}
+
+	protected IProcessor createAddJSONDataProcessor() {
+		FoDProcessorAddJSONData result = new FoDProcessorAddJSONData();
+		result.setFields(getExtraFields());
+		// Always add summary, as it is required by FoDFilterSubmittedToBugTracker
+		result.getFields().add("summary");
+		return result;
+	}
+	
+	protected IProcessor createAddVulnDeepLinkProcessor() {
+		return new FoDProcessorAddVulnDeepLink();
 	}
 
 	protected IProcessor createSubLevelFieldRegExFilter() {
@@ -68,25 +77,11 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 		return new FoDFilterOnTopLevelFields(getTopLevelFieldSimpleFilters());
 	}
 
-	protected IProcessor createAddOnDemandJSONDataProcessor() {
-		// TODO return new FoDProcessorAddOnDemandJSONDataSingleLargeRequest(); if boolean property set
-		return new FoDProcessorAddOnDemandJSONDataMultiSmallRequest();
-	}
-
-	public IRestConnectionFactory getConnectionFactory() {
-		return connectionFactory;
-	}
-
-	public void setConnectionFactory(IRestConnectionFactory connectionFactory) {
-		this.connectionFactory = connectionFactory;
-	}
-
 	public Map<String, String> getTopLevelFieldSimpleFilters() {
 		return topLevelFieldSimpleFilters;
 	}
 
-	public void setTopLevelFieldSimpleFilters(
-			Map<String, String> topLevelFieldSimpleFilters) {
+	public void setTopLevelFieldSimpleFilters(Map<String, String> topLevelFieldSimpleFilters) {
 		this.topLevelFieldSimpleFilters = topLevelFieldSimpleFilters;
 	}
 
@@ -94,8 +89,7 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 		return topLevelFieldRegExFilters;
 	}
 
-	public void setTopLevelFieldRegExFilters(
-			Map<String, Pattern> topLevelFieldRegExFilters) {
+	public void setTopLevelFieldRegExFilters(Map<String, Pattern> topLevelFieldRegExFilters) {
 		this.topLevelFieldRegExFilters = topLevelFieldRegExFilters;
 	}
 
@@ -114,7 +108,20 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	public void setVulnerabilityProcessor(IProcessor vulnerabilityProcessor) {
 		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
-	
+
+	/**
+	 * @return the extraFields
+	 */
+	public Set<String> getExtraFields() {
+		return extraFields;
+	}
+
+	/**
+	 * @param extraFields the extraFields to set
+	 */
+	public void setExtraFields(Set<String> extraFields) {
+		this.extraFields = extraFields;
+	}
 	
 	
 }

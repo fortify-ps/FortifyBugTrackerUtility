@@ -44,9 +44,9 @@ import com.sun.jersey.api.client.WebResource;
 public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
 	private static final String KEY_START = "FoDProcessorRootVulnerabilityArray_start";
-	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("count");
-	private String uriTemplateExpression = "/api/v2/Releases/${[FoDReleaseId]}/Vulnerabilities?limit=50&start=${["+KEY_START+"]}";
-	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
+	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("totalCount");
+	private String uriTemplateExpression = "/api/v3/Releases/${[FoDReleaseId]}/vulnerabilities?excludeFilters=true&limit=50&offset=${["+KEY_START+"]}";
+	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("items");
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
@@ -67,13 +67,12 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	
 	@Override
 	public boolean process(Context context) {
-		LOG.info("Retrieving and processing vulnerabilities");
 		IProcessor processor = getVulnerabilityProcessor();
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextFoD contextFoD = context.as(IContextFoD.class);
-		IRestConnection conn = contextFoD.getFoDConnection();
+		IRestConnection conn = contextFoD.getFoDConnectionRetriever().getConnection();
 		String filterParamValue = contextFoD.getFoDTopLevelFilterParamValue();
-		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&q="+filterParamValue;
+		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&filters="+filterParamValue;
 		int start=0;
 		int count=50;
 		while ( start < count ) {
@@ -85,6 +84,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
 			JSONArray vulnerabilitiesArray = SpringExpressionUtil.evaluateExpression(data, getRootExpression(), JSONArray.class);
 			start += vulnerabilitiesArray.length();
+			System.out.print('.');
 			for ( int i = 0 ; i < vulnerabilitiesArray.length() ; i++ ) {
 				JSONObject vuln = vulnerabilitiesArray.optJSONObject(i);
 				if ( LOG.isTraceEnabled() ) {
@@ -97,6 +97,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 			}
 			context.remove(KEY_START);
 		}
+		System.out.print('\n');
 		return processor.process(Phase.POST_PROCESS, context);
 	}
 	

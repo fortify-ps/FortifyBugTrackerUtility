@@ -16,7 +16,7 @@
 	
 	<!-- ACTIVE: Define the FoD connection information like base URL, user
 	     credentials, and optional proxy. For connecting to FoD using client
-	     credentials, please see FoDConnectionFactoryClientCredentialsEmeaDemo
+	     credentials, please see FoDConnectionFactoryClientCredentials
 	     below.
 	     
 	     Tenant, username and password can be configured here. Each of these
@@ -25,9 +25,9 @@
 	     on the command line, the user will be prompted to enter the tenant, 
 	     username and/or password.
     -->
-	<bean id="FoDConnectionFactoryUserCredentials" class="com.fortify.fod.connection.FoDConnectionFactoryUserCredentials">
-		<property name="baseUrl" value="https://emea.hpfod.com/"/>
-		<property name="tenant" value="emeademo"/>
+	<bean id="fodConnectionRetrieverUserCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverUserCredentials">
+		<property name="baseUrl" value="https://fodqa9-iis2.fortifyfodqa9.local/"/>
+		<property name="tenant" value="fodstaticvalidation"/>
 		<!-- <property name="userName" value="username"/> -->
 		<!-- <property name="password" value="password"/> -->
 		<!-- <property name="proxy" ref="proxy"/> -->
@@ -35,7 +35,7 @@
 	
 	<!-- EXAMPLE: Define the FoD connection information like base URL, client
 	     credentials, and optional proxy. -->
-	<bean id="FoDConnectionFactoryClientCredentials" class="com.fortify.fod.connection.FoDConnectionFactoryClientCredentials">
+	<bean id="fodConnectionRetrieverClientCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverClientCredentials">
 		<property name="baseUrl" value="https://emea.hpfod.com/"/>
 		<property name="clientId" value="API key"/>
 		<property name="clientSecret" value="client secret"/>
@@ -43,16 +43,26 @@
 	</bean>
 	
 	<!-- ACTIVE: Define the JIRA connection information. -->
-	<bean id="jiraConnectionFactory" class="com.fortify.processrunner.jira.connection.JiraConnectionFactory">
+	<bean id="jiraConnectionRetriever" class="com.fortify.processrunner.jira.connection.ContextAwareJiraConnectionRetriever">
 		<property name="baseUrl" value="http://192.168.99.100:32768/"/>
 		<property name="userName" value="rsenden"/>
 		<property name="password" value="password"/>
 	</bean>
 	
 	<bean id="fodToJiraProcessor" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
-		<!-- Define the connection factories for FoD and JIRA. -->
-		<property name="fod.connectionFactory" ref="FoDConnectionFactoryUserCredentials"/>
-		<property name="jira.connectionFactory" ref="jiraConnectionFactory"/>
+		<!-- Define any extra data that must be loaded from FoD for filtering 
+		     and/or building the issue contents. Note that summary data will
+		     always be loaded and thus does not need to be added here.  -->
+		<property name="fod.extraFields"><list>
+			<!-- <value>details</value> -->
+			<!-- <value>recommendations</value> -->
+			<!-- <value>screenshots</value> -->
+			<!-- <value>history</value> -->
+			<!-- <value>requestResponse</value> -->
+			<!-- <value>headers</value> -->
+			<!-- <value>parameters</value> -->
+			<!-- <value>traces</value> -->
+		</list></property>
 		
 		<!-- Define the filters that determine which issues will
 		     be submitted to JIRA. The three different filter types
@@ -66,6 +76,7 @@
 			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
 			<!-- TODO: Add all possible fields in comments -->
 			<entry key="isSuppressed" value="false"/>
+			<entry key="severity" value="4"/>
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
 			<entry key="severityString" value="Critical|High"/>
@@ -93,7 +104,7 @@
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property> 
 		<property name="issue.appendedFields"><map>
-			<entry key="description" value="\n\nId: ${vulnId}\nLine: ${lineNumber?:'Unknown'}\nLink: #{FoDConnectionFactoryUserCredentials.baseUrl}/Releases/${releaseId}/Issues#/page/Issues/pgIdx/1/rpp/10/asc/true/viewMode/detail/selectedVulnId/${vulnId}"/>
+			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 		
 	</bean>
@@ -105,6 +116,12 @@
 	             command line. -->
 	<bean id="defaultProcessorRunner" class="com.fortify.processrunner.ProcessRunner">
 		<property name="processor" ref="fodToJiraProcessor"/>
+		<property name="context">
+			<util:map map-class="com.fortify.processrunner.context.Context">
+				<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+				<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+			</util:map>
+		</property>		
 	</bean>
 	
 	<!-- EXAMPLE: This process runner predefines the FoD release id (294) and JIRA

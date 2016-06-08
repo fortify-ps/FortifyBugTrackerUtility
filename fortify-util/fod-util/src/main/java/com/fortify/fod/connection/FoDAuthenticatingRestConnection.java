@@ -12,7 +12,7 @@ import com.sun.jersey.api.client.WebResource.Builder;
 public class FoDAuthenticatingRestConnection extends FoDBasicRestConnection {
 	private final FoDTokenFactory tokenProvider;
 	public FoDAuthenticatingRestConnection(String baseUrl, MultivaluedMap<String, String> auth, ProxyConfiguration proxyConfig) {
-		super( baseUrl, proxyConfig );
+		super(baseUrl, proxyConfig);
 		tokenProvider = new FoDTokenFactory(baseUrl, auth, proxyConfig);
 	}
 	

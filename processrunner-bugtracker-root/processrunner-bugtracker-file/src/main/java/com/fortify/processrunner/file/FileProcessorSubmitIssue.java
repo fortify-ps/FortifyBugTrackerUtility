@@ -53,7 +53,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	@Override
 	protected boolean preProcess(Context context) {
 		String fileName = (String)context.get("OutputFile");
-		System.out.println("Writing issues to file "+fileName);
+		LOG.info("Writing issues to file "+fileName);
 		try {
 			File f = new File(fileName);
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(f, true)));

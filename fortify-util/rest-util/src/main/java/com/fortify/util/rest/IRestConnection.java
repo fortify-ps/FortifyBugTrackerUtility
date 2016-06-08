@@ -12,4 +12,5 @@ public interface IRestConnection {
 	public abstract WebResource getBaseResource();
 	public abstract WebResource getResource(String url);
 	public abstract Client getClient();
+	public abstract void setProxy(ProxyConfiguration proxy);
 }

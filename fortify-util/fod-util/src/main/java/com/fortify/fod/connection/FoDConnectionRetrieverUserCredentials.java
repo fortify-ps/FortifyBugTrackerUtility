@@ -3,15 +3,15 @@ package com.fortify.fod.connection;
 import com.sun.jersey.api.representation.Form;
 
 /**
- * <p>This {@link AbstractFoDConnectionFactory} implementation
+ * <p>This {@link AbstractFoDConnectionRetriever} implementation
  * allows for configuring user credentials used to connect to FoD.</p> 
  */
-public class FoDConnectionFactoryUserCredentials extends AbstractFoDConnectionFactory {
+public class FoDConnectionRetrieverUserCredentials extends AbstractFoDConnectionRetriever {
 	private String tenant;
 	private String userName;
 	private String password;
 	
-	public FoDConnectionFactoryUserCredentials() {
+	public FoDConnectionRetrieverUserCredentials() {
 		setGrantType("password");
 	}
 	

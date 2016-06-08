@@ -1,9 +1,7 @@
 package com.fortify.processrunner.processor;
 
-import java.util.List;
-
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.IContextPropertyProvider;
 
 /**
  * <p>This interface defines processors that can perform arbitrary
@@ -19,7 +17,7 @@ import com.fortify.processrunner.context.ContextProperty;
  * <p>Usually classes should not implement this interface directly,
  * but instead extend from the {@link AbstractProcessor} class.</p>
  */
-public interface IProcessor {
+public interface IProcessor extends IContextPropertyProvider {
 	/**
 	 * Enumeration describing the available processing phases.
 	 */
@@ -32,13 +30,4 @@ public interface IProcessor {
 	 * @return
 	 */
 	public boolean process(Phase phase, Context context);
-	
-	/**
-	 * Get the {@link List} of {@link ContextProperty} instances
-	 * that describe the context properties supported/required
-	 * by the current {@link IProcessor} implementation. 
-	 * @param context
-	 * @return
-	 */
-	public List<ContextProperty> getContextProperties(Context context);
 }

@@ -1,8 +1,9 @@
 package com.fortify.processrunner;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,66 +69,81 @@ public class Main {
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String[] argsArray) throws Exception {
+	public static final void main(String[] argsArray) throws Exception {
 		CommandLine cl = new DefaultParser().parse(OPTIONS, argsArray, true);
 		updateLogConfig(cl);
 		
 		String configFile = getConfigFileName(cl);
-		GenericApplicationContext context = SpringContextUtil.loadApplicationContextFromFiles(true, configFile);
+		GenericApplicationContext appContext = SpringContextUtil.loadApplicationContextFromFiles(true, configFile);
 		
 		List<String> remainingArgs = cl.getArgList(); 
-		String processRunnerBeanName = getProcessRunnerBeanName(remainingArgs, context);
+		String processRunnerBeanName = getProcessRunnerBeanName(remainingArgs, appContext);
 		LOG.info("Using process runner "+processRunnerBeanName);
 		try {
-			ProcessRunner runner = context.getBean(processRunnerBeanName, ProcessRunner.class);
-			updateContext(runner, remainingArgs);
-			checkContext(runner);
+			ProcessRunner runner = appContext.getBean(processRunnerBeanName, ProcessRunner.class);
+			updateAndCheckContext(runner, remainingArgs);
 			runner.run();
 		} catch (Throwable t) {
-			System.out.println("Error during process run:\n");
-			t.printStackTrace();
 			LOG.fatal("Error during process run", t);
 		} finally {
-			context.close();
+			appContext.close();
 		}
 	}
 
-	private static void updateLogConfig(CommandLine cl) {
+	private static final void updateLogConfig(CommandLine cl) {
 		String logFile = cl.getOptionValue(OPT_LOG_FILE.getLongOpt(), null);
 		String logLevel = cl.getOptionValue(OPT_LOG_LEVEL.getLongOpt(), null);
 		if ( logFile != null || logLevel != null ) {
 			logFile = logFile!=null?logFile:DEFAULT_LOG_FILE;
 			logLevel = logLevel!=null?logLevel:DEFAULT_LOG_LEVEL;
 			try {
+				Logger.getRootLogger().removeAllAppenders();
 				Logger.getRootLogger().addAppender(new FileAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"), logFile, false));
 				Logger.getRootLogger().setLevel(Level.toLevel(logLevel));
 			} catch ( IOException e ) {
 				handleErrorAndExit(null, null, "ERROR: Cannot open log file "+logFile, 5);
 			}
 		}
-		
 	}
 
-	private static final void updateContext(ProcessRunner runner, List<String> args) {
+	private static final void updateAndCheckContext(ProcessRunner runner, List<String> args) {
 		Context context = runner.getContext();
-		List<ContextProperty> contextProperties = runner.getProcessor().getContextProperties(context);
+		List<ContextProperty> contextProperties = getContextProperties(runner, context);
+		updateContextFromArgs(context, contextProperties, args);
+		checkContext(context, contextProperties);
+		context.refresh();
+	}
+
+	private static final void updateContextFromArgs(Context context, List<ContextProperty> contextProperties, List<String> args) {
 		while ( args.size() > 0 ) {
 			String opt = args.remove(0);
 			if ( !opt.startsWith("-") ) { handleErrorAndExit(null, contextProperties, "ERROR: Invalid option "+opt, 3); }
 			if ( "--help".equals(opt) ) { printUsage(null, contextProperties, 0); }
 			context.put(opt.substring(1), args.remove(0));
-			// TODO Check that all required context properties have been set
 		}
 	}
 	
-	private static final void checkContext(ProcessRunner runner) {
-		Context ctx = runner.getContext();
-		List<ContextProperty> contextProperties = runner.getProcessor().getContextProperties(ctx);
+	private static final void checkContext(Context context, List<ContextProperty> contextProperties) {
 		for ( ContextProperty contextProperty : contextProperties ) {
-			if ( contextProperty.isRequired() && !ctx.containsKey(contextProperty.getName()) ) {
+			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
 				handleErrorAndExit(null, contextProperties, "ERROR: Required option -"+contextProperty.getName()+" not set", 4);
 			}
 		}
+	}
+
+	private static final List<ContextProperty> getContextProperties(ProcessRunner runner, Context context) {
+		List<ContextProperty> result = new ArrayList<ContextProperty>();
+		result.addAll(getContextPropertiesFromProcessRunner(runner, context));
+		result.addAll(getContextPropertiesFromContext(context));
+		return result;
+	}
+
+	private static final List<ContextProperty> getContextPropertiesFromProcessRunner(ProcessRunner runner, Context context) {
+		return runner.getProcessor().getContextProperties(context);
+	}
+	
+	private static final List<ContextProperty> getContextPropertiesFromContext(Context context) {
+		return context.getContextProperties(context);
 	}
 
 	private static final String getConfigFileName(CommandLine cl) {
@@ -141,7 +157,7 @@ public class Main {
 	 * Check whether the given configuration file exists and is readable. 
 	 * @param configFile
 	 */
-	private static void checkConfigFile(String configFile) {
+	private static final void checkConfigFile(String configFile) {
 		Resource resource = new FileSystemResource(configFile);
 		if ( !resource.exists() ) {
 			handleErrorAndExit(null, null, "Error: Configuration file "+configFile+" does not exist", 1);
@@ -157,9 +173,9 @@ public class Main {
 	 * @param context
 	 * @return
 	 */
-	private static String getProcessRunnerBeanName(List<String> args, ApplicationContext context) {
-		Set<String> processorBeanNames = new HashSet<String>(Arrays.asList(context.getBeanNamesForType(ProcessRunner.class)));
-		if ( LOG.isDebugEnabled() ) { LOG.info("Available process runners: "+processorBeanNames); }
+	private static final String getProcessRunnerBeanName(List<String> args, ApplicationContext context) {
+		Set<String> processorBeanNames = new LinkedHashSet<String>(Arrays.asList(context.getBeanNamesForType(ProcessRunner.class)));
+		if ( LOG.isDebugEnabled() ) { LOG.debug("Available process runners: "+processorBeanNames); }
 		String errorMessage = null;
 		if ( args.size() == 0 || args.get(0).startsWith("-") ) {
 			if ( processorBeanNames.contains(DEFAULT_BEAN_NAME) ) {
@@ -187,7 +203,6 @@ public class Main {
 	 */
 	private static final void handleErrorAndExit(ApplicationContext context, List<ContextProperty> contextProperties, String errorMessage, int errorCode) {
 		LOG.error(errorMessage);
-		System.out.println(errorMessage);
 		printUsage(context, contextProperties, errorCode);
 	}
 	
@@ -196,30 +211,30 @@ public class Main {
 	 * @param context
 	 */
 	private static final void printUsage(ApplicationContext context, List<ContextProperty> contextProperties, int returnCode) {
-		System.out.println("Usage: java -jar <jarName> [--config <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
-		System.out.println("\n\t--configFile <configFile> specifies the configuration file to use. Default is "+DEFAULT_CONFIG_FILE);
-		System.out.println("\t--logFile <logFile> specifies the log file to use. Default is "+DEFAULT_LOG_FILE);
-		System.out.println("\t--logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
-		System.out.println("\t\tNote that levels debug or trace may generate big log files that contain sensitive information.");
-		System.out.println("\n\tBy default no logging is performed unless at least either --logFile or --logLevel is specified.");
+		LOG.info("Usage: java -jar <jarName> [--config <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
+		LOG.info("\n\t--configFile <configFile> specifies the configuration file to use. Default is "+DEFAULT_CONFIG_FILE);
+		LOG.info("\t--logFile <logFile> specifies the log file to use. Default is "+DEFAULT_LOG_FILE);
+		LOG.info("\t--logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
+		LOG.info("\t\tNote that levels debug or trace may generate big log files that contain sensitive information.");
+		LOG.info("\n\tBy default no logging is performed unless at least either --logFile or --logLevel is specified.");
 		
 		if ( context != null ) {
 			String[] availableProcessorRunnerNames = context.getBeanNamesForType(ProcessRunner.class);
 			if ( availableProcessorRunnerNames!=null && availableProcessorRunnerNames.length > 0 ) {
-				System.out.println("Available process runner id's:");
-				System.out.println("\t"+StringUtils.arrayToDelimitedString(availableProcessorRunnerNames, "\n\t"));
+				LOG.info("Available process runner id's:");
+				LOG.info("\t"+StringUtils.arrayToDelimitedString(availableProcessorRunnerNames, "\n\t"));
 			}
 		} else {
-			System.out.println("\n\tAvailable [processRunnerId] options will be shown when a valid configuration has been specified.");
+			LOG.info("\n\tAvailable [processRunnerId] options will be shown when a valid configuration has been specified.");
 		}
 		if ( contextProperties != null && contextProperties.size()>0 ) {
-			System.out.println("\n\t[options] for this process runner:");
+			LOG.info("\n\t[options] for this process runner:");
 			for ( ContextProperty cp : contextProperties ) {
-				System.out.println("\t-"+cp.getName()+" <value> "+(cp.isRequired()?"(required)":"(optional)"));
-				System.out.println("\t\t"+cp.getDescription()+"\n");
+				LOG.info("\t-"+cp.getName()+" <value> "+(cp.isRequired()?"(required)":"(optional)"));
+				LOG.info("\t\t"+cp.getDescription()+"\n");
 			}
 		} else {
-			System.out.println("\n\tAvailable [options] will be shown when a valid process runner has been specified.");
+			LOG.info("\n\tAvailable [options] will be shown when a valid process runner has been specified.");
 		}
 		System.exit(returnCode);
 	}

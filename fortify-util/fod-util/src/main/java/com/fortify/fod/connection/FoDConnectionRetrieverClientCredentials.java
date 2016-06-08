@@ -3,14 +3,14 @@ package com.fortify.fod.connection;
 import com.sun.jersey.api.representation.Form;
 
 /**
- * <p>This {@link AbstractFoDConnectionFactory} implementation
+ * <p>This {@link AbstractFoDConnectionRetriever} implementation
  * allows for configuring client credentials used to connect to FoD.</p>
  */
-public class FoDConnectionFactoryClientCredentials extends AbstractFoDConnectionFactory {
+public class FoDConnectionRetrieverClientCredentials extends AbstractFoDConnectionRetriever {
 	private String clientId;
 	private String clientSecret;
 	
-	public FoDConnectionFactoryClientCredentials() {
+	public FoDConnectionRetrieverClientCredentials() {
 		setGrantType("client_credentials");
 	}
 	

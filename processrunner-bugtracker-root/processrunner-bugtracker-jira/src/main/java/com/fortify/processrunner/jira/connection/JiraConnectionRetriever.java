@@ -1,20 +1,21 @@
 package com.fortify.processrunner.jira.connection;
 
+import com.fortify.util.rest.AbstractRestConnectionRetriever;
 import com.fortify.util.rest.AuthenticatingRestConnection;
 import com.fortify.util.rest.IRestConnection;
-import com.fortify.util.rest.IRestConnectionFactory;
+import com.fortify.util.rest.IRestConnectionRetriever;
 
 /**
- * This {@link IRestConnectionFactory} implementation is used to 
- * generate {@link IRestConnection} instances for JIRA based on
+ * This {@link IRestConnectionRetriever} implementation is used to 
+ * retrieve {@link IRestConnection} instances for JIRA based on
  * configured connection properties like JIRA base URL and credentials. 
  */
-public class JiraConnectionFactory implements IRestConnectionFactory {
+public class JiraConnectionRetriever extends AbstractRestConnectionRetriever implements IJiraConnectionRetriever {
 	private String baseUrl;
 	private String userName;
 	private String password;
 	
-	public IRestConnection getConnection() {
+	public final IRestConnection createConnection() {
 		return new AuthenticatingRestConnection(getBaseUrl(), getUserName(), getPassword());
 	}
 	

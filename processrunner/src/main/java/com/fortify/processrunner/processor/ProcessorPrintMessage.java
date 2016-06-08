@@ -1,5 +1,8 @@
 package com.fortify.processrunner.processor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -10,10 +13,10 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * processing phase, a corresponding (optional) message template can 
  * be configured.
  */
-// TODO (Low) Make output stream configurable (default to System.out)
 // TODO (Low) Add rootExpression configuration option, to allow easy 
 //      access from the message templates to a specific root object.
 public class ProcessorPrintMessage extends AbstractProcessor {
+	protected static final Log LOG = LogFactory.getLog(ProcessorPrintMessage.class);
 	private TemplateExpression messageTemplatePreProcess;
 	private TemplateExpression messageTemplateProcess;
 	private TemplateExpression messageTemplatePostProcess;
@@ -28,29 +31,28 @@ public class ProcessorPrintMessage extends AbstractProcessor {
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		TemplateExpression template = getMessageTemplatePreProcess();
-		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
-		}
-		return true;
+		return process(context, getMessageTemplatePreProcess());
 	}
 	
 	@Override
 	protected boolean process(Context context) {
-		TemplateExpression template = getMessageTemplateProcess();
-		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
-		}
-		return true;
+		return process(context, getMessageTemplateProcess());
 	}
 	
 	@Override
 	protected boolean postProcess(Context context) {
-		TemplateExpression template = getMessageTemplatePostProcess();
+		return process(context, getMessageTemplatePostProcess());
+	}
+	
+	protected boolean process(Context context, TemplateExpression template) {
 		if ( template != null ) {
-			System.out.print(SpringExpressionUtil.evaluateExpression(context, template, String.class));
+			printAndLog(SpringExpressionUtil.evaluateExpression(context, template, String.class));
 		}
 		return true;
+	}
+	
+	protected void printAndLog(String message) {
+		LOG.info(message);
 	}
 
 	public TemplateExpression getMessageTemplatePreProcess() {
