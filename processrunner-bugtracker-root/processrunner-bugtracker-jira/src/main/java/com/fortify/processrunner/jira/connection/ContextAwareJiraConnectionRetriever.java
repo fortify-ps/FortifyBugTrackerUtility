@@ -20,9 +20,9 @@ public class ContextAwareJiraConnectionRetriever
 	
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", getBaseUrl()==null));
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", false));
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", false));
+		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, getBaseUrl(), true));
+		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
+		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
 		return result;
 	}
 	

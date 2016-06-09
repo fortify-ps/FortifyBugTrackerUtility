@@ -26,8 +26,8 @@ public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJira
 	@Override
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>(2);
-		result.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", !context.containsKey("JiraProjectKey")));
-		result.add(new ContextProperty("JiraIssueType", "JIRA issue type", false));
+		result.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
+		result.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
 		return result;
 	}
 	

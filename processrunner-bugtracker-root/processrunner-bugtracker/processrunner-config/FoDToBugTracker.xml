@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!--==================================================================================-->
+	<!-- PROXY CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- EXAMPLE: This bean defines a proxy configuration that can be referenced 
+	     by the various ConnectionRetriever beans. If you require different proxies
+	     for accessing FoD and bug tracker, you can duplicate this bean, give the 
+	     new bean a different id, and reference it from the corresponding 
+	     ConnectionRetriever bean. -->
+	<bean id="proxy" class="com.fortify.util.rest.ProxyConfiguration">
+		<property name="uri" value="http://proxy:port/"/>
+		<property name="userName" value="proxy user (optional)"/>
+		<property name="password" value="proxy password (optional)"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- FoD CONNECTION CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- Define FoD connection information like base URL, client credentials, 
+	     and optional proxy. Please see fodConnectionRetrieverUserCredentials 
+	     below for connecting to FoD using user credentials.
+	     
+	     If you require a different FoD instance, you can either change the
+	     base URL here, or provide the correct FoD base URL via the
+	     -FoDBaseUrl command line option (which will override the base URL 
+	     configured here).
+	     
+	     If you require a proxy to connect to FoD, you will need to uncomment
+	     the proxy property and point it to the correct proxy configuration 
+	     bean id using the ref property.
+	     
+	     Client ID and Secret can either be configured here, or provided via 
+	     the command line options -FoDClientId and -FoDClientSecret. If not 
+	     provided via either configuration or command line option, the user 
+	     will be prompted for the client ID and/or client secret to use. 
+	-->
+	<bean id="fodConnectionRetrieverClientCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverClientCredentials">
+		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<!-- <property name="clientId" value="API key"/> -->
+		<!-- <property name="clientSecret" value="client secret"/> -->
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- Define FoD connection information like base URL, user credentials, 
+	     and optional proxy. Please see fodConnectionRetrieverClientCredentials 
+	     above for connecting to FoD using client credentials,
+	     
+	     If you require a different FoD instance, you can either change the
+	     base URL here, or provide the correct FoD base URL via the
+	     -FoDBaseUrl command line option (which will override the base URL 
+	     configured here).
+	     
+	     If you require a proxy to connect to FoD, you will need to uncomment
+	     the proxy property and point it to the correct proxy configuration 
+	     bean id using the ref property.
+	     
+	     Tenant, user name and password can either be configured here, or 
+	     provided via the command line options -FoDTentant, -FoDUserName and
+	     -FoDPassword respectively. Alternatively, if tenant, user name and/or 
+	     password have not been provided either here or via command line options, 
+	     the user will be prompted to enter the corresponding value.    
+    -->
+	<bean id="fodConnectionRetrieverUserCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverUserCredentials">
+		<property name="baseUrl" value="https://hpfod.com/"/>
+		<!-- <property name="tenant" value="tenant" /> -->
+		<!-- <property name="userName" value="username"/> -->
+		<!-- <property name="password" value="password"/> -->
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	
+	<!--==================================================================================-->
+	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This abstract bean defines common configuration options for retrieving
+	     vulnerabilities from FoD, like vulnerability filter options, and extra
+	     data to be retrieved. 
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="fodVulnerabilityRetrieverDefaultConfiguration" abstract="true">
+		<!-- Define any extra data that must be loaded from FoD for filtering 
+		     and/or building the issue contents. Note that summary data will
+		     always be loaded and thus does not need to be added here.  -->
+		<property name="fod.extraFields"><list>
+			<!-- <value>details</value> -->
+			<!-- <value>recommendations</value> -->
+			<!-- <value>screenshots</value> -->
+			<!-- <value>history</value> -->
+			<!-- <value>requestResponse</value> -->
+			<!-- <value>headers</value> -->
+			<!-- <value>parameters</value> -->
+			<!-- <value>traces</value> -->
+		</list></property>
+		
+		<!-- Define the filters that determine which FoD vulnerabilities will
+		     be submitted to the bug tracker or file.
+		     
+		     fod.topLevelFieldFilters allows equality-based filtering on any 
+		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
+		     Where possible, these filters are processed by FoD, reducing the
+		     number of vulnerabilities returned by FoD. As such, these filters 
+		     provide best performance.
+		     
+		     fod.topLevelFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
+		     These filters are used before loading any extra fields from FoD
+		     (see fod.extraFields above) and thus provide medium performance.
+		     
+		     fod.allFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by either 
+		     /api/v3/Releases/${FoDReleaseId}/vulnerabilities or the
+		     extra fields as specified via fod.extraFields above. Since these
+		     filters are only applied after loading all extra data from FoD,
+		     these filters provide worst performance. 
+		-->
+		<property name="fod.topLevelFieldSimpleFilters"><map>
+			<!-- <entry key="severityString" value="Critical"/> -->
+			<!-- <entry key="hasComments" value="false"/> -->
+			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
+			<!-- TODO: Add all possible fields in comments -->
+			<entry key="isSuppressed" value="false"/>
+			<!-- <entry key="severity" value="4"/> -->
+		</map></property>
+		<property name="fod.topLevelFieldRegExFilters"><map>
+			<entry key="severityString" value="Critical|High"/>
+		</map></property>
+		<property name="fod.allFieldRegExFilters"><map>
+			<!-- <entry key="summary.developerStatus" value="Open"/> -->
+		</map></property>
+	</bean>
+	
+	
+	<!--==================================================================================-->
+	<!-- JIRA CONNECTION AND PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- Define JIRA connection information like base URL, user name and password. 
+	
+	     If you require a proxy to connect to JIRA, you will need to uncomment
+	     the proxy property and point it to the correct proxy configuration 
+	     bean id using the ref property.
+	     
+	     Base URL, user name and password can either be configured here, or
+	     provided via the -JiraBaseUrl, -JiraUserName and -JiraPassword command
+	     line options. Alternatively, if user name and/or password have not been 
+	     provided either here or via command line options, the user will be 
+	     prompted to enter the corresponding value.
+	-->
+	<bean id="jiraConnectionRetriever" class="com.fortify.processrunner.jira.connection.ContextAwareJiraConnectionRetriever">
+		<!-- <property name="baseUrl" value="http://192.168.99.100:32768/"/> -->
+		<!-- <property name="userName" value="rsenden"/> -->
+		<!-- <property name="password" value="password"/> -->
+		<!-- <property name="proxy" ref="proxy"/> -->
+	</bean>
+	
+	<!-- Define the fields that will be submitted to JIRA. You can add any supported 
+	     JIRA field here, but you must adhere to the field format described at 
+	     https://docs.atlassian.com/jira/REST/latest/#api/2/issue-createIssue
+	     For example, some fields require a nested object (see 'priority.name'
+	     field), or require the value to be an array (see 'labels' field). 
+		-->
+	<util:map id="jiraFields">
+		<!-- TODO Add examples for recommendations etcetera -->
+		<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+		<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
+		<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+		<entry key="labels" value="${{'FoD'}}"/>
+	</util:map>
+	
+	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
+	     to JIRA as grouped issues. Common FoD vulnerability retrieval options are inherited 
+	     from fodVulnerabilityRetrieverDefaultConfiguration above.
+	     
+	     If necessary, you can change the properties in this bean, for example to use
+	     different vulnerability grouping criteria, or to change the fields and field
+	     data submitted to JIRA. 
+	-->
+	<bean id="fodToJiraGroupedProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
+		<!-- Define the issue grouping using any available vulnerability attribute(s). -->
+		<property name="issue.grouping" value="${category}+${primaryLocationFull}"/>
+		
+		<!-- Define the fields that will be submitted to JIRA for each vulnerability
+		     group. Here we simply reference the jiraFields map defined above.
+		     
+		     Note that any vulnerability attribute referenced in the fields map will 
+		     be evaluated against the first vulnerability in the vulnerability group.
+		-->
+		<property name="issue.fields" ref="jiraFields"/>
+		
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above for every individual vulnerability in the vulnerability
+		     group. Note that the corresponding field in issue.fields must be a simple
+		     string value, not an array or other complex type. -->
+		<property name="issue.appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		</map></property>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
+	     to JIRA one-by-one (i.e. vulnerabilities will not be grouped). Common FoD vulnerability
+	     retrieval options are inherited from fodVulnerabilityRetrieverDefaultConfiguration
+	     above.
+	     
+	     If necessary, you can change the properties in this bean, for example to to change 
+	     the fields and field data submitted to JIRA. 
+	-->
+	<bean id="fodToJiraNonGroupedProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
+		<!-- Define the fields that will be submitted to JIRA for each vulnerability
+		     group. Here we simply reference the jiraFields map defined above.
+		-->
+		<property name="issue.fields" ref="jiraFields"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- Define the FoD to Jira context using FoD user credentials -->
+	<util:map id="fodUserCredentialsToJiraContext" map-class="com.fortify.processrunner.context.Context">
+		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+		<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+	</util:map>
+	
+	<!-- Define the FoD to Jira context using FoD client credentials -->
+	<util:map id="fodClientCredentialsToJiraContext" map-class="com.fortify.processrunner.context.Context">
+		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+		<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+	</util:map>
+	
+	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD user credentials -->
+	<bean id="fodUserCredentialsToJiraGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD user credentials"/>
+		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
+		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD user credentials -->
+	<bean id="fodUserCredentialsToJiraNonGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD user credentials"/>
+		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
+		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
+	</bean>
+		
+	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD client credentials -->
+	<bean id="fodClientCredentialsToJiraGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD client credentials"/>
+		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
+		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD client credentials -->
+	<bean id="fodClientCredentialsToJiraNonGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD client credentials"/>
+		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
+		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- EXPORT VULNERABILITIES TO FILE PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the processor configuration for writing FoD vulnerability
+	     data to a file.
+	     
+	     If necessary, you can change the properties in this bean, for example to use
+	     different file headers and vulnerability contents.
+	-->
+	<bean id="fodToFileProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.file.FoDProcessorSubmitVulnerabilitiesToFile">
+		<property name="file.fieldHeaders" value="id,vulnId,category,primaryLocationFull,severity,deepLink"/>
+		<property name="file.fieldTemplateExpressions" value="${id},${vulnId},${category},${primaryLocationFull},${severityString},${deepLink}"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- EXPORT VULNERABILITIES TO FILE PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- Define the FoD to file context using FoD user credentials -->
+	<util:map id="fodUserCredentialsToFileContext" map-class="com.fortify.processrunner.context.Context">
+		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+	</util:map>
+	
+	<!-- Define the FoD to file context using FoD client credentials -->
+	<util:map id="fodClientCredentialsToFileContext" map-class="com.fortify.processrunner.context.Context">
+		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+	</util:map>
+	
+	<!-- This process runner submits vulnerabilities to file, using FoD user credentials -->
+	<bean id="fodUserCredentialsToFileProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Write vulnerability data to file, using FoD user credentials"/>
+		<property name="processor" ref="fodToFileProcessor"/>	
+		<property name="context" ref="fodUserCredentialsToFileContext"/>	
+	</bean>
+		
+	<!-- This process runner submits vulnerabilities to file, using FoD client credentials -->
+	<bean id="fodClientCredentialsToFileProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Write vulnerability data to file, using FoD client credentials"/>
+		<property name="processor" ref="fodToFileProcessor"/>	
+		<property name="context" ref="fodClientCredentialsToFileContext"/>	
+	</bean>
+	
+</beans>

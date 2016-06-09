@@ -1,6 +1,5 @@
 package com.fortify.processrunner.file;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,12 +27,13 @@ import com.fortify.util.spring.expression.TemplateExpression;
  */
 public class FileProcessorSubmitIssue extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FileProcessorSubmitIssue.class);
+	private static final String DEFAULT_OUTPUT_FILE = "FoDVulnerabilities.csv";
 	
 	private String fieldSeparator = ",";
 	private SimpleExpression rootExpression;
 	private List<String> fieldHeaders;
 	private List<TemplateExpression> fieldTemplateExpressions;
-	private PrintWriter pw;
+	private PrintWriter writer;
 	
 	/**
 	 * Define the OutputFile context property.
@@ -41,7 +41,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	@Override
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>(2);
-		result.add(new ContextProperty("OutputFile", "File to write the issues to", !context.containsKey("OutputFile")));
+		result.add(new ContextProperty("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
 		return result;
 	}
 	
@@ -53,12 +53,15 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	@Override
 	protected boolean preProcess(Context context) {
 		String fileName = (String)context.get("OutputFile");
+		if ( StringUtils.isBlank(fileName) ) {
+			fileName = DEFAULT_OUTPUT_FILE;
+		}
 		LOG.info("Writing issues to file "+fileName);
 		try {
 			File f = new File(fileName);
-			pw = new PrintWriter(new BufferedWriter(new FileWriter(f, true)));
+			writer = new PrintWriter(new FileWriter(f, true));
 			LOG.debug("Opened file "+fileName);
-			appendHeaders(f, pw);
+			appendHeaders(f);
 		} catch ( IOException e ) {
 			throw new RuntimeException("Error opening file appender", e);
 		}
@@ -71,10 +74,11 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	 * @param f
 	 * @param pw
 	 */
-	protected void appendHeaders(File f, PrintWriter pw) {
+	protected void appendHeaders(File f) {
 		List<String> headers = getFieldHeaders();
 		if ( (!f.exists() || f.length()==0) && headers!=null) {
-			pw.println(StringUtils.join(headers, getFieldSeparator()));
+			writer.println(StringUtils.join(headers, getFieldSeparator()));
+			writer.flush();
 		}
 	}
 
@@ -100,7 +104,8 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		
 		String line = StringUtils.join(values, getFieldSeparator());
 		LOG.info("Writing issue to "+(String)context.get("OutputFile")+": "+line);
-		pw.println(line);
+		writer.println(line);
+		writer.flush();
 		
 		IContextSubmittedIssueData ctx = context.as(IContextSubmittedIssueData.class);
 		ctx.setSubmittedIssueBugTrackerName("File");
@@ -110,7 +115,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	
 	@Override
 	protected boolean postProcess(Context context) {
-		pw.close();
+		writer.close();
 		LOG.debug("Close file "+context.get("OutputFile"));
 		return true;
 	}

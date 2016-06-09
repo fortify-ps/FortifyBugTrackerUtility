@@ -21,10 +21,10 @@ public class ContextAwareFoDConnectionRetrieverUserCredentials
 	
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_BASE_URL, "FoD base URL", getBaseUrl()==null));
-		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_TENANT, "FoD tenant", false));
-		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_USER_NAME, "FoD user name", false));
-		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_PASSWORD, "FoD password", false));
+		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
+		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_TENANT, "FoD tenant", context, StringUtils.isNotBlank(getTenant())?getTenant():"Read from console", false));
+		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_USER_NAME, "FoD user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
+		result.add(new ContextProperty(IContextFoDUserCredentials.PRP_PASSWORD, "FoD password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
 		return result;
 	}
 	

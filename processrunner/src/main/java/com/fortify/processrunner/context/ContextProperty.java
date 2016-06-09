@@ -12,19 +12,20 @@ import com.fortify.processrunner.processor.IProcessor;
 public class ContextProperty {
 	private final String name;
 	private final String description;
+	private final String defaultValue;
 	private final boolean required;
 	
 	/**
-	 * Constructor for setting the context property name, description
-	 * and required flag.
+	 * Constructor for setting the context property name, description and required flag.
 	 * @param name
 	 * @param description
 	 * @param required
 	 */
-	public ContextProperty(String name, String description, boolean required) {
+	public ContextProperty(String name, String description, Context defaultContext, String defaultValue, boolean required) {
 		super();
 		this.name = name;
 		this.description = description;
+		this.defaultValue = (String)defaultContext.getOrDefault(name, defaultValue);
 		this.required = required;
 	}
 
@@ -42,6 +43,14 @@ public class ContextProperty {
 	 */
 	public String getDescription() {
 		return description;
+	}
+	
+	/**
+	 * Get the context property default value (hardcoded or from current context).
+	 * @return
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
 	}
 
 	/**

@@ -16,6 +16,7 @@ public class ProcessRunner implements Runnable {
 	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
 	private Context context = new Context();
 	private IProcessor processor = new CompositeProcessor();
+	private String description;
 	
 	/**
 	 * Run the configured processor using the configured context.
@@ -60,5 +61,13 @@ public class ProcessRunner implements Runnable {
 
 	public void setProcessor(IProcessor processor) {
 		this.processor = processor;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -1,8 +1,5 @@
 package com.fortify.processrunner.jira.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.HttpMethod;
 
 import org.apache.commons.logging.Log;
@@ -11,7 +8,6 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.context.IContextSubmittedIssueData;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.connection.JiraConnectionRetriever;
 import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.processor.AbstractProcessor;
@@ -36,14 +32,6 @@ import com.sun.jersey.api.client.WebResource;
 // TODO (Low) Make this a concrete class and retrieve JSONObject from context?
 public abstract class AbstractProcessorJiraSubmitIssue extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorJiraSubmitIssue.class);
-
-	@Override
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty("JiraUserName", "Jira user name", false));
-		result.add(new ContextProperty("JiraPassword", "Jira password", false));
-		return result;
-	}
 	
 	@Override
 	protected boolean process(Context context) {

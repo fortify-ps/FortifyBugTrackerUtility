@@ -13,7 +13,6 @@ import com.fortify.processrunner.fod.processor.FoDProcessorAddVulnDeepLink;
 import com.fortify.processrunner.fod.processor.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.processor.ProcessorPrintMessage;
 
 /**
  * This composite {@link IProcessor} implementation combines various
@@ -36,7 +35,6 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	@Override
 	public IProcessor[] getProcessors() {
 		return new IProcessor[] {
-			new ProcessorPrintMessage(null, "Retrieving vulnerabilities for release ${FoDReleaseId} from ${FoDConnectionRetriever.baseUrl}", null),
 			createRootVulnerabilityArrayProcessor()
 		};
 	}

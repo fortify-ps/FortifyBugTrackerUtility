@@ -21,9 +21,9 @@ public class ContextAwareFoDConnectionRetrieverClientCredentials
 	
 	public List<ContextProperty> getContextProperties(Context context) {
 		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", getBaseUrl()==null));
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_ID, "FoD client id", false));
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_SECRET, "FoD client secret", false));
+		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
+		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_ID, "FoD client id", context, StringUtils.isNotBlank(getClientId())?getClientId():"Read from console", false));
+		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_SECRET, "FoD client secret", context, StringUtils.isNotBlank(getClientSecret())?"******":"Read from console", false));
 		return result;
 	}
 	
