@@ -230,8 +230,8 @@ public class RunProcessRunner {
 		LOG.info("  --logFile <logFile> specifies the log file to use. Default is "+getDefaultLogFileName());
 		LOG.info("  --logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
 		LOG.info("");
-		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
 		LOG.info("    By default no logging is performed unless at least either --logFile or --logLevel is specified.");
+		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
 		
 		if ( appContext != null ) {
 			Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);

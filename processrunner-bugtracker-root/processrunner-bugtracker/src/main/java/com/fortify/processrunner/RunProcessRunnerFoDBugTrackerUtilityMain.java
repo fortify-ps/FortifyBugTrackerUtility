@@ -2,18 +2,18 @@ package com.fortify.processrunner;
 
 import com.fortify.processrunner.RunProcessRunner;
 
-public class RunProcessRunnerFoDToBugTrackerMain extends RunProcessRunner {
+public class RunProcessRunnerFoDBugTrackerUtilityMain extends RunProcessRunner {
 	public static void main(String[] args) {
-		new RunProcessRunnerFoDToBugTrackerMain().runProcessRunner(args);
+		new RunProcessRunnerFoDBugTrackerUtilityMain().runProcessRunner(args);
 	}
 	
 	@Override
 	protected String getDefaultConfigFileName() {
-		return "FoDToBugTracker.xml";
+		return "FoDBugTrackerUtility.xml";
 	}
 	
 	@Override
 	protected String getDefaultLogFileName() {
-		return "FoDToBugTracker.log";
+		return "FoDBugTrackerUtility.log";
 	}
 }

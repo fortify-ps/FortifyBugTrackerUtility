@@ -243,28 +243,28 @@
 	</util:map>
 	
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD user credentials -->
-	<bean id="fodUserCredentialsToJiraGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodUserCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD user credentials"/>
 		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
 		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD user credentials -->
-	<bean id="fodUserCredentialsToJiraNonGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodUserCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD user credentials"/>
 		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
 		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
 	</bean>
 		
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD client credentials -->
-	<bean id="fodClientCredentialsToJiraGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodClientCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD client credentials"/>
 		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
 		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD client credentials -->
-	<bean id="fodClientCredentialsToJiraNonGroupedProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodClientCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD client credentials"/>
 		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
 		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
@@ -300,14 +300,14 @@
 	</util:map>
 	
 	<!-- This process runner submits vulnerabilities to file, using FoD user credentials -->
-	<bean id="fodUserCredentialsToFileProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodUserCredentialsToFile" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Write vulnerability data to file, using FoD user credentials"/>
 		<property name="processor" ref="fodToFileProcessor"/>	
 		<property name="context" ref="fodUserCredentialsToFileContext"/>	
 	</bean>
 		
 	<!-- This process runner submits vulnerabilities to file, using FoD client credentials -->
-	<bean id="fodClientCredentialsToFileProcessRunner" class="com.fortify.processrunner.ProcessRunner">
+	<bean id="fodClientCredentialsToFile" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Write vulnerability data to file, using FoD client credentials"/>
 		<property name="processor" ref="fodToFileProcessor"/>	
 		<property name="context" ref="fodClientCredentialsToFileContext"/>	

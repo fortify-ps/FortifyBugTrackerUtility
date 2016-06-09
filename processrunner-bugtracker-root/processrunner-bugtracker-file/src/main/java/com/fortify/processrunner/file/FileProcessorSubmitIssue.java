@@ -56,7 +56,7 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 		if ( StringUtils.isBlank(fileName) ) {
 			fileName = DEFAULT_OUTPUT_FILE;
 		}
-		LOG.info("Writing issues to file "+fileName);
+		LOG.info("Writing vulnerabilities to file "+fileName);
 		try {
 			File f = new File(fileName);
 			writer = new PrintWriter(new FileWriter(f, true));
