@@ -118,13 +118,13 @@
 		     these filters provide worst performance. 
 		-->
 		<property name="fod.topLevelFieldSimpleFilters"><map>
+			<entry key="isSuppressed" value="false"/>
 			<!-- <entry key="severityString" value="Critical"/> -->
 			<!-- <entry key="hasComments" value="false"/> -->
-			<entry key="assignedUser" value="Senden, Ruud"/>
-			<!-- TODO: Add all interesting filter fields in comments -->
-			<entry key="isSuppressed" value="false"/>
-			<entry key="developerStatus" value="In Remediation"/>
+			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
+			<!-- <entry key="developerStatus" value="In Remediation"/> -->
 			<!-- <entry key="severity" value="4"/> -->
+			<!-- TODO: Add additional interesting filter fields in comments -->
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
 			<entry key="severityString" value="Critical|High"/>
