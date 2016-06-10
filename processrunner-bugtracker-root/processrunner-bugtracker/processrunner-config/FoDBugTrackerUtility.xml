@@ -8,23 +8,20 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!--==================================================================================-->
-	<!-- PROXY CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- EXAMPLE: This bean defines a proxy configuration that can be referenced 
-	     by the various ConnectionRetriever beans. If you require different proxies
-	     for accessing FoD and bug tracker, you can duplicate this bean, give the 
-	     new bean a different id, and reference it from the corresponding 
-	     ConnectionRetriever bean. -->
-	<bean id="proxy" class="com.fortify.util.rest.ProxyConfiguration">
-		<property name="uri" value="http://proxy:port/"/>
-		<property name="userName" value="proxy user (optional)"/>
-		<property name="password" value="proxy password (optional)"/>
-	</bean>
-	
-	<!--==================================================================================-->
 	<!-- FoD CONNECTION CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines a proxy configuration used to access FoD. By default
+	     no proxy is used. If necessary, proxy settings can either be entered here,
+	     or using -FoDProxyUrl, -FoDProxyUserName and -FoDProxyPassword command line
+	     options. If a proxy user name is specified without a password, the user
+	     will be prompted to enter the proxy password. -->
+	<bean id="fodProxy" class="com.fortify.processrunner.util.rest.ContextAwareProxyConfiguration">
+		<property name="name" value="FoD"/>
+		<!-- <property name="uri" value="http://proxy:port/"/> -->
+		<!-- <property name="userName" value="proxy user (optional)"/> -->
+		<!-- <property name="password" value="proxy password (optional)"/> -->
+	</bean>
 	
 	<!-- Define FoD connection information like base URL, client credentials, 
 	     and optional proxy. Please see fodConnectionRetrieverUserCredentials 
@@ -35,10 +32,6 @@
 	     -FoDBaseUrl command line option (which will override the base URL 
 	     configured here).
 	     
-	     If you require a proxy to connect to FoD, you will need to uncomment
-	     the proxy property and point it to the correct proxy configuration 
-	     bean id using the ref property.
-	     
 	     Client ID and Secret can either be configured here, or provided via 
 	     the command line options -FoDClientId and -FoDClientSecret. If not 
 	     provided via either configuration or command line option, the user 
@@ -46,9 +39,9 @@
 	-->
 	<bean id="fodConnectionRetrieverClientCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverClientCredentials">
 		<property name="baseUrl" value="https://emea.hpfod.com/"/>
+		<property name="proxy" ref="fodProxy"/>
 		<!-- <property name="clientId" value="API key"/> -->
 		<!-- <property name="clientSecret" value="client secret"/> -->
-		<!-- <property name="proxy" ref="proxy"/> -->
 	</bean>
 	
 	<!-- Define FoD connection information like base URL, user credentials, 
@@ -60,10 +53,6 @@
 	     -FoDBaseUrl command line option (which will override the base URL 
 	     configured here).
 	     
-	     If you require a proxy to connect to FoD, you will need to uncomment
-	     the proxy property and point it to the correct proxy configuration 
-	     bean id using the ref property.
-	     
 	     Tenant, user name and password can either be configured here, or 
 	     provided via the command line options -FoDTentant, -FoDUserName and
 	     -FoDPassword respectively. Alternatively, if tenant, user name and/or 
@@ -72,10 +61,10 @@
     -->
 	<bean id="fodConnectionRetrieverUserCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverUserCredentials">
 		<property name="baseUrl" value="https://hpfod.com/"/>
+		<property name="proxy" ref="fodProxy"/>
 		<!-- <property name="tenant" value="tenant" /> -->
 		<!-- <property name="userName" value="username"/> -->
 		<!-- <property name="password" value="password"/> -->
-		<!-- <property name="proxy" ref="proxy"/> -->
 	</bean>
 	
 	
@@ -149,11 +138,19 @@
 	<!-- JIRA CONNECTION AND PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- Define JIRA connection information like base URL, user name and password. 
+	<!-- This bean defines a proxy configuration used to access JIRA. By default
+	     no proxy is used. If necessary, proxy settings can either be entered here,
+	     or using -JiraProxyUrl, -JiraProxyUserName and -JiraProxyPassword command line
+	     options. If a proxy user name is specified without a password, the user
+	     will be prompted to enter the proxy password. -->
+	<bean id="jiraProxy" class="com.fortify.processrunner.util.rest.ContextAwareProxyConfiguration">
+		<property name="name" value="Jira"/>
+		<!-- <property name="uri" value="http://proxy:port/"/> -->
+		<!-- <property name="userName" value="proxy user (optional)"/> -->
+		<!-- <property name="password" value="proxy password (optional)"/> -->
+	</bean>
 	
-	     If you require a proxy to connect to JIRA, you will need to uncomment
-	     the proxy property and point it to the correct proxy configuration 
-	     bean id using the ref property.
+	<!-- Define JIRA connection information like base URL, user name and password. 
 	     
 	     Base URL, user name and password can either be configured here, or
 	     provided via the -JiraBaseUrl, -JiraUserName and -JiraPassword command
@@ -162,10 +159,10 @@
 	     prompted to enter the corresponding value.
 	-->
 	<bean id="jiraConnectionRetriever" class="com.fortify.processrunner.jira.connection.ContextAwareJiraConnectionRetriever">
+		<property name="proxy" ref="jiraProxy"/>
 		<!-- <property name="baseUrl" value="http://192.168.99.100:32768/"/> -->
 		<!-- <property name="userName" value="rsenden"/> -->
 		<!-- <property name="password" value="password"/> -->
-		<!-- <property name="proxy" ref="proxy"/> -->
 	</bean>
 	
 	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 

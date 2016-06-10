@@ -9,6 +9,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.context.IContextAware;
 import com.fortify.processrunner.context.IContextPropertyProvider;
+import com.fortify.util.rest.ProxyConfiguration;
 
 public class ContextAwareFoDConnectionRetrieverUserCredentials 
 	extends FoDConnectionRetrieverUserCredentials 
@@ -16,6 +17,10 @@ public class ContextAwareFoDConnectionRetrieverUserCredentials
 {
 	public void setContext(Context context) {
 		updateConnectionProperties(context);
+		ProxyConfiguration proxy = getProxy();
+		if ( proxy!=null && proxy instanceof IContextAware ) {
+			((IContextAware)proxy).setContext(context);
+		}
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
@@ -23,6 +28,10 @@ public class ContextAwareFoDConnectionRetrieverUserCredentials
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_TENANT, "FoD tenant", context, StringUtils.isNotBlank(getTenant())?getTenant():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_USER_NAME, "FoD user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_PASSWORD, "FoD password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
+		ProxyConfiguration proxy = getProxy();
+		if ( proxy!=null && proxy instanceof IContextPropertyProvider ) {
+			((IContextPropertyProvider)proxy).addContextProperties(contextProperties, context);
+		}
 	}
 	
 	protected void updateConnectionProperties(Context context) {

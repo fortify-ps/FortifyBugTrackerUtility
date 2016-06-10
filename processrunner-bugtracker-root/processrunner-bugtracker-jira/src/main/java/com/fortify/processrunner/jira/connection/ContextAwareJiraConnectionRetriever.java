@@ -8,6 +8,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.context.IContextAware;
 import com.fortify.processrunner.context.IContextPropertyProvider;
+import com.fortify.util.rest.ProxyConfiguration;
 
 public class ContextAwareJiraConnectionRetriever 
 	extends JiraConnectionRetriever 
@@ -15,12 +16,20 @@ public class ContextAwareJiraConnectionRetriever
 {
 	public void setContext(Context context) {
 		updateConnectionProperties(context);
+		ProxyConfiguration proxy = getProxy();
+		if ( proxy!=null && proxy instanceof IContextAware ) {
+			((IContextAware)proxy).setContext(context);
+		}
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, getBaseUrl(), true));
 		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
+		ProxyConfiguration proxy = getProxy();
+		if ( proxy!=null && proxy instanceof IContextPropertyProvider ) {
+			((IContextPropertyProvider)proxy).addContextProperties(contextProperties, context);
+		}
 	}
 	
 	protected void updateConnectionProperties(Context context) {
