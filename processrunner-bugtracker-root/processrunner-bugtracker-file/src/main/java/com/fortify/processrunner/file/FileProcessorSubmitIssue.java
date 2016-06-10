@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,10 +40,8 @@ public class FileProcessorSubmitIssue extends AbstractProcessor {
 	 * Define the OutputFile context property.
 	 */
 	@Override
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>(2);
-		result.add(new ContextProperty("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
-		return result;
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		contextProperties.add(new ContextProperty("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
 	}
 	
 	/**

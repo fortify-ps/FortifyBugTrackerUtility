@@ -60,7 +60,7 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 		} else {
 			currentParamValue += "%2B";
 		}
-		contextFoD.setFoDTopLevelFilterParamValue(currentParamValue + key+":"+URLEncoder.encode(value,"UTF-8"));
+		contextFoD.setFoDTopLevelFilterParamValue(currentParamValue + key+"%3A"+URLEncoder.encode(value,"UTF-8"));
 	}
 
 	@Override

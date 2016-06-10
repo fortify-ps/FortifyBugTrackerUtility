@@ -1,7 +1,6 @@
 package com.fortify.processrunner.jira.connection;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -18,12 +17,10 @@ public class ContextAwareJiraConnectionRetriever
 		updateConnectionProperties(context);
 	}
 	
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, getBaseUrl(), true));
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
-		result.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
-		return result;
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, getBaseUrl(), true));
+		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
+		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
 	}
 	
 	protected void updateConnectionProperties(Context context) {

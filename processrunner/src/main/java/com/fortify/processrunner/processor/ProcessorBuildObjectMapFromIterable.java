@@ -24,8 +24,7 @@ public class ProcessorBuildObjectMapFromIterable extends AbstractProcessorBuildO
 			for ( Object object : iterable ) {
 				for ( Map.Entry<String, TemplateExpression> entry : templateExpressions.entrySet() ) {
 					String key = entry.getKey();
-					Object value = map.get(key);
-					if ( value == null ) { value = ""; }
+					Object value = map.getOrDefault(key, "");
 					if ( !(value instanceof String) ) {
 						throw new RuntimeException("Cannot append value to non-String value");
 					}

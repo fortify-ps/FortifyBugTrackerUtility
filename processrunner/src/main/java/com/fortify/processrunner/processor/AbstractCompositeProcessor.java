@@ -1,10 +1,10 @@
 package com.fortify.processrunner.processor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.IContextPropertyProvider;
 
 /**
  * This abstract {@link IProcessor} implementation provides
@@ -17,19 +17,32 @@ import com.fortify.processrunner.context.ContextProperty;
 public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	
 	/**
-	 * Get the list of supported context properties by combining the 
-	 * context properties returned by the individual {@link IProcessor}
-	 * instances returned by the {@link #getProcessors()} method. 
+	 * Add the {@link ContextProperty} instances by calling the 
+	 * {@link IContextPropertyProvider#addContextProperties(Collection, Context)} 
+	 * method on each individual {@link IProcessor} instance returned by the 
+	 * {@link #getProcessors()} method. 
 	 */
 	@Override
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		for ( IProcessor processor : getProcessors() ) {
-			result.addAll( processor.getContextProperties(context) );
+	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		IProcessor[] processors = getProcessors();
+		if ( processors != null ) {
+			for ( IProcessor processor : processors ) {
+				if ( processor != null ) {
+					processor.addContextProperties(contextProperties, context);
+				}
+			}
 		}
-		return result;
+		addCompositeContextProperties(contextProperties, context);
 	}
 	
+	/**
+	 * Concrete implementations can override this method to add additional
+	 * {@link ContextProperty} instances.
+	 * @param contextProperties
+	 * @param context
+	 */
+	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+
 	/**
 	 * Run the {@link Phase#PRE_PROCESS} phase on all
 	 * {@link IProcessor} instances returned by {@link #getProcessors()}.

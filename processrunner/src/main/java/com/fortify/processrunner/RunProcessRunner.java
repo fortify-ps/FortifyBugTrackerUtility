@@ -2,8 +2,8 @@ package com.fortify.processrunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -120,13 +120,13 @@ public class RunProcessRunner {
 
 	protected final void updateAndCheckContext(ProcessRunner runner, List<String> args) {
 		Context context = runner.getContext();
-		List<ContextProperty> contextProperties = getContextProperties(runner, context);
+		Collection<ContextProperty> contextProperties = getContextProperties(runner, context);
 		updateContextFromArgs(context, contextProperties, args);
 		checkContext(context, contextProperties);
 		context.refresh();
 	}
 
-	protected final void updateContextFromArgs(Context context, List<ContextProperty> contextProperties, List<String> args) {
+	protected final void updateContextFromArgs(Context context, Collection<ContextProperty> contextProperties, List<String> args) {
 		while ( args.size() > 0 ) {
 			String opt = args.remove(0);
 			if ( !opt.startsWith("-") ) { handleErrorAndExit(null, contextProperties, "ERROR: Invalid option "+opt, 3); }
@@ -135,7 +135,7 @@ public class RunProcessRunner {
 		}
 	}
 	
-	protected final void checkContext(Context context, List<ContextProperty> contextProperties) {
+	protected final void checkContext(Context context, Collection<ContextProperty> contextProperties) {
 		for ( ContextProperty contextProperty : contextProperties ) {
 			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
 				handleErrorAndExit(null, contextProperties, "ERROR: Required option -"+contextProperty.getName()+" not set", 4);
@@ -143,19 +143,19 @@ public class RunProcessRunner {
 		}
 	}
 
-	protected final List<ContextProperty> getContextProperties(ProcessRunner runner, Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.addAll(getContextPropertiesFromProcessRunner(runner, context));
-		result.addAll(getContextPropertiesFromContext(context));
+	protected final Collection<ContextProperty> getContextProperties(ProcessRunner runner, Context context) {
+		Set<ContextProperty> result = new LinkedHashSet<ContextProperty>();
+		addContextPropertiesFromProcessRunner(runner, result, context);
+		addContextPropertiesFromContext(result, context);
 		return result;
 	}
 
-	protected final List<ContextProperty> getContextPropertiesFromProcessRunner(ProcessRunner runner, Context context) {
-		return runner.getProcessor().getContextProperties(context);
+	protected final void addContextPropertiesFromProcessRunner(ProcessRunner runner, Collection<ContextProperty> contextProperties, Context context) {
+		runner.getProcessor().addContextProperties(contextProperties, context);
 	}
 	
-	protected final List<ContextProperty> getContextPropertiesFromContext(Context context) {
-		return context.getContextProperties(context);
+	protected final void addContextPropertiesFromContext(Collection<ContextProperty> contextProperties, Context context) {
+		context.addContextProperties(contextProperties);
 	}
 
 	protected final String getConfigFileName(CommandLine cl) {
@@ -213,7 +213,7 @@ public class RunProcessRunner {
 	 * @param errorMessage
 	 * @param errorCode
 	 */
-	protected final void handleErrorAndExit(ApplicationContext context, List<ContextProperty> contextProperties, String errorMessage, int errorCode) {
+	protected final void handleErrorAndExit(ApplicationContext context, Collection<ContextProperty> contextProperties, String errorMessage, int errorCode) {
 		LOG.error(errorMessage);
 		printUsage(context, contextProperties, errorCode);
 	}
@@ -222,8 +222,8 @@ public class RunProcessRunner {
 	 * Print the usage information for this command.
 	 * @param context
 	 */
-	protected final void printUsage(ApplicationContext appContext, List<ContextProperty> contextProperties, int returnCode) {
-		LOG.info("Usage: "+getBaseCommand()+" [--config <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
+	protected final void printUsage(ApplicationContext appContext, Collection<ContextProperty> contextProperties, int returnCode) {
+		LOG.info("Usage: "+getBaseCommand()+" [--configFile <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
 		LOG.info("");
 		LOG.info("  --configFile <configFile> specifies the configuration file to use. Default is ");
 		LOG.info("    "+getDefaultConfigFilePathAndName());

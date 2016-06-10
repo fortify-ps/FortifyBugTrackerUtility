@@ -1,8 +1,7 @@
 package com.fortify.processrunner.fod.processor;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.ws.rs.HttpMethod;
 
@@ -50,11 +49,11 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",context,null,true));
-		result.addAll(vulnerabilityProcessor.getContextProperties(context));
-		return result;
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		contextProperties.add(new ContextProperty("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",context,null,true));
+		if ( vulnerabilityProcessor != null ) {
+			vulnerabilityProcessor.addContextProperties(contextProperties, context);
+		}
 	}
 	
 	public FoDProcessorRetrieveVulnerabilities() {

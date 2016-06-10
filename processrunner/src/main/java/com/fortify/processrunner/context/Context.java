@@ -3,8 +3,8 @@ package com.fortify.processrunner.context;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,14 +35,12 @@ public class Context extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 	private final Map<Class, Object> proxies = new HashMap<Class, Object>();
 	
-	public final List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
+	public final void addContextProperties(Collection<ContextProperty> contextProperties) {
 		for ( Object obj : values() ) {
 			if ( obj instanceof IContextPropertyProvider ) {
-				result.addAll(((IContextPropertyProvider)obj).getContextProperties(this));
+				((IContextPropertyProvider)obj).addContextProperties(contextProperties, this);
 			}
 		}
-		return result;
 	}
 	
 	public final void refresh() {

@@ -1,7 +1,6 @@
 package com.fortify.processrunner.processor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -9,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.IContextPropertyProvider;
 
 /**
  * <p>This abstract {@link IProcessor} implementation allows subclasses
@@ -29,16 +29,15 @@ import com.fortify.processrunner.context.ContextProperty;
  */
 public abstract class AbstractProcessor implements IProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
-	private static final List<ContextProperty> EMPTY_CP_LIST = new ArrayList<ContextProperty>();
 	
 	/**
-	 * Get the {@link List} of {@link ContextProperty} instances that
-	 * describe the context properties supported by this {@link IProcessor}
-	 * implementation. By default, this method returns an empty {@link List}. 
+	 * Add {@link ContextProperty} instances to the provided
+	 * {@link ContextProperty} {@link Collection} that describe 
+	 * the context properties supported/required by the current 
+	 * {@link IContextPropertyProvider} implementation. By 
+	 * default, this method does not add any context properties.
 	 */
-	public List<ContextProperty> getContextProperties(Context context) {
-		return EMPTY_CP_LIST;
-	}
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
 	
 	/**
 	 * Process the given {@link Phase} with the given {@link Context}.

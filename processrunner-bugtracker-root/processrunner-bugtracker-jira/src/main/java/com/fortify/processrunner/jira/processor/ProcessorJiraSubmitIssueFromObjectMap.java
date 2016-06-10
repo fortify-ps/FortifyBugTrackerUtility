@@ -1,8 +1,6 @@
 package com.fortify.processrunner.jira.processor;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,11 +22,9 @@ public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJira
 	private String defaultIssueType = "Task";
 	
 	@Override
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>(2);
-		result.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
-		result.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
-		return result;
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		contextProperties.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
+		contextProperties.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
 	}
 	
 	@Override

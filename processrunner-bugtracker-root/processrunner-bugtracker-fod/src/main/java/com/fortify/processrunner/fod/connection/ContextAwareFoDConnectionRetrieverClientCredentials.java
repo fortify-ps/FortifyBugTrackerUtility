@@ -1,7 +1,6 @@
 package com.fortify.processrunner.fod.connection;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -19,12 +18,10 @@ public class ContextAwareFoDConnectionRetrieverClientCredentials
 		updateConnectionProperties(context);
 	}
 	
-	public List<ContextProperty> getContextProperties(Context context) {
-		List<ContextProperty> result = new ArrayList<ContextProperty>();
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_ID, "FoD client id", context, StringUtils.isNotBlank(getClientId())?getClientId():"Read from console", false));
-		result.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_SECRET, "FoD client secret", context, StringUtils.isNotBlank(getClientSecret())?"******":"Read from console", false));
-		return result;
+	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
+		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_ID, "FoD client id", context, StringUtils.isNotBlank(getClientId())?getClientId():"Read from console", false));
+		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_SECRET, "FoD client secret", context, StringUtils.isNotBlank(getClientSecret())?"******":"Read from console", false));
 	}
 	
 	protected void updateConnectionProperties(Context context) {

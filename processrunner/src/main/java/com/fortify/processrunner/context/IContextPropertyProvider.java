@@ -1,14 +1,13 @@
 package com.fortify.processrunner.context;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface IContextPropertyProvider {
 	/**
-	 * Get the {@link List} of {@link ContextProperty} instances
-	 * that describe the context properties supported/required
-	 * by the current {@link IContextPropertyProvider} implementation. 
-	 * @param context
-	 * @return
+	 * Add {@link ContextProperty} instances to the provided
+	 * {@link ContextProperty} {@link Collection} that describe 
+	 * the context properties supported/required by the current 
+	 * {@link IContextPropertyProvider} implementation. 
 	 */
-	public abstract List<ContextProperty> getContextProperties(Context context);
+	public abstract void addContextProperties(Collection<ContextProperty> contextProperties, Context context);
 }

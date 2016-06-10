@@ -131,16 +131,16 @@
 		<property name="fod.topLevelFieldSimpleFilters"><map>
 			<!-- <entry key="severityString" value="Critical"/> -->
 			<!-- <entry key="hasComments" value="false"/> -->
-			<!-- <entry key="assignedUser" value="Taylor, Jon"/> -->
-			<!-- TODO: Add all possible fields in comments -->
+			<entry key="assignedUser" value="Senden, Ruud"/>
+			<!-- TODO: Add all interesting filter fields in comments -->
 			<entry key="isSuppressed" value="false"/>
+			<entry key="developerStatus" value="In Remediation"/>
 			<!-- <entry key="severity" value="4"/> -->
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
 			<entry key="severityString" value="Critical|High"/>
 		</map></property>
 		<property name="fod.allFieldRegExFilters"><map>
-			<!-- <entry key="summary.developerStatus" value="Open"/> -->
 		</map></property>
 	</bean>
 	
@@ -168,106 +168,90 @@
 		<!-- <property name="proxy" ref="proxy"/> -->
 	</bean>
 	
-	<!-- Define the fields that will be submitted to JIRA. You can add any supported 
-	     JIRA field here, but you must adhere to the field format described at 
-	     https://docs.atlassian.com/jira/REST/latest/#api/2/issue-createIssue
-	     For example, some fields require a nested object (see 'priority.name'
-	     field), or require the value to be an array (see 'labels' field). 
-		-->
-	<util:map id="jiraFields">
-		<!-- TODO Add examples for recommendations etcetera -->
-		<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-		<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
-		<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
-		<entry key="labels" value="${{'FoD'}}"/>
-	</util:map>
-	
 	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to JIRA as grouped issues. Common FoD vulnerability retrieval options are inherited 
-	     from fodVulnerabilityRetrieverDefaultConfiguration above.
+	     to JIRA. Common FoD vulnerability retrieval options are inherited from 
+	     fodVulnerabilityRetrieverDefaultConfiguration above.
 	     
-	     If necessary, you can change the properties in this bean, for example to use
-	     different vulnerability grouping criteria, or to change the fields and field
-	     data submitted to JIRA. 
-	-->
-	<bean id="fodToJiraGroupedProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
-		<!-- Define the issue grouping using any available vulnerability attribute(s). -->
-		<property name="issue.grouping" value="${category}+${primaryLocationFull}"/>
-		
-		<!-- Define the fields that will be submitted to JIRA for each vulnerability
-		     group. Here we simply reference the jiraFields map defined above.
-		     
-		     Note that any vulnerability attribute referenced in the fields map will 
-		     be evaluated against the first vulnerability in the vulnerability group.
-		-->
-		<property name="issue.fields" ref="jiraFields"/>
-		
-		<!-- Define extra data to be appended to one or more of the fields defined
-		     by issue.fields above for every individual vulnerability in the vulnerability
-		     group. Note that the corresponding field in issue.fields must be a simple
-		     string value, not an array or other complex type. -->
-		<property name="issue.appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
-		</map></property>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to JIRA one-by-one (i.e. vulnerabilities will not be grouped). Common FoD vulnerability
-	     retrieval options are inherited from fodVulnerabilityRetrieverDefaultConfiguration
-	     above.
+	     This processor supports issue grouping (i.e. submitting multiple FoD vulnerabilities
+	     to a single JIRA issue based on a grouping expression). In order to enable grouping,
+	     the grouping expression can be set via the GroupTemplateExpression context property.
 	     
 	     If necessary, you can change the properties in this bean, for example to to change 
 	     the fields and field data submitted to JIRA. 
 	-->
-	<bean id="fodToJiraNonGroupedProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
-		<!-- Define the fields that will be submitted to JIRA for each vulnerability
-		     group. Here we simply reference the jiraFields map defined above.
+	<bean id="fodToJiraProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
+		<!-- Define the fields that will be submitted to JIRA. You can add any supported 
+	         JIRA field here, but you must adhere to the field format described at 
+	         https://docs.atlassian.com/jira/REST/latest/#api/2/issue-createIssue
+	         For example, some fields require a nested object (see 'priority.name'
+	         field), or require the value to be an array (see 'labels' field). 
 		-->
-		<property name="issue.fields" ref="jiraFields"/>
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+			<entry key="labels" value="${{'FoD'}}"/>
+		</map></property>
+		
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		     
+		     Note that any field defined in issue.appendedFields, and the corresponding 
+		     fields in issue.fields, must be simple string values, not an array or other 
+		     complex type. -->
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		</map></property>
 	</bean>
 	
 	<!--==================================================================================-->
 	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
 	
-	<!-- Define the FoD to Jira context using FoD user credentials -->
-	<util:map id="fodUserCredentialsToJiraContext" map-class="com.fortify.processrunner.context.Context">
-		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
-		<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-	</util:map>
-	
-	<!-- Define the FoD to Jira context using FoD client credentials -->
-	<util:map id="fodClientCredentialsToJiraContext" map-class="com.fortify.processrunner.context.Context">
-		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
-		<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-	</util:map>
-	
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD user credentials -->
 	<bean id="fodUserCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD user credentials"/>
-		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
-		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
+		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+			<entry key="GroupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		</map></property>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD user credentials -->
 	<bean id="fodUserCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD user credentials"/>
-		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
-		<property name="context" ref="fodUserCredentialsToJiraContext"/>	
+		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
 	</bean>
 		
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD client credentials -->
 	<bean id="fodClientCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraGroupedProcessor"/>	
-		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
+		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+			<entry key="GroupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		</map></property>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD client credentials -->
 	<bean id="fodClientCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraNonGroupedProcessor"/>	
-		<property name="context" ref="fodClientCredentialsToJiraContext"/>	
+		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
 	</bean>
 	
 	<!--==================================================================================-->
