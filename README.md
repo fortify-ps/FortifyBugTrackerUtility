@@ -10,4 +10,4 @@ The Maven projects in this repository make up a utility for submitting vulnerabi
 - JIRA
 - Export to file
 
-For more information about downloading the release, building from source, configuring and running the utility, please see the Wiki: https://github.com/ryancblack/FoDBugTrackerUtility/wiki
+For more information about downloading the release, building from source, configuring and running the utility, please see the Wiki: https://github.com/HPFOD/FoDBugTrackerUtility/wiki
