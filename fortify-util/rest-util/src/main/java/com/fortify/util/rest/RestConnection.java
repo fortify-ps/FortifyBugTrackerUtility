@@ -129,7 +129,7 @@ public class RestConnection implements IRestConnection {
 			return null;
 		} else {
 			String reasonPhrase = getReasonPhrase(response);
-			String msg = "Error accessing bug tracker: "+reasonPhrase;
+			String msg = reasonPhrase; //In the event of FoD credential exceptions the bug tracker reference was misleading - removed
 			String longMsg = msg+", response contents: \n"+response.getEntity(String.class);
 			// By adding a new exception as the cause, we make sure that the response
 			// contents will be logged whenever this RuntimeException is logged.
