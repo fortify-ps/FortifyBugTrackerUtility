@@ -89,6 +89,7 @@ public class RunProcessRunner {
 		} catch (Throwable t) {
 			LOG.fatal("Error during process run", t);
 		} finally {
+			LOG.info("Processing complete for " + processRunnerBeanName);
 			appContext.close();
 		}
 	}

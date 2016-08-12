@@ -24,7 +24,7 @@ public class ContextAwareFoDConnectionRetrieverClientCredentials
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
+		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_BASE_URL, "FoD base URL", context,  StringUtils.isNotBlank(getBaseUrl())?getBaseUrl():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_ID, "FoD client id", context, StringUtils.isNotBlank(getClientId())?getClientId():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDClientCredentials.PRP_CLIENT_SECRET, "FoD client secret", context, StringUtils.isNotBlank(getClientSecret())?"******":"Read from console", false));
 		ProxyConfiguration proxy = getProxy();
@@ -47,6 +47,9 @@ public class ContextAwareFoDConnectionRetrieverClientCredentials
 		}
 		if ( !StringUtils.isBlank(clientSecret) ) {
 			setClientSecret(clientSecret);
+		}
+		if ( getBaseUrl() == null) {
+			setBaseUrl (System.console().readLine("FoD URL: "));
 		}
 		
 		if ( getClientId()==null ) {

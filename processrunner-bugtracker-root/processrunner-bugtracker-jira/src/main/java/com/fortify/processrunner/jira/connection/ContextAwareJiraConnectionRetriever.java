@@ -23,7 +23,7 @@ public class ContextAwareJiraConnectionRetriever
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, getBaseUrl(), true));
+		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_BASE_URL, "JIRA base URL", context, StringUtils.isNotBlank(getBaseUrl())?getBaseUrl():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_USER_NAME, "JIRA user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextJiraConnectionProperties.PRP_PASSWORD, "JIRA password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
 		ProxyConfiguration proxy = getProxy();
@@ -47,7 +47,9 @@ public class ContextAwareJiraConnectionRetriever
 		if ( !StringUtils.isBlank(password) ) {
 			setPassword(password);
 		}
-		
+		if ( getBaseUrl ()==null ) {
+			setBaseUrl(System.console().readLine("JIRA URL: "));
+		}
 		if ( getUserName()==null ) {
 			setUserName(System.console().readLine("JIRA User Name: "));
 		}
