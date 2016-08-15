@@ -120,10 +120,10 @@
 		<property name="fod.topLevelFieldSimpleFilters"><map>
 			<!-- <entry key="severityString" value="Critical"/> -->
 			<!-- <entry key="hasComments" value="false"/> -->
-			<entry key="assignedUser" value="Senden, Ruud"/>
+			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
 			<!-- TODO: Add all interesting filter fields in comments -->
 			<entry key="isSuppressed" value="false"/>
-			<entry key="developerStatus" value="In Remediation"/>
+			<!-- <entry key="developerStatus" value="In Remediation"/> -->
 			<!-- <entry key="severity" value="4"/> -->
 		</map></property>
 		<property name="fod.topLevelFieldRegExFilters"><map>
