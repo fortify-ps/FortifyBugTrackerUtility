@@ -80,7 +80,7 @@ public class RestConnection implements IRestConnection {
 			ClientResponse response = builder.method(httpMethod, ClientResponse.class);
 			return checkResponseAndGetOutput(response, returnType);
 		} catch ( ClientHandlerException e ) {
-			throw new RuntimeException("Error connecting to bug tracker:\n"+e.getMessage(), e);
+			throw new RuntimeException("Error connecting to resource:\n"+e.getMessage(), e);
 		}
 	}
 
@@ -128,12 +128,24 @@ public class RestConnection implements IRestConnection {
 			}
 			return null;
 		} else {
+			Integer reasonCode = status.getStatusCode();
 			String reasonPhrase = getReasonPhrase(response);
-			String msg = reasonPhrase; //In the event of FoD credential exceptions the bug tracker reference was misleading - removed
-			String longMsg = msg+", response contents: \n"+response.getEntity(String.class);
-			// By adding a new exception as the cause, we make sure that the response
-			// contents will be logged whenever this RuntimeException is logged.
-			throw new RuntimeException(msg, new Exception(longMsg));
+			String className = this.getClass().toString();
+			if (reasonCode.equals(401))
+			{
+				if (className.contains("fod"))
+				{
+					throw new RuntimeException("Authorization failure for FoD credentials.");
+				}
+				if (className.contains("jira"))
+				{
+					throw new RuntimeException("Authorization failure for JIRA credentials.");
+				}
+				throw new RuntimeException("Authorization failure for integration connection." +response.getEntity(String.class));
+			} else
+			{
+				throw new RuntimeException(reasonPhrase);
+			}
 		}
 	}
 
