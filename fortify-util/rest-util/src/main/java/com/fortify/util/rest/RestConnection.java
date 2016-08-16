@@ -131,7 +131,7 @@ public class RestConnection implements IRestConnection {
 			Integer reasonCode = status.getStatusCode();
 			String reasonPhrase = getReasonPhrase(response);
 			String className = this.getClass().toString();
-			if (reasonCode.equals(401) || reasonCode.equals(400)) //FOD gives a 400 error for bad user credentials and a 401 for bad token/secret. Interim fix is to assume our auth request is well-formed and is simple bad creds.
+			if (reasonCode.equals(401) || reasonCode.equals(400)) //FOD gives a 400 error for bad user credentials and a 401 for bad token/secret. Interim fix is to assume our auth request is well-formed and is simply bad creds.
 			{
 				if (className.contains("fod"))
 				{
