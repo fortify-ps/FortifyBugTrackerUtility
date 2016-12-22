@@ -1,5 +1,6 @@
 package com.fortify.processrunner.processor;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,24 @@ import com.fortify.util.spring.expression.TemplateExpression;
 import com.javamex.classmexer.MemoryUtil;
 
 /**
- * This {@link IProcessor} implementation allows for collecting
- * and grouping data contained in the {@link Context} during the 
- * {@link Phase#PROCESS} phase. During the {@link Phase#POST_PROCESS}
- * phase, the configured group processor will then be invoked for
- * each individual group. The group processor can then access the
+ * <p>This {@link IProcessor} implementation allows for collecting
+ * and grouping data stored in the {@link Context} during the 
+ * {@link Phase#PROCESS} phase. The rootExpression property defines 
+ * the expression used to retrieve each root object from the 
+ * {@link Context}. The optional groupTemplateExpression is 
+ * evaluated on each root object to identify the group that this
+ * root object belongs to.</p>
+ * 
+ * <p>During the {@link Phase#POST_PROCESS}
+ * phase, the configured group processor will be invoked for each 
+ * individual group. The group processor can then access the root
  * objects contained in the current group using the 
- * {@link IContextGrouping#getCurrentGroup()} method.
+ * {@link IContextGrouping#getCurrentGroup()} method.</p>
+ * 
+ * <p>If no grouping expression has been defined, the group processor
+ * will be invoked immediately for every individual root object.
+ * Just like grouped data, the group processor can then access this
+ * root object using the {@link IContextGrouping#getCurrentGroup()} method.</p>
  */
 public class ProcessorGroupByExpressions extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(ProcessorGroupByExpressions.class);
@@ -40,33 +52,52 @@ public class ProcessorGroupByExpressions extends AbstractProcessor {
 	protected boolean preProcess(Context context) {
 		// Initialize the count of the total number of entries that have been grouped
 		context.as(IContextGrouping.class).setTotalCount(0);
-		return true;
+		// Invoke the pre-process phase on the group processor
+		return getGroupProcessor().process(Phase.PRE_PROCESS, context);
 	}
 	
 	protected boolean process(Context context) {
 		IContextGrouping contextGrouping = context.as(IContextGrouping.class);
-		Object rootObject = SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
-		String groupKey = SpringExpressionUtil.evaluateExpression(rootObject, getGroupTemplateExpression(), String.class);
-		addGroupObject(contextGrouping, groupKey, rootObject);
-		return true;
+		SimpleExpression rootExpression = getRootExpression();
+		TemplateExpression groupTemplateExpression = getGroupTemplateExpression();
+		Object rootObject = SpringExpressionUtil.evaluateExpression(context, rootExpression, Object.class);
+		
+		if ( groupTemplateExpression == null ) {
+			// If no group template expression is defined, we directly invoke
+			// the group processor since we do not need to group the data first.
+			contextGrouping.setCurrentGroup(Arrays.asList(new Object[]{rootObject}));
+			contextGrouping.setTotalCount(contextGrouping.getTotalCount()+1);
+			return getGroupProcessor().process(Phase.PROCESS, context);
+		} else {
+			// If a group template expression is defined, we collect the group
+			// data and invoke the process() method of the group processor
+			// in our postProcess() method once all data has been grouped.
+			String groupKey = SpringExpressionUtil.evaluateExpression(rootObject, groupTemplateExpression, String.class);
+			addGroupObject(contextGrouping, groupKey, rootObject);
+			return true;
+		}
 	}
 	
 	protected boolean postProcess(Context context) {
-		IContextGrouping contextGrouping = context.as(IContextGrouping.class);
-		MultiValueMap<String, Object> groups = getGroups(contextGrouping);
-		logStatistics(contextGrouping, groups);
-		
-		IProcessor processor = getGroupProcessor();
-		if ( !processor.process(Phase.PRE_PROCESS, context) ) {
-			return false;
+		IProcessor groupProcessor = getGroupProcessor();
+		boolean result = true;
+		if ( getGroupTemplateExpression() != null ) {
+			// If a group template expression is defined, we call the
+			// process() method on the group processor for every
+			// group that we have collected.
+			IContextGrouping contextGrouping = context.as(IContextGrouping.class);
+			MultiValueMap<String, Object> groups = getGroups(contextGrouping);
+			logStatistics(contextGrouping, groups);
+			
+			for ( Map.Entry<String, List<Object>> group : groups.entrySet() ) {
+				contextGrouping.setCurrentGroup(group.getValue());
+				if ( !groupProcessor.process(Phase.PROCESS, context) ) {
+					result = false; break; // Stop processing remainder of groups
+				};
+			}
+			
 		}
-		for ( Map.Entry<String, List<Object>> group : groups.entrySet() ) {
-			contextGrouping.setCurrentGroup(group.getValue());
-			if ( !processor.process(Phase.PROCESS, context) ) {
-				return false;
-			};
-		}
-		return processor.process(Phase.POST_PROCESS, context);
+		return groupProcessor.process(Phase.POST_PROCESS, context) && result;
 	}
 
 	protected void addGroupObject(IContextGrouping context, String groupKey, Object groupedObject) {
@@ -130,13 +161,9 @@ public class ProcessorGroupByExpressions extends AbstractProcessor {
 	}
 
 	public static interface IContextGrouping {
-		public static final String PRP_GROUP_TEMPLATE_EXPRESSION = "GroupTemplateExpression";
 		public static final String PRP_GROUPS = "Groups";
 		public static final String PRP_TOTAL_COUNT = "TotalCount";
 		public static final String PRP_CURRENT_GROUP = "CurrentGroup";
-		
-		public void setGroupTemplateExpression(String groupTemplateExpression);
-		public String getGroupTemplateExpression();
 		
 		public void setGroups(MultiValueMap<String, Object> groups);
 		public MultiValueMap<String, Object> getGroups();

@@ -16,9 +16,9 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMap.ICont
 /**
  * This concrete {@link AbstractProcessorJiraSubmitIssue} implementation 
  * generates the {@link JSONObject} to be posted to JIRA, based on {@link Context}
- * data provided via the {@link IContextObjectMap} interface. 
+ * data provided via the {@link IContextStringMap} interface. 
  */
-public class ProcessorJiraSubmitIssueFromObjectMap extends AbstractProcessorJiraSubmitIssue {
+public class ProcessorSubmitIssueToJiraFromObjectMap extends AbstractProcessorJiraSubmitIssue {
 	private String defaultIssueType = "Task";
 	
 	@Override

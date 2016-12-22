@@ -10,7 +10,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 public class FoDProcessorAddVulnDeepLink extends AbstractProcessor {
-	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("/Releases/${releaseId}/Issues#/page/Issues/pgIdx/1/rpp/10/asc/true/viewMode/detail/selectedVulnId/${vulnId}");
+	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("redirect/Issues/${vulnId}");
 
 	@Override
 	protected boolean process(Context context) {

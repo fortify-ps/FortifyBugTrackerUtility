@@ -1,8 +1,12 @@
 package com.fortify.util.rest;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Response.Status.Family;
@@ -11,6 +15,16 @@ import javax.ws.rs.core.Response.StatusType;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -18,34 +32,58 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
-import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 
 /**
- * Utility for working with a REST API. Note that this class doesn't
- * do any authentication; this will need to be implemented in subclasses.
+ * Utility for working with a REST API. Instances of this class can be configured
+ * with a base URL, optional proxy configuration, and optional credentials for 
+ * authenticating with the remote system. Subclasses can override various methods
+ * to customize the behavior of the connection or to implement more advanced 
+ * authentication mechanisms. 
  */
 public class RestConnection implements IRestConnection {
+	//private static final Log LOG = LogFactory.getLog(RestConnection.class);
+	private static final Set<String> DEFAULT_HTTP_METHODS_TO_PRE_AUTHENTICATE = new HashSet<String>(Arrays.asList("POST","PUT","PATCH"));
+	private final CredentialsProvider credentialsProvider = createCredentialsProvider();
 	private final String baseUrl;
 	private Client client;
 	private ProxyConfiguration proxy;
 
 	/**
-	 * This constructor determines the various connection properties used
-	 * to connect to the bug tracker. It doesn't actually connect to the
-	 * bug tracker yet. 
+	 * This constructor is used to specify the base URL for this connection.
 	 *
-	 * @param bugTrackerUrl
+	 * @param baseUrl
 	 */
 	public RestConnection(String baseUrl) 
 	{
 		this.baseUrl = validateAndNormalizeUrl(baseUrl);
 	}
 	
+	/**
+	 * This constructor is used to specify the base URL and credentials for the remote system.
+	 *
+	 * @param baseUrl
+	 */
+	public RestConnection(String baseUrl, Credentials credentials) {
+		this(baseUrl);
+		getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
+	}
+	
+	
+	
 	public String getBaseUrl() {
 		return baseUrl;
+	}
+	
+	/**
+	 * Get the {@link CredentialsProvider} used to execute requests.
+	 * Clients can use this method to add credentials to the 
+	 * {@link CredentialsProvider}.
+	 * @return {@link CredentialsProvider} used to authenticate with the bug tracker
+	 */
+	protected final CredentialsProvider getCredentialsProvider() {
+		return credentialsProvider;
 	}
 
 	/**
@@ -65,6 +103,19 @@ public class RestConnection implements IRestConnection {
 	}
 	
 	/**
+	 * Execute a request for the given method using the given web resource.
+	 * @param httpMethod The HTTP method to be used, as specified by one of the constants
+	 *                   in {@link HttpMethod}
+	 * @param webResource The web resource used to execute the request. Usually this web resource 
+	 * 					  is created using {@link #getBaseResource()}.path(...)...
+	 * @param returnType The return type for the data returned by the request.
+	 * @return The result of executing the HTTP request.
+	 */
+	public <T> T executeRequest(String httpMethod, WebResource webResource, Class<T> returnType) {
+		return executeRequest(httpMethod, webResource.getRequestBuilder(), returnType);
+	}
+	
+	/**
 	 * Execute a request for the given method using the given builder.
 	 * @param httpMethod The HTTP method to be used, as specified by one of the constants
 	 *                   in {@link HttpMethod}
@@ -78,36 +129,72 @@ public class RestConnection implements IRestConnection {
 			initializeConnection(httpMethod);
 			builder = updateBuilder(builder);
 			ClientResponse response = builder.method(httpMethod, ClientResponse.class);
-			return checkResponseAndGetOutput(response, returnType);
+			return checkResponseAndGetOutput(httpMethod, builder, response, returnType);
 		} catch ( ClientHandlerException e ) {
 			throw new RuntimeException("Error connecting to bug tracker:\n"+e.getMessage(), e);
 		}
 	}
 
 	/**
-	 * Subclasses can override this method to initialize the connection if necessary,
-	 * before sending the actual request. This can for example be used to perform 
-	 * authentication on a cheap resource before sending a (possibly large) payload. 
-	 * The default implementation does nothing.
-	 * @param httpMethod
+	 * Authenticating with the server may require several round trips,
+	 * especially when using NTLM authentication. For HTTP methods that
+	 * may contain a (possibly large) payload, we do not want this 
+	 * payload to be included in the authentication requests for the
+	 * following reasons:
+	 * <ul>
+	 *  <li>Re-sending a large payload multiple times can have a negative 
+	 *      impact on performance
+	 *  <li>If the client sends a non-repeatable entity, any round trip 
+	 *      after the initial attempt (which may fail due to authentication
+	 *      being required) will trigger an exception
+	 * </ul>
+	 * 
+	 * As such, if the {@link #doInitializeAuthenticatedConnection()} method
+	 * returns true, we call {@link #initializeAuthenticatedConnection()} to 
+	 * pre-authenticate the connection for the HTTP methods returned by 
+	 * {@link #getHttpMethodsToPreAuthenticate()}.
+	 * 
+	 * @param httpMethod for which to initialize the connection
 	 */
 	protected void initializeConnection(String httpMethod) {
-		// Default implementation does nothing
+		if ( doInitializeAuthenticatedConnection() && getHttpMethodsToPreAuthenticate().contains(httpMethod.toUpperCase()) ) {
+			initializeAuthenticatedConnection();
+		}
+	}
+	
+	/**
+	 * Indicate whether the {@link #initializeAuthenticatedConnection()} method
+	 * should be called for the HTTP methods returned by {@link #getHttpMethodsToPreAuthenticate()}.
+	 * By default, this method returns false if preemptive basic authentication
+	 * is enabled (assuming the connection will be automatically authenticated
+	 * upon the actual request). If preemptive basic authentication is disabled,
+	 * this method will return true.
+	 * @return Flag indicating whether {@link #initializeAuthenticatedConnection()}
+	 *         should be called if necessary
+	 */
+	protected boolean doInitializeAuthenticatedConnection() {
+		return !doPreemptiveBasicAuthentication(); // TODO Add check whether credentials are available
 	}
 
 	/**
-	 * Execute a request for the given method using the given web resource.
-	 * @param httpMethod The HTTP method to be used, as specified by one of the constants
-	 *                   in {@link HttpMethod}
-	 * @param webResource The web resource used to execute the request. Usually this web resource 
-	 * 					  is created using {@link #getBaseResource()}.path(...)...
-	 * @param returnType The return type for the data returned by the request.
-	 * @return The result of executing the HTTP request.
+	 * <p>Subclasses should override this method to set up an authenticated connection.
+	 * Implementations would usually execute some cheap request (for example a GET or
+	 * HEAD request on a resource that only returns a small payload), resulting
+	 * in authentication to be performed if needed.</p>
+	 * 
+	 * <p>Note that the request to authenticate cannot use any of the HTTP methods
+	 * returned by {@link #getHttpMethodsToPreAuthenticate()} as this would result 
+	 * in an endless loop.</p>
+	 * 
+	 * <p>Also note that if a subclass does not override the {@link #doInitializeAuthenticatedConnection()}
+	 * and/or {@link #doPreemptiveBasicAuthentication()} methods, this method will
+	 * never be called (since preemptive basic authentication is enabled by 
+	 * default, {@link #doInitializeAuthenticatedConnection()} will always return
+	 * false). As such, we provide a default empty implementation instead of
+	 * making this an abstract method.</p>
 	 */
-	public <T> T executeRequest(String httpMethod, WebResource webResource, Class<T> returnType) {
-		return executeRequest(httpMethod, webResource.getRequestBuilder(), returnType);
-	}
-
+	protected void initializeAuthenticatedConnection() {}
+	
 	/**
 	 * Check the response code. If successful, return the entity with the given return type,
 	 * otherwise throw an exception.
@@ -115,26 +202,41 @@ public class RestConnection implements IRestConnection {
 	 * @param returnType
 	 * @return The entity from the given {@link ClientResponse} if available
 	 */
-	@SuppressWarnings("unchecked")
-	protected <T> T checkResponseAndGetOutput(ClientResponse response, Class<T> returnType) {
+	protected <T> T checkResponseAndGetOutput(String httpMethod, Builder builder, ClientResponse response, Class<T> returnType) {
 		StatusType status = response.getStatusInfo();
 		if ( status != null && status.getFamily() == Family.SUCCESSFUL ) {
-			if ( returnType != null ) {
-				if ( returnType.isAssignableFrom(response.getClass()) ) {
-					return (T)response;
-				} else if ( status.getStatusCode() != Status.NO_CONTENT.getStatusCode() ) {
-					return response.getEntity(returnType);
-				}
-			}
-			return null;
+			return getSuccessfulResponse(response, returnType, status);
 		} else {
-			String reasonPhrase = getReasonPhrase(response);
-			String msg = "Error accessing bug tracker: "+reasonPhrase;
-			String longMsg = msg+", response contents: \n"+response.getEntity(String.class);
-			// By adding a new exception as the cause, we make sure that the response
-			// contents will be logged whenever this RuntimeException is logged.
-			throw new RuntimeException(msg, new Exception(longMsg));
+			throw getUnsuccesfulResponseException(response);
 		}
+	}
+
+	/**
+	 * Get the return value for a successful response.
+	 * @param response
+	 * @param returnType
+	 * @param status
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T> T getSuccessfulResponse(ClientResponse response, Class<T> returnType, StatusType status) {
+		if ( returnType == null || status.getStatusCode() == Status.NO_CONTENT.getStatusCode() ) {
+			return null;
+		} else if ( returnType.isAssignableFrom(response.getClass()) ) {
+			return (T)response;
+		} else {
+			return response.getEntity(returnType);
+		}
+	}
+	
+	protected RuntimeException getUnsuccesfulResponseException(ClientResponse response) {
+		String reasonPhrase = getReasonPhrase(response);
+		String msg = "Error accessing bug tracker: "+reasonPhrase;
+		String longMsg = msg+", response contents: \n"+response.getEntity(String.class);
+		// By adding a new exception as the cause, we make sure that the response
+		// contents will be logged whenever this RuntimeException is logged.
+		RuntimeException re = new RuntimeException(msg, new Exception(longMsg));
+		return re;
 	}
 
 	/** 
@@ -198,55 +300,103 @@ public class RestConnection implements IRestConnection {
 	}
 
 	/**
-	 * Create a new client for executing requests. The default
-	 * implementation calls {@link #createApacheHttpClient4()}
-	 * to create an {@link ApacheHttpClient4} instance. 
+	 * <p>Create a new client for executing requests. The default
+	 * implementation creates a client based on Apache HttpClient
+	 * 4.x by calling {@link #createApacheHttpClientBuilder()}.
+	 * Some of the Jersey-specific settings like the CookieStore
+	 * and whether to use preemptive basic authentication can
+	 * be specified by overriding the corresponding methods.</p> 
 	 * 
-	 * Subclasses can override this method to create a different 
+	 * <p>Subclasses can override this method to create a different 
 	 * type of client. Note however that other classes may
-	 * depend on {@link ApacheHttpClient4}, for example 
-	 * {@link AuthenticatingRestConnection}.
+	 * depend on the use of Apache HttpClient, for example 
+	 * {@link AuthenticatingRestConnection}.</p>
 	 * 
-	 * Subclasses that would would like to customize
-	 * the created {@link ApacheHttpClient4} should override
-	 * {@link #createApacheHttpClient4()} instead.
+	 * <p>Subclasses that would would like to customize Apache
+	 * HttpClient behavior should override {@link #createApacheHttpClientBuilder()}.</p>
+	 * 
 	 * @return New {@link Client} instance
 	 */
 	protected Client createClient() {
-		return createApacheHttpClient4();
+		HttpClient apacheClient = createApacheHttpClientBuilder().build();
+		Client client = new Client(new ApacheHttpClient4Handler(apacheClient, createCookieStore(), doPreemptiveBasicAuthentication()));
+		// TODO Allow subclasses to override this and other settings
+		client.getProperties().put(ApacheHttpClient4Config.PROPERTY_ENABLE_BUFFERING, true);
+		return client;
 	}
 	
 	/**
-	 * Create a new {@link ApacheHttpClient4} instance based on the 
-	 * {@link ClientConfig} returned by {@link #getApacheHttpClient4Config()}.
-	 * Subclasses may override this method to perform additional
-	 * configuration on the client or use some different way
-	 * for instantiating the client.
-	 * @return New {@link ApacheHttpClient4} instance
+	 * Subclasses can override this method to customize the Apache
+	 * HttpClient configuration. Usually subclasses would call
+	 * super.createApacheHttpClientBuilder() to re-use the default
+	 * implementation and add additional configuration on top of that.
+	 * @return
 	 */
-	protected ApacheHttpClient4 createApacheHttpClient4() {
-		return ApacheHttpClient4.create(getApacheHttpClient4Config());
-	}
-	
-	/**
-	 * Return the {@link ApacheHttpClient4Config} used for creating the 
-	 * {@link ApacheHttpClient4}. By default this returns a standard
-	 * instance of {@link DefaultApacheHttpClient4Config} with optional
-	 * proxy support. Subclasses can override this method to update the 
-	 * configuration.
-	 * @return {@link ApacheHttpClient4Config} used to configure {@link ApacheHttpClient4}
-	 */
-	protected ApacheHttpClient4Config getApacheHttpClient4Config() {
-		DefaultApacheHttpClient4Config cc = new DefaultApacheHttpClient4Config();
-		if ( proxy != null && StringUtils.isNotBlank(proxy.getUri()) ) {
-			cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_URI, proxy.getUri());
+	protected HttpClientBuilder createApacheHttpClientBuilder() {
+		// TODO Disable chunked encoding
+		// TODO Set auth header charset
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		builder.setDefaultCredentialsProvider(getCredentialsProvider());
+		// Add proxy host
+		if ( proxy != null && proxy.getUri() != null ) {
+			URI u = proxy.getUri();
+			builder.setProxy(new HttpHost(u.getHost(), u.getPort(), u.getScheme()));
+			
+			// Add proxy credentials
 			if ( StringUtils.isNotBlank(proxy.getUserName()) && StringUtils.isNotBlank( proxy.getPassword()) ) {
-				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_USERNAME, proxy.getUserName());
-				cc.getProperties().put(ApacheHttpClient4Config.PROPERTY_PROXY_PASSWORD, proxy.getPassword());
+				getCredentialsProvider().setCredentials(new AuthScope(u.getHost(), u.getPort()),
+			            new UsernamePasswordCredentials(proxy.getUserName(), proxy.getPassword()));
 			}
 		}
-		return cc;
+		return builder;
 	}
+	
+	/**
+	 * Create the {@link CookieStore} to use between requests.
+	 * This default implementation returns a {@link BasicCookieStore}
+	 * instance. Subclasses can override this method to return
+	 * an alternative {@link CookieStore} implementation, or
+	 * null if cookies should not be maintained between requests.
+	 * @return
+	 */
+	protected CookieStore createCookieStore() {
+		return new BasicCookieStore();
+	}
+	
+	/**
+	 * Indicate whether preemptive basic authentication should be used.
+	 * If this method returns true, the Basic Authentication header will
+	 * be sent on all requests, preventing multiple round trips for
+	 * performing authentication. This default implementation returns true.
+	 * 
+	 * @return Flag specifying whether preemptive Basic Authentication should be performed
+	 */
+	protected boolean doPreemptiveBasicAuthentication() {
+		return true;
+	}
+	
+	/**
+	 * Create the {@link CredentialsProvider} to use for requests.
+	 * This default implementation returns a {@link BasicCredentialsProvider}
+	 * instance.
+	 * @return
+	 */
+	protected BasicCredentialsProvider createCredentialsProvider() {
+		return new BasicCredentialsProvider();
+	}
+	
+	/**
+	 * Subclasses can override this method to return the set of HTTP methods
+	 * for which an authenticated connection should be initialized before
+	 * executing the actual request. All returned HTTP methods should be
+	 * in upper case. By default, this method returns POST, PUT and PATCH.
+	 * @return {@link Set} of HTTP Methods that should be pre-authenticated
+	 */
+	protected Set<String> getHttpMethodsToPreAuthenticate() {
+		return DEFAULT_HTTP_METHODS_TO_PRE_AUTHENTICATE;
+	}
+	
+	
 	
 	/**
 	 * Update the given {@link Builder} before executing the request.

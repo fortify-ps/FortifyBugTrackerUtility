@@ -81,11 +81,15 @@
 	     in the concrete processor configurations below (if you use multiple
 	     processor configurations that require different settings). 
 	-->
-	<bean id="fodVulnerabilityRetrieverDefaultConfiguration" abstract="true">
+	<bean id="fodSubmitVulnerabilitiesToBugTracker" abstract="true" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker">
 		<!-- Define any extra data that must be loaded from FoD for filtering 
-		     and/or building the issue contents. Note that summary data will
-		     always be loaded and thus does not need to be added here.  -->
-		<property name="fod.extraFields"><list>
+		     and/or building the issue contents. Note that previous versions
+		     automatically loaded summary data, but this is no longer the case
+		     if useFoDCommentForSubmittedBugs is set to false.
+		     If your customized configuration depends on summary data, you 
+		     will need to enable the summary field here. -->
+		<property name="extraFields"><list>
+			<!-- <value>summary</value> -->
 			<!-- <value>details</value> -->
 			<!-- <value>recommendations</value> -->
 			<!-- <value>screenshots</value> -->
@@ -103,7 +107,8 @@
 		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
 		     Where possible, these filters are processed by FoD, reducing the
 		     number of vulnerabilities returned by FoD. As such, these filters 
-		     provide best performance.
+		     provide best performance. Values may contain the '|' operator to
+		     match against multiple allowed values.
 		     
 		     fod.topLevelFieldRegExFilters allows RegEx-based filtering on any
 		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
@@ -117,20 +122,48 @@
 		     filters are only applied after loading all extra data from FoD,
 		     these filters provide worst performance. 
 		-->
-		<property name="fod.topLevelFieldSimpleFilters"><map>
+		<property name="topLevelFieldSimpleFilters"><map>
 			<entry key="isSuppressed" value="false"/>
-			<!-- <entry key="severityString" value="Critical"/> -->
+			<entry key="severityString" value="Critical|High"/>
 			<!-- <entry key="hasComments" value="false"/> -->
 			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
 			<!-- <entry key="developerStatus" value="In Remediation"/> -->
 			<!-- <entry key="severity" value="4"/> -->
 			<!-- TODO: Add additional interesting filter fields in comments -->
 		</map></property>
-		<property name="fod.topLevelFieldRegExFilters"><map>
-			<entry key="severityString" value="Critical|High"/>
+		<property name="topLevelFieldRegExFilters"><map>
 		</map></property>
-		<property name="fod.allFieldRegExFilters"><map>
+		<property name="allFieldRegExFilters"><map>
 		</map></property>
+		
+		<!-- This flag can be set to true to add information about submitted bugs to 
+		     FoD vulnerability comments. By default (false), the bug link will
+		     be stored in the dedicated FoD bugLink field. Since the concrete
+		     processors defined below require different settings, each concrete
+		     processor explicitly sets this property. -->
+		<!-- <property name="useFoDCommentForSubmittedBugs" value="false"/> -->
+		
+		<!-- This property defines the processor that actually submits FoD 
+		     vulnerabilities to a bug tracker. The different bug tracker
+		     implementations defined below explicitly set this property to
+		     a corresponding vulnerability processor. -->
+		<!-- <property name="vulnerabilityProcessor" ref="actualVulnerabilityProcessor"/> -->
+	</bean>
+	
+	<!-- This abstract bean inherits all of the properties from 
+	     fodSubmitVulnerabilitiesToBugTracker, but adds a group template 
+	     expression to allow multiple vulnerabilities to be grouped in a 
+	     single submitted bug. 
+	     
+	     The grouping expression can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different grouping criteria).
+	-->
+	<bean id="fodSubmitGroupedVulnerabilitiesToBugTracker" abstract="true" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<!-- Define the expression used to group vulnerabilities. This expression can use
+		     any of the fields returned by the FoD vulnerabilities API. -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 	</bean>
 	
 	
@@ -166,23 +199,10 @@
 	</bean>
 	
 	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to JIRA. Common FoD vulnerability retrieval options are inherited from 
-	     fodVulnerabilityRetrieverDefaultConfiguration above.
-	     
-	     This processor supports issue grouping (i.e. submitting multiple FoD vulnerabilities
-	     to a single JIRA issue based on a grouping expression). In order to enable grouping,
-	     the grouping expression can be set via the GroupTemplateExpression context property.
-	     
-	     If necessary, you can change the properties in this bean, for example to to change 
-	     the fields and field data submitted to JIRA. 
+	     to JIRA. If necessary, you can change the properties in this bean, for example 
+	     to change the fields and field data submitted to JIRA. 
 	-->
-	<bean id="fodToJiraProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.jira.FoDProcessorSubmitVulnerabilitiesToJira">
-		<!-- Define the fields that will be submitted to JIRA. You can add any supported 
-	         JIRA field here, but you must adhere to the field format described at 
-	         https://docs.atlassian.com/jira/REST/latest/#api/2/issue-createIssue
-	         For example, some fields require a nested object (see 'priority.name'
-	         field), or require the value to be an array (see 'labels' field). 
-		-->
+	<bean id="fodToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorSubmitIssueToJiraFromGroupedObjects">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -190,7 +210,7 @@
 			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property>
-		
+
 		<!-- Define extra data to be appended to one or more of the fields defined
 		     by issue.fields above. For non-grouped vulnerabilities, we could just 
 		     as well have appended these expressions to the corresponding
@@ -205,6 +225,20 @@
 		</map></property>
 	</bean>
 	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
+	     non-grouped FoD vulnerabilities) with the actual Jira issue submitter. -->
+	<bean id="fodToJiraProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="vulnerabilityProcessor" ref="fodToJiraIssueSubmitter"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitGroupedVulnerabilitiesToBugTracker (to retrieve and process
+	     grouped FoD vulnerabilities) with the actual Jira issue submitter. -->
+	<bean id="fodToJiraProcessorGrouped" parent="fodSubmitGroupedVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="vulnerabilityProcessor" ref="fodToJiraIssueSubmitter"/>
+	</bean>
+	
 	<!--==================================================================================-->
 	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
@@ -212,18 +246,17 @@
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD user credentials -->
 	<bean id="fodUserCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD user credentials"/>
-		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
 		<property name="context"><map>
 			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-			<entry key="GroupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 		</map></property>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD user credentials -->
 	<bean id="fodUserCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD user credentials"/>
-		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
 		<property name="context"><map>
 			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
@@ -233,7 +266,7 @@
 	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD client credentials -->
 	<bean id="fodClientCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
 		<property name="context"><map>
 			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
@@ -244,7 +277,7 @@
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD client credentials -->
 	<bean id="fodClientCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraProcessor"/>	
+		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
 		<property name="context"><map>
 			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
@@ -256,42 +289,47 @@
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the processor configuration for writing FoD vulnerability
-	     data to a file.
-	     
-	     If necessary, you can change the properties in this bean, for example to use
-	     different file headers and vulnerability contents.
+	     data to a file. If necessary, you can change the properties in this bean, for 
+	     example to change the fields and field data submitted to the file.
 	-->
-	<bean id="fodToFileProcessor" parent="fodVulnerabilityRetrieverDefaultConfiguration" class="com.fortify.processrunner.fod.file.FoDProcessorSubmitVulnerabilitiesToFile">
-		<property name="file.fieldHeaders" value="id,vulnId,category,primaryLocationFull,severity,deepLink"/>
-		<property name="file.fieldTemplateExpressions" value="${id},${vulnId},${category},${primaryLocationFull},${severityString},${deepLink}"/>
+	<bean id="fodToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorSubmitIssueToFileFromGroupedObjects">
+		<property name="fields"><map>
+			<entry key="id" value="${id}"/>
+			<entry key="vulnId" value="${vulnId}"/>
+			<entry key="category" value="${category}"/>
+			<entry key="primaryLocationFull" value="${primaryLocationFull}"/>
+			<entry key="severity" value="${severityString}"/>
+			<entry key="deepLink" value="${deepLink}"/>
+		</map></property>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
+	     non-grouped FoD vulnerabilities) with the actual file issue submitter. -->
+	<bean id="fodToFileProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="true"/>
+		<property name="vulnerabilityProcessor" ref="fodToFileIssueSubmitter"/>
 	</bean>
 	
 	<!--==================================================================================-->
 	<!-- EXPORT VULNERABILITIES TO FILE PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
 	
-	<!-- Define the FoD to file context using FoD user credentials -->
-	<util:map id="fodUserCredentialsToFileContext" map-class="com.fortify.processrunner.context.Context">
-		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
-	</util:map>
-	
-	<!-- Define the FoD to file context using FoD client credentials -->
-	<util:map id="fodClientCredentialsToFileContext" map-class="com.fortify.processrunner.context.Context">
-		<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
-	</util:map>
-	
-	<!-- This process runner submits vulnerabilities to file, using FoD user credentials -->
-	<bean id="fodUserCredentialsToFile" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Write vulnerability data to file, using FoD user credentials"/>
-		<property name="processor" ref="fodToFileProcessor"/>	
-		<property name="context" ref="fodUserCredentialsToFileContext"/>	
+	<!-- This process runner submits non-grouped vulnerabilities to a file, using FoD user credentials -->
+	<bean id="fodUserCredentialsToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities to a file using FoD user credentials"/>
+		<property name="processor" ref="fodToFileProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+		</map></property>
 	</bean>
-		
-	<!-- This process runner submits vulnerabilities to file, using FoD client credentials -->
-	<bean id="fodClientCredentialsToFile" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Write vulnerability data to file, using FoD client credentials"/>
-		<property name="processor" ref="fodToFileProcessor"/>	
-		<property name="context" ref="fodClientCredentialsToFileContext"/>	
+	
+	<!-- This process runner submits non-grouped vulnerabilities to a file, using FoD client credentials -->
+	<bean id="fodClientCredentialsToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities to a file, using FoD client credentials"/>
+		<property name="processor" ref="fodToFileProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+		</map></property>
 	</bean>
 	
 </beans>

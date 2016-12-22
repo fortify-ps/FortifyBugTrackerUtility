@@ -1,6 +1,7 @@
 package com.fortify.processrunner.processor;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
@@ -12,7 +13,8 @@ import com.fortify.processrunner.context.IContextPropertyProvider;
  * instances. Concrete implementations of this class must 
  * implement the {@link #getProcessors()} method to return the 
  * list of individual {@link IProcessor} instances to be invoked
- * during processing.
+ * during processing. The list of {@link IProcessor} instances
+ * may contain null values that will be ignored.
  */
 public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	
@@ -24,7 +26,7 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 */
 	@Override
 	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		IProcessor[] processors = getProcessors();
+		List<IProcessor> processors = getProcessors();
 		if ( processors != null ) {
 			for ( IProcessor processor : processors ) {
 				if ( processor != null ) {
@@ -84,8 +86,10 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 */
 	protected boolean processForAll(Phase phase, Context context) {
 		for ( IProcessor processor : getProcessors() ) {
-			if ( !processor.process(phase, context) ) {
-				return false;
+			if ( processor != null ) {
+				if ( !processor.process(phase, context) ) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -97,6 +101,6 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 * that make up this composite processor. 
 	 * @return
 	 */
-	public abstract IProcessor[] getProcessors();
+	public abstract List<IProcessor> getProcessors();
 
 }

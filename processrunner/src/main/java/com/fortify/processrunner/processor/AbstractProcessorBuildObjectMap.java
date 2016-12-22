@@ -1,6 +1,6 @@
 package com.fortify.processrunner.processor;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fortify.processrunner.context.Context;
@@ -8,13 +8,13 @@ import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * <p>This abstract {@link IProcessor} implementation allows for building an 
- * Object {@link Map} based on template expressions. Multiple concrete 
+ * <p>This abstract {@link IProcessor} implementation allows for building a 
+ * {@link String} {@link Map} based on template expressions. Multiple concrete 
  * implementations can be combined to add or modify {@link Map} entries.</p>
  */
 public abstract class AbstractProcessorBuildObjectMap extends AbstractProcessor {
 	private SimpleExpression rootExpression;
-	private Map<String,TemplateExpression> templateExpressions;
+	private LinkedHashMap<String,TemplateExpression> templateExpressions;
 	
 	/**
 	 * This method retrieves the current object map, creating a new one
@@ -25,9 +25,9 @@ public abstract class AbstractProcessorBuildObjectMap extends AbstractProcessor 
 	@Override
 	protected final boolean process(Context context) {
 		IContextObjectMap ctx = context.as(IContextObjectMap.class);
-		Map<String,Object> map = ctx.getObjectMap();
+		LinkedHashMap<String,Object> map = ctx.getObjectMap();
 		if ( map == null ) {
-			map = new HashMap<String,Object>(templateExpressions.size());
+			map = new LinkedHashMap<String,Object>(templateExpressions.size());
 			ctx.setObjectMap(map);
 		}
 		return updateMap(context, map);
@@ -71,7 +71,7 @@ public abstract class AbstractProcessorBuildObjectMap extends AbstractProcessor 
 	 * Configure the {@link Map} with {@link TemplateExpression} instances
 	 * @return
 	 */
-	public void setTemplateExpressions(Map<String, TemplateExpression> templateExpressions) {
+	public void setTemplateExpressions(LinkedHashMap<String, TemplateExpression> templateExpressions) {
 		this.templateExpressions = templateExpressions;
 	}
 	
@@ -80,7 +80,7 @@ public abstract class AbstractProcessorBuildObjectMap extends AbstractProcessor 
 	 * access to the current object map.
 	 */
 	public static interface IContextObjectMap {
-		public void setObjectMap(Map<String, Object> map);
-		public Map<String, Object> getObjectMap();
+		public void setObjectMap(LinkedHashMap<String, Object> map);
+		public LinkedHashMap<String, Object> getObjectMap();
 	}
 }

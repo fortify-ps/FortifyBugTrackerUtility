@@ -2,6 +2,8 @@ package com.fortify.processrunner.fod.processor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +27,9 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * <p>Since FoD currently ignores filters for some specific fields,
  * this processor will also manually filter each vulnerabilities based
  * on the configured filters.</p> 
+ * 
+ * <p>Filter values may use the FoD '|' (OR) operator to filter on multiple
+ * values for a given field.</p>
  */
 public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDFilterOnTopLevelFields.class);
@@ -52,7 +57,7 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 		return true;
 	}
 
-	private void appendTopLevelFieldFilterParamValue(Context context, String key, String value) throws UnsupportedEncodingException {
+	protected void appendTopLevelFieldFilterParamValue(Context context, String key, String value) throws UnsupportedEncodingException {
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		String currentParamValue = contextFoD.getFoDTopLevelFilterParamValue();
 		if ( StringUtils.isBlank(currentParamValue) ) {
@@ -71,7 +76,8 @@ public class FoDFilterOnTopLevelFields extends AbstractProcessor {
 			JSONObject vuln = context.as(IContextFoD.class).getFoDCurrentVulnerability();
 			for ( Map.Entry<String,String> filter : getFilters().entrySet() ) {
 				String value = SpringExpressionUtil.evaluateExpression(vuln, filter.getKey(), String.class);
-				if ( !filter.getValue().equals(value) ) { return false; }
+				List<String> allowedValues = Arrays.asList(filter.getValue().split("\\|"));
+				return allowedValues.contains(value);
 			}
 		}
 		return true;

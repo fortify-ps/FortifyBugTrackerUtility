@@ -1,9 +1,11 @@
 package com.fortify.processrunner.jira.connection;
 
+import org.apache.http.auth.UsernamePasswordCredentials;
+
 import com.fortify.util.rest.AbstractRestConnectionRetriever;
-import com.fortify.util.rest.AuthenticatingRestConnection;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionRetriever;
+import com.fortify.util.rest.RestConnection;
 
 /**
  * This {@link IRestConnectionRetriever} implementation is used to 
@@ -16,7 +18,7 @@ public class JiraConnectionRetriever extends AbstractRestConnectionRetriever imp
 	private String password;
 	
 	public final IRestConnection createConnection() {
-		return new AuthenticatingRestConnection(getBaseUrl(), getUserName(), getPassword());
+		return new RestConnection(getBaseUrl(), new UsernamePasswordCredentials(getUserName(), getPassword()));
 	}
 	
 	public String getBaseUrl() {

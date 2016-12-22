@@ -1,9 +1,11 @@
 package com.fortify.fod.connection;
 
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
+import com.fortify.util.rest.TooManyRequestsRetryStrategy;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
 
 /**
  * This class provides a basic, non-authenticating REST connection
@@ -27,6 +29,11 @@ public class FoDBasicRestConnection extends RestConnection {
 				.accept("application/json");
 	}
 	
+	@Override
+	protected HttpClientBuilder createApacheHttpClientBuilder() {
+		return super.createApacheHttpClientBuilder().setServiceUnavailableRetryStrategy(new TooManyRequestsRetryStrategy("X-Rate-Limit-Reset"));
+	}
+	
 	/**
 	 * This method updates the configuration returned by our superclass to
 	 * enable buffering. Not having buffering enabled can result in chunked
@@ -34,10 +41,12 @@ public class FoDBasicRestConnection extends RestConnection {
 	 * We only send relatively small payloads, so buffering these in memory is 
 	 * not a problem.   
 	 */
+	/*
 	@Override
 	protected ApacheHttpClient4Config getApacheHttpClient4Config() {
 		ApacheHttpClient4Config config = super.getApacheHttpClient4Config();
 		config.getProperties().put(ApacheHttpClient4Config.PROPERTY_ENABLE_BUFFERING, true);
 		return config;
 	}
+	*/
 }

@@ -1,5 +1,9 @@
 package com.fortify.processrunner.processor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This {@link IProcessor} implementation allows a list of 
  * individual {@link IProcessor} instances to be configured
@@ -9,7 +13,7 @@ package com.fortify.processrunner.processor;
  * processors will be invoked. 
  */
 public class CompositeProcessor extends AbstractCompositeProcessor {
-	private IProcessor[] processors;
+	private List<IProcessor> processors;
 	
 	/**
 	 * Default constructor, allowing manual configuration
@@ -26,7 +30,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * @param processors
 	 */
 	public CompositeProcessor(IProcessor... processors) {
-		this.processors = processors;
+		setProcessors(processors);
 	}
 	
 	/**
@@ -34,7 +38,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * that make up this composite processor.
 	 */
 	@Override
-	public IProcessor[] getProcessors() {
+	public List<IProcessor> getProcessors() {
 		return processors;
 	}
 	
@@ -43,7 +47,17 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * that make up this composite processor.
 	 * @param processors
 	 */
-	public void setProcessors(IProcessor... processors) {
+	public void setProcessors(List<IProcessor> processors) {
 		this.processors = processors;
+	}
+	
+	/**
+	 * Configure the list of {@link IProcessor} instances
+	 * that make up this composite processor.
+	 * @param processors
+	 */
+	public void setProcessors(IProcessor... processors) {
+		// We need to wrap this in an ArrayList to allow for later modification
+		this.processors = new ArrayList<IProcessor>(Arrays.asList(processors));
 	}
 }

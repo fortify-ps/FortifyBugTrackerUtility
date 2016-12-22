@@ -7,7 +7,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * <p>This {@link AbstractProcessorBuildObjectMap} implementation will
+ * <p>This {@link AbstractProcessorBuildStringMap} implementation will
  * evaluate the configured root expression on the current {@link Context}
  * instance to retrieve an {@link Iterable} instance.</p>
  * 

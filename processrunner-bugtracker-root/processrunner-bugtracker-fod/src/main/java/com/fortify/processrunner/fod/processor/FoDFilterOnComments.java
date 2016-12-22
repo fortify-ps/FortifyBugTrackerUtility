@@ -11,27 +11,51 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This {@link IProcessor} implementation will filter any FoD vulnerability that
- * has already been submitted to a bug tracker before. Currently this will check
- * whether the FoD vulnerability currently being processed contains a comment
- * starting with '--- Vulnerability submitted to'.
+ * This {@link IProcessor} implementation will filter vulnerabilities based on
+ * FoD comments. Depending on the excludePattern flag, vulnerabilities for which 
+ * a comment matches the configured filterPattern will either be excluded (flag set
+ * to true) or included (flag set to false).
  */
-public class FoDFilterSubmittedToBugTracker extends AbstractProcessor {
+public class FoDFilterOnComments extends AbstractProcessor {
 	private static final Expression EXPR_COMMENTS = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability.summary.comments");
 	private static final Expression EXPR_COMMENT = SpringExpressionUtil.parseSimpleExpression("comment");
+	private Pattern filterPattern = null;
+	private boolean excludePattern = false;
 	
 	@Override
 	protected boolean process(Context context) {
-		Pattern filterPattern = Pattern.compile("--- Vulnerability submitted to .*");
+		// Pattern filterPattern = Pattern.compile("--- Vulnerability submitted to .*");
 		JSONArray array = SpringExpressionUtil.evaluateExpression(context, EXPR_COMMENTS, JSONArray.class);
 		if ( array != null ) {
 			for ( int i = 0 ; i < array.length() ; i++ ) {
 				String expressionValue = SpringExpressionUtil.evaluateExpression(array.opt(i), EXPR_COMMENT, String.class);
 				if ( filterPattern.matcher(expressionValue).matches() ) {
-					return false;
+					return excludePattern;
 				}
 			}
 		}
-		return true;
+		return !excludePattern;
 	}
+
+	public Pattern getFilterPattern() {
+		return filterPattern;
+	}
+
+	public void setFilterPattern(Pattern filterPattern) {
+		this.filterPattern = filterPattern;
+	}
+	
+	public void setFilterPattern(String filterPattern) {
+		this.filterPattern = Pattern.compile(filterPattern);
+	}
+
+	public boolean isExcludePattern() {
+		return excludePattern;
+	}
+
+	public void setExcludePattern(boolean excludePattern) {
+		this.excludePattern = excludePattern;
+	}
+	
+	
 }

@@ -8,7 +8,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * <p>This {@link AbstractProcessorBuildObjectMap} implementation will
+ * <p>This {@link AbstractProcessorBuildStringMap} implementation will
  * evaluate all configured {@link TemplateExpression} instances on some root
  * object, and add these values together under the corresponding key to the
  * target object map.</p>

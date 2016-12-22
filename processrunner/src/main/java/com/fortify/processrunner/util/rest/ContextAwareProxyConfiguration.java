@@ -21,14 +21,14 @@ public class ContextAwareProxyConfiguration extends ProxyConfiguration implement
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(getName()+PRP_SFX_URL, getName()+" Proxy URL", context, getUri(), false));
+		contextProperties.add(new ContextProperty(getName()+PRP_SFX_URL, getName()+" Proxy URL", context, getUriString(), false));
 		contextProperties.add(new ContextProperty(getName()+PRP_SFX_USER_NAME, getName()+" Proxy User Name", context, getUserName(), false));
 		contextProperties.add(new ContextProperty(getName()+PRP_SFX_PASSWORD, getName()+" Proxy Password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console if proxy user name is set", false));
 		
 	}
 	
 	protected void updateProxyProperties(Context context) {
-		setUri((String)context.getOrDefault(getName()+PRP_SFX_URL, getUri()));
+		setUriString((String)context.getOrDefault(getName()+PRP_SFX_URL, getUriString()));
 		setUserName((String)context.getOrDefault(getName()+PRP_SFX_USER_NAME, getUserName()));
 		setPassword((String)context.getOrDefault(getName()+PRP_SFX_PASSWORD, getPassword()));
 		
