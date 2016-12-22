@@ -367,12 +367,12 @@ public class RestConnection implements IRestConnection {
 	 * Indicate whether preemptive basic authentication should be used.
 	 * If this method returns true, the Basic Authentication header will
 	 * be sent on all requests, preventing multiple round trips for
-	 * performing authentication. This default implementation returns true.
+	 * performing authentication. This default implementation returns 
 	 * 
 	 * @return Flag specifying whether preemptive Basic Authentication should be performed
 	 */
 	protected boolean doPreemptiveBasicAuthentication() {
-		return true;
+		return false;
 	}
 	
 	/**

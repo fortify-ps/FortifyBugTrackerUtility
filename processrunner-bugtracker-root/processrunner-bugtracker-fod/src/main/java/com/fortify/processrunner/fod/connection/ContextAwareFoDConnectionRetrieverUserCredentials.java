@@ -24,7 +24,7 @@ public class ContextAwareFoDConnectionRetrieverUserCredentials
 	}
 	
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_BASE_URL, "FoD base URL", context, getBaseUrl(), true));
+		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_BASE_URL, "FoD base URL", context,  StringUtils.isNotBlank(getBaseUrl())?getBaseUrl():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_TENANT, "FoD tenant", context, StringUtils.isNotBlank(getTenant())?getTenant():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_USER_NAME, "FoD user name", context, StringUtils.isNotBlank(getUserName())?getUserName():"Read from console", false));
 		contextProperties.add(new ContextProperty(IContextFoDUserCredentials.PRP_PASSWORD, "FoD password", context, StringUtils.isNotBlank(getPassword())?"******":"Read from console", false));
@@ -52,8 +52,10 @@ public class ContextAwareFoDConnectionRetrieverUserCredentials
 		}
 		if ( !StringUtils.isBlank(password) ) {
 			setPassword(password);
-		}
-		
+		}		
+		if ( getBaseUrl() == null) {
+			setBaseUrl (System.console().readLine("FoD URL: "));
+		}		
 		if ( getTenant()==null ) {
 			setTenant(System.console().readLine("FoD Tenant: "));
 		}
