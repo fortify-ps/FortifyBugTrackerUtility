@@ -48,3 +48,5 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+*.log
+*.csv
