@@ -11,7 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.context.IContextSubmittedIssueData;
+import com.fortify.processrunner.common.context.IContextBugTracker;
+import com.fortify.processrunner.common.context.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessor;
@@ -76,13 +77,12 @@ public class ProcessorSubmitIssueToFileFromObjectMap extends AbstractProcessor {
 			currentLine.append(fields.get(key));
 		}
 		
-		LOG.info("Writing issue to "+(String)context.get("OutputFile")+": "+currentLine);
+		LOG.info("Writing issue to "+file.getAbsolutePath()+": "+currentLine);
 		writer.println(currentLine);
 		writer.flush();
 		
-		IContextSubmittedIssueData ctx = context.as(IContextSubmittedIssueData.class);
-		ctx.setSubmittedIssueBugTrackerName("file");
-		ctx.setSubmittedIssueLocation(file.toURI().toASCIIString());
+		IContextBugTracker ctx = context.as(IContextBugTracker.class);
+		ctx.setSubmittedIssue(new SubmittedIssue(null, file.toURI().toASCIIString()));
 		return true;
 	}
 	

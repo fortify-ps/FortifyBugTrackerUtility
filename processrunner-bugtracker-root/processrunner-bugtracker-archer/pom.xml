@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>processrunner-bugtracker-archer</artifactId>
+	<parent>
+		<groupId>com.fortify.processrunner.bugtracker</groupId>
+		<artifactId>processrunner-bugtracker-root</artifactId>
+		<version>1.0</version>
+	</parent>
+	<organization>
+		<name>HPE Security Fortify</name>
+		<url>http://www8.hp.com/us/en/software-solutions/application-security/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>rsenden</id>
+			<name>Ruud Senden</name>
+			<organization>HPE Security Fortify</organization>
+		</developer>
+	</developers>
+	<inceptionYear>2016</inceptionYear>
+	<dependencies>
+		<dependency>
+			<groupId>com.fortify.util</groupId>
+			<artifactId>spring-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.util</groupId>
+			<artifactId>rest-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.util</groupId>
+			<artifactId>fod-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner</groupId>
+			<artifactId>processrunner</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+	</dependencies>
+	<description>This module provides functionality for submitting issues to Archer. This includes setting up a connection to Archer, an Archer-specific Context interface, and processors for actually submitting issues to Archer.</description>
+</project>

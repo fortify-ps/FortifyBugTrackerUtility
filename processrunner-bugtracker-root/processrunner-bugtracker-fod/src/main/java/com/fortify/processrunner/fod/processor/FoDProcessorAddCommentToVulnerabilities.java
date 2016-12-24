@@ -42,4 +42,8 @@ public class FoDProcessorAddCommentToVulnerabilities extends AbstractFoDProcesso
 	public void setCommentTemplateExpression(TemplateExpression commentTemplateExpression) {
 		this.commentTemplateExpression = commentTemplateExpression;
 	}
+	
+	public void setCommentTemplateExpression(String commentTemplateExpression) {
+		this.commentTemplateExpression = SpringExpressionUtil.parseTemplateExpression(commentTemplateExpression);
+	}
 }

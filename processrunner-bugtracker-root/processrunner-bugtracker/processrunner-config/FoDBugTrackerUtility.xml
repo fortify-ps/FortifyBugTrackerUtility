@@ -23,48 +23,42 @@
 		<!-- <property name="password" value="proxy password (optional)"/> -->
 	</bean>
 	
-	<!-- Define FoD connection information like base URL, client credentials, 
-	     and optional proxy. Please see fodConnectionRetrieverUserCredentials 
-	     below for connecting to FoD using user credentials.
+	<!-- Define FoD connection information like base URL, user or client 
+	     credentials, and optional proxy.
 	     
 	     If you require a different FoD instance, you can either change the
 	     base URL here, or provide the correct FoD base URL via the
 	     -FoDBaseUrl command line option (which will override the base URL 
 	     configured here).
 	     
-	     Client ID and Secret can either be configured here, or provided via 
-	     the command line options -FoDClientId and -FoDClientSecret. If not 
-	     provided via either configuration or command line option, the user 
-	     will be prompted for the client ID and/or client secret to use. 
+	     For authentication with user credentials, tenant, user name and 
+	     password can either be configured here, or provided via the 
+	     command line options -FoDTentant, -FoDUserName and -FoDPassword 
+	     respectively. Alternatively, if tenant, user name and/or 
+	     password have not been provided either here or via command line options, 
+	     the user will be prompted to enter the corresponding values.  
+	     
+	     For authentication with client credentials, client ID and Secret 
+	     can either be configured here, or provided via the command line 
+	     options -FoDClientId and -FoDClientSecret. If not provided via 
+	     either configuration or command line option, the user will be 
+	     prompted for the client ID and/or client secret to use. 
+	     
+	     TOOD Update comment to explain when user or client credentials 
+	     will be used
 	-->
-	<bean id="fodConnectionRetrieverClientCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverClientCredentials">
+	<bean id="fodConnectionRetriever" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverUserOrClientCredentials">
 		<property name="baseUrl" value="https://emea.hpfod.com/"/>
 		<property name="proxy" ref="fodProxy"/>
-		<!-- <property name="clientId" value="API key"/> -->
-		<!-- <property name="clientSecret" value="client secret"/> -->
-	</bean>
-	
-	<!-- Define FoD connection information like base URL, user credentials, 
-	     and optional proxy. Please see fodConnectionRetrieverClientCredentials 
-	     above for connecting to FoD using client credentials,
-	     
-	     If you require a different FoD instance, you can either change the
-	     base URL here, or provide the correct FoD base URL via the
-	     -FoDBaseUrl command line option (which will override the base URL 
-	     configured here).
-	     
-	     Tenant, user name and password can either be configured here, or 
-	     provided via the command line options -FoDTentant, -FoDUserName and
-	     -FoDPassword respectively. Alternatively, if tenant, user name and/or 
-	     password have not been provided either here or via command line options, 
-	     the user will be prompted to enter the corresponding value.    
-    -->
-	<bean id="fodConnectionRetrieverUserCredentials" class="com.fortify.processrunner.fod.connection.ContextAwareFoDConnectionRetrieverUserCredentials">
-		<property name="baseUrl" value="https://hpfod.com/"/>
-		<property name="proxy" ref="fodProxy"/>
-		<!-- <property name="tenant" value="tenant" /> -->
-		<!-- <property name="userName" value="username"/> -->
-		<!-- <property name="password" value="password"/> -->
+		
+		<!-- Authentication via user credentials -->
+		<!-- <property name="userCreds.tenant" value="tenant" /> -->
+		<!-- <property name="userCreds.userName" value="username"/> -->
+		<!-- <property name="userCreds.password" value="password"/> -->
+		
+		<!-- Authentication via client credentials -->
+		<!-- <property name="clientCreds.clientId" value="API key"/> -->
+		<!-- <property name="clientCreds.clientSecret" value="client secret"/> -->
 	</bean>
 	
 	
@@ -243,46 +237,127 @@
 	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
 	
-	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD user credentials -->
-	<bean id="fodUserCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD user credentials"/>
+	<!-- This process runner submits grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities from FoD to JIRA"/>
 		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
 		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
 		</map></property>
 	</bean>
 	
-	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD user credentials -->
-	<bean id="fodUserCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD user credentials"/>
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from FoD to JIRA"/>
 		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
 		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-		</map></property>
-	</bean>
-		
-	<!-- This process runner submits grouped vulnerabilities to JIRA, using FoD client credentials -->
-	<bean id="fodClientCredentialsToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
-			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-			<entry key="GroupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 		</map></property>
 	</bean>
 	
-	<!-- This process runner submits non-grouped vulnerabilities to JIRA, using FoD client credentials -->
-	<bean id="fodClientCredentialsToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities to JIRA, using FoD client credentials"/>
-		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
-			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+	
+	
+	<!--==================================================================================-->
+	<!-- ARCHER CONNECTION AND PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines a proxy configuration used to access Archer. By default
+	     no proxy is used. If necessary, proxy settings can either be entered here,
+	     or using -ArcherProxyUrl, -ArcherProxyUserName and -ArcherProxyPassword command line
+	     options. If a proxy user name is specified without a password, the user
+	     will be prompted to enter the proxy password. -->
+	<bean id="archerProxy" class="com.fortify.processrunner.util.rest.ContextAwareProxyConfiguration">
+		<property name="name" value="Archer"/>
+		<!-- <property name="uri" value="http://proxy:port/"/> -->
+		<!-- <property name="userName" value="proxy user (optional)"/> -->
+		<!-- <property name="password" value="proxy password (optional)"/> -->
+	</bean>
+	
+	<!-- Define Archer connection information like base URL, instance name, user name,
+	     user domain and password. 
+	     
+	     These properties can either be configured here, or provided via the 
+	     -ArcherBaseUrl, -AcherInstanceName, -ArcherUserName, -ArcherUserDomain and 
+	     -ArcherPassword command line options. Alternatively, if these properties have 
+	     not been provided either here or via command line options, the user will be 
+	     prompted to enter the corresponding value.
+	-->
+	<bean id="archerConnectionRetriever" class="com.fortify.processrunner.archer.connection.ContextAwareArcherConnectionRetriever">
+		<property name="proxy" ref="archerProxy"/>
+		<!-- <property name="baseUrl" value="http://192.168.99.100:32768/"/> -->
+		<!-- <property name="instanceName" value="instancename"/> -->
+		<!-- <property name="userName" value="username"/> -->
+		<!-- <property name="userDomain" value="userdomain"/> -->
+		<!-- <property name="password" value="password"/> -->
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
+	     to Archer. If necessary, you can change the properties in this bean, for example 
+	     to change the fields and field data submitted to Archer. 
+	-->
+	<bean id="fodToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorSubmitIssueToArcherFromGroupedObjects">
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+			<entry key="labels" value="${{'FoD'}}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		     
+		     Note that any field defined in issue.appendedFields, and the corresponding 
+		     fields in issue.fields, must be simple string values, not an array or other 
+		     complex type. -->
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
+	     non-grouped FoD vulnerabilities) with the actual Archer issue submitter. -->
+	<bean id="fodToArcherProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="vulnerabilityProcessor" ref="fodToArcherIssueSubmitter"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitGroupedVulnerabilitiesToBugTracker (to retrieve and process
+	     grouped FoD vulnerabilities) with the actual Archer issue submitter. -->
+	<bean id="fodToArcherProcessorGrouped" parent="fodSubmitGroupedVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="vulnerabilityProcessor" ref="fodToArcherIssueSubmitter"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- ARCHER PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- This process runner submits grouped vulnerabilities to Archer -->
+	<bean id="fodToArcherGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities from FoD to Archer"/>
+		<property name="processor" ref="fodToArcherProcessorGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
+	<bean id="fodToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from FoD to Archer"/>
+		<property name="processor" ref="fodToArcherProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
 	
 	<!--==================================================================================-->
 	<!-- EXPORT VULNERABILITIES TO FILE PROCESSOR CONFIGURATION -->
@@ -314,21 +389,12 @@
 	<!-- EXPORT VULNERABILITIES TO FILE PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
 	
-	<!-- This process runner submits non-grouped vulnerabilities to a file, using FoD user credentials -->
-	<bean id="fodUserCredentialsToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities to a file using FoD user credentials"/>
+	<!-- This process runner submits non-grouped vulnerabilities to a file -->
+	<bean id="fodToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from FoD to a file"/>
 		<property name="processor" ref="fodToFileProcessorNonGrouped"/>	
 		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverUserCredentials"/>
-		</map></property>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to a file, using FoD client credentials -->
-	<bean id="fodClientCredentialsToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities to a file, using FoD client credentials"/>
-		<property name="processor" ref="fodToFileProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetrieverClientCredentials"/>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
 		</map></property>
 	</bean>
 	

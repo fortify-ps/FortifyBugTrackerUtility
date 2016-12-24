@@ -3,7 +3,7 @@ package com.fortify.processrunner.fod.processor.composite;
 import com.fortify.processrunner.fod.processor.FoDFilterOnBugSubmittedComment;
 import com.fortify.processrunner.fod.processor.FoDFilterOnBugSubmittedField;
 import com.fortify.processrunner.fod.processor.FoDProcessorAddBugLinkToVulnerabilities;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddCommentToVulnerabilities;
+import com.fortify.processrunner.fod.processor.FoDProcessorAddBugSubmittedCommentToVulnerabilities;
 import com.fortify.processrunner.fod.processor.FoDProcessorAddJSONData;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -55,16 +55,14 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends FoDPr
 	}
 	
 	protected IProcessor createUpdateFoDCommentWithSubmittedBugProcessor() {
-		FoDProcessorAddCommentToVulnerabilities result = new FoDProcessorAddCommentToVulnerabilities();
+		FoDProcessorAddBugSubmittedCommentToVulnerabilities result = new FoDProcessorAddBugSubmittedCommentToVulnerabilities();
 		result.setIterableExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup"));
-		result.setCommentTemplateExpression(SpringExpressionUtil.parseTemplateExpression("--- Vulnerability submitted to ${SubmittedIssueBugTrackerName}: ${SubmittedIssueId==null?'':'ID '+SubmittedIssueId} Location ${SubmittedIssueLocation}"));
 		return result;
 	}
 	
 	protected IProcessor createUpdateFoDBugLinkWithSubmittedBugProcessor() {
 		FoDProcessorAddBugLinkToVulnerabilities result = new FoDProcessorAddBugLinkToVulnerabilities();
 		result.setIterableExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup"));
-		result.setBugLinkExpression(SpringExpressionUtil.parseTemplateExpression("${SubmittedIssueLocation}"));
 		return result;
 	}
 	

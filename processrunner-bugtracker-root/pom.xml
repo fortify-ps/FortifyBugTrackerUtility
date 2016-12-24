@@ -31,6 +31,7 @@
 		<module>processrunner-bugtracker-fod</module>
 		<module>processrunner-bugtracker-jira</module>
 		<module>processrunner-bugtracker-file</module>
+		<module>processrunner-bugtracker-archer</module>
 		<module>processrunner-bugtracker</module>
 	</modules>
 	<dependencyManagement>
@@ -56,6 +57,12 @@
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-file</artifactId>
+				<version>1.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-archer</artifactId>
 				<version>1.0</version>
 				<scope>compile</scope>
 			</dependency>

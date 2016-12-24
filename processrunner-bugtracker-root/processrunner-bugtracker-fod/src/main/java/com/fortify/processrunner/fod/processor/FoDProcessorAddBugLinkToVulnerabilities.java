@@ -13,7 +13,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * will add a bug link to a set of FoD vulnerabilities.</p>
  */
 public class FoDProcessorAddBugLinkToVulnerabilities extends AbstractFoDProcessorBulkEditVulnerabilities {
-	private TemplateExpression bugLinkExpression;
+	private TemplateExpression bugLinkExpression = SpringExpressionUtil.parseTemplateExpression("${SubmittedIssue.deepLink}");
 	
 	public FoDProcessorAddBugLinkToVulnerabilities() {
 		setUriTemplateExpression(SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/bug-link"));

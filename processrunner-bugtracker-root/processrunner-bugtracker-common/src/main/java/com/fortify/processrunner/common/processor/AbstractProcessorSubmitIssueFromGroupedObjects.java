@@ -1,8 +1,11 @@
 package com.fortify.processrunner.common.processor;
 
+import java.util.Collection;
 import java.util.List;
 
-import com.fortify.processrunner.common.processor.ProcessorPrintMessageGroupedVulnerabilitiesSubmitted;
+import com.fortify.processrunner.common.context.IContextBugTracker;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.ProcessorBuildObjectMapFromGroupedObjects;
 
@@ -20,5 +23,13 @@ public abstract class AbstractProcessorSubmitIssueFromGroupedObjects extends Pro
 		return result;
 	}
 	
+	@Override
+	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
+		// contextProperties.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
+		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
+	}
+	
 	protected abstract IProcessor getSubmitIssueProcessor();
+	protected abstract String getBugTrackerName();
 }

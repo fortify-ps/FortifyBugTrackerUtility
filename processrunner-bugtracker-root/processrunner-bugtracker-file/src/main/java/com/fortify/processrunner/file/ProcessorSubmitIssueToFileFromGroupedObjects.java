@@ -18,4 +18,9 @@ public class ProcessorSubmitIssueToFileFromGroupedObjects extends AbstractProces
 	public ProcessorSubmitIssueToFileFromObjectMap getFile() {
 		return file;
 	}
+	
+	@Override
+	protected String getBugTrackerName() {
+		return "File";
+	}
 }

@@ -1,4 +1,4 @@
-package com.fortify.processrunner.jira.processor;
+package com.fortify.processrunner.archer.processor;
 
 import java.util.Collection;
 import java.util.Map;
@@ -8,33 +8,34 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.processrunner.archer.context.IContextArcher;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMap.IContextObjectMap;
 
 /**
- * This concrete {@link AbstractProcessorSubmitIssueToJira} implementation 
- * generates the {@link JSONObject} to be posted to JIRA, based on {@link Context}
+ * This concrete {@link AbstractProcessorSubmitIssueToArcher} implementation 
+ * generates the {@link JSONObject} to be posted to Archer, based on {@link Context}
  * data provided via the {@link IContextStringMap} interface. 
  */
-public class ProcessorSubmitIssueToJiraFromObjectMap extends AbstractProcessorSubmitIssueToJira {
-	private String defaultIssueType = "Task";
+// TODO (Crit) Update this class to define the correct context properties and generate the JSONObject 
+public class ProcessorSubmitIssueToArcherFromObjectMap extends AbstractProcessorSubmitIssueToArcher {
+	//private String defaultIssueType = "Task";
 	
 	@Override
 	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
-		contextProperties.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
+		//contextProperties.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
+		//contextProperties.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
 	}
 	
 	@Override
 	protected JSONObject getIssueToBeSubmitted(Context context) {
 		JSONObject result = new JSONObject();
-		IContextJira contextJira = context.as(IContextJira.class);
+		IContextArcher contextArcher = context.as(IContextArcher.class);
 		Map<String, Object> fields = context.as(IContextObjectMap.class).getObjectMap();
-		fields.put("project.key", contextJira.getJiraProjectKey());
-		fields.put("issuetype.name", getIssueType(contextJira));
-		fields.put("summary", StringUtils.abbreviate((String)fields.get("summary"), 254));
+		//fields.put("project.key", contextArcher.getJiraProjectKey());
+		//fields.put("issuetype.name", getIssueType(contextArcher));
+		//fields.put("summary", StringUtils.abbreviate((String)fields.get("summary"), 254));
 		for ( Map.Entry<String,Object> field : fields.entrySet() ) {
 			addField(result, "fields."+field.getKey(), field.getValue());
 		}
@@ -84,17 +85,10 @@ public class ProcessorSubmitIssueToJiraFromObjectMap extends AbstractProcessorSu
 		return result;
 	}
 
-	protected String getIssueType(IContextJira context) {
-		String issueType = context.getJiraIssueType();
-		return issueType!=null?issueType:getDefaultIssueType();
-	}
-
-	public String getDefaultIssueType() {
-		return defaultIssueType;
-	}
-
-	public void setDefaultIssueType(String defaultIssueType) {
-		this.defaultIssueType = defaultIssueType;
+	protected String getIssueType(IContextArcher context) {
+		//String issueType = context.getJiraIssueType();
+		//return issueType!=null?issueType:getDefaultIssueType();
+		return null;
 	}
 
 	

@@ -22,6 +22,10 @@
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
 			<artifactId>processrunner-bugtracker-file</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-archer</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

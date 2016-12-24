@@ -11,8 +11,9 @@ import com.sun.jersey.api.client.WebResource.Builder;
  * This class provides a basic, non-authenticating REST connection
  * for FoD. It's main characteristics compared to a standard 
  * {@link RestConnection} is that it will add an 
- * <code>Accept: application/json</code> header, and disable
- * chunked encoding for data sent to FoD.
+ * <code>Accept: application/json</code> header, and enable a 
+ * 'service unavailable' strategy to retry requests that fail 
+ * due to FoD rate limiting.
  */
 public class FoDBasicRestConnection extends RestConnection {
 	public FoDBasicRestConnection(String baseUrl, ProxyConfiguration proxy) {
@@ -21,7 +22,7 @@ public class FoDBasicRestConnection extends RestConnection {
 	}
 	
 	/**
-	 * Update the {@link Builder} to add the Accept and OAuth headers.
+	 * Update the {@link Builder} to add the Accept header.
 	 */
 	@Override
 	public Builder updateBuilder(Builder builder) {

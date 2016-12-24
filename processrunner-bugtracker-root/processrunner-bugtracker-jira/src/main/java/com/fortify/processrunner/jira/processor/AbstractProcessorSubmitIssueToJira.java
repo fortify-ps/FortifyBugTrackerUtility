@@ -6,9 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.fortify.processrunner.common.context.IContextSubmittedIssueData;
+import com.fortify.processrunner.common.context.IContextBugTracker;
+import com.fortify.processrunner.common.context.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.jira.connection.JiraConnectionRetriever;
 import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -17,21 +17,17 @@ import com.sun.jersey.api.client.WebResource;
 
 /**
  * <p>This abstract {@link IProcessor} implementation allows for submitting
- * an issue to JIRA. It allows for setting up a JIRA connection by 
- * configuring a {@link JiraConnectionRetriever} instance, optionally
- * setting/overriding the JIRA user name and password based on context
- * properties.</p>
- * 
- * <p>Concrete implementations must implement the {@link #getIssueToBeSubmitted(Context)}
- * method to return the JSONObject with issue data to be posted to JIRA.</p>
+ * an issue to JIRA. Concrete implementations must implement the 
+ * {@link #getIssueToBeSubmitted(Context)} method to return the JSONObject 
+ * with issue data to be posted to JIRA.</p>
  * 
  * <p>Once an issue has been submitted, the {@link Context} will be updated
- * with information as specified in the {@link IContextSubmittedIssueData}
+ * with information as specified in the {@link IContextBugTracker}
  * interface.</p>
  */
 // TODO (Low) Make this a concrete class and retrieve JSONObject from context?
-public abstract class AbstractProcessorJiraSubmitIssue extends AbstractProcessor {
-	private static final Log LOG = LogFactory.getLog(AbstractProcessorJiraSubmitIssue.class);
+public abstract class AbstractProcessorSubmitIssueToJira extends AbstractProcessor {
+	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueToJira.class);
 	
 	@Override
 	protected boolean process(Context context) {
@@ -45,9 +41,7 @@ public abstract class AbstractProcessorJiraSubmitIssue extends AbstractProcessor
 		
 		String submittedIssueBrowserURL = conn.getBaseResource()
 				.path("/browse/").path(submittedIssueKey).getURI().toString();
-		contextJira.setSubmittedIssueId(submittedIssueKey);
-		contextJira.setSubmittedIssueBugTrackerName("JIRA");
-		contextJira.setSubmittedIssueLocation(submittedIssueBrowserURL);
+		contextJira.setSubmittedIssue(new SubmittedIssue(submittedIssueKey, submittedIssueBrowserURL));
 		return true;
 	}
 	

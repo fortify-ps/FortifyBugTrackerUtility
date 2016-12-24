@@ -1,4 +1,4 @@
-package com.fortify.processrunner.jira.processor;
+package com.fortify.processrunner.archer.processor;
 
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
@@ -7,15 +7,15 @@ import com.fortify.processrunner.processor.IProcessor;
  * This {@link AbstractProcessorSubmitIssueFromGroupedObjects} implementation
  * submits issues to Jira.
  */
-public class ProcessorSubmitIssueToJiraFromGroupedObjects extends AbstractProcessorSubmitIssueFromGroupedObjects {
-	private final ProcessorSubmitIssueToJiraFromObjectMap jira = new ProcessorSubmitIssueToJiraFromObjectMap();
+public class ProcessorSubmitIssueToArcherFromGroupedObjects extends AbstractProcessorSubmitIssueFromGroupedObjects {
+	private final ProcessorSubmitIssueToArcherFromObjectMap jira = new ProcessorSubmitIssueToArcherFromObjectMap();
 	
 	@Override
 	protected IProcessor getSubmitIssueProcessor() {
 		return jira;
 	}
 	
-	public ProcessorSubmitIssueToJiraFromObjectMap getJira() {
+	public ProcessorSubmitIssueToArcherFromObjectMap getJira() {
 		return jira;
 	}
 	
