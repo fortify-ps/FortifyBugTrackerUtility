@@ -1,5 +1,6 @@
 package com.fortify.processrunner.jira.connection;
 
+import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 
 import com.fortify.util.rest.AbstractRestConnectionRetriever;
@@ -18,7 +19,7 @@ public class JiraConnectionRetriever extends AbstractRestConnectionRetriever imp
 	private String password;
 	
 	public final IRestConnection createConnection() {
-		return new RestConnection(getBaseUrl(), new UsernamePasswordCredentials(getUserName(), getPassword()));
+		return new JiraRestConnection(getBaseUrl(), new UsernamePasswordCredentials(getUserName(), getPassword()));
 	}
 	
 	public String getBaseUrl() {
@@ -38,6 +39,18 @@ public class JiraConnectionRetriever extends AbstractRestConnectionRetriever imp
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	private static final class JiraRestConnection extends RestConnection {
+		public JiraRestConnection(String baseUrl, Credentials credentials) {
+			super(baseUrl, credentials);
+		}
+		
+		@Override
+		protected boolean doPreemptiveBasicAuthentication() {
+			return true;
+		}
+		
 	}
 	
 	
