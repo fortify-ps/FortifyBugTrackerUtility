@@ -132,6 +132,8 @@ public class RunProcessRunner {
 			String opt = args.remove(0);
 			if ( !opt.startsWith("-") ) { handleErrorAndExit(null, contextProperties, "ERROR: Invalid option "+opt, 3); }
 			if ( "--help".equals(opt) ) { printUsage(null, contextProperties, 0); }
+			// Allow options to start with either - or --, to work around JDK bug if multiple options starting with -J are given
+			if ( opt.startsWith("--") ) { opt = opt.substring(1); }
 			context.put(opt.substring(1), args.remove(0));
 		}
 	}
