@@ -196,8 +196,8 @@
 	     to JIRA. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to JIRA. 
 	-->
-	<bean id="fodToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorSubmitIssueToJiraFromGroupedObjects">
-		<property name="fields"><map>
+	<bean id="fodToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueFromGroupedObjects">
+		<property name="issue.fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
@@ -214,7 +214,7 @@
 		     Note that any field defined in issue.appendedFields, and the corresponding 
 		     fields in issue.fields, must be simple string values, not an array or other 
 		     complex type. -->
-		<property name="appendedFields"><map>
+		<property name="issue.appendedFields"><map>
 			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
@@ -297,8 +297,8 @@
 	     to Archer. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to Archer. 
 	-->
-	<bean id="fodToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorSubmitIssueToArcherFromGroupedObjects">
-		<property name="fields"><map>
+	<bean id="fodToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueFromGroupedObjects">
+		<property name="issue.fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
@@ -315,7 +315,7 @@
 		     Note that any field defined in issue.appendedFields, and the corresponding 
 		     fields in issue.fields, must be simple string values, not an array or other 
 		     complex type. -->
-		<property name="appendedFields"><map>
+		<property name="issue.appendedFields"><map>
 			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
@@ -367,8 +367,8 @@
 	     data to a file. If necessary, you can change the properties in this bean, for 
 	     example to change the fields and field data submitted to the file.
 	-->
-	<bean id="fodToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorSubmitIssueToFileFromGroupedObjects">
-		<property name="fields"><map>
+	<bean id="fodToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueFromGroupedObjects">
+		<property name="issue.fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="vulnId" value="${vulnId}"/>
 			<entry key="category" value="${category}"/>

@@ -1,4 +1,4 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.update;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -9,14 +9,14 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * <p>This {@link AbstractFoDProcessorBulkEditVulnerabilities} implementation
+ * <p>This {@link AbstractFoDProcessorUpdateVulnerabilitiesBulkEdit} implementation
  * will add a comment to a set of FoD vulnerabilities. The comment to be added
  * is defined via {@link #setCommentTemplate(TemplateExpression)}.</p>
  */
-public class FoDProcessorAddCommentToVulnerabilities extends AbstractFoDProcessorBulkEditVulnerabilities {
+public class FoDProcessorUpdateVulnerabilitiesAddComment extends AbstractFoDProcessorUpdateVulnerabilitiesBulkEdit {
 	private TemplateExpression commentTemplateExpression;
 	
-	public FoDProcessorAddCommentToVulnerabilities() {
+	public FoDProcessorUpdateVulnerabilitiesAddComment() {
 		setUriTemplateExpression(SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/bulk-edit"));
 	}
 

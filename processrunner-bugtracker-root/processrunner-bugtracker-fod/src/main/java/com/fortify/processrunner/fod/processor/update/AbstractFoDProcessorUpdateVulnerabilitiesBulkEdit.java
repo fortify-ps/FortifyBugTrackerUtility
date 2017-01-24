@@ -1,4 +1,4 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.update;
 
 import java.net.URI;
 
@@ -41,7 +41,7 @@ import com.sun.jersey.api.client.WebResource;
  *     by the {@link Iterable} instance. The default expression is 'vulnId'.</li>   
  * </ul>
  */
-public abstract class AbstractFoDProcessorBulkEditVulnerabilities extends AbstractProcessor {
+public abstract class AbstractFoDProcessorUpdateVulnerabilitiesBulkEdit extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
 	private TemplateExpression uriTemplateExpression;
 	private SimpleExpression rootExpression;

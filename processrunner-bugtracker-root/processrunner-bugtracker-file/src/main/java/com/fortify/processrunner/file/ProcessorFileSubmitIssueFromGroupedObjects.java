@@ -5,18 +5,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.context.SubmittedIssue;
+import com.fortify.processrunner.common.SubmittedIssue;
+import com.fortify.processrunner.common.processor.AbstractProcessorSubmitObjectMapFromGroupedObjects;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.processrunner.processor.AbstractProcessor;
-import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMap.IContextObjectMap;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.expression.TemplateExpression;
 
@@ -25,8 +23,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * current {@link Context} instance to a file based on a list of configured 
  * {@link TemplateExpression} instances.
  */
-public class ProcessorSubmitIssueToFileFromObjectMap extends AbstractProcessor {
-	private static final Log LOG = LogFactory.getLog(ProcessorSubmitIssueToFileFromObjectMap.class);
+public class ProcessorFileSubmitIssueFromGroupedObjects extends AbstractProcessorSubmitObjectMapFromGroupedObjects {
+	private static final Log LOG = LogFactory.getLog(ProcessorFileSubmitIssueFromGroupedObjects.class);
 	private static final String DEFAULT_OUTPUT_FILE = "FoDVulnerabilities.csv";
 	
 	private String fieldSeparator = ",";
@@ -39,8 +37,13 @@ public class ProcessorSubmitIssueToFileFromObjectMap extends AbstractProcessor {
 	 * Define the OutputFile context property.
 	 */
 	@Override
-	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		contextProperties.add(new ContextProperty("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
+	}
+	
+	@Override
+	protected String getBugTrackerName() {
+		return "File";
 	}
 	
 	/**
@@ -64,10 +67,9 @@ public class ProcessorSubmitIssueToFileFromObjectMap extends AbstractProcessor {
 		}
 		return true;
 	}
-
+	
 	@Override
-	protected boolean process(Context context) {
-		Map<String, Object> fields = context.as(IContextObjectMap.class).getObjectMap();
+	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> fields) {
 		Collection<String> keys = fields.keySet();
 		writeHeader(keys);
 		
@@ -81,9 +83,7 @@ public class ProcessorSubmitIssueToFileFromObjectMap extends AbstractProcessor {
 		writer.println(currentLine);
 		writer.flush();
 		
-		IContextBugTracker ctx = context.as(IContextBugTracker.class);
-		ctx.setSubmittedIssue(new SubmittedIssue(null, file.toURI().toASCIIString()));
-		return true;
+		return new SubmittedIssue(null, file.toURI().toASCIIString());
 	}
 	
 	@Override

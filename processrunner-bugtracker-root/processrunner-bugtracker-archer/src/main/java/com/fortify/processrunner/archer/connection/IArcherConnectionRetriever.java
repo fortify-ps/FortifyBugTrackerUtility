@@ -7,6 +7,6 @@ import com.fortify.util.rest.IRestConnectionRetriever;
  * to differentiate from other (non-Archer) connection factories,
  * for example when using auto-wiring.
  */
-public interface IArcherConnectionRetriever extends IRestConnectionRetriever {
+public interface IArcherConnectionRetriever extends IRestConnectionRetriever<ArcherAuthenticatingRestConnection> {
 	public abstract String getBaseUrl();
 }

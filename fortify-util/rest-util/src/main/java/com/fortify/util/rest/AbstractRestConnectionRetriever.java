@@ -1,17 +1,17 @@
 package com.fortify.util.rest;
 
-public abstract class AbstractRestConnectionRetriever implements IRestConnectionRetriever {
-	private IRestConnection connection;
+public abstract class AbstractRestConnectionRetriever<C extends IRestConnection> implements IRestConnectionRetriever<C> {
+	private C connection;
 	private ProxyConfiguration proxy;
 	
-	public final IRestConnection getConnection() {
+	public final C getConnection() {
 		if ( connection == null ) {
 			connection = createConnection();
 			connection.setProxy(getProxy());
 		}
 		return connection;	}
 
-	protected abstract IRestConnection createConnection();
+	protected abstract C createConnection();
 
 	public ProxyConfiguration getProxy() {
 		return proxy;

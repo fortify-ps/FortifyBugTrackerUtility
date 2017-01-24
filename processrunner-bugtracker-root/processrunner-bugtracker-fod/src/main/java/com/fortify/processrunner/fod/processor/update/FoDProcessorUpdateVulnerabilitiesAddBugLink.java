@@ -1,4 +1,4 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.update;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -9,13 +9,13 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * <p>This {@link AbstractFoDProcessorBulkEditVulnerabilities} implementation
+ * <p>This {@link AbstractFoDProcessorUpdateVulnerabilitiesBulkEdit} implementation
  * will add a bug link to a set of FoD vulnerabilities.</p>
  */
-public class FoDProcessorAddBugLinkToVulnerabilities extends AbstractFoDProcessorBulkEditVulnerabilities {
+public class FoDProcessorUpdateVulnerabilitiesAddBugLink extends AbstractFoDProcessorUpdateVulnerabilitiesBulkEdit {
 	private TemplateExpression bugLinkExpression = SpringExpressionUtil.parseTemplateExpression("${SubmittedIssue.deepLink}");
 	
-	public FoDProcessorAddBugLinkToVulnerabilities() {
+	public FoDProcessorUpdateVulnerabilitiesAddBugLink() {
 		setUriTemplateExpression(SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/bug-link"));
 	}
 

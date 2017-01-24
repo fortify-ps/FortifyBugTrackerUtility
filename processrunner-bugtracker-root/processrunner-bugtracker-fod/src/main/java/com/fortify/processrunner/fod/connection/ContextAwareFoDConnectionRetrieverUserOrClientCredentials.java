@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.fod.connection.FoDConnectionRetrieverClientCredentials;
 import com.fortify.fod.connection.FoDConnectionRetrieverUserCredentials;
 import com.fortify.fod.connection.IFoDConnectionRetriever;
@@ -11,12 +12,11 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.context.IContextAware;
 import com.fortify.processrunner.context.IContextPropertyProvider;
-import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionRetriever;
 import com.fortify.util.rest.ProxyConfiguration;
 
 public class ContextAwareFoDConnectionRetrieverUserOrClientCredentials 
-	implements IRestConnectionRetriever, IContextAware, IContextPropertyProvider, IFoDConnectionRetriever 
+	implements IRestConnectionRetriever<FoDAuthenticatingRestConnection>, IContextAware, IContextPropertyProvider, IFoDConnectionRetriever 
 {
 	private FoDConnectionRetrieverUserCredentials userCreds = new FoDConnectionRetrieverUserCredentials();
 	private FoDConnectionRetrieverClientCredentials clientCreds = new FoDConnectionRetrieverClientCredentials();
@@ -138,7 +138,7 @@ public class ContextAwareFoDConnectionRetrieverUserOrClientCredentials
 		}
 	}
 	
-	public IRestConnection getConnection() {
+	public FoDAuthenticatingRestConnection getConnection() {
 		return StringUtils.isNotBlank(userCreds.getUserName()) 
 				? userCreds.getConnection()
 				: clientCreds.getConnection();

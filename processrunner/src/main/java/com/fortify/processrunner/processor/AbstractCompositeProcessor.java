@@ -26,12 +26,9 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 */
 	@Override
 	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		List<IProcessor> processors = getProcessors();
-		if ( processors != null ) {
-			for ( IProcessor processor : processors ) {
-				if ( processor != null ) {
-					processor.addContextProperties(contextProperties, context);
-				}
+		for ( IProcessor processor : getProcessors() ) {
+			if ( processor != null ) {
+				processor.addContextProperties(contextProperties, context);
 			}
 		}
 		addCompositeContextProperties(contextProperties, context);

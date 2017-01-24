@@ -7,6 +7,6 @@ import com.fortify.util.rest.IRestConnectionRetriever;
  * to differentiate from other (non-FoD) connection factories,
  * for example when using auto-wiring.
  */
-public interface IFoDConnectionRetriever extends IRestConnectionRetriever {
+public interface IFoDConnectionRetriever extends IRestConnectionRetriever<FoDAuthenticatingRestConnection> {
 	public abstract String getBaseUrl();
 }

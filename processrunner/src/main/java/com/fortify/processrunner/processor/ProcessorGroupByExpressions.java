@@ -65,6 +65,8 @@ public class ProcessorGroupByExpressions extends AbstractProcessor {
 		if ( groupTemplateExpression == null ) {
 			// If no group template expression is defined, we directly invoke
 			// the group processor since we do not need to group the data first.
+			// Note that in this case the data returned by IContextGrouping.getGroups()
+			// will not be complete.
 			contextGrouping.setCurrentGroup(Arrays.asList(new Object[]{rootObject}));
 			contextGrouping.setTotalCount(contextGrouping.getTotalCount()+1);
 			return getGroupProcessor().process(Phase.PROCESS, context);

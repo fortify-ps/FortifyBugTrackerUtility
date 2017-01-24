@@ -1,7 +1,6 @@
 package com.fortify.processrunner.archer.connection;
 
 import com.fortify.util.rest.AbstractRestConnectionRetriever;
-import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionRetriever;
 
 /**
@@ -10,11 +9,11 @@ import com.fortify.util.rest.IRestConnectionRetriever;
  * properties like base URL, proxy configuration and authentication 
  * data.</p>  
  */
-public abstract class ArcherConnectionRetriever extends AbstractRestConnectionRetriever implements IArcherConnectionRetriever {
+public abstract class ArcherConnectionRetriever extends AbstractRestConnectionRetriever<ArcherAuthenticatingRestConnection> implements IArcherConnectionRetriever {
 	private String baseUrl;
 	private ArcherAuthData auth = new ArcherAuthData();
 	
-	protected final IRestConnection createConnection() {
+	protected final ArcherAuthenticatingRestConnection createConnection() {
 		return new ArcherAuthenticatingRestConnection(getBaseUrl(), getAuth(), getProxy());
 	}
 

@@ -7,6 +7,6 @@ import com.fortify.util.rest.IRestConnectionRetriever;
  * to differentiate from other (non-Jira) connection factories,
  * for example when using auto-wiring.
  */
-public interface IJiraConnectionRetriever extends IRestConnectionRetriever {
+public interface IJiraConnectionRetriever extends IRestConnectionRetriever<JiraRestConnection> {
 
 }

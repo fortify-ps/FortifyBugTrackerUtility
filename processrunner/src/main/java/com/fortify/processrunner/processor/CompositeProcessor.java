@@ -13,7 +13,7 @@ import java.util.List;
  * processors will be invoked. 
  */
 public class CompositeProcessor extends AbstractCompositeProcessor {
-	private List<IProcessor> processors;
+	private List<IProcessor> processors = new ArrayList<IProcessor>();
 	
 	/**
 	 * Default constructor, allowing manual configuration

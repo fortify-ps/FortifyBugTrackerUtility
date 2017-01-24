@@ -1,4 +1,4 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.retrieve;
 
 import java.net.URI;
 import java.util.Collection;
@@ -44,8 +44,9 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
 	private static final String KEY_START = "FoDProcessorRootVulnerabilityArray_start";
 	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("totalCount");
-	private String uriTemplateExpression = "/api/v3/Releases/${FoDReleaseId}/vulnerabilities?excludeFilters=true&limit=50&offset=${"+KEY_START+"}";
+	private String uriTemplateExpression = "/api/v3/Releases/${FoDReleaseId}/vulnerabilities?limit=50&offset=${"+KEY_START+"}";
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("items");
+	private boolean includeRemoved;
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
@@ -78,6 +79,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		while ( start < count ) {
 			LOG.info("Loading next set of data from FoD");
 			context.put(KEY_START, start);
+			// TODO Add request parameter for isIncludeRemoved() once FoD adds this functionality to the API
 			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
 			WebResource resource = conn.getBaseResource().uri(uri);
 			LOG.debug("Retrieving vulnerabilities from "+resource);
@@ -122,6 +124,14 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 
 	public void setVulnerabilityProcessor(IProcessor vulnerabilityProcessor) {
 		this.vulnerabilityProcessor = vulnerabilityProcessor;
+	}
+
+	public boolean isIncludeRemoved() {
+		return includeRemoved;
+	}
+
+	public void setIncludeRemoved(boolean includeRemoved) {
+		this.includeRemoved = includeRemoved;
 	}
 	
 	

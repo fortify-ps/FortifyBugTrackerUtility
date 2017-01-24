@@ -1,7 +1,6 @@
 package com.fortify.fod.connection;
 
 import com.fortify.util.rest.AbstractRestConnectionRetriever;
-import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.IRestConnectionRetriever;
 import com.sun.jersey.api.representation.Form;
 
@@ -14,12 +13,12 @@ import com.sun.jersey.api.representation.Form;
  * <p>Subclasses will need to provide the actual authentication
  * data.</p>  
  */
-public abstract class AbstractFoDConnectionRetriever extends AbstractRestConnectionRetriever implements IFoDConnectionRetriever {
+public abstract class AbstractFoDConnectionRetriever extends AbstractRestConnectionRetriever<FoDAuthenticatingRestConnection> implements IFoDConnectionRetriever {
 	private String baseUrl = "https://hpfod.com/";
 	private String scope = "https://hpfod.com/tenant";
 	private String grantType;
 	
-	protected final IRestConnection createConnection() {
+	protected final FoDAuthenticatingRestConnection createConnection() {
 		Form form = new Form();
 		form.putSingle("scope",getScope());
 		form.putSingle("grant_type", getGrantType());

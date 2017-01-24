@@ -1,4 +1,4 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.filter;
 
 import java.util.regex.Pattern;
 
@@ -12,16 +12,21 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This {@link IProcessor} implementation will filter vulnerabilities based on
- * FoD comments. Depending on the excludePattern flag, vulnerabilities for which 
- * a comment matches the configured filterPattern will either be excluded (flag set
- * to true) or included (flag set to false, default).
+ * <p>This {@link IProcessor} implementation will filter vulnerabilities based on
+ * FoD comments. Depending on the excludeVulnerabilityWithMatchingComment flag, 
+ * vulnerabilities for which a comment matches the configured filterPattern will 
+ * either be excluded from further processing (flag set to true) or included for
+ * further processing (flag set to false, default).</p>
+ * 
+ * <p>In addition, the first comment matching the configured filterPattern will be
+ * added to the context property 'FoDCommentMatchedByFilter', accessible via 
+ * {@link IContextMatchingComment#getFoDCommentMatchedByFilter()}.</p>
  */
 public class FoDFilterOnComments extends AbstractProcessor {
 	private static final Expression EXPR_COMMENTS = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability.summary.comments");
 	private static final Expression EXPR_COMMENT = SpringExpressionUtil.parseSimpleExpression("comment");
 	private TemplateExpression filterPatternTemplateExpression = null;
-	private boolean excludePattern = false;
+	private boolean excludeVulnerabilityWithMatchingComment = false;
 	
 	@Override
 	protected boolean process(Context context) {
@@ -30,23 +35,22 @@ public class FoDFilterOnComments extends AbstractProcessor {
 		JSONArray array = SpringExpressionUtil.evaluateExpression(context, EXPR_COMMENTS, JSONArray.class);
 		if ( array != null ) {
 			for ( int i = 0 ; i < array.length() ; i++ ) {
-				String expressionValue = SpringExpressionUtil.evaluateExpression(array.opt(i), EXPR_COMMENT, String.class);
-				if ( filterPattern.matcher(expressionValue).matches() ) {
-					return !excludePattern;
+				String comment = SpringExpressionUtil.evaluateExpression(array.opt(i), EXPR_COMMENT, String.class);
+				if ( filterPattern.matcher(comment).matches() ) {
+					context.as(IContextMatchingComment.class).setFoDCommentMatchedByFilter(comment);
+					return !isExcludeVulnerabilityWithMatchingComment();
 				}
 			}
 		}
-		return excludePattern;
+		return isExcludeVulnerabilityWithMatchingComment();
 	}
 
-	
-
-	public boolean isExcludePattern() {
-		return excludePattern;
+	public boolean isExcludeVulnerabilityWithMatchingComment() {
+		return excludeVulnerabilityWithMatchingComment;
 	}
 
-	public void setExcludePattern(boolean excludePattern) {
-		this.excludePattern = excludePattern;
+	public void setExcludeVulnerabilityWithMatchingComment(boolean excludeVulnerabilityWithMatchingComment) {
+		this.excludeVulnerabilityWithMatchingComment = excludeVulnerabilityWithMatchingComment;
 	}
 
 	public TemplateExpression getFilterPatternTemplateExpression() {
@@ -61,5 +65,9 @@ public class FoDFilterOnComments extends AbstractProcessor {
 		this.filterPatternTemplateExpression = SpringExpressionUtil.parseTemplateExpression(filterPatternTemplateExpression);
 	}
 	
+	public interface IContextMatchingComment {
+		public void setFoDCommentMatchedByFilter(String comment);
+		public String getFoDCommentMatchedByFilter();
+	}
 	
 }

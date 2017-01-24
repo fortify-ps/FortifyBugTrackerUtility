@@ -1,5 +1,6 @@
-package com.fortify.processrunner.fod.processor;
+package com.fortify.processrunner.fod.processor.enrich;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,9 +18,34 @@ import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
-public class FoDProcessorAddJSONData extends AbstractProcessor {
+/**
+ * This class allows for loading additional vulnerability details from FoD and adding them to the 
+ * current FoD vulnerability JSON object. The following additional vulnerability details are
+ * supported by this class:
+ * <ul>
+ *  <li>summary</li>
+ *  <li>details</li>
+ *  <li>recommendations</li>
+ *  <li>screenshots</li>
+ *  <li>history</li>
+ *  <li>request-response</li>
+ *  <li>headers</li>
+ *  <li>parameters</li>
+ *  <li>traces</li>
+ * </ul>
+ * The extra data from the list above to be added to the current vulnerability can be specified either 
+ * via the constructor or the {@link #setFields(Set)} methods. The data will be added as a JSON object
+ * to the current vulnerability under the corresponding property name.
+ */
+public class FoDProcessorEnrichWithExtraFoDData extends AbstractProcessor {
 	private static final Map<String, TemplateExpression> FIELD_TO_URI_EXPRESSION_MAP = getUriExpressionMap();
 	private Set<String> fields = new HashSet<String>();
+	
+	public FoDProcessorEnrichWithExtraFoDData() {}
+	
+	public FoDProcessorEnrichWithExtraFoDData(String... fields) {
+		getFields().addAll(Arrays.asList(fields));
+	}
 
 	@Override
 	protected boolean process(Context context) {

@@ -8,10 +8,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
-import com.fortify.processrunner.fod.processor.FoDFilterOnTopLevelFields;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddJSONData;
-import com.fortify.processrunner.fod.processor.FoDProcessorAddVulnDeepLink;
-import com.fortify.processrunner.fod.processor.FoDProcessorRetrieveVulnerabilities;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
+import com.fortify.processrunner.fod.processor.filter.FoDFilterOnTopLevelField;
+import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -27,13 +27,15 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * each vulnerability using the {@link IProcessor} implementation 
  * configured via {@link #setVulnerabilityProcessor(IProcessor)}.</p> 
  * 
- * <p>Various filters can be defined using the 
- * {@link #setTopLevelFieldRegExFilters(Map)},
- * {@link #setTopLevelFieldRegExFilters(Map)} and 
- * {@link #setAllFieldRegExFilters(Map)} methods.</p>
+ * <p>Various filters can be defined using the {@link #setTopLevelFieldRegExFilters(Map)},
+ * {@link #setTopLevelFieldRegExFilters(Map)} and {@link #setAllFieldRegExFilters(Map)} 
+ * methods. Optional grouping can be enabled using the 
+ * {@link #setGroupTemplateExpression(TemplateExpression)} method.</p>
  * 
  * <p>The configured vulnerability processor can access the current
- * (group of) vulnerabilities using {@link IContextGrouping#getCurrentGroup()}.</p>
+ * (group of) vulnerabilities using {@link IContextGrouping#getCurrentGroup()}
+ * (also if grouping has not been enabled; in that case each current group
+ * will only contain a single vulnerability).</p>
  */
 public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
 	private Set<String> extraFields = new HashSet<String>();
@@ -84,14 +86,14 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 		return getVulnerabilityProcessor();
 	}
 
-	protected FoDProcessorAddJSONData createAddJSONDataProcessor() {
-		FoDProcessorAddJSONData result = new FoDProcessorAddJSONData();
+	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
+		FoDProcessorEnrichWithExtraFoDData result = new FoDProcessorEnrichWithExtraFoDData();
 		result.setFields(getExtraFields());
 		return result;
 	}
 	
 	protected IProcessor createAddVulnDeepLinkProcessor() {
-		return new FoDProcessorAddVulnDeepLink();
+		return new FoDProcessorEnrichWithVulnDeepLink();
 	}
 
 	protected IProcessor createSubLevelFieldRegExFilter() {
@@ -103,7 +105,11 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	}
 
 	protected IProcessor createTopLevelFieldSimpleFilter() {
-		return new FoDFilterOnTopLevelFields(getTopLevelFieldSimpleFilters());
+		CompositeProcessor result = new CompositeProcessor();
+		for ( Map.Entry<String, String> entry : getTopLevelFieldSimpleFilters().entrySet() ) {
+			result.getProcessors().add(new FoDFilterOnTopLevelField(entry.getKey(), entry.getValue()));
+		}
+		return result;
 	}
 
 	public Map<String, String> getTopLevelFieldSimpleFilters() {

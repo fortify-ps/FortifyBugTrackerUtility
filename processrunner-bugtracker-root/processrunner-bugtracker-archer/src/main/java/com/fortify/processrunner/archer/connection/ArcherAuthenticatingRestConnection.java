@@ -1,5 +1,8 @@
 package com.fortify.processrunner.archer.connection;
 
+import org.codehaus.jettison.json.JSONObject;
+
+import com.fortify.processrunner.common.SubmittedIssue;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.sun.jersey.api.client.WebResource.Builder;
 
@@ -21,5 +24,10 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	public Builder updateBuilder(Builder builder) {
 		return super.updateBuilder(builder)
 				.header("Authorization", "Archer session-id=\""+tokenProvider.getToken()+"\"");
+	}
+
+	public SubmittedIssue submitIssue(JSONObject jsonObject) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

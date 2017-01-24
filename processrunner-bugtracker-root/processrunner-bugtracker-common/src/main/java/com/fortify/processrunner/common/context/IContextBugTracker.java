@@ -1,5 +1,6 @@
 package com.fortify.processrunner.common.context;
 
+import com.fortify.processrunner.common.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 
 /**
