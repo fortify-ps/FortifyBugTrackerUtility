@@ -39,7 +39,7 @@ public final class SpringExpressionUtil {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext("com.fortify.util.spring.propertyaccessor");
 		try {
 			Collection<PropertyAccessor> result = ctx.getBeansOfType(PropertyAccessor.class).values();
-			LOG.info("Loaded PropertyAccessors: "+result);
+			LOG.info("[Process] Loaded PropertyAccessors: "+result);
 			return result;
 		} finally {
 			ctx.close();

@@ -2,7 +2,7 @@ package com.fortify.processrunner.archer.connection;
 
 import org.codehaus.jettison.json.JSONObject;
 
-import com.fortify.processrunner.common.SubmittedIssue;
+import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.sun.jersey.api.client.WebResource.Builder;
 

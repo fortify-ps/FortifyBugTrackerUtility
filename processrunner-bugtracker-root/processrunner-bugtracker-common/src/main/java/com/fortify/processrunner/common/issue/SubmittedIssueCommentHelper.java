@@ -1,21 +1,26 @@
-package com.fortify.processrunner.fod.util;
+package com.fortify.processrunner.common.issue;
 
 import java.text.MessageFormat;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.processrunner.common.SubmittedIssue;
-
 /**
- * This helper class allows for generating and parsing FoD comments with submitted issue information.
- *
+ * This helper class allows for generating and parsing comments with submitted issue information.
  */
-public class FoDSubmittedIssueCommentHelper {
-	public static final String COMMENT_TEMPLATE_EXPRESSION = "--- Vulnerability submitted to ${BugTrackerName}: ${SubmittedIssue.id==null?'':'ID '+SubmittedIssue.id} Location ${SubmittedIssue.deepLink}";
+public class SubmittedIssueCommentHelper {
 	private static final String FMT_COMMENT_STR = "--- Vulnerability submitted to {0}:{1} Location {2}";
 	private static final MessageFormat FMT_COMMENT = new MessageFormat(FMT_COMMENT_STR);
 	
-	private FoDSubmittedIssueCommentHelper() {}
+	private SubmittedIssueCommentHelper() {}
+	
+	public static final String getCommentForSubmittedIssue(String bugTrackerName, SubmittedIssue submittedIssue) {
+		StringBuffer sb = new StringBuffer("--- Vulnerability submitted to ").append(bugTrackerName). append(": ");
+		if ( submittedIssue.getId()!=null ) {
+			sb.append("ID ").append(submittedIssue.getId()).append(" ");
+		}
+		sb.append("Location ").append(submittedIssue.getDeepLink());
+		return sb.toString();
+	}
 	
 	public static final SubmittedIssue getSubmittedIssueFromComment(String comment) {
 		try {

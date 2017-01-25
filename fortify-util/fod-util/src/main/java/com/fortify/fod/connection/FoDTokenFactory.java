@@ -32,7 +32,7 @@ public final class FoDTokenFactory {
 	public String getToken() {
 		if ( tokenData == null || tokenData.isExpired() ) {
 			tokenData = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/oauth/token").entity(auth, "application/x-www-form-urlencoded"), FoDTokenFactory.TokenData.class);
-			LOG.info("Obtained FoD access token, expiring at "+new Date(tokenData.getExpiresAt()).toString());
+			LOG.info("[FoD] Obtained access token, expiring at "+new Date(tokenData.getExpiresAt()).toString());
 		}
 		return tokenData.getAccessToken();
 	}

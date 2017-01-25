@@ -1,6 +1,5 @@
 package com.fortify.processrunner.common.context;
 
-import com.fortify.processrunner.common.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 
 /**
@@ -11,7 +10,4 @@ public interface IContextBugTracker {
 	public static final String PRP_BUG_TRACKER_NAME = "BugTrackerName";
 	public void setBugTrackerName(String bugTrackerName);
 	public String getBugTrackerName();
-	
-	public void setSubmittedIssue(SubmittedIssue submittedIssue);
-	public SubmittedIssue getSubmittedIssue();
 }

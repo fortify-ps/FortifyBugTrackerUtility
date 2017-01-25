@@ -1,7 +1,6 @@
-package com.fortify.processrunner.common.processor;
+package com.fortify.util.json;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -9,21 +8,34 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.fortify.processrunner.common.SubmittedIssue;
-import com.fortify.processrunner.context.Context;
-
-public abstract class AbstractProcessorSubmitJSONObjectFromGroupedObjects extends AbstractProcessorSubmitObjectMapFromGroupedObjects {
-
-	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		return submitIssue(context, getJSONObject(context, issueData));
-	}
-	
-	protected abstract SubmittedIssue submitIssue(Context context, JSONObject jsonObject);
-
-	protected JSONObject getJSONObject(Context context, LinkedHashMap<String, Object> issueData) {
+/**
+ * <p>This class allows for building a JSONObject from an object map
+ * with JSON property names as map keys, and property values as
+ * map values.</p>
+ * 
+ * <p>Map keys may use the '.' separator to build nested objects.
+ * Map values may contain regular Java arrays and collections, which
+ * will be converted to JSONArray instances.</p>
+ * 
+ * <p>For example, a map entry with key "root.sub.value' and value 
+ * [1,2,3] (Java array or collection) will be converted into the 
+ * following JSONObject tree:</p>
+ * <pre>
+ * JSONObject
+ *   "root": JSONObject
+ *           "sub": JSONObject
+ *                  "value": JSONArray
+ *                           [1,2,3]
+ * </pre>
+ * 
+ * <p>Subclasses may override the various methods in this class to
+ * provide more specialized behavior.</p>
+ *  
+ */
+public class JSONObjectFromObjectMapBuilder {
+	public JSONObject getJSONObject(Map<String, Object> data) {
 		JSONObject result = new JSONObject();
-		for ( Map.Entry<String,Object> field : issueData.entrySet() ) {
+		for ( Map.Entry<String,Object> field : data.entrySet() ) {
 			addField(result, field.getKey(), field.getValue());
 		}
 		return result;
@@ -41,7 +53,7 @@ public abstract class AbstractProcessorSubmitJSONObjectFromGroupedObjects extend
 			}
 			json.put(propertyPath[propertyPath.length-1], convertValue(value));
 		} catch ( JSONException e ) {
-			throw new RuntimeException("Error creating JSON object for issue to be submitted", e);
+			throw new RuntimeException("Error creating JSONObject", e);
 		}
 	}
 
@@ -71,5 +83,4 @@ public abstract class AbstractProcessorSubmitJSONObjectFromGroupedObjects extend
 		}
 		return result;
 	}
-
 }

@@ -66,16 +66,9 @@
 	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- This abstract bean defines common configuration options for retrieving
-	     vulnerabilities from FoD, like vulnerability filter options, and extra
-	     data to be retrieved. 
-	     
-	     Each of these properties can either be changed here (if all processor
-	     configurations that you use require the same settings), or overridden 
-	     in the concrete processor configurations below (if you use multiple
-	     processor configurations that require different settings). 
-	-->
-	<bean id="fodSubmitVulnerabilitiesToBugTracker" abstract="true" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker">
+	<!-- This abstract bean defines common configuration options for  -->
+	
+	<bean id="fodProcessorCommonProperties" abstract="true">
 		<!-- Define any extra data that must be loaded from FoD for filtering 
 		     and/or building the issue contents. Note that previous versions
 		     automatically loaded summary data, but this is no longer the case
@@ -94,6 +87,36 @@
 			<!-- <value>traces</value> -->
 		</list></property>
 		
+		<!-- This flag can be set to true to add information about submitted bugs to 
+		     FoD vulnerability comments. By default (false), the bug link will
+		     be stored in the dedicated FoD bugLink field. Since the concrete
+		     processors defined below require different settings, each concrete
+		     processor explicitly sets this property. -->
+		<!-- <property name="useFoDCommentForSubmittedBugs" value="false"/> -->
+		
+		<!-- This property defines the expression for evaluating whether an FoD 
+		     vulnerability should be considered open or closed. This expression
+		     can use any FoD vulnerability attribute. Commonly used attributes
+		     for this expression include closedStatus and isSuppressed. -->
+		<property name="vulnState.isVulnerabilityOpenExpression"><value><![CDATA[
+			closedStatus==false && isSuppressed==false
+		]]></value></property>
+	</bean>
+	
+	<!-- This abstract bean defines common configuration options for retrieving
+	     vulnerabilities from FoD that need to be submitted to a bug tracker.
+	     This includes options like vulnerability filter options and extra
+	     data to be retrieved. 
+	     
+	     Some of the options are inherited from the fodProcessorCommonProperties
+	     bean defined above, since they are shared with fodUpdateBugTrackerState.
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="fodSubmitVulnerabilitiesToBugTracker" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
 		<!-- Define the filters that determine which FoD vulnerabilities will
 		     be submitted to the bug tracker or file.
 		     
@@ -130,36 +153,31 @@
 		<property name="allFieldRegExFilters"><map>
 		</map></property>
 		
-		<!-- This flag can be set to true to add information about submitted bugs to 
-		     FoD vulnerability comments. By default (false), the bug link will
-		     be stored in the dedicated FoD bugLink field. Since the concrete
-		     processors defined below require different settings, each concrete
-		     processor explicitly sets this property. -->
-		<!-- <property name="useFoDCommentForSubmittedBugs" value="false"/> -->
-		
 		<!-- This property defines the processor that actually submits FoD 
 		     vulnerabilities to a bug tracker. The different bug tracker
 		     implementations defined below explicitly set this property to
-		     a corresponding vulnerability processor. -->
-		<!-- <property name="vulnerabilityProcessor" ref="actualVulnerabilityProcessor"/> -->
+		     a corresponding processor. -->
+		<!-- <property name="submitIssueProcessor" ref="actualProcessor"/> -->
 	</bean>
 	
-	<!-- This abstract bean inherits all of the properties from 
-	     fodSubmitVulnerabilitiesToBugTracker, but adds a group template 
-	     expression to allow multiple vulnerabilities to be grouped in a 
-	     single submitted bug. 
+	<!-- This abstract bean defines common configuration options for updating
+	     bug tracker state based on FoD vulnerability state.
 	     
-	     The grouping expression can either be changed here (if all processor
+	     Some of the options are inherited from the fodProcessorCommonProperties
+	     bean defined above, since they are shared with fodSubmitVulnerabilitiesToBugTracker.
+	     
+	     Each of these properties can either be changed here (if all processor
 	     configurations that you use require the same settings), or overridden 
 	     in the concrete processor configurations below (if you use multiple
-	     processor configurations that require different grouping criteria).
+	     processor configurations that require different settings). 
 	-->
-	<bean id="fodSubmitGroupedVulnerabilitiesToBugTracker" abstract="true" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<!-- Define the expression used to group vulnerabilities. This expression can use
-		     any of the fields returned by the FoD vulnerabilities API. -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	<bean id="fodUpdateBugTrackerState" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState">
+		<!-- This property defines the processor that actually updates bug tracker 
+		     state based on FoD vulnerability state. The different bug tracker 
+		     implementations defined below explicitly set this property to a 
+		     corresponding processor. -->
+		<!-- <property name="updateIssueStateProcessor" ref="actualProcessor"/> -->
 	</bean>
-	
 	
 	<!--==================================================================================-->
 	<!-- JIRA CONNECTION AND PROCESSOR CONFIGURATION -->
@@ -192,15 +210,16 @@
 		<!-- <property name="password" value="password"/> -->
 	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to JIRA. If necessary, you can change the properties in this bean, for example 
-	     to change the fields and field data submitted to JIRA. 
+	<!-- This bean defines the processor configuration for submitting non-grouped
+	     FoD vulnerabilities to JIRA. If necessary, you can change the properties 
+	     in this bean, for example to change the fields and field data submitted 
+	     to JIRA. 
 	-->
-	<bean id="fodToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueFromGroupedObjects">
-		<property name="issue.fields"><map>
+	<bean id="fodToJiraIssueSubmitterNonGrouped" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
 			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property>
@@ -210,27 +229,57 @@
 		     as well have appended these expressions to the corresponding
 		     issue.fields entry above. However, using issue.appendedFields allows 
 		     us to re-use the same issue field configuration for grouped issues.
-		     
-		     Note that any field defined in issue.appendedFields, and the corresponding 
-		     fields in issue.fields, must be simple string values, not an array or other 
-		     complex type. -->
-		<property name="issue.appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		-->
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
 	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
-	     non-grouped FoD vulnerabilities) with the actual Jira issue submitter. -->
-	<bean id="fodToJiraProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="vulnerabilityProcessor" ref="fodToJiraIssueSubmitter"/>
+	<!-- This bean defines the processor configuration for submitting grouped FoD 
+	     vulnerabilities to JIRA. Configuration is inherited from the non-grouped
+	     variant; here we only add the grouping criteria. 
+	-->
+	<bean id="fodToJiraIssueSubmitterGrouped" parent="fodToJiraIssueSubmitterNonGrouped">
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 	</bean>
 	
-	<!-- This bean combines fodSubmitGroupedVulnerabilitiesToBugTracker (to retrieve and process
-	     grouped FoD vulnerabilities) with the actual Jira issue submitter. -->
-	<bean id="fodToJiraProcessorGrouped" parent="fodSubmitGroupedVulnerabilitiesToBugTracker">
+	<!-- This bean defines the processor configuration for updating JIRA issue state
+	     based on FoD vulnerability state. In this example, we update the JIRA description
+	     field by re-evaluating the corresponding description expressions defined on 
+	     fodToJiraIssueSubmitterNonGrouped. As such, any changes in FoD fields referenced
+	     in the description expressions, like vulnerability state or line number, will
+	     be reflected in the updated JIRA description.
+	-->
+	<bean id="fodToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraUpdateIssueStateForVulnerabilities">
+		<property name="fields"><map>
+			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.fields.description}"/>
+		</map></property>
+		<property name="appendedFields"><map>
+			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.appendedFields.description}"/>
+		</map></property>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     Jira issue submitter. 
+	-->
+	<bean id="fodToJiraProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
 		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="vulnerabilityProcessor" ref="fodToJiraIssueSubmitter"/>
+		<property name="submitIssueProcessor" ref="fodToJiraIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
+	     Jira issue submitter. 
+	-->
+	<bean id="fodToJiraProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToJiraIssueSubmitterGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodUpdateBugTrackerState with fodToJiraIssueUpdater. 
+	-->
+	<bean id="fodToJiraProcessorUpdateBugTrackerState" parent="fodUpdateBugTrackerState">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="updateIssueStateProcessor" ref="fodToJiraIssueUpdater"/>
 	</bean>
 	
 	<!--==================================================================================-->
@@ -251,6 +300,16 @@
 	<bean id="fodToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from FoD to JIRA"/>
 		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Update JIRA issue state based on FoD vulnerability state"/>
+		<property name="processor" ref="fodToJiraProcessorUpdateBugTrackerState"/>	
 		<property name="context"><map>
 			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
 			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
@@ -297,8 +356,8 @@
 	     to Archer. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to Archer. 
 	-->
-	<bean id="fodToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueFromGroupedObjects">
-		<property name="issue.fields"><map>
+	<bean id="fodToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
@@ -311,27 +370,34 @@
 		     as well have appended these expressions to the corresponding
 		     issue.fields entry above. However, using issue.appendedFields allows 
 		     us to re-use the same issue field configuration for grouped issues.
-		     
-		     Note that any field defined in issue.appendedFields, and the corresponding 
-		     fields in issue.fields, must be simple string values, not an array or other 
-		     complex type. -->
-		<property name="issue.appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		-->
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
 	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
-	     non-grouped FoD vulnerabilities) with the actual Archer issue submitter. -->
-	<bean id="fodToArcherProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="vulnerabilityProcessor" ref="fodToArcherIssueSubmitter"/>
+	<!-- This bean defines the processor configuration for submitting grouped FoD 
+	     vulnerabilities to Archer. Configuration is inherited from the non-grouped
+	     variant; here we only add the grouping criteria. 
+	-->
+	<bean id="fodToArcherIssueSubmitterGrouped" parent="fodToArcherIssueSubmitterNonGrouped">
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 	</bean>
 	
-	<!-- This bean combines fodSubmitGroupedVulnerabilitiesToBugTracker (to retrieve and process
-	     grouped FoD vulnerabilities) with the actual Archer issue submitter. -->
-	<bean id="fodToArcherProcessorGrouped" parent="fodSubmitGroupedVulnerabilitiesToBugTracker">
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     Archer issue submitter. 
+	-->
+	<bean id="fodToArcherProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
 		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="vulnerabilityProcessor" ref="fodToArcherIssueSubmitter"/>
+		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
+	     Archer issue submitter. 
+	-->
+	<bean id="fodToArcherProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterGrouped"/>
 	</bean>
 	
 	<!--==================================================================================-->
@@ -367,8 +433,8 @@
 	     data to a file. If necessary, you can change the properties in this bean, for 
 	     example to change the fields and field data submitted to the file.
 	-->
-	<bean id="fodToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueFromGroupedObjects">
-		<property name="issue.fields"><map>
+	<bean id="fodToFileIssueSubmitterNonGrouped" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="vulnId" value="${vulnId}"/>
 			<entry key="category" value="${category}"/>
@@ -378,11 +444,12 @@
 		</map></property>
 	</bean>
 	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker (to retrieve and process
-	     non-grouped FoD vulnerabilities) with the actual file issue submitter. -->
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     File issue submitter. 
+	-->
 	<bean id="fodToFileProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
 		<property name="useFoDCommentForSubmittedBugs" value="true"/>
-		<property name="vulnerabilityProcessor" ref="fodToFileIssueSubmitter"/>
+		<property name="submitIssueProcessor" ref="fodToFileIssueSubmitterNonGrouped"/>
 	</bean>
 	
 	<!--==================================================================================-->

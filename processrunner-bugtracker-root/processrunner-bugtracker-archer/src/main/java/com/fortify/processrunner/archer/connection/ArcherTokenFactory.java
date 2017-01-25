@@ -28,7 +28,7 @@ public final class ArcherTokenFactory {
 	public String getToken() {
 		if ( tokenData == null ) {
 			tokenData = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/api/core/security/login").entity(authData, "application/json"), ArcherTokenFactory.TokenData.class);
-			LOG.info("Obtained Archer access token");
+			LOG.info("[Archer] Obtained Archer access token");
 		}
 		return tokenData.getSessionToken();
 	}

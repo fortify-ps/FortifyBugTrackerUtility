@@ -3,20 +3,20 @@ package com.fortify.processrunner.archer.processor;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.archer.connection.ArcherAuthenticatingRestConnection;
 import com.fortify.processrunner.archer.context.IContextArcher;
-import com.fortify.processrunner.common.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitJSONObjectFromGroupedObjects;
+import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.util.json.JSONObjectFromObjectMapBuilder;
 
 /**
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
  * submits issues to Archer.
  */
-public class ProcessorArcherSubmitIssueFromGroupedObjects extends AbstractProcessorSubmitJSONObjectFromGroupedObjects {
+public class ProcessorArcherSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+	private static final JSONObjectFromObjectMapBuilder MAP_TO_JSON = new JSONObjectFromObjectMapBuilder();
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		// TODO
@@ -28,21 +28,9 @@ public class ProcessorArcherSubmitIssueFromGroupedObjects extends AbstractProces
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, JSONObject jsonObject) {
+	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextArcher contextArcher = context.as(IContextArcher.class);
 		ArcherAuthenticatingRestConnection conn = contextArcher.getArcherConnectionRetriever().getConnection();
-		return conn.submitIssue(jsonObject);
+		return conn.submitIssue(MAP_TO_JSON.getJSONObject(issueData));
 	}
-	
-	@Override
-	protected JSONObject getJSONObject(Context context, LinkedHashMap<String, Object> issueData) {
-		// TODO Update Map with context properties
-		return super.getJSONObject(context, issueData);
-	}
-	
-	@Override
-	protected void addField(JSONObject json, String key, Object value) {
-		// TODO Add key prefix, ...
-	}
-	
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
+import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.fod.processor.filter.FoDFilterOnTopLevelField;
@@ -15,36 +16,27 @@ import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVuln
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.processor.ProcessorGroupByExpressions;
-import com.fortify.processrunner.processor.ProcessorGroupByExpressions.IContextGrouping;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * <p>This composite {@link IProcessor} implementation combines various
- * {@link IProcessor} implementations for retrieving, filtering
- * and optionally grouping FoD vulnerabilities, and processing 
- * each vulnerability using the {@link IProcessor} implementation 
- * configured via {@link #setVulnerabilityProcessor(IProcessor)}.</p> 
+ * {@link IProcessor} implementations for retrieving and filtering
+ * FoD vulnerabilities, and processing each vulnerability using the 
+ * {@link IProcessor} implementation returned by the 
+ * {@link #createVulnerabilityProcessor()} that needs to be implemented
+ * by subclasses.</p> 
  * 
  * <p>Various filters can be defined using the {@link #setTopLevelFieldRegExFilters(Map)},
  * {@link #setTopLevelFieldRegExFilters(Map)} and {@link #setAllFieldRegExFilters(Map)} 
- * methods. Optional grouping can be enabled using the 
- * {@link #setGroupTemplateExpression(TemplateExpression)} method.</p>
+ * methods.</p>
  * 
  * <p>The configured vulnerability processor can access the current
- * (group of) vulnerabilities using {@link IContextGrouping#getCurrentGroup()}
- * (also if grouping has not been enabled; in that case each current group
- * will only contain a single vulnerability).</p>
+ * vulnerability using {@link IContextFoD#getFoDCurrentVulnerability()}.</p>
  */
-public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
+public abstract class AbstractFoDProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
 	private Set<String> extraFields = new HashSet<String>();
 	private Map<String,String> topLevelFieldSimpleFilters;
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
-	private TemplateExpression groupTemplateExpression;
-	
-	private IProcessor vulnerabilityProcessor;
 	
 	@Override
 	public List<IProcessor> getProcessors() {
@@ -57,7 +49,7 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 			createAddVulnDeepLinkProcessor(),
 			createAddJSONDataProcessor(),
 			createSubLevelFieldFilters(),
-			createGroupingProcessor()
+			getVulnerabilityProcessor()
 		);
 	}
 	
@@ -73,18 +65,8 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 			createSubLevelFieldRegExFilter()
 		);
 	}
-
-	protected IProcessor createGroupingProcessor() {
-		ProcessorGroupByExpressions result = new ProcessorGroupByExpressions();
-		result.setRootExpression(SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability"));
-		result.setGroupTemplateExpression(getGroupTemplateExpression());
-		result.setGroupProcessor(createGroupProcessor());
-		return result;
-	}
 	
-	protected IProcessor createGroupProcessor() {
-		return getVulnerabilityProcessor();
-	}
+	protected abstract IProcessor getVulnerabilityProcessor();
 
 	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
 		FoDProcessorEnrichWithExtraFoDData result = new FoDProcessorEnrichWithExtraFoDData();
@@ -97,11 +79,11 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	}
 
 	protected IProcessor createSubLevelFieldRegExFilter() {
-		return new FilterRegEx("FoDCurrentVulnerability", getAllFieldRegExFilters());
+		return new FilterRegEx("CurrentVulnerability", getAllFieldRegExFilters());
 	}
 
 	protected IProcessor createTopLevelFieldRegExFilter() {
-		return new FilterRegEx("FoDCurrentVulnerability", getTopLevelFieldRegExFilters());
+		return new FilterRegEx("CurrentVulnerability", getTopLevelFieldRegExFilters());
 	}
 
 	protected IProcessor createTopLevelFieldSimpleFilter() {
@@ -136,14 +118,6 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 		this.allFieldRegExFilters = allFieldRegExFilters;
 	}
 
-	public IProcessor getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	public void setVulnerabilityProcessor(IProcessor vulnerabilityProcessor) {
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
-	}
-
 	/**
 	 * @return the extraFields
 	 */
@@ -156,13 +130,5 @@ public class FoDProcessorRetrieveFilteredVulnerabilities extends AbstractComposi
 	 */
 	public void setExtraFields(Set<String> extraFields) {
 		this.extraFields = extraFields;
-	}
-
-	public TemplateExpression getGroupTemplateExpression() {
-		return groupTemplateExpression;
-	}
-
-	public void setGroupTemplateExpression(TemplateExpression groupTemplateExpression) {
-		this.groupTemplateExpression = groupTemplateExpression;
 	}
 }

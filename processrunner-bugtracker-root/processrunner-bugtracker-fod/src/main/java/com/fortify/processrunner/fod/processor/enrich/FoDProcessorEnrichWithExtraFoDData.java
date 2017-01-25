@@ -13,7 +13,6 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.context.IContextFoD;
-import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -37,7 +36,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * via the constructor or the {@link #setFields(Set)} methods. The data will be added as a JSON object
  * to the current vulnerability under the corresponding property name.
  */
-public class FoDProcessorEnrichWithExtraFoDData extends AbstractProcessor {
+public class FoDProcessorEnrichWithExtraFoDData extends AbstractFoDProcessorEnrich {
 	private static final Map<String, TemplateExpression> FIELD_TO_URI_EXPRESSION_MAP = getUriExpressionMap();
 	private Set<String> fields = new HashSet<String>();
 	
@@ -48,15 +47,9 @@ public class FoDProcessorEnrichWithExtraFoDData extends AbstractProcessor {
 	}
 
 	@Override
-	protected boolean process(Context context) {
-		IContextFoD ctx = context.as(IContextFoD.class);
-		JSONObject currentVulnerability = ctx.getFoDCurrentVulnerability();
-		try {
-			for ( String field : fields ) {
-				currentVulnerability.putOpt(field, getJSONObject(context, field));
-			}
-		} catch ( JSONException e ) {
-			throw new RuntimeException("Error adding extra JSON data for FoD vulnerability", e);
+	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+		for ( String field : fields ) {
+			currentVulnerability.putOpt(field, getJSONObject(context, field));
 		}
 		return true;
 	}
@@ -88,7 +81,7 @@ public class FoDProcessorEnrichWithExtraFoDData extends AbstractProcessor {
 	}
 	
 	private static final void add(Map<String, TemplateExpression> map, String name) {
-		map.put(name, SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/${[FoDCurrentVulnerability].vulnId}/"+name));
+		map.put(name, SpringExpressionUtil.parseTemplateExpression("/api/v3/releases/${[FoDReleaseId]}/vulnerabilities/${[CurrentVulnerability].vulnId}/"+name));
 	}
 
 	/**

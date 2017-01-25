@@ -25,7 +25,7 @@ public class ProcessRunner implements Runnable {
 		Context context = getContext();
 		IProcessor processor = getProcessor();
 		if ( LOG.isDebugEnabled() ) {
-			LOG.debug("Running processor "+processor+" with context "+context);
+			LOG.debug("[Process] Running processor "+processor+" with context "+context);
 		}
 		if ( process(Phase.PRE_PROCESS, context, processor) ) {
 			if ( process(Phase.PROCESS, context, processor) ) {
@@ -42,9 +42,9 @@ public class ProcessRunner implements Runnable {
 	 * @return
 	 */
 	private static final boolean process(Phase phase, Context context, IProcessor processor) {
-		LOG.debug("Running phase "+phase);
+		LOG.debug("[Process] Running phase "+phase);
 		boolean result = processor.process(phase, context);
-		LOG.debug("Phase "+phase+" result: "+result);
+		LOG.debug("[Process] Phase "+phase+" result: "+result);
 		return result;
 	}
 	

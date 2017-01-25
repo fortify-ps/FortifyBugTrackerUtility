@@ -23,7 +23,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * {@link IContextMatchingComment#getFoDCommentMatchedByFilter()}.</p>
  */
 public class FoDFilterOnComments extends AbstractProcessor {
-	private static final Expression EXPR_COMMENTS = SpringExpressionUtil.parseSimpleExpression("FoDCurrentVulnerability.summary.comments");
+	private static final Expression EXPR_COMMENTS = SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability.summary.comments");
 	private static final Expression EXPR_COMMENT = SpringExpressionUtil.parseSimpleExpression("comment");
 	private TemplateExpression filterPatternTemplateExpression = null;
 	private boolean excludeVulnerabilityWithMatchingComment = false;

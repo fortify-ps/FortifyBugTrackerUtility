@@ -81,15 +81,15 @@ public class RunProcessRunner {
 		
 		List<String> remainingArgs = cl.getArgList(); 
 		String processRunnerBeanName = getProcessRunnerBeanName(remainingArgs, appContext);
-		LOG.info("Using process runner "+processRunnerBeanName);
+		LOG.info("[Process] Using process runner "+processRunnerBeanName);
 		try {
 			ProcessRunner runner = appContext.getBean(processRunnerBeanName, ProcessRunner.class);
 			updateAndCheckContext(runner, remainingArgs);
 			runner.run();
 		} catch (Throwable t) {
-			LOG.fatal("Error during process run", t);
+			LOG.fatal("[Process] Error during process run", t);
 		} finally {
-			LOG.info("Processing complete for " + processRunnerBeanName);
+			LOG.info("[Process] Processing complete for " + processRunnerBeanName);
 			appContext.close();
 		}
 	}
@@ -164,7 +164,7 @@ public class RunProcessRunner {
 	protected final String getConfigFileName(CommandLine cl) {
 		String configFile = cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt(), getDefaultConfigFilePathAndName());
 		checkConfigFile(configFile);
-		LOG.info("Using Spring configuration file "+configFile);
+		LOG.info("[Process] Using Spring configuration file "+configFile);
 		return configFile;
 	}
 	
@@ -190,7 +190,7 @@ public class RunProcessRunner {
 	 */
 	protected final String getProcessRunnerBeanName(List<String> args, ApplicationContext context) {
 		Set<String> processorBeanNames = new LinkedHashSet<String>(Arrays.asList(context.getBeanNamesForType(ProcessRunner.class)));
-		if ( LOG.isDebugEnabled() ) { LOG.debug("Available process runners: "+processorBeanNames); }
+		if ( LOG.isDebugEnabled() ) { LOG.debug("[Process] Available process runners: "+processorBeanNames); }
 		String errorMessage = null;
 		if ( args.size() == 0 || args.get(0).startsWith("-") ) {
 			if ( processorBeanNames.contains(DEFAULT_BEAN_NAME) ) {
@@ -217,7 +217,7 @@ public class RunProcessRunner {
 	 * @param errorCode
 	 */
 	protected final void handleErrorAndExit(ApplicationContext context, Collection<ContextProperty> contextProperties, String errorMessage, int errorCode) {
-		LOG.error(errorMessage);
+		LOG.error("[Process] "+errorMessage);
 		printUsage(context, contextProperties, errorCode);
 	}
 	

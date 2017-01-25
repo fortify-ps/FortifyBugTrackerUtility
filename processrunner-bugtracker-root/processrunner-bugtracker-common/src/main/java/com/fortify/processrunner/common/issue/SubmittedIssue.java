@@ -1,4 +1,4 @@
-package com.fortify.processrunner.common;
+package com.fortify.processrunner.common.issue;
 
 /**
  * This class holds information about issues that have been

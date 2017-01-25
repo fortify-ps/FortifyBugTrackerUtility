@@ -11,8 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitObjectMapFromGroupedObjects;
+import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.IProcessor;
@@ -23,8 +23,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * current {@link Context} instance to a file based on a list of configured 
  * {@link TemplateExpression} instances.
  */
-public class ProcessorFileSubmitIssueFromGroupedObjects extends AbstractProcessorSubmitObjectMapFromGroupedObjects {
-	private static final Log LOG = LogFactory.getLog(ProcessorFileSubmitIssueFromGroupedObjects.class);
+public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+	private static final Log LOG = LogFactory.getLog(ProcessorFileSubmitIssueForVulnerabilities.class);
 	private static final String DEFAULT_OUTPUT_FILE = "FoDVulnerabilities.csv";
 	
 	private String fieldSeparator = ",";
@@ -52,16 +52,16 @@ public class ProcessorFileSubmitIssueFromGroupedObjects extends AbstractProcesso
 	 * file if the file has been newly created. 
 	 */
 	@Override
-	protected boolean preProcess(Context context) {
+	protected boolean preProcessBeforeGrouping(Context context) {
 		String fileName = (String)context.get("OutputFile");
 		if ( StringUtils.isBlank(fileName) ) {
 			fileName = DEFAULT_OUTPUT_FILE;
 		}
-		LOG.info("Writing vulnerabilities to file "+fileName);
+		LOG.info(String.format("[%s] Writing vulnerabilities to file %s", getBugTrackerName(), fileName));
 		try {
 			file = new File(fileName);
 			writer = new PrintWriter(new FileWriter(file, true));
-			LOG.debug("Opened file "+fileName);
+			LOG.debug(String.format("[%s] Opened file %s", getBugTrackerName(), fileName));
 		} catch ( IOException e ) {
 			throw new RuntimeException("Error opening file appender", e);
 		}
@@ -79,7 +79,6 @@ public class ProcessorFileSubmitIssueFromGroupedObjects extends AbstractProcesso
 			currentLine.append(fields.get(key));
 		}
 		
-		LOG.info("Writing issue to "+file.getAbsolutePath()+": "+currentLine);
 		writer.println(currentLine);
 		writer.flush();
 		
@@ -87,9 +86,9 @@ public class ProcessorFileSubmitIssueFromGroupedObjects extends AbstractProcesso
 	}
 	
 	@Override
-	protected boolean postProcess(Context context) {
+	protected boolean postProcessAfterProcessingGroups(Context context) {
 		writer.close();
-		LOG.debug("Close file "+context.get("OutputFile"));
+		LOG.debug(String.format("[%s] Closed file %s", getBugTrackerName(), context.get("OutputFile")));
 		return true;
 	}
 	

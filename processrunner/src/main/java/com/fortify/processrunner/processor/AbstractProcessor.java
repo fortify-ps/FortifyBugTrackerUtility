@@ -50,11 +50,11 @@ public abstract class AbstractProcessor implements IProcessor {
 	 */
 	public final boolean process(Phase phase, Context context) {
 		if ( LOG.isTraceEnabled() ) {
-			LOG.trace("[ENTER] Phase: "+phase+"\nProcessor: "+this+"\nContext: "+context);
+			LOG.trace("[Process][ENTER] Phase: "+phase+"\nProcessor: "+this+"\nContext: "+context);
 		}
 		boolean result = _process(phase, context);
 		if ( LOG.isTraceEnabled() ) {
-			LOG.trace("[EXIT] Phase: "+phase+"\nProcessor: "+this+"\nContext: "+context+"\nResult: "+result);
+			LOG.trace("[Process][EXIT] Phase: "+phase+"\nProcessor: "+this+"\nContext: "+context+"\nResult: "+result);
 		}
 		return result;
 	}

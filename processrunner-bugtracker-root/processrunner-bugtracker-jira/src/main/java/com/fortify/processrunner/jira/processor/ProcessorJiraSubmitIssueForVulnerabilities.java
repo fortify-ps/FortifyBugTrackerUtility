@@ -4,20 +4,21 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONObject;
 
-import com.fortify.processrunner.common.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitJSONObjectFromGroupedObjects;
+import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
+import com.fortify.processrunner.jira.util.JiraJSONObjectFromObjectMapBuilder;
 
 /**
- * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
+ * This {@link AbstractProcessorSubmitIssueForVulnerabilities} implementation
  * submits issues to Jira.
  */
-public class ProcessorJiraSubmitIssueFromGroupedObjects extends AbstractProcessorSubmitJSONObjectFromGroupedObjects {
+public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+	private static final JiraJSONObjectFromObjectMapBuilder MAP_TO_JSON = new JiraJSONObjectFromObjectMapBuilder();
 	private String defaultIssueType = "Task";
 	
 	@Override
@@ -32,24 +33,13 @@ public class ProcessorJiraSubmitIssueFromGroupedObjects extends AbstractProcesso
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, JSONObject jsonObject) {
+	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextJira contextJira = context.as(IContextJira.class);
 		JiraRestConnection conn = contextJira.getJiraConnectionRetriever().getConnection();
-		return conn.submitIssue(jsonObject);
-	}
-	
-	@Override
-	protected JSONObject getJSONObject(Context context, LinkedHashMap<String, Object> issueData) {
-		IContextJira contextJira = context.as(IContextJira.class);
 		issueData.put("project.key", contextJira.getJiraProjectKey());
 		issueData.put("issuetype.name", getIssueType(contextJira));
 		issueData.put("summary", StringUtils.abbreviate((String)issueData.get("summary"), 254));
-		return super.getJSONObject(context, issueData);
-	}
-	
-	@Override
-	protected void addField(JSONObject json, String key, Object value) {
-		super.addField(json, "fields."+key, value);
+		return conn.submitIssue(MAP_TO_JSON.getJSONObject(issueData));
 	}
 	
 	protected String getIssueType(IContextJira context) {

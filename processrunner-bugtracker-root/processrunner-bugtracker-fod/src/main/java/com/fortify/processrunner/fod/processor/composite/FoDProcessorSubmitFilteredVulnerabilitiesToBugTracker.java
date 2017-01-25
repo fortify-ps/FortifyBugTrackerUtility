@@ -1,29 +1,39 @@
 package com.fortify.processrunner.fod.processor.composite;
 
+import java.util.Collection;
+
+import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
+import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.issue.SubmittedIssueCommentHelper;
+import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
 import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugSubmittedComment;
 import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugSubmittedField;
-import com.fortify.processrunner.fod.processor.update.FoDProcessorUpdateVulnerabilitiesAddBugLink;
-import com.fortify.processrunner.fod.processor.update.FoDProcessorUpdateVulnerabilitiesAddBugSubmittedComment;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This class extends {@link FoDProcessorRetrieveFilteredVulnerabilities} with the following
+ * This class extends {@link AbstractFoDProcessorRetrieveFilteredVulnerabilities} with the following
  * functionality:
  * <ul>
  *  <li>Add filters to exclude vulnerabilities already submitted to the bug tracker</li>
  *  <li>After submitting a group of vulnerabilities to the bug tracker, add a corresponding
  *      comment or bugLink field to the FoD vulnerabilities</li>
  * </ul>
- * Apart from the configuration as documented for {@link FoDProcessorRetrieveFilteredVulnerabilities},
+ * Apart from the configuration as documented for {@link AbstractFoDProcessorRetrieveFilteredVulnerabilities},
  * this class can be configured with an additional {@link #useFoDCommentForSubmittedBugs} flag.
  * If set to false (default), a link to the submitted bug will be stored in the FoD bugLink field.
  * If set to true, information about the submitted bug will be stored as an FoD comment.
  */
-public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends FoDProcessorRetrieveFilteredVulnerabilities {
+public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractFoDProcessorRetrieveFilteredVulnerabilities {
+	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
 	private boolean useFoDCommentForSubmittedBugs = false;
+	private AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
 	
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
@@ -58,29 +68,9 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends FoDPr
 	}
 	
 	@Override
-	protected IProcessor createGroupProcessor() {
-		return new CompositeProcessor(getVulnerabilityProcessor(), createUpdateFoDWithSubmittedBugProcessor());
+	protected IProcessor getVulnerabilityProcessor() {
+		return new CompositeProcessor(getVulnState(), getSubmitIssueProcessor());
 	}
-	
-	protected IProcessor createUpdateFoDWithSubmittedBugProcessor() {
-		return isUseFoDCommentForSubmittedBugs() 
-				? createUpdateFoDCommentWithSubmittedBugProcessor()
-				: createUpdateFoDBugLinkWithSubmittedBugProcessor();  
-	}
-	
-	protected IProcessor createUpdateFoDCommentWithSubmittedBugProcessor() {
-		FoDProcessorUpdateVulnerabilitiesAddBugSubmittedComment result = new FoDProcessorUpdateVulnerabilitiesAddBugSubmittedComment();
-		result.setIterableExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup"));
-		return result;
-	}
-	
-	protected IProcessor createUpdateFoDBugLinkWithSubmittedBugProcessor() {
-		FoDProcessorUpdateVulnerabilitiesAddBugLink result = new FoDProcessorUpdateVulnerabilitiesAddBugLink();
-		result.setIterableExpression(SpringExpressionUtil.parseSimpleExpression("CurrentGroup"));
-		return result;
-	}
-	
-	
 
 	/**
 	 * @return the useFoDCommentForSubmittedBugs
@@ -94,5 +84,34 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends FoDPr
 	 */
 	public void setUseFoDCommentForSubmittedBugs(boolean useFoDCommentForSubmittedBugs) {
 		this.useFoDCommentForSubmittedBugs = useFoDCommentForSubmittedBugs;
+	}
+
+	public AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
+		return submitIssueProcessor;
+	}
+
+	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
+		submitIssueProcessor.setIssueSubmittedListener(new FoDIssueSubmittedListener());
+		this.submitIssueProcessor = submitIssueProcessor;
+	}
+	
+	public FoDProcessorEnrichWithVulnState getVulnState() {
+		return enrichWithVulnStateProcessor;
+	}
+
+	private class FoDIssueSubmittedListener implements IIssueSubmittedListener {
+		@SuppressWarnings("unchecked")
+		public void issueSubmitted(Context context, String bugTrackerName, SubmittedIssue submittedIssue, Collection<Object> vulnerabilities) {
+			IContextFoD ctx = context.as(IContextFoD.class);
+			FoDAuthenticatingRestConnection conn = ctx.getFoDConnectionRetriever().getConnection();
+			String releaseId = ctx.getFoDReleaseId();
+			Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
+			if ( isUseFoDCommentForSubmittedBugs() ) {
+				String comment = SubmittedIssueCommentHelper.getCommentForSubmittedIssue(bugTrackerName, submittedIssue);
+				conn.addCommentToVulnerabilities(releaseId, comment, vulnIds);
+			} else {
+				conn.addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
+			}
+		}
 	}
 }

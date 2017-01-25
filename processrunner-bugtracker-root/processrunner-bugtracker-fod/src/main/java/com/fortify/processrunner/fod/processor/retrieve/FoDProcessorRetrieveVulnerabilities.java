@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.fod.context.IContextFoD;
@@ -32,7 +33,7 @@ import com.sun.jersey.api.client.WebResource;
  * {@link #setVulnerabilityProcessor(IProcessor)} will be called
  * to process the current vulnerability. The current vulnerability
  * can be accessed by the vulnerability processor using the
- * 'FoDCurrentVulnerability' {@link Context} property.</p>
+ * 'CurrentVulnerability' {@link Context} property.</p>
  * 
  * <p>If the 'FoDTopLevelFilterParamValue' {@link Context} property 
  * has been set (usually by adding filters via 
@@ -70,19 +71,20 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IProcessor processor = getVulnerabilityProcessor();
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextFoD contextFoD = context.as(IContextFoD.class);
+		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		IRestConnection conn = contextFoD.getFoDConnectionRetriever().getConnection();
 		String filterParamValue = contextFoD.getFoDTopLevelFilterParamValue();
 		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&filters="+filterParamValue;
-		LOG.info("Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+contextFoD.getFoDConnectionRetriever().getBaseUrl());
+		LOG.info("[FoD] Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+contextFoD.getFoDConnectionRetriever().getBaseUrl());
 		int start=0;
 		int count=50;
 		while ( start < count ) {
-			LOG.info("Loading next set of data from FoD");
+			LOG.info("[FoD] Loading next set of data");
 			context.put(KEY_START, start);
 			// TODO Add request parameter for isIncludeRemoved() once FoD adds this functionality to the API
 			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
 			WebResource resource = conn.getBaseResource().uri(uri);
-			LOG.debug("Retrieving vulnerabilities from "+resource);
+			LOG.debug("[FoD] Retrieving vulnerabilities from "+resource);
 			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
 			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
 			JSONArray vulnerabilitiesArray = SpringExpressionUtil.evaluateExpression(data, getRootExpression(), JSONArray.class);
@@ -90,12 +92,12 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 			for ( int i = 0 ; i < vulnerabilitiesArray.length() ; i++ ) {
 				JSONObject vuln = vulnerabilitiesArray.optJSONObject(i);
 				if ( LOG.isTraceEnabled() ) {
-					LOG.trace("Processing vulnerability "+vuln.optString("vulnId"));
+					LOG.trace("[FoD] Processing vulnerability "+vuln.optString("vulnId"));
 				}
-				contextFoD.setFoDCurrentVulnerability(vuln);
+				contextCurrentVulnerability.setCurrentVulnerability(vuln);
 				// We ignore the boolean result as we want to continue processing next vulnerabilities
 				processor.process(Phase.PROCESS, context);
-				contextFoD.setFoDCurrentVulnerability(null);
+				contextCurrentVulnerability.setCurrentVulnerability(null);
 			}
 			context.remove(KEY_START);
 		}

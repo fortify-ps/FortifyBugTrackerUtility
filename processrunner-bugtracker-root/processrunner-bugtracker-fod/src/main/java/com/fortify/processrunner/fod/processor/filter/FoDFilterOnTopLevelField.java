@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
@@ -51,7 +52,7 @@ public class FoDFilterOnTopLevelField extends AbstractProcessor {
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		LOG.debug("Adding top-level field filter "+getFieldName()+"="+getFilterValue());
+		LOG.debug("[FoD] Adding top-level field filter "+getFieldName()+"="+getFilterValue());
 		appendTopLevelFieldFilterParamValue(context, getFieldName(), getFilterValue());
 		return true;
 	}
@@ -75,7 +76,7 @@ public class FoDFilterOnTopLevelField extends AbstractProcessor {
 	// Since FoD doesn't support URL filtering on all top level fields (for example criticalityString),
 	// we explicitly filter the results again.
 	protected boolean process(Context context) {
-		JSONObject vuln = context.as(IContextFoD.class).getFoDCurrentVulnerability();
+		JSONObject vuln = (JSONObject) context.as(IContextCurrentVulnerability.class).getCurrentVulnerability();
 		String value = SpringExpressionUtil.evaluateExpression(vuln, getFieldName(), String.class);
 		List<String> allowedValues = Arrays.asList(getFilterValue().split("\\|"));
 		return allowedValues.contains(value);
