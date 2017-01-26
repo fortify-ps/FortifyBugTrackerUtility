@@ -21,6 +21,17 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorTransitionIssueStateForVulnerabilities.class);
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForOpeningIssue;
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForClosingIssue;
+	
+	public AbstractProcessorTransitionIssueStateForVulnerabilities() {
+		// If expressions are not explicitly overridden through configuration, we want our superclass
+		// to consider all issues as openable/closeable. In that case, whether an issue is openable or
+		// closeable will be determined based on whether a corresponding transition is available.
+		// If expressions are explicitly overridden through configuration, we consider an issue as
+		// openable/closeable if the corresponding expression evaluates to through, and a corresponding
+		// transition is available.
+		setIsIssueOpenableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
+		setIsIssueCloseableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
+	}
 
 	@Override
 	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
@@ -32,6 +43,39 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
 		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForClosingIssue());
 		return transition(context, submittedIssue, currentIssueState, transitions);
+	}
+	
+	@Override
+	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
+		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForClosingIssue();
+		return super.canDetemineIssueIsClosed(context, submittedIssue) && (transitions!=null && transitions.size()>0);
+	}
+	
+	@Override
+	protected boolean canDetemineIssueIsOpen(Context context, SubmittedIssue submittedIssue) {
+		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForOpeningIssue();
+		return super.canDetemineIssueIsOpen(context, submittedIssue) && (transitions!=null && transitions.size()>0);
+	}
+	
+	@Override
+	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return isIssueTransitionable(currentIssueState, super.isIssueCloseable(context, submittedIssue, currentIssueState), getTransitionsForClosingIssue());
+	}
+	
+	@Override
+	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return isIssueTransitionable(currentIssueState, super.isIssueOpenable(context, submittedIssue, currentIssueState), getTransitionsForOpeningIssue());
+	}
+
+	protected boolean isIssueTransitionable(IssueStateType currentIssueState, boolean defaultValue, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions) {
+		if ( defaultValue ) {
+			for ( SimpleExpression expression : transitions.keySet() ) {
+				if ( SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	protected List<TransitionWithComment> getTransitions(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {

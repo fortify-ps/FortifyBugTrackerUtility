@@ -264,20 +264,22 @@
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If
-		     your JIRA instances uses non-standard workflows, you may need to update these
-		     expressions. -->
+		     not defined, an issue is considered openable/closeable if a valid transition exists. -->
+		<!--
 		<property name="isIssueOpenableExpression"><value><![CDATA[
-			status.name matches 'Done|Closed|Resolved'
+			resolution.name matches 'something|something else'
 		]]></value></property>
 		<property name="isIssueCloseableExpression"><value><![CDATA[
-			status.name matches 'To Do|Open|Reopened|In Progress|In Review'
+			
 		]]></value></property>
+		-->
 		
 		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
 		     that defines when to use a specific transition; this is usually based on issue status.name.
 		     The map value defines one or more names of transitions that need to be performed in order to 
 		     re-open or close an issue. For each transition, you can specify an optional comment between
-		     brackets. -->
+		     brackets. If your JIRA instances uses non-standard workflows, you may need to update these
+		     mappings.-->
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- JIRA default workflow -->
 			<entry key="status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FoDBugTrackerUtility]"/>

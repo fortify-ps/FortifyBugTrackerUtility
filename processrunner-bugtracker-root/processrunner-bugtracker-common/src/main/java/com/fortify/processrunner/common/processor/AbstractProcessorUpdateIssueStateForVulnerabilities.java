@@ -70,21 +70,25 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	}
 	
 	protected boolean openIssueIfClosed(Context context, SubmittedIssue submittedIssue) {
-		IssueStateType currentIssueState = getCurrentIssueStateIfExpressionMatchesIssueState(context, submittedIssue, getIsIssueOpenableExpression()); 
-		if ( currentIssueState!=null ) {
-			return openIssue(context, submittedIssue, currentIssueState);
+		if ( canDetemineIssueIsClosed(context, submittedIssue) ) {
+			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
+			if ( isIssueOpenable(context, submittedIssue, currentIssueState) ) {
+				return openIssue(context, submittedIssue, currentIssueState);
+			}
 		}
 		return false;
 	}
-	
+
 	protected boolean closeIssueIfOpen(Context context, SubmittedIssue submittedIssue) {
-		IssueStateType currentIssueState = getCurrentIssueStateIfExpressionMatchesIssueState(context, submittedIssue, getIsIssueCloseableExpression()); 
-		if ( currentIssueState!=null ) {
-			return closeIssue(context, submittedIssue, currentIssueState);
+		if ( canDetemineIssueIsOpen(context, submittedIssue) ) {
+			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
+			if ( isIssueCloseable(context, submittedIssue, currentIssueState) ) {
+				return closeIssue(context, submittedIssue, currentIssueState);
+			}
 		}
 		return false;
 	}
-	
+
 	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
 		return false;
 	}
@@ -99,14 +103,27 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	
 	protected abstract String getBugTrackerName();
 	
-	private IssueStateType getCurrentIssueStateIfExpressionMatchesIssueState(Context context, SubmittedIssue submittedIssue, SimpleExpression expression) {
-		if ( expression != null ) {
-			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
-			if ( currentIssueState != null && SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class) ) {
-				return currentIssueState;
-			}
+	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
+		return getIsIssueCloseableExpression()!=null;
+	}
+	
+	protected boolean canDetemineIssueIsOpen(Context context, SubmittedIssue submittedIssue) {
+		return getIsIssueOpenableExpression()!=null;
+	}
+	
+	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueCloseableExpression());
+	}
+
+	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueOpenableExpression());
+	}
+	
+	protected boolean doesIssueStateMatchExpression(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState, SimpleExpression expression) {
+		if ( expression!=null && currentIssueState!=null ) {
+			return SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class);
 		}
-		return null;
+		return false;
 	}
 	
 	private boolean hasOpenVulnerabilities(List<Object> currentGroup) {
