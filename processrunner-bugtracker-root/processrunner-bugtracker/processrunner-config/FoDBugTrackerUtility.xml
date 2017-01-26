@@ -244,18 +244,57 @@
 	</bean>
 	
 	<!-- This bean defines the processor configuration for updating JIRA issue state
-	     based on FoD vulnerability state. In this example, we update the JIRA description
-	     field by re-evaluating the corresponding description expressions defined on 
-	     fodToJiraIssueSubmitterNonGrouped. As such, any changes in FoD fields referenced
-	     in the description expressions, like vulnerability state or line number, will
-	     be reflected in the updated JIRA description.
+	     based on FoD vulnerability state. This processor can update issue fields,
+	     automatically re-open issues, and automatically close issues. Each of these
+	     actions is optional; if a property is not defined, the corresponding action
+	     will not be performed.
 	-->
-	<bean id="fodToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraUpdateIssueStateForVulnerabilities">
+	<bean id="fodToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
+		<!-- Update the JIRA description field by re-evaluating the corresponding description 
+		     expressions defined on fodToJiraIssueSubmitterNonGrouped. As such, any changes in 
+		     FoD fields referenced in the description expressions, like vulnerability state or 
+		     line number, will be reflected in the updated JIRA description. -->
 		<property name="fields"><map>
 			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.fields.description}"/>
 		</map></property>
 		<property name="appendedFields"><map>
 			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.appendedFields.description}"/>
+		</map></property>
+		
+		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
+		     can utilize all properties in the status and resolution fields returned by the JIRA
+		     REST API, usually you will want to match on status.name and/or resolution.name. If
+		     your JIRA instances uses non-standard workflows, you may need to update these
+		     expressions. -->
+		<property name="isIssueOpenableExpression"><value><![CDATA[
+			status.name matches 'Done|Closed|Resolved'
+		]]></value></property>
+		<property name="isIssueCloseableExpression"><value><![CDATA[
+			status.name matches 'To Do|Open|Reopened|In Progress|In Review'
+		]]></value></property>
+		
+		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
+		     that defines when to use a specific transition; this is usually based on issue status.name.
+		     The map value defines one or more names of transitions that need to be performed in order to 
+		     re-open or close an issue. For each transition, you can specify an optional comment between
+		     brackets. -->
+		<property name="transitionsForOpeningIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FoDBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="status.name matches 'Done'" value="To Do[Issue re-opened by FoDBugTrackerUtility]"/>
+		</map></property>
+		<property name="transitionsForClosingIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- Example on performing multiple transitions to reach the target state -->
+			<entry key="status.name matches 'My Custom Status'"><list>
+				<value>IntermediateTransition1</value> <!-- Transition without comment -->
+				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
 		</map></property>
 	</bean>
 	

@@ -132,8 +132,8 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor) {
 		updateIssueStateProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
 		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(FoDProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		updateIssueStateProcessor.setBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
-		updateIssueStateProcessor.setBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
+		updateIssueStateProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
+		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
 	}
 }

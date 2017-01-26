@@ -9,14 +9,14 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.util.json.JSONObjectFromObjectMapBuilder;
+import com.fortify.util.json.JSONObjectBuilder;
 
 /**
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
  * submits issues to Archer.
  */
 public class ProcessorArcherSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
-	private static final JSONObjectFromObjectMapBuilder MAP_TO_JSON = new JSONObjectFromObjectMapBuilder();
+	private static final JSONObjectBuilder MAP_TO_JSON = new JSONObjectBuilder();
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		// TODO

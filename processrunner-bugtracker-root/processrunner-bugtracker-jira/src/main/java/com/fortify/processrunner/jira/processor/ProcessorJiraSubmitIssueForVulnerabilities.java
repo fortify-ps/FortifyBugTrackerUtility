@@ -11,14 +11,14 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
-import com.fortify.processrunner.jira.util.JiraJSONObjectFromObjectMapBuilder;
+import com.fortify.processrunner.jira.util.JiraIssueJSONObjectBuilder;
 
 /**
  * This {@link AbstractProcessorSubmitIssueForVulnerabilities} implementation
  * submits issues to Jira.
  */
 public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
-	private static final JiraJSONObjectFromObjectMapBuilder MAP_TO_JSON = new JiraJSONObjectFromObjectMapBuilder();
+	private static final JiraIssueJSONObjectBuilder MAP_TO_JSON = new JiraIssueJSONObjectBuilder();
 	private String defaultIssueType = "Task";
 	
 	@Override

@@ -15,20 +15,14 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGr
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
-/**
- * This abstract class allows for updating an existing issue based on vulnerabilities grouped by
- * issue id or issue link. TODO 
- * 
- * builds a string map using {@link AbstractProcessorBuildObjectMapFromGroupedObjects},
- * submits the issue to the bug tracker, and logs a status message. Subclasses need
- * to implement the {@link #getBugTrackerName()} method to return the bug tracker name, and the 
- * {@link #submitIssue(Context, LinkedHashMap)} method to actually submit the issue.
- */
-public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects {
+public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractProcessorBuildObjectMapFromGroupedObjects {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
 	private SimpleExpression isVulnStateOpenExpression;
-	private SimpleExpression bugIdExpression;
-	private SimpleExpression bugLinkExpression;
+	private SimpleExpression vulnBugIdExpression;
+	private SimpleExpression vulnBugLinkExpression;
+	private SimpleExpression isIssueOpenableExpression;
+	private SimpleExpression isIssueCloseableExpression;
+	
 	
 	public AbstractProcessorUpdateIssueStateForVulnerabilities() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
@@ -64,8 +58,8 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities extend
 	
 	protected SubmittedIssue getSubmittedIssue(Object vulnerability) {
 		SubmittedIssue result = new SubmittedIssue();
-		result.setId(SpringExpressionUtil.evaluateExpression(vulnerability, bugIdExpression, String.class));
-		result.setDeepLink(SpringExpressionUtil.evaluateExpression(vulnerability, bugLinkExpression, String.class));
+		result.setId(SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugIdExpression, String.class));
+		result.setDeepLink(SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugLinkExpression, String.class));
 		return result;
 	}
 	
@@ -76,14 +70,44 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities extend
 	}
 	
 	protected boolean openIssueIfClosed(Context context, SubmittedIssue submittedIssue) {
+		IssueStateType currentIssueState = getCurrentIssueStateIfExpressionMatchesIssueState(context, submittedIssue, getIsIssueOpenableExpression()); 
+		if ( currentIssueState!=null ) {
+			return openIssue(context, submittedIssue, currentIssueState);
+		}
 		return false;
 	}
 	
 	protected boolean closeIssueIfOpen(Context context, SubmittedIssue submittedIssue) {
+		IssueStateType currentIssueState = getCurrentIssueStateIfExpressionMatchesIssueState(context, submittedIssue, getIsIssueCloseableExpression()); 
+		if ( currentIssueState!=null ) {
+			return closeIssue(context, submittedIssue, currentIssueState);
+		}
 		return false;
 	}
 	
+	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return false;
+	}
+	
+	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+		return false;
+	}
+	
+	protected IssueStateType getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
+		return null;
+	}
+	
 	protected abstract String getBugTrackerName();
+	
+	private IssueStateType getCurrentIssueStateIfExpressionMatchesIssueState(Context context, SubmittedIssue submittedIssue, SimpleExpression expression) {
+		if ( expression != null ) {
+			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
+			if ( currentIssueState != null && SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class) ) {
+				return currentIssueState;
+			}
+		}
+		return null;
+	}
 	
 	private boolean hasOpenVulnerabilities(List<Object> currentGroup) {
 		for ( Object o : currentGroup ) {
@@ -105,29 +129,57 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities extend
 	/**
 	 * @return the bugIdExpression
 	 */
-	public SimpleExpression getBugIdExpression() {
-		return bugIdExpression;
+	public SimpleExpression getVulnBugIdExpression() {
+		return vulnBugIdExpression;
 	}
 
 	/**
 	 * @param bugIdExpression the bugIdExpression to set
 	 */
-	public void setBugIdExpression(SimpleExpression bugIdExpression) {
-		this.bugIdExpression = bugIdExpression;
+	public void setVulnBugIdExpression(SimpleExpression vulnBugIdExpression) {
+		this.vulnBugIdExpression = vulnBugIdExpression;
 	}
 
 	/**
 	 * @return the bugLinkExpression
 	 */
-	public SimpleExpression getBugLinkExpression() {
-		return bugLinkExpression;
+	public SimpleExpression getVulnBugLinkExpression() {
+		return vulnBugLinkExpression;
 	}
 
 	/**
 	 * @param bugLinkExpression the bugLinkExpression to set
 	 */
-	public void setBugLinkExpression(SimpleExpression bugLinkExpression) {
-		this.bugLinkExpression = bugLinkExpression;
+	public void setVulnBugLinkExpression(SimpleExpression vulnBugLinkExpression) {
+		this.vulnBugLinkExpression = vulnBugLinkExpression;
+	}
+
+	/**
+	 * @return the isIssueOpenableExpression
+	 */
+	public SimpleExpression getIsIssueOpenableExpression() {
+		return isIssueOpenableExpression;
+	}
+
+	/**
+	 * @param isIssueOpenableExpression the isIssueOpenableExpression to set
+	 */
+	public void setIsIssueOpenableExpression(SimpleExpression isIssueOpenableExpression) {
+		this.isIssueOpenableExpression = isIssueOpenableExpression;
+	}
+
+	/**
+	 * @return the isIssueCloseableExpression
+	 */
+	public SimpleExpression getIsIssueCloseableExpression() {
+		return isIssueCloseableExpression;
+	}
+
+	/**
+	 * @param isIssueCloseableExpression the isIssueCloseableExpression to set
+	 */
+	public void setIsIssueCloseableExpression(SimpleExpression isIssueCloseableExpression) {
+		this.isIssueCloseableExpression = isIssueCloseableExpression;
 	}
 	
 	
