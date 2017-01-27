@@ -1,0 +1,164 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<import resource="components/connection/FoDConnectionConfig.xml"/>
+	<import resource="components/connection/JiraConnectionConfig.xml"/>
+	<import resource="components/input/FoDInputConfig.xml"/>
+	
+	<!--==================================================================================-->
+	<!-- FOD TO JIRA PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the processor configuration for submitting non-grouped
+	     FoD vulnerabilities to JIRA. If necessary, you can change the properties 
+	     in this bean, for example to change the fields and field data submitted 
+	     to JIRA. 
+	-->
+	<bean id="fodToJiraIssueSubmitterNonGrouped" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+			<entry key="labels" value="${{'FoD'}}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		</map></property>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting grouped FoD 
+	     vulnerabilities to JIRA. Configuration is inherited from the non-grouped
+	     variant; here we only add the grouping criteria. 
+	-->
+	<bean id="fodToJiraIssueSubmitterGrouped" parent="fodToJiraIssueSubmitterNonGrouped">
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for updating JIRA issue state
+	     based on FoD vulnerability state. This processor can update issue fields,
+	     automatically re-open issues, and automatically close issues. Each of these
+	     actions is optional; if a property is not defined, the corresponding action
+	     will not be performed.
+	-->
+	<bean id="fodToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
+		<!-- Update the JIRA description field by re-evaluating the corresponding description 
+		     expressions defined on fodToJiraIssueSubmitterNonGrouped. As such, any changes in 
+		     FoD fields referenced in the description expressions, like vulnerability state or 
+		     line number, will be reflected in the updated JIRA description. -->
+		<property name="fields"><map>
+			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.fields.description}"/>
+		</map></property>
+		<property name="appendedFields"><map>
+			<entry key="description" value="#{@fodToJiraIssueSubmitterNonGrouped.appendedFields.description}"/>
+		</map></property>
+		
+		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
+		     can utilize all properties in the status and resolution fields returned by the JIRA
+		     REST API, usually you will want to match on status.name and/or resolution.name. If
+		     not defined, an issue is considered openable/closeable if a valid transition exists. -->
+		<!--
+		<property name="isIssueOpenableExpression"><value><![CDATA[
+			resolution.name matches 'something|something else'
+		]]></value></property>
+		<property name="isIssueCloseableExpression"><value><![CDATA[
+			
+		]]></value></property>
+		-->
+		
+		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
+		     that defines when to use a specific transition; this is usually based on issue status.name.
+		     The map value defines one or more names of transitions that need to be performed in order to 
+		     re-open or close an issue. For each transition, you can specify an optional comment between
+		     brackets. If your JIRA instances uses non-standard workflows, you may need to update these
+		     mappings.-->
+		<property name="transitionsForOpeningIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FoDBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="status.name matches 'Done'" value="To Do[Issue re-opened by FoDBugTrackerUtility]"/>
+		</map></property>
+		<property name="transitionsForClosingIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- Example on performing multiple transitions to reach the target state -->
+			<entry key="status.name matches 'My Custom Status'"><list>
+				<value>IntermediateTransition1</value> <!-- Transition without comment -->
+				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
+		</map></property>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     Jira issue submitter. 
+	-->
+	<bean id="fodToJiraProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToJiraIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
+	     Jira issue submitter. 
+	-->
+	<bean id="fodToJiraProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToJiraIssueSubmitterGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodUpdateBugTrackerState with fodToJiraIssueUpdater. 
+	-->
+	<bean id="fodToJiraProcessorUpdateBugTrackerState" parent="fodUpdateBugTrackerState">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="updateIssueStateProcessor" ref="fodToJiraIssueUpdater"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- This process runner submits grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities from FoD to JIRA"/>
+		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from FoD to JIRA"/>
+		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
+	<bean id="fodToJiraUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Update JIRA issue state based on FoD vulnerability state"/>
+		<property name="processor" ref="fodToJiraProcessorUpdateBugTrackerState"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+</beans>

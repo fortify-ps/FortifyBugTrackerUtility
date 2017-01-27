@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!--==================================================================================-->
+	<!-- JIRA CONNECTION CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines a proxy configuration used to access JIRA. By default
+	     no proxy is used. If necessary, proxy settings can either be entered here,
+	     or using -JiraProxyUrl, -JiraProxyUserName and -JiraProxyPassword command line
+	     options. If a proxy user name is specified without a password, the user
+	     will be prompted to enter the proxy password. -->
+	<bean id="jiraProxy" class="com.fortify.processrunner.util.rest.ContextAwareProxyConfiguration">
+		<property name="name" value="Jira"/>
+		<!-- <property name="uri" value="http://proxy:port/"/> -->
+		<!-- <property name="userName" value="proxy user (optional)"/> -->
+		<!-- <property name="password" value="proxy password (optional)"/> -->
+	</bean>
+	
+	<!-- Define JIRA connection information like base URL, user name and password. 
+	     
+	     Base URL, user name and password can either be configured here, or
+	     provided via the -JiraBaseUrl, -JiraUserName and -JiraPassword command
+	     line options. Alternatively, if user name and/or password have not been 
+	     provided either here or via command line options, the user will be 
+	     prompted to enter the corresponding value.
+	-->
+	<bean id="jiraConnectionRetriever" class="com.fortify.processrunner.jira.connection.ContextAwareJiraConnectionRetriever">
+		<property name="proxy" ref="jiraProxy"/>
+		<!-- <property name="baseUrl" value="http://192.168.99.100:32768/"/> -->
+		<!-- <property name="userName" value="rsenden"/> -->
+		<!-- <property name="password" value="password"/> -->
+	</bean>
+	
+</beans>

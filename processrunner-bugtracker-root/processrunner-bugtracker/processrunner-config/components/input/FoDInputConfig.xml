@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!--==================================================================================-->
+	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This abstract bean defines common configuration options for  -->
+	
+	<bean id="fodProcessorCommonProperties" abstract="true">
+		<!-- Define any extra data that must be loaded from FoD for filtering 
+		     and/or building the issue contents. Note that previous versions
+		     automatically loaded summary data, but this is no longer the case
+		     if useFoDCommentForSubmittedBugs is set to false.
+		     If your customized configuration depends on summary data, you 
+		     will need to enable the summary field here. -->
+		<property name="extraFields"><list>
+			<!-- <value>summary</value> -->
+			<!-- <value>details</value> -->
+			<!-- <value>recommendations</value> -->
+			<!-- <value>screenshots</value> -->
+			<!-- <value>history</value> -->
+			<!-- <value>requestResponse</value> -->
+			<!-- <value>headers</value> -->
+			<!-- <value>parameters</value> -->
+			<!-- <value>traces</value> -->
+		</list></property>
+		
+		<!-- This flag can be set to true to add information about submitted bugs to 
+		     FoD vulnerability comments. By default (false), the bug link will
+		     be stored in the dedicated FoD bugLink field. Since the concrete
+		     processors defined below require different settings, each concrete
+		     processor explicitly sets this property. -->
+		<!-- <property name="useFoDCommentForSubmittedBugs" value="false"/> -->
+		
+		<!-- This property defines the expression for evaluating whether an FoD 
+		     vulnerability should be considered open or closed. This expression
+		     can use any FoD vulnerability attribute. Commonly used attributes
+		     for this expression include closedStatus and isSuppressed. -->
+		<property name="vulnState.isVulnerabilityOpenExpression"><value><![CDATA[
+			closedStatus==false && isSuppressed==false
+		]]></value></property>
+	</bean>
+	
+	<!-- This abstract bean defines common configuration options for retrieving
+	     vulnerabilities from FoD that need to be submitted to a bug tracker.
+	     This includes options like vulnerability filter options and extra
+	     data to be retrieved. 
+	     
+	     Some of the options are inherited from the fodProcessorCommonProperties
+	     bean defined above, since they are shared with fodUpdateBugTrackerState.
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="fodSubmitVulnerabilitiesToBugTracker" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
+		<!-- Define the filters that determine which FoD vulnerabilities will
+		     be submitted to the bug tracker or file.
+		     
+		     fod.topLevelFieldFilters allows equality-based filtering on any 
+		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
+		     Where possible, these filters are processed by FoD, reducing the
+		     number of vulnerabilities returned by FoD. As such, these filters 
+		     provide best performance. Values may contain the '|' operator to
+		     match against multiple allowed values.
+		     
+		     fod.topLevelFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by /api/v3/Releases/${FoDReleaseId}/vulnerabilities
+		     These filters are used before loading any extra fields from FoD
+		     (see fod.extraFields above) and thus provide medium performance.
+		     
+		     fod.allFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by either 
+		     /api/v3/Releases/${FoDReleaseId}/vulnerabilities or the
+		     extra fields as specified via fod.extraFields above. Since these
+		     filters are only applied after loading all extra data from FoD,
+		     these filters provide worst performance. 
+		-->
+		<property name="topLevelFieldSimpleFilters"><map>
+			<entry key="isSuppressed" value="false"/>
+			<entry key="severityString" value="Critical|High"/>
+			<!-- <entry key="hasComments" value="false"/> -->
+			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
+			<!-- <entry key="developerStatus" value="In Remediation"/> -->
+			<!-- <entry key="severity" value="4"/> -->
+			<!-- TODO: Add additional interesting filter fields in comments -->
+		</map></property>
+		<property name="topLevelFieldRegExFilters"><map>
+		</map></property>
+		<property name="allFieldRegExFilters"><map>
+		</map></property>
+		
+		<!-- This property defines the processor that actually submits FoD 
+		     vulnerabilities to a bug tracker. The different bug tracker
+		     implementations defined below explicitly set this property to
+		     a corresponding processor. -->
+		<!-- <property name="submitIssueProcessor" ref="actualProcessor"/> -->
+	</bean>
+	
+	<!-- This abstract bean defines common configuration options for updating
+	     bug tracker state based on FoD vulnerability state.
+	     
+	     Some of the options are inherited from the fodProcessorCommonProperties
+	     bean defined above, since they are shared with fodSubmitVulnerabilitiesToBugTracker.
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="fodUpdateBugTrackerState" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState">
+		<!-- This property defines the processor that actually updates bug tracker 
+		     state based on FoD vulnerability state. The different bug tracker 
+		     implementations defined below explicitly set this property to a 
+		     corresponding processor. -->
+		<!-- <property name="updateIssueStateProcessor" ref="actualProcessor"/> -->
+	</bean>	
+</beans>
