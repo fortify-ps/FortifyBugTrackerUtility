@@ -81,9 +81,12 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		while ( start < count ) {
 			LOG.info("[FoD] Loading next set of data");
 			context.put(KEY_START, start);
-			// TODO Add request parameter for isIncludeRemoved() once FoD adds this functionality to the API
 			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
 			WebResource resource = conn.getBaseResource().uri(uri);
+			if ( isIncludeRemoved() ) {
+				// TODO Test whether these request parameters work as expected once FoD adds this functionality to the API
+				resource = resource.queryParam("includeFixed", "true").queryParam("includeSuppressed", "true");
+			}
 			LOG.debug("[FoD] Retrieving vulnerabilities from "+resource);
 			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
 			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
