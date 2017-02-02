@@ -1,0 +1,140 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<import resource="components/connection/FoDConnectionConfig.xml"/>
+	<import resource="components/connection/TFSConnectionConfig.xml"/>
+	<import resource="components/input/FoDInputConfig.xml"/>
+	
+	<bean id="workItemTypeToFieldRenamer" class="com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer">
+		<property name="workItemTypeToFieldRenameMap">
+			<map>
+				<entry key="Bug">
+					<map>
+                        <entry key="System.Description" value="Microsoft.VSTS.TCM.ReproSteps"/>
+					    <entry key="Workitem.Priority" value="Microsoft.VSTS.Common.Priority"/>
+					    <entry key="Workitem.Severity" value="Microsoft.VSTS.Common.Severity"/>
+                    </map>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- FOD TO TFS PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the processor configuration for submitting non-grouped
+	     FoD vulnerabilities to TFS. If necessary, you can change the properties 
+	     in this bean, for example to change the fields and field data submitted 
+	     to TFS. 
+	-->
+	<bean id="fodToTFSIssueSubmitterNonGrouped" class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
+		<property name="fieldRenamer" ref="workItemTypeToFieldRenamer"/>
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="System.Title" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<property name="appendedFields"><map>
+			<entry key="System.Description"><value><![CDATA[
+				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
+			]]></value></entry>
+		</map></property>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting grouped FoD 
+	     vulnerabilities to TFS. Configuration is inherited from the non-grouped
+	     variant; here we only add the grouping criteria. 
+	-->
+	<bean id="fodToTFSIssueSubmitterGrouped" parent="fodToTFSIssueSubmitterNonGrouped">
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for updating TFS issue state
+	     based on FoD vulnerability state. This processor can update issue fields.
+	     Re-opening and closing work items is not yet implemented.
+	-->
+	<bean id="fodToTFSIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSUpdateIssueStateForVulnerabilities">
+		<property name="fieldRenamer" ref="workItemTypeToFieldRenamer"/>
+		<!-- Update the TFS description field by re-evaluating the corresponding description 
+		     expressions defined on fodToTFSIssueSubmitterNonGrouped. As such, any changes in 
+		     FoD fields referenced in the description expressions, like vulnerability state or 
+		     line number, will be reflected in the updated TFS description. -->
+		<property name="fields"><map>
+			<entry key="System.Description" value="#{@fodToTFSIssueSubmitterNonGrouped.fields['System.Description']}"/>
+		</map></property>
+		<property name="appendedFields"><map>
+			<entry key="System.Description" value="#{@fodToTFSIssueSubmitterNonGrouped.appendedFields['System.Description']}"/>
+		</map></property>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     TFS issue submitter. 
+	-->
+	<bean id="fodToTFSProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToTFSIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
+	     TFS issue submitter. 
+	-->
+	<bean id="fodToTFSProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="submitIssueProcessor" ref="fodToTFSIssueSubmitterGrouped"/>
+	</bean>
+	
+	<!-- This bean combines fodUpdateBugTrackerState with fodToTFSIssueUpdater. 
+	-->
+	<bean id="fodToTFSProcessorUpdateBugTrackerState" parent="fodUpdateBugTrackerState">
+		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="updateIssueStateProcessor" ref="fodToTFSIssueUpdater"/>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- TFS PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- This process runner submits grouped vulnerabilities to TFS -->
+	<bean id="fodToTFSGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit grouped vulnerabilities from FoD to TFS"/>
+		<property name="processor" ref="fodToTFSProcessorGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
+	<bean id="fodToTFSNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from FoD to TFS"/>
+		<property name="processor" ref="fodToTFSProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
+	<bean id="fodToTFSUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Update TFS issue state based on FoD vulnerability state"/>
+		<property name="processor" ref="fodToTFSProcessorUpdateBugTrackerState"/>	
+		<property name="context"><map>
+			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
+			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+</beans>
