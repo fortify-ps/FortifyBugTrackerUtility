@@ -49,14 +49,26 @@ public final class TFSRestConnection extends RestConnection {
 		return new SubmittedIssue(submittedIssueId, submittedIssueBrowserURL);
 	}
 	
-	public void updateIssueData(String collection, SubmittedIssue submittedIssue, JSONArray operations) {
-		if ( submittedIssue.getDeepLink().startsWith(getBaseUrl()) ) {
+	public TFSIssueState getIssueState(String collection, SubmittedIssue submittedIssue) {
+		JSONObject json = getWorkItemDetails(collection, submittedIssue, "System.WorkItemType", "System.State", "System.Reason");
+		return new TFSIssueState(
+				SpringExpressionUtil.evaluateExpression(json, "fields['System.WorkItemType']", String.class),
+				SpringExpressionUtil.evaluateExpression(json, "fields['System.State']", String.class),
+				SpringExpressionUtil.evaluateExpression(json, "fields['System.Reason']", String.class)
+		);
+	}
+	
+	public boolean updateIssueData(String collection, SubmittedIssue submittedIssue, JSONArray operations) {
+		String issueId = getIssueId(submittedIssue);
+		if ( issueId == null ) {
+			return false;
+		} else {
 			LOG.trace(String.format("[TFS] Updating issue data for %s: %s", submittedIssue.getDeepLink(), operations)); 
-			String issueId = getIssueId(submittedIssue);
 			WebResource.Builder resource = getBaseResource()
 					.path(collection).path("/_apis/wit/workitems").path(issueId)
 					.type("application/json-patch+json").entity(operations);
 			executeRequest("PATCH", resource, null);
+			return true;
 		}
 	}
 	
@@ -94,6 +106,32 @@ public final class TFSRestConnection extends RestConnection {
 			}
 		}
 		return id;
+	}
+	
+	public class TFSIssueState {
+		private final String workItemType;
+		private final String state;
+		private final String reason;
+		
+		public TFSIssueState(String workItemType, String state, String reason) {
+			super();
+			this.workItemType = workItemType;
+			this.state = state;
+			this.reason = reason;
+		}
+		
+		
+		public String getWorkItemType() {
+			return workItemType;
+		}
+		
+		public String getState() {
+			return state;
+		}
+		
+		public String getReason() {
+			return reason;
+		}
 	}
 	
 }

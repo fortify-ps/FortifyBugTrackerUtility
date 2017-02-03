@@ -3,19 +3,20 @@ package com.fortify.processrunner.tfs.processor;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import org.codehaus.jettison.json.JSONObject;
+import org.codehaus.jettison.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
+import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
+import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.processrunner.tfs.context.IContextTFS;
 import com.fortify.processrunner.tfs.util.TFSWorkItemJSONObjectBuilder;
 import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
 
-public class ProcessorTFSUpdateIssueStateForVulnerabilities extends AbstractProcessorUpdateIssueStateForVulnerabilities<JSONObject> {
+public class ProcessorTFSTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<TFSIssueState> {
 	private static final TFSWorkItemJSONObjectBuilder MAP_TO_JSON = new TFSWorkItemJSONObjectBuilder("add");
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
@@ -39,9 +40,29 @@ public class ProcessorTFSUpdateIssueStateForVulnerabilities extends AbstractProc
 			return false;
 		} else {
 			fieldRenamer.renameFields(workItemType, issueData);
-			conn.updateIssueData(collection, submittedIssue, MAP_TO_JSON.getJSONArray(issueData));
-			return true;
+			return conn.updateIssueData(collection, submittedIssue, MAP_TO_JSON.getJSONArray(issueData));
 		}
+	}
+	
+	@Override
+	protected TFSIssueState getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
+		IContextTFS contextTFS = context.as(IContextTFS.class);
+		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		String collection = contextTFS.getTFSCollection();
+		return conn.getIssueState(collection, submittedIssue);
+	}
+	
+	@Override
+	protected boolean transition(Context context, SubmittedIssue submittedIssue, String transitionName, String comment) {
+		IContextTFS contextTFS = context.as(IContextTFS.class);
+		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		String collection = contextTFS.getTFSCollection();
+		JSONArray ops = new JSONArray();
+		if ( comment != null ) {
+			ops.put(MAP_TO_JSON.getOperation("add", "/fields/System.History", comment));
+		}
+		ops.put(MAP_TO_JSON.getOperation("replace", "/fields/System.State", transitionName));
+		return conn.updateIssueData(collection, submittedIssue, ops);
 	}
 
 	public WorkItemTypeToFieldRenamer getFieldRenamer() {

@@ -41,6 +41,9 @@ import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
  * authenticating with the remote system. Subclasses can override various methods
  * to customize the behavior of the connection or to implement more advanced 
  * authentication mechanisms. 
+ * 
+ * TODO Add various HttpClient timeouts to prevent the program from stalling.
+ *      (see http://stackoverflow.com/questions/9925113/httpclient-stuck-without-any-exception answer 3)
  */
 public class RestConnection implements IRestConnection {
 	//private static final Log LOG = LogFactory.getLog(RestConnection.class);

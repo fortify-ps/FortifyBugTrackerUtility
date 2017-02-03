@@ -82,7 +82,7 @@
 		     that defines when to use a specific transition; this is usually based on issue status.name.
 		     The map value defines one or more names of transitions that need to be performed in order to 
 		     re-open or close an issue. For each transition, you can specify an optional comment between
-		     brackets. If your JIRA instances uses non-standard workflows, you may need to update these
+		     brackets. If your JIRA instance uses non-standard workflows, you may need to update these
 		     mappings.-->
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- JIRA default workflow -->

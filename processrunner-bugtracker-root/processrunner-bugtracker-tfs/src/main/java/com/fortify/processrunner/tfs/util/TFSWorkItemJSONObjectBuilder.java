@@ -15,11 +15,15 @@ public class TFSWorkItemJSONObjectBuilder extends JSONObjectBuilder {
 	public JSONArray getJSONArray(Map<String, Object> data) {
 		JSONArray result = new JSONArray();
 		for ( Map.Entry<String,Object> field : data.entrySet() ) {
-			JSONObject entry = updateJSONObjectWithPropertyPath(new JSONObject(), "op", op);
-			entry = updateJSONObjectWithPropertyPath(entry, "path", "/fields/"+field.getKey());
-			entry = updateJSONObjectWithPropertyPath(entry, "value", field.getValue());
-			result.put(entry);
+			result.put(getOperation(op, "/fields/"+field.getKey(), field.getValue()));
 		}
+		return result;
+	}
+	
+	public JSONObject getOperation(String op, String path, Object value) {
+		JSONObject result = updateJSONObjectWithPropertyPath(new JSONObject(), "op", op);
+		result = updateJSONObjectWithPropertyPath(result, "path", path);
+		result = updateJSONObjectWithPropertyPath(result, "value", value);
 		return result;
 	}
 }
