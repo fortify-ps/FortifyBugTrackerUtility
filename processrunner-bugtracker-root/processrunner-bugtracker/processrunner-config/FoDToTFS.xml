@@ -70,9 +70,11 @@
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 	</bean>
 	
-	<!-- This bean defines the processor configuration for updating TFS issue state
-	     based on FoD vulnerability state. This processor can update issue fields.
-	     Re-opening and closing work items is not yet implemented.
+	<!-- This bean defines the processor configuration for updating TFS work item state
+	     based on FoD vulnerability state. This processor can update work item fields,
+	     automatically re-open work items, and automatically close work items. Each of 
+	     these actions is optional; if a property is not defined, the corresponding action
+	     will not be performed.
 	-->
 	<bean id="fodToTFSIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
 		<property name="fieldRenamer" ref="workItemTypeToFieldRenamer"/>
