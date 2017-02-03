@@ -125,13 +125,16 @@ public class RestConnection implements IRestConnection {
 	 * @return The result of executing the HTTP request.
 	 */
 	public <T> T executeRequest(String httpMethod, Builder builder, Class<T> returnType) {
+		ClientResponse response = null;
 		try {
 			initializeConnection(httpMethod);
 			builder = updateBuilder(builder);
-			ClientResponse response = builder.method(httpMethod, ClientResponse.class);
+			response = builder.method(httpMethod, ClientResponse.class);
 			return checkResponseAndGetOutput(httpMethod, builder, response, returnType);
 		} catch ( ClientHandlerException e ) {
 			throw new RuntimeException("Error connecting to bug tracker:\n"+e.getMessage(), e);
+		} finally {
+			if ( response != null ) { response.close(); }
 		}
 	}
 
