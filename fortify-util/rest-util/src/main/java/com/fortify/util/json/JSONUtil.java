@@ -241,6 +241,27 @@ public final class JSONUtil {
 	}
 	
 	/**
+	 * Given a list of JSONObject instances, this method will return a map containing all JSONObjects from the array.
+	 * For each object, the given keyExpression is used to calculate the map key.
+	 * @param list
+	 * @param keyExpression
+	 * @param keyType
+	 * @return A map containing the {@link JSONObject}s from the given {@link List}, 
+	 * 		indexed by the result of evaluating the given keyExpression on each {@link JSONObject}
+	 */
+	public static final <K> Map<K, JSONObject> toMap(List<JSONObject> list, String keyExpression, Class<K> keyType) {
+		Map<K, JSONObject> result = null;
+		if ( list != null ) {
+			result = new LinkedHashMap<K, JSONObject>();
+			for(JSONObject obj : list){
+				K key = SpringExpressionUtil.evaluateExpression(obj, keyExpression, keyType);
+				result.put(key, obj);
+			}
+		}
+		return result;
+	}
+	
+	/**
 	 * Get a JSONArray from the given JSONObject by evaluating the given arrayExpression.
 	 * @param object
 	 * @param arrayExpression

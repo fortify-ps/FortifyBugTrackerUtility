@@ -12,23 +12,27 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-fod</artifactId>
+			<artifactId>processrunner-bugtracker-source-fod</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-jira</artifactId>
+			<artifactId>processrunner-bugtracker-source-ssc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-file</artifactId>
+			<artifactId>processrunner-bugtracker-target-jira</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-archer</artifactId>
+			<artifactId>processrunner-bugtracker-target-file</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-tfs</artifactId>
+			<artifactId>processrunner-bugtracker-target-archer</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-target-tfs</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<import resource="components/connection/SSCConnectionConfig.xml"/>
+	<import resource="components/connection/ArcherConnectionConfig.xml"/>
+	<import resource="components/input/SSCInputConfig.xml"/>
+	
+	<!--==================================================================================-->
+	<!-- SSC TO ARCHER PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
+	     to Archer. If necessary, you can change the properties in this bean, for example 
+	     to change the fields and field data submitted to Archer. 
+	-->
+	<bean id="sscToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="ID" value="${id}"/>
+			<entry key="Project Version ID" value="${projectVersionId}"/>
+			<entry key="Issue Type" value="${issueName}"/>
+			<entry key="File Name" value="${fullFileName}"/>
+			<entry key="Line Number" value="${lineNumber}"/>
+			<entry key="Analysis" value="${primaryTag}"/>
+			<entry key="Analyzer" value="${analyzer}"/>
+			<entry key="Priority" value="${friority}"/>
+			<entry key="Recommendation" value="${details.recommentation}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<!-- 
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		</map></property>
+		-->
+	</bean>
+	
+	<!-- This bean combines sscSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     Archer issue submitter. 
+	-->
+	<bean id="sscToArcherProcessorNonGrouped" parent="sscSubmitVulnerabilitiesToBugTracker">
+		<property name="submitIssueProcessor" ref="sscToArcherIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	
+	<!--==================================================================================-->
+	<!-- ARCHER PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
+	<bean id="sscToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from SSC to Archer"/>
+		<property name="processor" ref="sscToArcherProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="SSCConnectionRetriever" value-ref="sscConnectionRetriever"/>
+			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+</beans>

@@ -34,20 +34,4 @@ public class FoDBasicRestConnection extends RestConnection {
 	protected HttpClientBuilder createApacheHttpClientBuilder() {
 		return super.createApacheHttpClientBuilder().setServiceUnavailableRetryStrategy(new TooManyRequestsRetryStrategy("X-Rate-Limit-Reset"));
 	}
-	
-	/**
-	 * This method updates the configuration returned by our superclass to
-	 * enable buffering. Not having buffering enabled can result in chunked
-	 * encoding, which is not supported by FoD.
-	 * We only send relatively small payloads, so buffering these in memory is 
-	 * not a problem.   
-	 */
-	/*
-	@Override
-	protected ApacheHttpClient4Config getApacheHttpClient4Config() {
-		ApacheHttpClient4Config config = super.getApacheHttpClient4Config();
-		config.getProperties().put(ApacheHttpClient4Config.PROPERTY_ENABLE_BUFFERING, true);
-		return config;
-	}
-	*/
 }

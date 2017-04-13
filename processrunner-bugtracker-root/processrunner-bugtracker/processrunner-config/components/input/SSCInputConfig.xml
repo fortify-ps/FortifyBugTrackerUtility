@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!--==================================================================================-->
+	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This abstract bean defines common configuration options for  -->
+	
+	<bean id="sscProcessorCommonProperties" abstract="true">
+		<!-- Define any extra data that must be loaded from FoD for filtering 
+		     and/or building the issue contents. Note that previous versions
+		     automatically loaded summary data, but this is no longer the case
+		     if useFoDCommentForSubmittedBugs is set to false.
+		     If your customized configuration depends on summary data, you 
+		     will need to enable the summary field here. -->
+		<property name="includeIssueDetails" value="true"/>
+		<property name="customTagName" value="bugURL"/>
+		
+		<!-- This property defines the expression for evaluating whether an SSC 
+		     vulnerability should be considered open or closed. This expression
+		     can use any SSC vulnerability attribute. Commonly used attributes
+		     for this expression include closedStatus and isSuppressed. -->
+		<property name="vulnState.isVulnerabilityOpenExpression"><value><![CDATA[
+			closedStatus==false && isSuppressed==false
+		]]></value></property>
+	</bean>
+	
+	<!-- This abstract bean defines common configuration options for retrieving
+	     vulnerabilities from SSC that need to be submitted to a bug tracker.
+	     This includes options like vulnerability filter options and extra
+	     data to be retrieved. 
+	     
+	     Some of the options are inherited from the sscProcessorCommonProperties
+	     bean defined above, since they are shared with fodUpdateBugTrackerState.
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="sscSubmitVulnerabilitiesToBugTracker" abstract="true" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
+		<!-- Define the filters that determine which SSC vulnerabilities will
+		     be submitted to the bug tracker or file.
+		     
+		     topLevelFieldFilters allows filtering on fields similar to the SSC/AWB
+		     search box; please see AWB or the SSC search syntax guide for information
+		     on what fields can be filtered upon.
+		     
+		     topLevelFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by /api/v1/projectVersions/${SSCApplicationVersionId}/issues
+		     These filters are used before loading any extra issue details from SSC
+		     (see includeIssueDetails above) and thus provide medium performance.
+		     
+		     allFieldRegExFilters allows RegEx-based filtering on any
+		     vulnerability attribute returned by either 
+		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues or the
+		     additional issue details. Since these
+		     filters are only applied after loading all issue details from SSC,
+		     these filters provide worst performance. 
+		-->
+		<property name="topLevelFieldSimpleFilters"><map>
+			<entry key="analysis" value="Exploitable"/>
+			<!-- <entry key="isSuppressed" value="false"/> -->
+			<!-- <entry key="hasComments" value="false"/> -->
+			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
+			<!-- <entry key="developerStatus" value="In Remediation"/> -->
+			<!-- <entry key="severity" value="4"/> -->
+			<!-- TODO: Add additional interesting filter fields in comments -->
+		</map></property>
+		<property name="topLevelFieldRegExFilters"><map>
+			<!-- <entry key="friority" value="Critical|High"/> -->
+		</map></property>
+		<property name="allFieldRegExFilters"><map>
+		</map></property>
+		
+		<!-- This property defines the processor that actually submits FoD 
+		     vulnerabilities to a bug tracker. The different bug tracker
+		     implementations defined below explicitly set this property to
+		     a corresponding processor. -->
+		<!-- <property name="submitIssueProcessor" ref="actualProcessor"/> -->
+	</bean>
+	
+	<!-- This abstract bean defines common configuration options for updating
+	     bug tracker state based on FoD vulnerability state.
+	     
+	     Some of the options are inherited from the fodProcessorCommonProperties
+	     bean defined above, since they are shared with fodSubmitVulnerabilitiesToBugTracker.
+	     
+	     Each of these properties can either be changed here (if all processor
+	     configurations that you use require the same settings), or overridden 
+	     in the concrete processor configurations below (if you use multiple
+	     processor configurations that require different settings). 
+	-->
+	<bean id="sscUpdateBugTrackerState" abstract="true" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState">
+		<!-- This property defines the processor that actually updates bug tracker 
+		     state based on FoD vulnerability state. The different bug tracker 
+		     implementations defined below explicitly set this property to a 
+		     corresponding processor. -->
+		<!-- <property name="updateIssueStateProcessor" ref="actualProcessor"/> -->
+	</bean>	
+</beans>

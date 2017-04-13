@@ -28,11 +28,12 @@
 		<module>../fortify-util</module>
 		<module>../processrunner</module>
 		<module>processrunner-bugtracker-common</module>
-		<module>processrunner-bugtracker-fod</module>
-		<module>processrunner-bugtracker-jira</module>
-		<module>processrunner-bugtracker-file</module>
-		<module>processrunner-bugtracker-tfs</module>
-		<module>processrunner-bugtracker-archer</module>
+		<module>processrunner-bugtracker-source-fod</module>
+		<module>processrunner-bugtracker-source-ssc</module>
+		<module>processrunner-bugtracker-target-jira</module>
+		<module>processrunner-bugtracker-target-file</module>
+		<module>processrunner-bugtracker-target-tfs</module>
+		<module>processrunner-bugtracker-target-archer</module>
 		<module>processrunner-bugtracker</module>
 	</modules>
 	<dependencyManagement>
@@ -45,31 +46,37 @@
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-fod</artifactId>
+				<artifactId>processrunner-bugtracker-source-fod</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-jira</artifactId>
+				<artifactId>processrunner-bugtracker-source-ssc</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-file</artifactId>
+				<artifactId>processrunner-bugtracker-target-jira</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-tfs</artifactId>
+				<artifactId>processrunner-bugtracker-target-file</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-archer</artifactId>
+				<artifactId>processrunner-bugtracker-target-tfs</artifactId>
+				<version>1.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-target-archer</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>
