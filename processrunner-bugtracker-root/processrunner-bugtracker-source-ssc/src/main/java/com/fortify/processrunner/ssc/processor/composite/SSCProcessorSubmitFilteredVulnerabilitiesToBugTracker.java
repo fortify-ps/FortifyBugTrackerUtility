@@ -33,7 +33,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
 		CompositeProcessor result = super.createTopLevelFieldFilters();
-		result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "http", true));
+		result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", false));
 		return result;
 	}
 	
