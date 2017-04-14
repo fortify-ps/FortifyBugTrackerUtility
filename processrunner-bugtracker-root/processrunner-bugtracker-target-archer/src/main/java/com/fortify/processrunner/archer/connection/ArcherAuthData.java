@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArcherAuthData {
 	@XmlElement(name="InstanceName")
-	private String instanceName = "v5.0";
+	private String instanceName;
 	
 	@XmlElement(name="UserName")
 	private String userName;
