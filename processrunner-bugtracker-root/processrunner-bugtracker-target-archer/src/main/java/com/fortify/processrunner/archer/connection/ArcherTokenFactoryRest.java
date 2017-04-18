@@ -14,12 +14,12 @@ import com.fortify.util.rest.ProxyConfiguration;
  * optional proxy configuration, it will call the Archer
  * /api/core/security/login API to request a REST token.
  */
-public final class ArcherTokenFactory {
-	static final Log LOG = LogFactory.getLog(ArcherTokenFactory.class);
+public final class ArcherTokenFactoryRest {
+	static final Log LOG = LogFactory.getLog(ArcherTokenFactoryRest.class);
 	private final ArcherBasicRestConnection conn;
 	private final ArcherAuthData authData;
-	private ArcherTokenFactory.TokenData tokenData = null;
-	public ArcherTokenFactory(String baseUrl, ArcherAuthData authData, ProxyConfiguration proxyConfig) {
+	private TokenData tokenData = null;
+	public ArcherTokenFactoryRest(String baseUrl, ArcherAuthData authData, ProxyConfiguration proxyConfig) {
 		conn = new ArcherBasicRestConnection(baseUrl, proxyConfig);
 		this.authData = authData;
 	}

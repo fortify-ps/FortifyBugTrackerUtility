@@ -32,6 +32,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
 
@@ -325,10 +327,14 @@ public class RestConnection implements IRestConnection {
 	 */
 	protected Client createClient() {
 		HttpClient apacheClient = createApacheHttpClientBuilder().build();
-		Client client = new Client(new ApacheHttpClient4Handler(apacheClient, createCookieStore(), doPreemptiveBasicAuthentication()));
+		Client client = new Client(new ApacheHttpClient4Handler(apacheClient, createCookieStore(), doPreemptiveBasicAuthentication()), createClientConfig());
 		// TODO Allow subclasses to override this and other settings
 		client.getProperties().put(ApacheHttpClient4Config.PROPERTY_ENABLE_BUFFERING, true);
 		return client;
+	}
+	
+	protected ClientConfig createClientConfig() {
+		return new DefaultClientConfig();
 	}
 	
 	/**

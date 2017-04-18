@@ -1,11 +1,19 @@
 package com.fortify.processrunner.archer.connection;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -14,7 +22,6 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.util.json.JSONObjectBuilder;
 import com.fortify.util.json.JSONUtil;
-import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.sun.jersey.api.client.WebResource.Builder;
@@ -23,8 +30,8 @@ import com.sun.jersey.api.client.WebResource.Builder;
  * This class provides a token-authenticated REST connection
  * for Archer.
  */
-public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnection {
-	private final ArcherTokenFactory tokenProvider;
+public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnection implements IArcherConnection {
+	private final ArcherTokenFactoryRest tokenProviderRest;
 	private final String applicationName;
 	private long applicationId;
 	private long levelId;
@@ -32,7 +39,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	
 	public ArcherAuthenticatingRestConnection(String baseUrl, ArcherAuthData authData, String applicationName, ProxyConfiguration proxyConfig) {
 		super(baseUrl, proxyConfig);
-		this.tokenProvider = new ArcherTokenFactory(baseUrl, authData, proxyConfig);
+		this.tokenProviderRest = new ArcherTokenFactoryRest(baseUrl, authData, proxyConfig);
 		this.applicationName = applicationName;
 		cacheFieldData();
 	}
@@ -41,10 +48,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		JSONObject application = getApplication();
 		this.applicationId = SpringExpressionUtil.evaluateExpression(application, "RequestedObject.Id", Long.class);
 		System.err.println("Application: "+application);
-		JSONObject level = getLevelForApplication(application);
-		this.levelId = SpringExpressionUtil.evaluateExpression(level, "RequestedObject.Id", Long.class);
-		System.err.println("Level: "+level);
-		List<JSONObject> fields = getFieldsForLevel(level);
+		List<JSONObject> fields = getFieldsForApplication();
 		
 		System.err.println("Fields: "+fields);
 		for ( JSONObject field : fields ) {
@@ -54,18 +58,10 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		}
 	}
 
-	protected List<JSONObject> getFieldsForLevel(JSONObject level) {
-		String levelId = SpringExpressionUtil.evaluateExpression(level, "RequestedObject.Id", String.class);
-		JSONArray fields = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/fielddefinition/level").path(levelId), JSONArray.class);
+	protected List<JSONObject> getFieldsForApplication() {
+		JSONArray fields = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/fielddefinition/application").path(applicationId+""), JSONArray.class);
 		List<JSONObject> fieldObjs = JSONUtil.jsonObjectArrayToList(fields, "RequestedObject", JSONObject.class);
 		return fieldObjs;
-	}
-
-	protected JSONObject getLevelForApplication(JSONObject application) {
-		String applicationId = SpringExpressionUtil.evaluateExpression(application, "RequestedObject.Id", String.class);
-		JSONArray levels = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/level/module").path(applicationId), JSONArray.class);
-		// TODO Can an application have more than one level? If so, which one should we return?
-		return JSONUtil.findJSONObject(levels, "RequestedObject.ModuleId", applicationId);
 	}
 
 	protected JSONObject getApplication() {
@@ -79,9 +75,51 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	@Override
 	public Builder updateBuilder(Builder builder) {
 		return super.updateBuilder(builder)
-				.header("Authorization", "Archer session-id=\""+tokenProvider.getToken()+"\"");
+				.header("Authorization", "Archer session-id=\""+tokenProviderRest.getToken()+"\"");
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.fortify.processrunner.archer.connection.IArcherRestConnection#addValueToValuesList(com.fortify.util.rest.IRestConnection, java.lang.Long, java.lang.String)
+	 */
+	public Long addValueToValuesList(Long valueListId, String value) {
+		// Adding items to value lists is not supported via REST API, so we need to revert to SOAP API
+		// TODO Simplify this method?
+		// TODO Make this method more fail-safe (like checking for the correct response element)?
+		Long result = null;
+		try {
+			MessageFactory messageFactory = MessageFactory.newInstance();
+	        SOAPMessage message = messageFactory.createMessage();
+	        SOAPPart soapPart = message.getSOAPPart();
+	        SOAPEnvelope envelope = soapPart.getEnvelope();
+	        SOAPBody body = envelope.getBody();
+	        SOAPElement bodyElement = body.addChildElement(envelope.createName("CreateValuesListValue", "", "http://archer-tech.com/webservices/"));
+	        bodyElement.addChildElement("sessionToken").addTextNode(tokenProviderRest.getToken());
+	        bodyElement.addChildElement("valuesListId").addTextNode(valueListId+"");
+	        bodyElement.addChildElement("valuesListValueName").addTextNode(value);
+	        message.saveChanges();
+	 
+	        SOAPMessage response = executeRequest(HttpMethod.POST, 
+	        		getBaseResource().path("/ws/field.asmx")
+	        		.header("SOAPAction", "\"http://archer-tech.com/webservices/CreateValuesListValue\"")
+	        		.accept("text/xml")
+	        		.entity(message, "text/xml"), SOAPMessage.class);
+	        Iterator<Object> it = response.getSOAPBody().getChildElements();
+	        while (it.hasNext()){
+	        	Object o = it.next();
+	        	if ( o instanceof SOAPElement ) {	
+	        		result = new Long(((SOAPElement)o).getTextContent());
+	        	}
+	          }
+	        System.out.println(response);
+		} catch (SOAPException e) {
+			throw new RuntimeException("Error executing SOAP request", e);
+		}
+		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fortify.processrunner.archer.connection.IArcherRestConnection#submitIssue(java.util.LinkedHashMap)
+	 */
 	public SubmittedIssue submitIssue(LinkedHashMap<String, Object> issueData) {
 		JSONObject data = new JSONObject();
 		JSONObject fieldContents = new JSONObject();
@@ -110,16 +148,16 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	}
 
 	public static interface IFieldContentValueRetriever {
-		public Object getFieldContentValue(IRestConnection conn, JSONObject field, Object value);
+		public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value);
 	}
 	
 	private static final class FieldContentAdder {
-		private final IRestConnection conn;
+		private final IArcherConnection conn;
 		private final JSONObject field;
 		private final long fieldId;
 		private final int fieldType;
 		private final IFieldContentValueRetriever fieldContentValueRetriever; 
-		public FieldContentAdder(IRestConnection conn, JSONObject field) {
+		public FieldContentAdder(IArcherConnection conn, JSONObject field) {
 			this.conn = conn;
 			this.field = field;
 			this.fieldId = SpringExpressionUtil.evaluateExpression(field, "Id", Long.class);
@@ -158,36 +196,50 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			Map<Integer, IFieldContentValueRetriever> result = new HashMap<Integer, IFieldContentValueRetriever>();
 			result.put(1, new FieldContentValueRetrieverText());
 			result.put(4, new FieldContentValueRetrieverValuesList());
+			
+			// TODO See https://community.rsa.com/docs/DOC-65292 for all valid field types
 			return result;
 		}
 		
 		public static final class FieldContentValueRetrieverText implements IFieldContentValueRetriever {
-			public Object getFieldContentValue(IRestConnection conn, JSONObject field, Object value) {
+			public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value) {
 				return value==null?null:value.toString();
 			}
 		}
 		
 		public static final class FieldContentValueRetrieverValuesList implements IFieldContentValueRetriever {
-			private static final Map<String, JSONArray> valueListsByIdMap = new HashMap<String, JSONArray>();
-			public Object getFieldContentValue(IRestConnection conn, JSONObject field, Object value) {
+			private static final Map<Long, JSONArray> valueListsByIdMap = new HashMap<Long, JSONArray>();
+			public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value) {
 				JSONObject result = new JSONObject();
-				String relatedValuesListId = SpringExpressionUtil.evaluateExpression(field, "RelatedValuesListId", String.class);
+				Long relatedValuesListId = SpringExpressionUtil.evaluateExpression(field, "RelatedValuesListId", Long.class);
 				JSONArray valuesListArray = getValueListArray(conn, relatedValuesListId);
 				// TODO Map multiple values if value is array/list type
 				// TODO Is it safe to use case-insensitive lookup?
 				Long valueId = JSONUtil.mapValue(valuesListArray, "RequestedObject.Name.toLowerCase()", value.toString().toLowerCase(), "RequestedObject.Id", Long.class);
 				if ( valueId == null ) {
-					new JSONObjectBuilder().updateJSONObjectWithPropertyPath(result, "OtherText", value);
+					Long fieldId = SpringExpressionUtil.evaluateExpression(field, "Id", Long.class);
+					valueId = addValuesListValue(conn, relatedValuesListId, value.toString());
 				} else {
 					new JSONObjectBuilder().updateJSONObjectWithPropertyPath(result, "ValuesListIds", new Long[]{valueId});
 				}
 				return result;
 			}
 			
-			private JSONArray getValueListArray(IRestConnection conn, String valueListId) {
+			
+
+			private Long addValuesListValue(IArcherConnection conn, Long valueListId, String value) {
+				Long result = conn.addValueToValuesList(valueListId, value);
+				// Remove cached entry such that on next request, the list with the newly added value is reloaded 
+				valueListsByIdMap.remove(valueListId);
+				return result;
+			}
+
+
+
+			private JSONArray getValueListArray(IArcherConnection conn, Long valueListId) {
 				JSONArray result = valueListsByIdMap.get(valueListId);
 				if ( result == null && valueListId != null ) {
-					result = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path("api/core/system/valueslistvalue/flat/valueslist/").path(valueListId), JSONArray.class);
+					result = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path("api/core/system/valueslistvalue/flat/valueslist/").path(valueListId+""), JSONArray.class);
 					valueListsByIdMap.put(valueListId, result);
 					System.err.println("Values ["+valueListId+"]: "+result);
 				}
