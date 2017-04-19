@@ -104,7 +104,8 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	        		.header("SOAPAction", "\"http://archer-tech.com/webservices/CreateValuesListValue\"")
 	        		.accept("text/xml")
 	        		.entity(message, "text/xml"), SOAPMessage.class);
-	        Iterator<Object> it = response.getSOAPBody().getChildElements();
+	        @SuppressWarnings("unchecked")
+			Iterator<Object> it = response.getSOAPBody().getChildElements();
 	        while (it.hasNext()){
 	        	Object o = it.next();
 	        	if ( o instanceof SOAPElement ) {	
@@ -218,7 +219,6 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 				// TODO Is it safe to use case-insensitive lookup?
 				Long valueId = JSONUtil.mapValue(valuesListArray, "RequestedObject.Name.toLowerCase()", value.toString().toLowerCase(), "RequestedObject.Id", Long.class);
 				if ( valueId == null ) {
-					Long fieldId = SpringExpressionUtil.evaluateExpression(field, "Id", Long.class);
 					valueId = addValuesListValue(conn, relatedValuesListId, value.toString());
 				} else {
 					new JSONObjectBuilder().updateJSONObjectWithPropertyPath(result, "ValuesListIds", new Long[]{valueId});
