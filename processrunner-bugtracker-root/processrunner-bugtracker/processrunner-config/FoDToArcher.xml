@@ -22,60 +22,39 @@
 	<bean id="fodToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
-			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="description" value="Category: ${category} at ${primaryLocationFull}"/>
-			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
-			<entry key="labels" value="${{'FoD'}}"/>
-		</map></property>
-
-		<!-- Define extra data to be appended to one or more of the fields defined
-		     by issue.fields above. For non-grouped vulnerabilities, we could just 
-		     as well have appended these expressions to the corresponding
-		     issue.fields entry above. However, using issue.appendedFields allows 
-		     us to re-use the same issue field configuration for grouped issues.
-		-->
-		<property name="appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+			<!-- TODO Add additional Archer fields -->
+			<entry key="ID" value="${id}"/>
+			<entry key="Project Version ID" value="${releaseId}"/>
+			<entry key="Issue Type" value="${category}"/>
+			<entry key="File Name" value="${primaryLocationFull}"/>
+			<entry key="Line Number" value="${lineNumber}"/>
+			<!-- <entry key="Analysis" value="${primaryTag}"/> -->
+			<entry key="Analyzer" value="${details.analyzerName}"/>
+			<entry key="Priority" value="${severityString}"/>
+			<entry key="Recommendation" value="${recommendations.recommendations}"/>
 		</map></property>
 	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting grouped FoD 
-	     vulnerabilities to Archer. Configuration is inherited from the non-grouped
-	     variant; here we only add the grouping criteria. 
-	-->
-	<bean id="fodToArcherIssueSubmitterGrouped" parent="fodToArcherIssueSubmitterNonGrouped">
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	<!-- This bean defines extra fields to be retrieved from FoD. -->
+	<bean id="fodToArcherProcessorSubmitVulnerabilities" abstract="true" parent="fodSubmitVulnerabilitiesToBugTracker">
+		<property name="useFoDCommentForSubmittedBugs" value="true"/>
+		<property name="extraFields"><list>
+			<value>summary</value>
+			<value>details</value>
+			<value>recommendations</value>
+		</list></property>
 	</bean>
 	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	<!-- This bean combines fodToArcherProcessorSubmitVulnerabilities with the non-grouped 
 	     Archer issue submitter. 
 	-->
-	<bean id="fodToArcherProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="true"/>
+	<bean id="fodToArcherProcessorNonGrouped" parent="fodToArcherProcessorSubmitVulnerabilities">
 		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterNonGrouped"/>
-	</bean>
-	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
-	     Archer issue submitter. 
-	-->
-	<bean id="fodToArcherProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="true"/>
-		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterGrouped"/>
 	</bean>
 	
 	<!--==================================================================================-->
 	<!-- ARCHER PROCESS RUNNER CONFIGURATIONS -->
 	<!--==================================================================================-->
-	
-	<!-- This process runner submits grouped vulnerabilities to Archer -->
-	<bean id="fodToArcherGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit grouped vulnerabilities from FoD to Archer"/>
-		<property name="processor" ref="fodToArcherProcessorGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
-		</map></property>
-	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
 	<bean id="fodToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
