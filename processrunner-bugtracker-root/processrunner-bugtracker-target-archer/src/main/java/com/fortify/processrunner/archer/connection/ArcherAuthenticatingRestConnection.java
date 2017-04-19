@@ -49,8 +49,9 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		this.applicationId = SpringExpressionUtil.evaluateExpression(application, "RequestedObject.Id", Long.class);
 		System.err.println("Application: "+application);
 		List<JSONObject> fields = getFieldsForApplication();
-		
 		System.err.println("Fields: "+fields);
+		// TODO What if application defines multiple levels?
+		this.levelId = SpringExpressionUtil.evaluateExpression(fields, "#this[0].LevelId", Long.class);
 		for ( JSONObject field : fields ) {
 			FieldContentAdder adder = new FieldContentAdder(this, field);
 			fieldNamesToFieldContentAdderMap.put(SpringExpressionUtil.evaluateExpression(field, "Name", String.class), adder);

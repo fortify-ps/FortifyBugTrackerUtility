@@ -30,7 +30,7 @@
 			<entry key="Analysis" value="${primaryTag}"/>
 			<entry key="Analyzer" value="${analyzer}"/>
 			<entry key="Priority" value="${friority}"/>
-			<entry key="Recommendation" value="${details.recommentation}"/>
+			<entry key="Recommendation" value="${details.recommendation}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
