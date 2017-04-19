@@ -21,7 +21,7 @@
 	-->
 	<bean id="sscToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 		<property name="fields"><map>
-			<!-- TODO Add examples for recommendations etcetera -->
+			<!-- TODO Add additional Archer fields -->
 			<entry key="ID" value="${id}"/>
 			<entry key="Project Version ID" value="${projectVersionId}"/>
 			<entry key="Issue Type" value="${issueName}"/>
@@ -32,18 +32,6 @@
 			<entry key="Priority" value="${friority}"/>
 			<entry key="Recommendation" value="${details.recommendation}"/>
 		</map></property>
-
-		<!-- Define extra data to be appended to one or more of the fields defined
-		     by issue.fields above. For non-grouped vulnerabilities, we could just 
-		     as well have appended these expressions to the corresponding
-		     issue.fields entry above. However, using issue.appendedFields allows 
-		     us to re-use the same issue field configuration for grouped issues.
-		-->
-		<!-- 
-		<property name="appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
-		</map></property>
-		-->
 	</bean>
 	
 	<!-- This bean combines sscSubmitVulnerabilitiesToBugTracker with the non-grouped 
