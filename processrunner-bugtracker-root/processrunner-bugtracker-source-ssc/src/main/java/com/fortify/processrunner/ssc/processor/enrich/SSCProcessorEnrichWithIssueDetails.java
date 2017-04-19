@@ -21,7 +21,6 @@ public class SSCProcessorEnrichWithIssueDetails extends AbstractSSCProcessorEnri
 		JSONObject details = conn.executeRequest(HttpMethod.GET,  
 				conn.getBaseResource().path("/api/v1/issueDetails").path(currentVulnerability.getString("id")), JSONObject.class);
 		currentVulnerability.put("details", details.getJSONObject("data"));
-		System.out.println(currentVulnerability.toString());
 		return true;
 	}
 }

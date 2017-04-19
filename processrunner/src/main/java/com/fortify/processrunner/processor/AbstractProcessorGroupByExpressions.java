@@ -52,10 +52,18 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 	
 	protected final boolean process(Context context) {
+		if ( processBeforeGrouping(context)==false ) {
+			return false;
+		}
+		
 		totalCount++;
 		SimpleExpression rootExpression = getRootExpression();
 		TemplateExpression groupTemplateExpression = getGroupTemplateExpression();
 		Object rootObject = SpringExpressionUtil.evaluateExpression(context, rootExpression, Object.class);
+		
+		if ( LOG.isDebugEnabled() ) {
+			LOG.debug("[Process] Current object: "+rootObject);
+		}
 		
 		if ( groupTemplateExpression == null ) {
 			// If no group template expression is defined, we directly process the 
@@ -90,12 +98,32 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		return postProcessAfterProcessingGroups(context) && result;
 	}
 	
-	// TODO Rename this method to a better name
+	/**
+	 * Subclasses can override this method to perform additional
+	 * processing in the pre-processing phase
+	 * @param context
+	 * @return
+	 */
 	protected boolean preProcessBeforeGrouping(Context context) {
 		return true;
 	}
 	
-	// TODO Rename this method to a better name
+	/**
+	 * Subclasses can override this method to perform additional
+	 * processing in the processing phase
+	 * @param context
+	 * @return
+	 */
+	protected boolean processBeforeGrouping(Context context) {
+		return true;
+	}
+	
+	/**
+	 * Subclasses can override this method to perform additional
+	 * processing in the post-processing phase
+	 * @param context
+	 * @return
+	 */
 	protected boolean postProcessAfterProcessingGroups(Context context) {
 		return true;
 	}
