@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<import resource="components/connection/SSCConnectionConfig.xml"/>
+	<import resource="components/connection/OctaneConnectionConfig.xml"/>
+	<import resource="components/input/SSCInputConfig.xml"/>
+	
+	<!--==================================================================================-->
+	<!-- SSC TO ALM OCTANE PROCESSOR CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
+	     to Octane. If necessary, you can change the properties in this bean, for example 
+	     to change the fields and field data submitted to Octane. 
+	-->
+	<bean id="sscToOctaneIssueSubmitterNonGrouped" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+		<property name="fields"><map>
+			<!-- TODO Add additional Octane fields -->
+			<!--
+				{
+				  "data": [
+				    {
+				      "parent": {
+				        "type": "work_item",
+				        "id": "1001"
+				      },
+				      "author": {
+				        "type": "workspace_user",
+				        "id": "1001"
+				      },
+				      "product_areas": {
+				        "data": [
+				          
+				        ]
+				      },
+				      "subtype": "defect",
+				      "phase": {
+				        "type": "phase",
+				        "id": "1001"
+				      },
+				      "detected_by": {
+				        "type": "workspace_user",
+				        "id": "1001"
+				      },
+				      "description": "<html><body><p>tst<\/p>\n<\/body><\/html>",
+				      "name": "test"
+				    }
+				  ]
+				} 
+			 -->
+			<entry key="name" value="SSC Detected ${issueName} at ${fullFileName}"/>
+			<entry key="description"><value><![CDATA[
+				<b>--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---</b><br/>
+				<table>
+					<tr><td>Category:</td><td>${issueName}</td></tr>
+					<tr><td>File Name:</td><td>${fullFileName}</td></tr>
+				</table><br/>
+			]]></value></entry> 
+			<entry key="phase.type" value="phase"/>
+			<entry key="phase.id" value="1002"/>
+			<entry key="parent.type" value="feature"/>
+			<entry key="parent.id" value="3012"/>
+		</map></property>
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<property name="appendedFields"><map>
+			<entry key="description"><value><![CDATA[
+				<table>
+					<tr><td>Id:</td><td>${id}</td></tr>
+					<tr><td>State:</td><td>${vulnState}</td></tr>
+					<tr><td>Line:</td><td>${lineNumber?:'Unknown'}</td></tr>
+					<tr><td>Link:</td><td><a href="${deepLink}">${deepLink}</a></td></tr>
+				</table><br/>
+			]]></value></entry> 
+		</map></property>
+	</bean>
+	
+	<!-- This bean combines sscSubmitVulnerabilitiesToBugTracker with the non-grouped 
+	     Octane issue submitter. 
+	-->
+	<bean id="sscToOctaneProcessorNonGrouped" parent="sscSubmitVulnerabilitiesToBugTracker">
+		<property name="submitIssueProcessor" ref="sscToOctaneIssueSubmitterNonGrouped"/>
+	</bean>
+	
+	
+	<!--==================================================================================-->
+	<!-- ALM OCTANE PROCESS RUNNER CONFIGURATIONS -->
+	<!--==================================================================================-->
+	
+	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
+	<bean id="sscToOctaneNonGrouped" class="com.fortify.processrunner.ProcessRunner">
+		<property name="description" value="Submit non-grouped vulnerabilities from SSC to ALM Octane"/>
+		<property name="processor" ref="sscToOctaneProcessorNonGrouped"/>	
+		<property name="context"><map>
+			<entry key="SSCConnectionRetriever" value-ref="sscConnectionRetriever"/>
+			<entry key="OctaneConnectionRetriever" value-ref="octaneConnectionRetriever"/>
+		</map></property>
+	</bean>
+	
+</beans>

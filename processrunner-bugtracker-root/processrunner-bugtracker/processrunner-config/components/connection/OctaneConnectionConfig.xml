@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<!--==================================================================================-->
+	<!-- ALM OCTANE CONNECTION CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines a proxy configuration used to access ALM Octane. By default
+	     no proxy is used. If necessary, proxy settings can either be entered here,
+	     or using -OctaneProxyUrl, -OctaneProxyUserName and -OctaneProxyPassword command line
+	     options. If a proxy user name is specified without a password, the user
+	     will be prompted to enter the proxy password. -->
+	<bean id="octaneProxy" class="com.fortify.processrunner.util.rest.ContextAwareProxyConfiguration">
+		<property name="name" value="Octane"/>
+		<!-- <property name="uri" value="http://proxy:port/"/> -->
+		<!-- <property name="userName" value="proxy user (optional)"/> -->
+		<!-- <property name="password" value="proxy password (optional)"/> -->
+	</bean>
+	
+	<!-- Define ALM Octane connection information like base URL and credentials
+	     
+	     These properties can either be configured here, or provided via the 
+	     -OctaneBaseUrl, -OctaneUserName, -OctanePassword, -OctaneClientId and 
+	     -OctaneClientSecret command line options. Alternatively, if these properties have 
+	     not been provided either here or via command line options, the user will be 
+	     prompted to enter the corresponding value.
+	-->
+	<bean id="octaneConnectionRetriever" class="com.fortify.processrunner.octane.connection.ContextAwareOctaneConnectionRetrieverUserOrClientCredentials">
+		<property name="proxy" ref="octaneProxy"/>
+		<!-- <property name="baseUrl" value="http://192.168.99.100:32768/"/> -->
+		<!-- <property name="userCreds.userName" value="username"/> -->
+		<!-- <property name="userCreds.password" value="password"/> -->
+		<!-- <property name="clientCreds.clientId" value="clientId"/> -->
+		<!-- <property name="clientCreds.clientSecret" value="clientSecret"/> -->
+	</bean>
+	
+</beans>

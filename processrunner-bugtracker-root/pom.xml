@@ -34,6 +34,7 @@
 		<module>processrunner-bugtracker-target-file</module>
 		<module>processrunner-bugtracker-target-tfs</module>
 		<module>processrunner-bugtracker-target-archer</module>
+		<module>processrunner-bugtracker-target-octane</module>
 		<module>processrunner-bugtracker</module>
 	</modules>
 	<dependencyManagement>
