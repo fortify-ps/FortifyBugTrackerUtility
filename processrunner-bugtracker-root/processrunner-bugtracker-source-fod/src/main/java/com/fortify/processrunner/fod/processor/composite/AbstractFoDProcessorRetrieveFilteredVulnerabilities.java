@@ -1,13 +1,17 @@
 package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.filter.FilterRegEx;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
@@ -37,6 +41,11 @@ public abstract class AbstractFoDProcessorRetrieveFilteredVulnerabilities extend
 	private Map<String,String> topLevelFieldSimpleFilters;
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
+	
+	@Override
+	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		FoDConnectionFactory.addContextProperties(contextProperties, context);
+	}
 	
 	@Override
 	public List<IProcessor> getProcessors() {

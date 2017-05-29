@@ -6,13 +6,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<import resource="components/connection/FoDConnectionConfig.xml"/>
-	<import resource="components/connection/JiraConnectionConfig.xml"/>
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
 	<!-- FOD TO JIRA PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the FoD to JIRA processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for submitting non-grouped
 	     FoD vulnerabilities to JIRA. If necessary, you can change the properties 
@@ -127,38 +132,25 @@
 		<property name="updateIssueStateProcessor" ref="fodToJiraIssueUpdater"/>
 	</bean>
 	
-	<!--==================================================================================-->
-	<!-- JIRA PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits grouped vulnerabilities to JIRA -->
 	<bean id="fodToJiraGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities from FoD to JIRA"/>
 		<property name="processor" ref="fodToJiraProcessorGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
 	<bean id="fodToJiraNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from FoD to JIRA"/>
 		<property name="processor" ref="fodToJiraProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to JIRA -->
 	<bean id="fodToJiraUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Update JIRA issue state based on FoD vulnerability state"/>
 		<property name="processor" ref="fodToJiraProcessorUpdateBugTrackerState"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="JiraConnectionRetriever" value-ref="jiraConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

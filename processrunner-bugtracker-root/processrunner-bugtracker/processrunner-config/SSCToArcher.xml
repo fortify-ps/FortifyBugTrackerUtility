@@ -7,13 +7,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/connection/SSCConnectionConfig.xml"/>
-	<import resource="components/connection/ArcherConnectionConfig.xml"/>
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
 	<!-- SSC TO ARCHER PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to Archer processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
 	     to Archer. If necessary, you can change the properties in this bean, for example 
@@ -41,19 +46,11 @@
 		<property name="submitIssueProcessor" ref="sscToArcherIssueSubmitterNonGrouped"/>
 	</bean>
 	
-	
-	<!--==================================================================================-->
-	<!-- ARCHER PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
 	<bean id="sscToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from SSC to Archer"/>
 		<property name="processor" ref="sscToArcherProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="SSCConnectionRetriever" value-ref="sscConnectionRetriever"/>
-			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

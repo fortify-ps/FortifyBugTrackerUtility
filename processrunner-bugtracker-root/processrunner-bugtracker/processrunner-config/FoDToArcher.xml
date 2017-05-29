@@ -7,13 +7,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/connection/FoDConnectionConfig.xml"/>
-	<import resource="components/connection/ArcherConnectionConfig.xml"/>
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
 	<!-- FOD TO ARCHER PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the FoD to Archer processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
 	     to Archer. If necessary, you can change the properties in this bean, for example 
@@ -52,18 +57,11 @@
 		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterNonGrouped"/>
 	</bean>
 	
-	<!--==================================================================================-->
-	<!-- ARCHER PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
 	<bean id="fodToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from FoD to Archer"/>
 		<property name="processor" ref="fodToArcherProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="ArcherConnectionRetriever" value-ref="archerConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

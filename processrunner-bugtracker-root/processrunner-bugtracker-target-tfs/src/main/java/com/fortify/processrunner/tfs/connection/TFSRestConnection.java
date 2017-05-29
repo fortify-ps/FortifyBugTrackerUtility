@@ -15,6 +15,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.sun.jersey.api.client.WebResource;
@@ -22,8 +23,9 @@ import com.sun.jersey.api.client.WebResource;
 public final class TFSRestConnection extends RestConnection {
 	private static final Log LOG = LogFactory.getLog(TFSRestConnection.class);
 	
-	public TFSRestConnection(String baseUrl, Credentials credentials) {
+	public TFSRestConnection(String baseUrl, Credentials credentials, ProxyConfiguration proxy) {
 		super(baseUrl, credentials);
+		setProxy(proxy);
 	}
 	
 	@Override

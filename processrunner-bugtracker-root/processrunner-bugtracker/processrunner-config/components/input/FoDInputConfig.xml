@@ -11,7 +11,7 @@
 	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- This abstract bean defines common configuration options for  -->
+	<!-- This abstract bean defines common configuration options for TODO -->
 	
 	<bean id="fodProcessorCommonProperties" abstract="true">
 		<!-- Define any extra data that must be loaded from FoD for filtering 

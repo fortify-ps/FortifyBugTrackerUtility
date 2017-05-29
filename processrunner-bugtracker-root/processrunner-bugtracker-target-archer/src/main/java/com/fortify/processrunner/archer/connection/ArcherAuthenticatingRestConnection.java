@@ -30,7 +30,7 @@ import com.sun.jersey.api.client.WebResource.Builder;
  * This class provides a token-authenticated REST connection
  * for Archer.
  */
-public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnection implements IArcherConnection {
+public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnection {
 	private final ArcherTokenFactoryRest tokenProviderRest;
 	private final String applicationName;
 	private long applicationId;
@@ -150,16 +150,16 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	}
 
 	public static interface IFieldContentValueRetriever {
-		public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value);
+		public Object getFieldContentValue(ArcherAuthenticatingRestConnection conn, JSONObject field, Object value);
 	}
 	
 	private static final class FieldContentAdder {
-		private final IArcherConnection conn;
+		private final ArcherAuthenticatingRestConnection conn;
 		private final JSONObject field;
 		private final long fieldId;
 		private final int fieldType;
 		private final IFieldContentValueRetriever fieldContentValueRetriever; 
-		public FieldContentAdder(IArcherConnection conn, JSONObject field) {
+		public FieldContentAdder(ArcherAuthenticatingRestConnection conn, JSONObject field) {
 			this.conn = conn;
 			this.field = field;
 			this.fieldId = SpringExpressionUtil.evaluateExpression(field, "Id", Long.class);
@@ -204,14 +204,14 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		}
 		
 		public static final class FieldContentValueRetrieverText implements IFieldContentValueRetriever {
-			public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value) {
+			public Object getFieldContentValue(ArcherAuthenticatingRestConnection conn, JSONObject field, Object value) {
 				return value==null?null:value.toString();
 			}
 		}
 		
 		public static final class FieldContentValueRetrieverValuesList implements IFieldContentValueRetriever {
 			private static final Map<Long, JSONArray> valueListsByIdMap = new HashMap<Long, JSONArray>();
-			public Object getFieldContentValue(IArcherConnection conn, JSONObject field, Object value) {
+			public Object getFieldContentValue(ArcherAuthenticatingRestConnection conn, JSONObject field, Object value) {
 				JSONObject result = new JSONObject();
 				Long relatedValuesListId = SpringExpressionUtil.evaluateExpression(field, "RelatedValuesListId", Long.class);
 				JSONArray valuesListArray = getValueListArray(conn, relatedValuesListId);
@@ -228,7 +228,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			
 			
 
-			private Long addValuesListValue(IArcherConnection conn, Long valueListId, String value) {
+			private Long addValuesListValue(ArcherAuthenticatingRestConnection conn, Long valueListId, String value) {
 				Long result = conn.addValueToValuesList(valueListId, value);
 				// Remove cached entry such that on next request, the list with the newly added value is reloaded 
 				valueListsByIdMap.remove(valueListId);
@@ -237,7 +237,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 
 
 
-			private JSONArray getValueListArray(IArcherConnection conn, Long valueListId) {
+			private JSONArray getValueListArray(ArcherAuthenticatingRestConnection conn, Long valueListId) {
 				JSONArray result = valueListsByIdMap.get(valueListId);
 				if ( result == null && valueListId != null ) {
 					result = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path("api/core/system/valueslistvalue/flat/valueslist/").path(valueListId+""), JSONArray.class);

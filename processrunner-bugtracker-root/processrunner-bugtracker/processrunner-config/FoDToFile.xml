@@ -7,14 +7,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/connection/FoDConnectionConfig.xml"/>
-	<import resource="components/connection/FileConnectionConfig.xml"/>
 	<import resource="components/input/FoDInputConfig.xml"/>
-	
 	
 	<!--==================================================================================-->
 	<!-- EXPORT VULNERABILITIES TO FILE PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the FoD to File export processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for writing FoD vulnerability
 	     data to a file. If necessary, you can change the properties in this bean, for 
@@ -39,17 +43,11 @@
 		<property name="submitIssueProcessor" ref="fodToFileIssueSubmitterNonGrouped"/>
 	</bean>
 	
-	<!--==================================================================================-->
-	<!-- EXPORT VULNERABILITIES TO FILE PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits non-grouped vulnerabilities to a file -->
 	<bean id="fodToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from FoD to a file"/>
 		<property name="processor" ref="fodToFileProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

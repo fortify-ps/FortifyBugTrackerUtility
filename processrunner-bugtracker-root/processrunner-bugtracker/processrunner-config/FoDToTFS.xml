@@ -6,13 +6,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<import resource="components/connection/FoDConnectionConfig.xml"/>
-	<import resource="components/connection/TFSConnectionConfig.xml"/>
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
 	<!-- FOD TO TFS PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the FoD to TFS processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean allows for renaming work item fields as defined in the various 
 	     processor configurations for specific work item types. This allows for
@@ -163,38 +168,25 @@
 		<property name="updateIssueStateProcessor" ref="fodToTFSIssueUpdater"/>
 	</bean>
 	
-	<!--==================================================================================-->
-	<!-- TFS PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits grouped vulnerabilities to TFS -->
 	<bean id="fodToTFSGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit grouped vulnerabilities from FoD to TFS"/>
 		<property name="processor" ref="fodToTFSProcessorGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
 	<bean id="fodToTFSNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from FoD to TFS"/>
 		<property name="processor" ref="fodToTFSProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
 	<bean id="fodToTFSUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Update TFS issue state based on FoD vulnerability state"/>
 		<property name="processor" ref="fodToTFSProcessorUpdateBugTrackerState"/>	
-		<property name="context"><map>
-			<entry key="FoDConnectionRetriever" value-ref="fodConnectionRetriever"/>
-			<entry key="TFSConnectionRetriever" value-ref="tfsConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

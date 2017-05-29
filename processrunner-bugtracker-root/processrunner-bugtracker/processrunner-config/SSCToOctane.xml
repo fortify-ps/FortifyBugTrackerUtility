@@ -7,13 +7,18 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/connection/SSCConnectionConfig.xml"/>
-	<import resource="components/connection/OctaneConnectionConfig.xml"/>
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- SSC TO ALM OCTANE PROCESSOR CONFIGURATION -->
+	<!-- SSC TO ALM OCTANE CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to ALM Octane processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
 	     to Octane. If necessary, you can change the properties in this bean, for example 
@@ -92,19 +97,11 @@
 		<property name="submitIssueProcessor" ref="sscToOctaneIssueSubmitterNonGrouped"/>
 	</bean>
 	
-	
-	<!--==================================================================================-->
-	<!-- ALM OCTANE PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
 	<bean id="sscToOctaneNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from SSC to ALM Octane"/>
 		<property name="processor" ref="sscToOctaneProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="SSCConnectionRetriever" value-ref="sscConnectionRetriever"/>
-			<entry key="OctaneConnectionRetriever" value-ref="octaneConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

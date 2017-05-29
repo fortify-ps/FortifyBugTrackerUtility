@@ -9,6 +9,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.jira.util.JiraIssueJSONObjectBuilder;
@@ -23,6 +24,7 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 	
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		JiraConnectionFactory.addContextProperties(contextProperties, context);
 		contextProperties.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
 		contextProperties.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
 	}
@@ -35,7 +37,7 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 	@Override
 	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextJira contextJira = context.as(IContextJira.class);
-		JiraRestConnection conn = contextJira.getJiraConnectionRetriever().getConnection();
+		JiraRestConnection conn = JiraConnectionFactory.getConnection(context);
 		issueData.put("project.key", contextJira.getJiraProjectKey());
 		issueData.put("issuetype.name", getIssueType(contextJira));
 		issueData.put("summary", StringUtils.abbreviate((String)issueData.get("summary"), 254));

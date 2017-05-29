@@ -12,7 +12,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.fod.context.IContextFoD;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -55,7 +55,7 @@ public class FoDProcessorEnrichWithExtraFoDData extends AbstractFoDProcessorEnri
 	}
 
 	private JSONObject getJSONObject(Context context, String field) {
-		IRestConnection conn = context.as(IContextFoD.class).getFoDConnectionRetriever().getConnection();
+		IRestConnection conn = FoDConnectionFactory.getConnection(context);
 		TemplateExpression uriExpr = FIELD_TO_URI_EXPRESSION_MAP.get(field); 
 		if ( uriExpr == null ) {
 			throw new RuntimeException("Unknown FoD field "+field);

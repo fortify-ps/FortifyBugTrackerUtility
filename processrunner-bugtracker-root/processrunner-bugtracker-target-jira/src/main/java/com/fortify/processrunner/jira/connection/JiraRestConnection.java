@@ -12,14 +12,16 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.util.json.JSONObjectBuilder;
 import com.fortify.util.json.JSONUtil;
+import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
 import com.sun.jersey.api.client.WebResource;
 
 public final class JiraRestConnection extends RestConnection {
 	private static final Log LOG = LogFactory.getLog(JiraRestConnection.class);
 	
-	public JiraRestConnection(String baseUrl, Credentials credentials) {
+	public JiraRestConnection(String baseUrl, Credentials credentials, ProxyConfiguration proxy) {
 		super(baseUrl, credentials);
+		setProxy(proxy);
 	}
 	
 	@Override

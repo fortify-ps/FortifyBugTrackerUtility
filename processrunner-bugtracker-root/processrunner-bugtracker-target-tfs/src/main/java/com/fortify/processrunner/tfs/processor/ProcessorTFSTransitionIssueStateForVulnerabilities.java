@@ -10,6 +10,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.processrunner.tfs.context.IContextTFS;
@@ -22,6 +23,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		TFSConnectionFactory.addContextProperties(contextProperties, context);
 		contextProperties.add(new ContextProperty("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
 	}
 	
@@ -33,7 +35,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	@Override
 	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
 		String workItemType = conn.getWorkItemType(collection, submittedIssue);
 		if ( workItemType == null ) {
@@ -47,7 +49,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	@Override
 	protected TFSIssueState getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
 		return conn.getIssueState(collection, submittedIssue);
 	}
@@ -55,7 +57,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	@Override
 	protected boolean transition(Context context, SubmittedIssue submittedIssue, String transitionName, String comment) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
 		JSONArray ops = new JSONArray();
 		if ( comment != null ) {

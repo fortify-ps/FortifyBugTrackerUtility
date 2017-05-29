@@ -17,6 +17,7 @@ import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSC;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -72,10 +73,10 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextSSC contextSSC = context.as(IContextSSC.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
-		IRestConnection conn = contextSSC.getSSCConnectionRetriever().getConnection();
+		IRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String filterParamValue = contextSSC.getSSCTopLevelFilterParamValue();
 		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&q="+filterParamValue;
-		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+contextSSC.getSSCConnectionRetriever().getBaseUrl());
+		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
 		int start=0;
 		int count=50;
 		while ( start < count ) {

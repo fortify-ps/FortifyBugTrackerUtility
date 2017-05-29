@@ -67,9 +67,9 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		builder.updateJSONObjectWithPropertyPath(customTagAudit, "customTagGuid", getCustomTagGuid(customTagName));
 		builder.updateJSONObjectWithPropertyPath(customTagAudit, "textValue", deepLink);
 		builder.updateJSONObjectWithPropertyPath(request, "values.customTagAudit", new Object[]{customTagAudit});
-		System.out.println(executeRequest(HttpMethod.POST, 
+		executeRequest(HttpMethod.POST, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
-				.entity(request, "application/json"), JSONObject.class));
+				.entity(request, "application/json"), JSONObject.class);
 		
 	}
 

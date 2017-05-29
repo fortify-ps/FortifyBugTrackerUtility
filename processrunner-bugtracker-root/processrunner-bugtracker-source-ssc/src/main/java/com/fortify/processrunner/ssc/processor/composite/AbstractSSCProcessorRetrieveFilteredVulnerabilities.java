@@ -1,15 +1,19 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
@@ -35,6 +39,11 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
 	private boolean includeIssueDetails;
+	
+	@Override
+	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		SSCConnectionFactory.addContextProperties(contextProperties, context);
+	}
 	
 	@Override
 	public List<IProcessor> getProcessors() {

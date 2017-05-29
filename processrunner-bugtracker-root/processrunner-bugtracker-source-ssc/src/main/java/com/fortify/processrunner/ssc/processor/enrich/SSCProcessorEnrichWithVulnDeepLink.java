@@ -4,7 +4,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.ssc.context.IContextSSC;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
@@ -17,7 +17,7 @@ public class SSCProcessorEnrichWithVulnDeepLink extends AbstractSSCProcessorEnri
 
 	@Override
 	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
-		String baseUrl = context.as(IContextSSC.class).getSSCConnectionRetriever().getBaseUrl();
+		String baseUrl = SSCConnectionFactory.getConnection(context).getBaseUrl();
 		String deepLink = baseUrl + SpringExpressionUtil.evaluateExpression(currentVulnerability, deepLinkUriExpression, String.class);
 		currentVulnerability.put("deepLink", deepLink);
 		return true;

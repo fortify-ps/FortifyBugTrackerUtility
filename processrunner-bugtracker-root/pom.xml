@@ -82,6 +82,12 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-target-octane</artifactId>
+				<version>1.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.fortify.processrunner</groupId>
 				<artifactId>processrunner</artifactId>
 				<version>1.1</version>

@@ -1,12 +1,16 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 
 /**
@@ -25,6 +29,11 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	private boolean useFoDCommentForSubmittedBugs = false;
 	
 	private AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor;
+	
+	@Override
+	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		SSCConnectionFactory.addContextProperties(contextProperties, context);
+	}
 	
 	@Override
 	public List<IProcessor> getProcessors() {

@@ -11,6 +11,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.context.IContextTFS;
 import com.fortify.processrunner.tfs.util.TFSWorkItemJSONObjectBuilder;
@@ -27,6 +28,7 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 	
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		TFSConnectionFactory.addContextProperties(contextProperties, context);
 		contextProperties.add(new ContextProperty("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
 		contextProperties.add(new ContextProperty("TFSProject", "TFS project to submit vulnerabilities to", context, null, true));
 		contextProperties.add(new ContextProperty("TFSWorkItemType", "TFS work item type", context, getDefaultWorkItemType(), false));
@@ -40,7 +42,7 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 	@Override
 	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = contextTFS.getTFSConnectionRetriever().getConnection();
+		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
 		String workItemType = getWorkItemType(contextTFS);
 		fieldRenamer.renameFields(workItemType, issueData);

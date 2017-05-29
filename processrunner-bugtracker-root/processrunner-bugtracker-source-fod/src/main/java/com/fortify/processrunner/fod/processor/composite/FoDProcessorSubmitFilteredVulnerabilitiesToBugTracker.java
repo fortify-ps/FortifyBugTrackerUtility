@@ -8,6 +8,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.issue.SubmittedIssueCommentHelper;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
@@ -103,7 +104,7 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		@SuppressWarnings("unchecked")
 		public void issueSubmitted(Context context, String bugTrackerName, SubmittedIssue submittedIssue, Collection<Object> vulnerabilities) {
 			IContextFoD ctx = context.as(IContextFoD.class);
-			FoDAuthenticatingRestConnection conn = ctx.getFoDConnectionRetriever().getConnection();
+			FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
 			String releaseId = ctx.getFoDReleaseId();
 			Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
 			if ( isUseFoDCommentForSubmittedBugs() ) {

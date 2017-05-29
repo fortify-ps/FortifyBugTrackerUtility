@@ -7,14 +7,19 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/connection/SSCConnectionConfig.xml"/>
-	<import resource="components/connection/FileConnectionConfig.xml"/>
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	
 	<!--==================================================================================-->
 	<!-- EXPORT VULNERABILITIES TO FILE PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to file export processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
 	
 	<!-- This bean defines the processor configuration for writing SSC vulnerability
 	     data to a file. If necessary, you can change the properties in this bean, for 
@@ -38,17 +43,11 @@
 		<property name="submitIssueProcessor" ref="sscToFileIssueSubmitterNonGrouped"/>
 	</bean>
 	
-	<!--==================================================================================-->
-	<!-- EXPORT VULNERABILITIES TO FILE PROCESS RUNNER CONFIGURATIONS -->
-	<!--==================================================================================-->
-	
 	<!-- This process runner submits non-grouped vulnerabilities to a file -->
 	<bean id="sscToFileNonGrouped" class="com.fortify.processrunner.ProcessRunner">
 		<property name="description" value="Submit non-grouped vulnerabilities from SSC to a file"/>
 		<property name="processor" ref="sscToFileProcessorNonGrouped"/>	
-		<property name="context"><map>
-			<entry key="SSCConnectionRetriever" value-ref="sscConnectionRetriever"/>
-		</map></property>
+		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

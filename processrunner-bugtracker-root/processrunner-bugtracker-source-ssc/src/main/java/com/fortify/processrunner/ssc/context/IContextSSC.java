@@ -1,16 +1,28 @@
 package com.fortify.processrunner.ssc.context;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.ssc.connection.ISSCConnectionRetriever;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to FoD data like REST connection, release id and top level filter parameter
- * values.
+ * access to SSC data like connection properties, SSC REST connection, application
+ * version id and top level filter parameter values.
  */
 public interface IContextSSC {
-	public void setSSCConnectionRetriever(ISSCConnectionRetriever connectionRetriever);
-	public ISSCConnectionRetriever getSSCConnectionRetriever();
+	public static final String PRP_SSC_BASE_URL = "SSCBaseUrl";
+	public static final String PRP_SSC_AUTH_TOKEN = "SSCAuthToken";
+	public static final String PRP_SSC_USER_NAME = "SSCUserName";
+	public static final String PRP_SSC_PASSWORD = "SSCPassword";
+	
+	public void setSSCBaseUrl(String baseUrl);
+	public String getSSCBaseUrl();
+	
+	public void setSSCAuthToken(String authToken);
+	public String getSSCAuthToken();
+	
+	public void setSSCUserName(String userName);
+	public String getSSCUserName();
+	public void setSSCPassword(String password);
+	public String getSSCPassword();
 	
 	public void setSSCApplicationVersionId(String applicationVersionId);
 	public String getSSCApplicationVersionId();

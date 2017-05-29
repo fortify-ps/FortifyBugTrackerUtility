@@ -14,6 +14,7 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
@@ -72,10 +73,10 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
-		IRestConnection conn = contextFoD.getFoDConnectionRetriever().getConnection();
+		IRestConnection conn = FoDConnectionFactory.getConnection(context);
 		String filterParamValue = contextFoD.getFoDTopLevelFilterParamValue();
 		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&filters="+filterParamValue;
-		LOG.info("[FoD] Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+contextFoD.getFoDConnectionRetriever().getBaseUrl());
+		LOG.info("[FoD] Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+conn.getBaseUrl());
 		int start=0;
 		int count=50;
 		while ( start < count ) {
