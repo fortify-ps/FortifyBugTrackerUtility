@@ -45,13 +45,14 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	private TemplateExpression groupTemplateExpression;
 	private MultiValueMap<String, Object> groups;
 	private int totalCount = 0;
+	private boolean forceGrouping = false;
 	
 	/**
 	 * Add context properties for grouping
 	 */
 	@Override
 	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		if ( getGroupTemplateExpression()!=null ) {
+		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
 			contextProperties.add(new ContextProperty(IContextGrouping.PRP_ENABLE_GROUPING, "Enable grouping of vulnerabilities", context, "false", false));
 		}
 		addExtraContextProperties(contextProperties, context);
@@ -101,7 +102,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 
 	private boolean isGroupingEnabled(Context context) {
 		String enableGrouping = context.as(IContextGrouping.class).getEnableGrouping();
-		return getGroupTemplateExpression() != null && "true".equals(enableGrouping);
+		return getGroupTemplateExpression() != null && (isForceGrouping() || "true".equals(enableGrouping));
 	}
 
 	protected final boolean postProcess(Context context) {
@@ -192,6 +193,14 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		this.groupTemplateExpression = groupTemplateExpression;
 	}
 	
+	public boolean isForceGrouping() {
+		return forceGrouping;
+	}
+
+	public void setForceGrouping(boolean forceGrouping) {
+		this.forceGrouping = forceGrouping;
+	}
+
 	private static interface IContextGrouping {
 		public static final String PRP_ENABLE_GROUPING = "EnableGrouping";
 		public void setEnableGrouping(String enableGrouping);
