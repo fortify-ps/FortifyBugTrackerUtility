@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<context:component-scan base-package="com.fortify.processrunner.fod.processrunner"/>
 	
 	<!--==================================================================================-->
 	<!-- FoD VULNERABILITY RETRIEVAL CONFIGURATION -->
@@ -61,7 +65,7 @@
 	     in the concrete processor configurations below (if you use multiple
 	     processor configurations that require different settings). 
 	-->
-	<bean id="fodSubmitVulnerabilitiesToBugTracker" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
+	<bean id="fodSubmitVulnerabilitiesToBugTracker" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker" lazy-init="true">		
 		<!-- Define the filters that determine which FoD vulnerabilities will
 		     be submitted to the bug tracker or file.
 		     
@@ -97,12 +101,6 @@
 		</map></property>
 		<property name="allFieldRegExFilters"><map>
 		</map></property>
-		
-		<!-- This property defines the processor that actually submits FoD 
-		     vulnerabilities to a bug tracker. The different bug tracker
-		     implementations defined below explicitly set this property to
-		     a corresponding processor. -->
-		<!-- <property name="submitIssueProcessor" ref="actualProcessor"/> -->
 	</bean>
 	
 	<!-- This abstract bean defines common configuration options for updating
@@ -116,11 +114,5 @@
 	     in the concrete processor configurations below (if you use multiple
 	     processor configurations that require different settings). 
 	-->
-	<bean id="fodUpdateBugTrackerState" abstract="true" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState">
-		<!-- This property defines the processor that actually updates bug tracker 
-		     state based on FoD vulnerability state. The different bug tracker 
-		     implementations defined below explicitly set this property to a 
-		     corresponding processor. -->
-		<!-- <property name="updateIssueStateProcessor" ref="actualProcessor"/> -->
-	</bean>	
+	<bean id="fodUpdateBugTrackerState" parent="fodProcessorCommonProperties" class="com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState" lazy-init="true"/>
 </beans>

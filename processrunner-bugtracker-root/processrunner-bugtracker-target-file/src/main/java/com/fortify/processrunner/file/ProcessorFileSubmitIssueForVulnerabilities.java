@@ -42,7 +42,7 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "File";
 	}
 	

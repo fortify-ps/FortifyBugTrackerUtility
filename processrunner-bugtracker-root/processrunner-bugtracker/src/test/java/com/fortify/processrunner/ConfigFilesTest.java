@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import org.junit.Test;
+import org.springframework.context.support.GenericApplicationContext;
 
 import com.fortify.util.spring.SpringContextUtil;
 
@@ -16,7 +17,8 @@ public class ConfigFilesTest {
 			}
 		});
 		for ( String file : files ) {
-			SpringContextUtil.loadApplicationContextFromFiles(true, "processrunner-config/"+file);
+			GenericApplicationContext ctx = SpringContextUtil.loadApplicationContextFromFiles(true, "processrunner-config/"+file);
+			System.out.println(ctx);
 		}
 	}
 }

@@ -9,13 +9,13 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<import resource="components/input/FoDInputConfig.xml"/>
+	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- FOD TO JIRA PROCESSOR CONFIGURATION -->
+	<!-- SSC TO JIRA PROCESSOR CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- This bean defines the context for the FoD to JIRA processing. All of these
+	<!-- This bean defines the context for the SSC to JIRA processing. All of these
 	     properties can also be specified on the command line. -->
 	<util:map id="contextProperties">
 		<!-- TODO Add all possible properties -->
@@ -27,17 +27,17 @@
 	     in this bean, for example to change the grouping expression, fields 
 	     and field data submitted to JIRA. 
 	-->
-	<bean id="fodToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+	<bean id="sscToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
 		     grouping must be explicitly enabled using the EnableGrouping context property -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 	
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
-			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
-			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
-			<entry key="labels" value="${{'FoD'}}"/>
+			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
+			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(friority)}"/>
+			<entry key="labels" value="${{'SSC'}}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
@@ -52,12 +52,12 @@
 	</bean>
 	
 	<!-- This bean defines the processor configuration for updating JIRA issue state
-	     based on FoD vulnerability state. This processor can update issue fields,
+	     based on SSC vulnerability state. This processor can update issue fields,
 	     automatically re-open issues, and automatically close issues. Each of these
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="fodToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
+	<bean id="sscToJiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
 		<!-- Update the JIRA description field when updating issue state -->
 		<property name="fieldsToUpdate" value="description"/>
 		

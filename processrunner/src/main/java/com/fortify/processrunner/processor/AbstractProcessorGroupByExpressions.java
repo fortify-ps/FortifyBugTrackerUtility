@@ -1,6 +1,7 @@
 package com.fortify.processrunner.processor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -44,6 +46,24 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	private MultiValueMap<String, Object> groups;
 	private int totalCount = 0;
 	
+	/**
+	 * Add context properties for grouping
+	 */
+	@Override
+	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+		if ( getGroupTemplateExpression()!=null ) {
+			contextProperties.add(new ContextProperty(IContextGrouping.PRP_ENABLE_GROUPING, "Enable grouping of vulnerabilities", context, "false", false));
+		}
+		addExtraContextProperties(contextProperties, context);
+	}
+	
+	/**
+	 * Subclasses can override this method to add extra context properties
+	 * @param contextProperties
+	 * @param context
+	 */
+	protected void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+
 	@Override
 	protected final boolean preProcess(Context context) {
 		groups = new LinkedMultiValueMap<String, Object>();
@@ -65,8 +85,8 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			LOG.debug("[Process] Current object: "+rootObject);
 		}
 		
-		if ( groupTemplateExpression == null ) {
-			// If no group template expression is defined, we directly process the 
+		if ( !isGroupingEnabled(context) ) {
+			// If grouping is not enabled, we directly process the 
 			// group since we do not need to group the data first.
 			return processGroup(context, Arrays.asList(new Object[]{rootObject}));
 		} else {
@@ -79,9 +99,14 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		}
 	}
 
+	private boolean isGroupingEnabled(Context context) {
+		String enableGrouping = context.as(IContextGrouping.class).getEnableGrouping();
+		return getGroupTemplateExpression() != null && "true".equals(enableGrouping);
+	}
+
 	protected final boolean postProcess(Context context) {
 		boolean result = true;
-		if ( getGroupTemplateExpression() != null ) {
+		if ( isGroupingEnabled(context) ) {
 			// If a group template expression is defined, we call the
 			// process() method on the group processor for every
 			// group that we have collected.
@@ -165,5 +190,11 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 
 	public void setGroupTemplateExpression(TemplateExpression groupTemplateExpression) {
 		this.groupTemplateExpression = groupTemplateExpression;
+	}
+	
+	private static interface IContextGrouping {
+		public static final String PRP_ENABLE_GROUPING = "EnableGrouping";
+		public void setEnableGrouping(String enableGrouping);
+		public String getEnableGrouping();
 	}
 }

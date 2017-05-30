@@ -26,7 +26,8 @@ import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVuln
 public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
 	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
 	private Set<String> extraFields = new HashSet<String>();
-	private boolean useFoDCommentForSubmittedBugs = false;
+	private String customTagName = "BugLink";
+	private boolean includeIssueDetails;
 	
 	private AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor;
 	
@@ -98,19 +99,7 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		return new SSCProcessorEnrichWithVulnDeepLink();
 	}
 	*/
-	/**
-	 * @return the useFoDCommentForSubmittedBugs
-	 */
-	public boolean isUseFoDCommentForSubmittedBugs() {
-		return useFoDCommentForSubmittedBugs;
-	}
-
-	/**
-	 * @param useFoDCommentForSubmittedBugs the useFoDCommentForSubmittedBugs to set
-	 */
-	public void setUseFoDCommentForSubmittedBugs(boolean useFoDCommentForSubmittedBugs) {
-		this.useFoDCommentForSubmittedBugs = useFoDCommentForSubmittedBugs;
-	}
+	
 	
 	/**
 	 * @return the extraFields
@@ -132,6 +121,22 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 
 	public AbstractProcessorUpdateIssueStateForVulnerabilities getUpdateIssueStateProcessor() {
 		return updateIssueStateProcessor;
+	}
+
+	public boolean isIncludeIssueDetails() {
+		return includeIssueDetails;
+	}
+
+	public void setIncludeIssueDetails(boolean includeIssueDetails) {
+		this.includeIssueDetails = includeIssueDetails;
+	}
+
+	public String getCustomTagName() {
+		return customTagName;
+	}
+
+	public void setCustomTagName(String customTagName) {
+		this.customTagName = customTagName;
 	}
 
 	/*

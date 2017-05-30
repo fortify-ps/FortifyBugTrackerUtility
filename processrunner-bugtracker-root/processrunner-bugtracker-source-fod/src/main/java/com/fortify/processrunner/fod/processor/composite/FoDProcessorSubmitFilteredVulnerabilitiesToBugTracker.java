@@ -2,6 +2,8 @@ package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -91,6 +93,7 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		return submitIssueProcessor;
 	}
 
+	@Autowired
 	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
 		submitIssueProcessor.setIssueSubmittedListener(new FoDIssueSubmittedListener());
 		this.submitIssueProcessor = submitIssueProcessor;

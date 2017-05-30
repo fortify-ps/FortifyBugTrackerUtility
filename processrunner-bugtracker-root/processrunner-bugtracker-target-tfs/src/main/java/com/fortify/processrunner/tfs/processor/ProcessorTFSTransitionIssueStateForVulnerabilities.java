@@ -28,7 +28,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "TFS";
 	}
 	

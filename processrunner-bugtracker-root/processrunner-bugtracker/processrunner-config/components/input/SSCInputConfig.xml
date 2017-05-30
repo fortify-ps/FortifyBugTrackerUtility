@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	
+	<context:component-scan base-package="com.fortify.processrunner.ssc.processrunner"/>
 	
 	<!--==================================================================================-->
 	<!-- SSC VULNERABILITY RETRIEVAL CONFIGURATION -->
@@ -14,12 +18,6 @@
 	<!-- This abstract bean defines common configuration options for TODO -->
 	
 	<bean id="sscProcessorCommonProperties" abstract="true">
-		<!-- Define any extra data that must be loaded from FoD for filtering 
-		     and/or building the issue contents. Note that previous versions
-		     automatically loaded summary data, but this is no longer the case
-		     if useFoDCommentForSubmittedBugs is set to false.
-		     If your customized configuration depends on summary data, you 
-		     will need to enable the summary field here. -->
 		<property name="includeIssueDetails" value="true"/>
 		<property name="customTagName" value="bugURL"/>
 		
@@ -45,7 +43,7 @@
 	     in the concrete processor configurations below (if you use multiple
 	     processor configurations that require different settings). 
 	-->
-	<bean id="sscSubmitVulnerabilitiesToBugTracker" abstract="true" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
+	<bean id="sscSubmitVulnerabilitiesToBugTracker" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker">		
 		<!-- Define the filters that determine which SSC vulnerabilities will
 		     be submitted to the bug tracker or file.
 		     
@@ -98,7 +96,7 @@
 	     in the concrete processor configurations below (if you use multiple
 	     processor configurations that require different settings). 
 	-->
-	<bean id="sscUpdateBugTrackerState" abstract="true" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState">
+	<bean id="sscUpdateBugTrackerState" parent="sscProcessorCommonProperties" class="com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState">
 		<!-- This property defines the processor that actually updates bug tracker 
 		     state based on FoD vulnerability state. The different bug tracker 
 		     implementations defined below explicitly set this property to a 

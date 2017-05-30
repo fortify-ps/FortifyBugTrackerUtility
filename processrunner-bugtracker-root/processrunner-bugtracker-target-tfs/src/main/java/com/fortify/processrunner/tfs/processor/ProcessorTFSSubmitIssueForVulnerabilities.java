@@ -35,7 +35,7 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "TFS";
 	}
 	

@@ -30,7 +30,7 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "Jira";
 	}
 	

@@ -22,7 +22,7 @@ public class ProcessorJiraTransitionIssueStateForVulnerabilities extends Abstrac
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "Jira";
 	}
 	

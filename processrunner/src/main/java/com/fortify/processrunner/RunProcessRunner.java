@@ -2,12 +2,13 @@ package com.fortify.processrunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -188,15 +189,14 @@ public class RunProcessRunner {
 	 * @param context
 	 * @return
 	 */
-	protected final String getProcessRunnerBeanName(List<String> args, ApplicationContext context) {
-		Set<String> processorBeanNames = new LinkedHashSet<String>(Arrays.asList(context.getBeanNamesForType(ProcessRunner.class)));
+	protected final String getProcessRunnerBeanName(List<String> args, final ApplicationContext context) {
+		Set<String> processorBeanNames = getEnabledProcessRunners(context).keySet();
 		if ( LOG.isDebugEnabled() ) { LOG.debug("[Process] Available process runners: "+processorBeanNames); }
 		String errorMessage = null;
 		if ( args.size() == 0 || args.get(0).startsWith("-") ) {
-			if ( processorBeanNames.contains(DEFAULT_BEAN_NAME) ) {
-				return DEFAULT_BEAN_NAME;
-			} else if ( processorBeanNames.size()==1 ) {
-				return processorBeanNames.iterator().next();
+			String defaultProcessRunnerName = getDefaultProcessRunnerName(context);
+			if ( defaultProcessRunnerName!=null ) {
+				return defaultProcessRunnerName;
 			} else {
 				errorMessage = "ERROR: No process runner id specified";
 			}
@@ -237,7 +237,7 @@ public class RunProcessRunner {
 		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
 		
 		if ( appContext != null ) {
-			Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);
+			Map<String, ProcessRunner> processRunnersMap = getEnabledProcessRunners(appContext);
 			if ( processRunnersMap!=null && processRunnersMap.size() > 0 ) {
 				LOG.info("");
 				LOG.info("  Available process runner id's:");
@@ -264,6 +264,38 @@ public class RunProcessRunner {
 			LOG.info("\n  Available [options] will be shown when a valid process runner has been specified.");
 		}
 		System.exit(returnCode);
+	}
+
+	private Map<String, ProcessRunner> getEnabledProcessRunners(ApplicationContext appContext) {
+		Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);
+		processRunnersMap.values().removeIf(new Predicate<ProcessRunner>() {
+			public boolean test(ProcessRunner processRunner) {
+				return !processRunner.isEnabled();
+			}
+		});
+		return processRunnersMap;
+	}
+	
+	private String getDefaultProcessRunnerName(ApplicationContext appContext) {
+		Map<String, ProcessRunner> processRunnersMap = getEnabledProcessRunners(appContext);
+		if ( processRunnersMap.containsKey(DEFAULT_BEAN_NAME) ) {
+			return DEFAULT_BEAN_NAME;
+		} else if (processRunnersMap.size()==1) {
+			return processRunnersMap.keySet().iterator().next();
+		} else {
+			Map<String, ProcessRunner> defaultRunners = new HashMap<String, ProcessRunner>(processRunnersMap);
+			defaultRunners.values().removeIf(new Predicate<ProcessRunner>() {
+				public boolean test(ProcessRunner processRunner) {
+					return !processRunner.isDefault();
+				}
+			});
+			if ( defaultRunners.size()==1 ) {
+				return processRunnersMap.keySet().iterator().next();
+			} else if ( defaultRunners.size()>1 ) {
+				LOG.debug("Multiple default process runners found");
+			}
+		}
+		return null;
 	}
 	
 	protected String getDefaultConfigFileName() {

@@ -17,7 +17,25 @@ public class ProcessRunner implements Runnable {
 	private Context context = new Context();
 	private IProcessor processor = new CompositeProcessor();
 	private String description;
+	private boolean enabled = true;
+	private boolean _default= false;
 	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	public boolean isDefault() {
+		return _default;
+	}
+
+	public void setDefault(boolean _default) {
+		this._default = _default;
+	}
+
 	/**
 	 * Run the configured processor using the configured context.
 	 */

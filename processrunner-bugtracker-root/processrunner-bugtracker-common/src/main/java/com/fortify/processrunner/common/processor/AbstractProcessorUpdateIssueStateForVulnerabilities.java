@@ -4,8 +4,11 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -14,6 +17,7 @@ import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractProcessorBuildObjectMapFromGroupedObjects {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
@@ -22,6 +26,8 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	private SimpleExpression vulnBugLinkExpression;
 	private SimpleExpression isIssueOpenableExpression;
 	private SimpleExpression isIssueCloseableExpression;
+	private AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
+	private String[] fieldsToUpdate;
 	
 	
 	public AbstractProcessorUpdateIssueStateForVulnerabilities() {
@@ -29,7 +35,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	}
 	
 	@Override
-	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public final void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
 		// contextProperties.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
@@ -101,7 +107,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return null;
 	}
 	
-	protected abstract String getBugTrackerName();
+	public abstract String getBugTrackerName();
 	
 	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
 		return getIsIssueCloseableExpression()!=null;
@@ -199,5 +205,42 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		this.isIssueCloseableExpression = isIssueCloseableExpression;
 	}
 	
+	public AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
+		return submitIssueProcessor;
+	}
+
+	@Autowired(required=false) // Only required if fieldsToUpdate is set, checked in postConstruct()
+	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
+		this.submitIssueProcessor = submitIssueProcessor;
+	}
+
+	public String[] getFieldsToUpdate() {
+		return fieldsToUpdate;
+	}
+
+	public void setFieldsToUpdate(String[] fieldsToUpdate) {
+		this.fieldsToUpdate = fieldsToUpdate;
+	}
+	
+	@PostConstruct
+	public void postContruct() {
+		String[] fieldsToUpdate = getFieldsToUpdate();
+		if ( fieldsToUpdate!=null && fieldsToUpdate.length>0 ) {
+			AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor = getSubmitIssueProcessor();
+			if ( submitIssueProcessor == null ) {
+				throw new IllegalStateException("submitIssueProcessor not set");
+			}
+			setFields(getFilteredMap(submitIssueProcessor.getFields(), fieldsToUpdate));
+			setAppendedFields(getFilteredMap(submitIssueProcessor.getAppendedFields(), fieldsToUpdate));
+		}
+	}
+
+	private LinkedHashMap<String, TemplateExpression> getFilteredMap(LinkedHashMap<String, TemplateExpression> inputMap, String[] keys) {
+		LinkedHashMap<String, TemplateExpression> result = new LinkedHashMap<String, TemplateExpression>(keys.length);
+		for ( String key : keys ) {
+			result.put(key, inputMap.get(key));
+		}
+		return result;
+	}
 	
 }

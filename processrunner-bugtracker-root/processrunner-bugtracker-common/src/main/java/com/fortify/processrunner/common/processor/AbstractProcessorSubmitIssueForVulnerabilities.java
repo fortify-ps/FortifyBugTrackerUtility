@@ -24,7 +24,7 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	}
 	
 	@Override
-	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public final void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
 		// contextProperties.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
@@ -44,7 +44,7 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	}
 	
 	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
-	protected abstract String getBugTrackerName();
+	public abstract String getBugTrackerName();
 
 	public IIssueSubmittedListener getIssueSubmittedListener() {
 		return issueSubmittedListener;

@@ -20,7 +20,7 @@ public class ProcessorArcherSubmitIssueForVulnerabilities extends AbstractProces
 	}
 	
 	@Override
-	protected String getBugTrackerName() {
+	public String getBugTrackerName() {
 		return "Archer";
 	}
 	

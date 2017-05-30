@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
@@ -24,7 +26,11 @@
 	     to Octane. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to Octane. 
 	-->
-	<bean id="sscToOctaneIssueSubmitterNonGrouped" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
+		     grouping must be explicitly enabled using the EnableGrouping context property -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<!--
@@ -88,20 +94,6 @@
 				</table><br/>
 			]]></value></entry> 
 		</map></property>
-	</bean>
-	
-	<!-- This bean combines sscSubmitVulnerabilitiesToBugTracker with the non-grouped 
-	     Octane issue submitter. 
-	-->
-	<bean id="sscToOctaneProcessorNonGrouped" parent="sscSubmitVulnerabilitiesToBugTracker">
-		<property name="submitIssueProcessor" ref="sscToOctaneIssueSubmitterNonGrouped"/>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
-	<bean id="sscToOctaneNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities from SSC to ALM Octane"/>
-		<property name="processor" ref="sscToOctaneProcessorNonGrouped"/>	
-		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

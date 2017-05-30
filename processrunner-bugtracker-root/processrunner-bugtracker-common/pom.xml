@@ -35,6 +35,10 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
+		<dependency>
+		    <groupId>javax.annotation</groupId>
+		    <artifactId>jsr250-api</artifactId>
+		</dependency>
 	</dependencies>
 	<description>This module provides common processrunner-related functionality for submitting Fortify/FoD vulnerabilities to bug trackers.</description>
 </project>

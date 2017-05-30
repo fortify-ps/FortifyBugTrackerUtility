@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
@@ -45,8 +48,11 @@
 	     in this bean, for example to change the fields and field data submitted 
 	     to TFS. 
 	-->
-	<bean id="fodToTFSIssueSubmitterNonGrouped" class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
-		<property name="fieldRenamer" ref="workItemTypeToFieldRenamer"/>
+	<bean id="fodToTFSIssueSubmitter" class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
+		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
+		     grouping must be explicitly enabled using the EnableGrouping context property -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -67,14 +73,6 @@
 		</map></property>
 	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting grouped FoD 
-	     vulnerabilities to TFS. Configuration is inherited from the non-grouped
-	     variant; here we only add the grouping criteria. 
-	-->
-	<bean id="fodToTFSIssueSubmitterGrouped" parent="fodToTFSIssueSubmitterNonGrouped">
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
-	</bean>
-	
 	<!-- This bean defines the processor configuration for updating TFS work item state
 	     based on FoD vulnerability state. This processor can update work item fields,
 	     automatically re-open work items, and automatically close work items. Each of 
@@ -82,17 +80,8 @@
 	     will not be performed.
 	-->
 	<bean id="fodToTFSIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
-		<property name="fieldRenamer" ref="workItemTypeToFieldRenamer"/>
-		<!-- Update the TFS description field by re-evaluating the corresponding description 
-		     expressions defined on fodToTFSIssueSubmitterNonGrouped. As such, any changes in 
-		     FoD fields referenced in the description expressions, like vulnerability state or 
-		     line number, will be reflected in the updated TFS description. -->
-		<property name="fields"><map>
-			<entry key="System.Description" value="#{@fodToTFSIssueSubmitterNonGrouped.fields['System.Description']}"/>
-		</map></property>
-		<property name="appendedFields"><map>
-			<entry key="System.Description" value="#{@fodToTFSIssueSubmitterNonGrouped.appendedFields['System.Description']}"/>
-		</map></property>
+		<!-- Update the TFS description field when updating issue state -->
+		<property name="fieldsToUpdate" value="System.Description"/>
 		
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize the workItemType (corresponding to System.WorkItemType), state
@@ -143,50 +132,6 @@
 				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
 			</list></entry>
 		</map></property>
-	</bean>
-	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the non-grouped 
-	     TFS issue submitter. 
-	-->
-	<bean id="fodToTFSProcessorNonGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="submitIssueProcessor" ref="fodToTFSIssueSubmitterNonGrouped"/>
-	</bean>
-	
-	<!-- This bean combines fodSubmitVulnerabilitiesToBugTracker with the grouped 
-	     TFS issue submitter. 
-	-->
-	<bean id="fodToTFSProcessorGrouped" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="submitIssueProcessor" ref="fodToTFSIssueSubmitterGrouped"/>
-	</bean>
-	
-	<!-- This bean combines fodUpdateBugTrackerState with fodToTFSIssueUpdater. 
-	-->
-	<bean id="fodToTFSProcessorUpdateBugTrackerState" parent="fodUpdateBugTrackerState">
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
-		<property name="updateIssueStateProcessor" ref="fodToTFSIssueUpdater"/>
-	</bean>
-	
-	<!-- This process runner submits grouped vulnerabilities to TFS -->
-	<bean id="fodToTFSGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit grouped vulnerabilities from FoD to TFS"/>
-		<property name="processor" ref="fodToTFSProcessorGrouped"/>	
-		<property name="context" ref="contextProperties"/>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
-	<bean id="fodToTFSNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities from FoD to TFS"/>
-		<property name="processor" ref="fodToTFSProcessorNonGrouped"/>	
-		<property name="context" ref="contextProperties"/>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to TFS -->
-	<bean id="fodToTFSUpdateBugTrackerState" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Update TFS issue state based on FoD vulnerability state"/>
-		<property name="processor" ref="fodToTFSProcessorUpdateBugTrackerState"/>	
-		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

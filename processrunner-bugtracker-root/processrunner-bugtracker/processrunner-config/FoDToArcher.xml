@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
@@ -24,7 +26,7 @@
 	     to Archer. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to Archer. 
 	-->
-	<bean id="fodToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+	<bean id="fodToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<!-- TODO Add additional Archer fields -->
@@ -34,34 +36,12 @@
 			<entry key="File Name" value="${primaryLocationFull}"/>
 			<entry key="Line Number" value="${lineNumber}"/>
 			<!-- <entry key="Analysis" value="${primaryTag}"/> -->
-			<entry key="Analyzer" value="${details.analyzerName}"/>
 			<entry key="Priority" value="${severityString}"/>
-			<entry key="Recommendation" value="${recommendations.recommendations}"/>
+			<!-- To enable the following entries, you will need to enable details and recommendations 
+			     extra fields to be loaded from FoD -->
+			<!-- <entry key="Analyzer" value="${details.analyzerName}"/> -->
+			<!-- <entry key="Recommendation" value="${recommendations.recommendations}"/> -->
 		</map></property>
-	</bean>
-	
-	<!-- This bean defines extra fields to be retrieved from FoD. -->
-	<bean id="fodToArcherProcessorSubmitVulnerabilities" abstract="true" parent="fodSubmitVulnerabilitiesToBugTracker">
-		<property name="useFoDCommentForSubmittedBugs" value="true"/>
-		<property name="extraFields"><list>
-			<value>summary</value>
-			<value>details</value>
-			<value>recommendations</value>
-		</list></property>
-	</bean>
-	
-	<!-- This bean combines fodToArcherProcessorSubmitVulnerabilities with the non-grouped 
-	     Archer issue submitter. 
-	-->
-	<bean id="fodToArcherProcessorNonGrouped" parent="fodToArcherProcessorSubmitVulnerabilities">
-		<property name="submitIssueProcessor" ref="fodToArcherIssueSubmitterNonGrouped"/>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
-	<bean id="fodToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities from FoD to Archer"/>
-		<property name="processor" ref="fodToArcherProcessorNonGrouped"/>	
-		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>

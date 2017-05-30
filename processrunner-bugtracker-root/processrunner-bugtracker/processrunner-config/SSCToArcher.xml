@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
-	
+		
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
@@ -24,7 +26,7 @@
 	     to Archer. If necessary, you can change the properties in this bean, for example 
 	     to change the fields and field data submitted to Archer. 
 	-->
-	<bean id="sscToArcherIssueSubmitterNonGrouped" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+	<bean id="sscToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 		<property name="fields"><map>
 			<!-- TODO Add additional Archer fields -->
 			<entry key="ID" value="${id}"/>
@@ -37,20 +39,6 @@
 			<entry key="Priority" value="${friority}"/>
 			<entry key="Recommendation" value="${details.recommendation}"/>
 		</map></property>
-	</bean>
-	
-	<!-- This bean combines sscSubmitVulnerabilitiesToBugTracker with the non-grouped 
-	     Archer issue submitter. 
-	-->
-	<bean id="sscToArcherProcessorNonGrouped" parent="sscSubmitVulnerabilitiesToBugTracker">
-		<property name="submitIssueProcessor" ref="sscToArcherIssueSubmitterNonGrouped"/>
-	</bean>
-	
-	<!-- This process runner submits non-grouped vulnerabilities to Archer -->
-	<bean id="sscToArcherNonGrouped" class="com.fortify.processrunner.ProcessRunner">
-		<property name="description" value="Submit non-grouped vulnerabilities from SSC to Archer"/>
-		<property name="processor" ref="sscToArcherProcessorNonGrouped"/>	
-		<property name="context" ref="contextProperties"/>
 	</bean>
 	
 </beans>
