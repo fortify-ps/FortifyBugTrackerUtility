@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.stereotype.Component;
+
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
@@ -23,13 +25,14 @@ import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVuln
  * 
  * TODO Update this for SSC
  */
+@Component
 public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
 	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
 	private Set<String> extraFields = new HashSet<String>();
 	private String customTagName = "BugLink";
 	private boolean includeIssueDetails;
 	
-	private AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor;
+	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
 	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
@@ -119,7 +122,7 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		return enrichWithVulnStateProcessor;
 	}
 
-	public AbstractProcessorUpdateIssueStateForVulnerabilities getUpdateIssueStateProcessor() {
+	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getUpdateIssueStateProcessor() {
 		return updateIssueStateProcessor;
 	}
 

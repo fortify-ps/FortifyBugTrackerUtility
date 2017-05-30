@@ -12,7 +12,7 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- FOD TO ARCHER PROCESSOR CONFIGURATION -->
+	<!-- RSA ARCHER CONFIGURATION -->
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the context for the FoD to Archer processing. All of these

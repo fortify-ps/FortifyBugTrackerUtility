@@ -12,7 +12,7 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- EXPORT VULNERABILITIES TO FILE PROCESSOR CONFIGURATION -->
+	<!-- CSV FILE EXPORT CONFIGURATION -->
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the context for the FoD to File export processing. All of these

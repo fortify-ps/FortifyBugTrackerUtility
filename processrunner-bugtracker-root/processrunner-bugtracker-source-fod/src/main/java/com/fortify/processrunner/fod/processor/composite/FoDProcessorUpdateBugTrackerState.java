@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
@@ -34,12 +35,13 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * in each group can be considered 'closed' and thus the corresponding bug
  * can be closed as well. 
  */
+@Component
 public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
 	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
 	private Set<String> extraFields = new HashSet<String>();
 	private boolean useFoDCommentForSubmittedBugs = false;
 	
-	private AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor;
+	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
 	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
@@ -136,16 +138,23 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		return enrichWithVulnStateProcessor;
 	}
 
-	public AbstractProcessorUpdateIssueStateForVulnerabilities getUpdateIssueStateProcessor() {
+	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getUpdateIssueStateProcessor() {
 		return updateIssueStateProcessor;
 	}
 
 	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
-	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor) {
+	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor) {
 		updateIssueStateProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
 		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(FoDProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
 		updateIssueStateProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
 		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
+	}
+	
+	@Autowired(required=false)
+	public void setConfiguration(FoDBugTrackerProcessorConfiguration config) {
+		setExtraFields(config.getExtraFields());
+		setUseFoDCommentForSubmittedBugs(config.isUseFoDCommentForSubmittedBugs());
+		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
 	}
 }

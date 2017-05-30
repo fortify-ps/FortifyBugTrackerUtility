@@ -10,7 +10,8 @@ import com.fortify.util.spring.expression.SimpleExpression;
 
 public class FoDProcessorEnrichWithVulnState extends AbstractFoDProcessorEnrich {
 	public static final String NAME_VULN_STATE = "vulnState";
-	private SimpleExpression isVulnerabilityOpenExpression = SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
+	public static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");;
+	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	
 	@Override
 	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {

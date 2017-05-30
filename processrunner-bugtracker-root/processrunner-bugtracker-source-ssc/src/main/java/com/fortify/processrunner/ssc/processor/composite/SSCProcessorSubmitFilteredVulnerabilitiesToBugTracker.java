@@ -3,6 +3,7 @@ package com.fortify.processrunner.ssc.processor.composite;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -28,6 +29,7 @@ import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
  * this class can be configured with an additional {@link #customTagName} property identifying the SSC
  * custom field name in which the bug link should be stored.
  */
+@Component
 public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractSSCProcessorRetrieveFilteredVulnerabilities {
 	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
 	private String customTagName = "BugLink";
@@ -65,6 +67,16 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 
 	public void setCustomTagName(String customTagName) {
 		this.customTagName = customTagName;
+	}
+	
+	@Autowired(required=false)
+	public void setConfiguration(SSCBugTrackerProcessorConfiguration config) {
+		setAllFieldRegExFilters(config.getAllFieldRegExFilters());
+		setCustomTagName(config.getCustomTagName());
+		setIncludeIssueDetails(config.isIncludeIssueDetails());
+		setTopLevelFieldRegExFilters(config.getTopLevelFieldRegExFilters());
+		setTopLevelFieldSimpleFilters(config.getTopLevelFieldSimpleFilters());
+		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
 	}
 
 	private class SSCIssueSubmittedListener implements IIssueSubmittedListener {

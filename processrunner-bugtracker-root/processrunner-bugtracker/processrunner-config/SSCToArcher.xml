@@ -12,7 +12,7 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- SSC TO ARCHER PROCESSOR CONFIGURATION -->
+	<!-- ARCHER CONFIGURATION -->
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the context for the SSC to Archer processing. All of these

@@ -12,7 +12,7 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- FOD TO TFS PROCESSOR CONFIGURATION -->
+	<!-- TFS CONFIGURATION -->
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the context for the FoD to TFS processing. All of these
@@ -73,65 +73,6 @@
 		</map></property>
 	</bean>
 	
-	<!-- This bean defines the processor configuration for updating TFS work item state
-	     based on FoD vulnerability state. This processor can update work item fields,
-	     automatically re-open work items, and automatically close work items. Each of 
-	     these actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="fodToTFSIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
-		<!-- Update the TFS description field when updating issue state -->
-		<property name="fieldsToUpdate" value="System.Description"/>
-		
-		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
-		     can utilize the workItemType (corresponding to System.WorkItemType), state
-		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->
-		<!--
-		<property name="isIssueOpenableExpression"><value><![CDATA[
-			reason matches 'something|something else'
-		]]></value></property>
-		<property name="isIssueCloseableExpression"><value><![CDATA[
-			reason matches 'something|something else'
-		]]></value></property>
-		-->
-		
-		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
-		     that defines when to use a specific transition; this is usually based on issue state, and
-		     optionally workItemType and reason.
-		     The map value defines one or more names of transitions that need to be performed in order to 
-		     re-open or close an issue. For each transition, you can specify an optional comment between
-		     brackets. If your TFS instance uses non-standard workflows, you may need to update these
-		     mappings.-->
-		<property name="transitionsForOpeningIssue"><map>
-			<!-- TODO These transitions were taken from the SSC TFS integration, but seem to be incomplete for VSTS Agile workflow  -->
-			<entry key="workItemType=='Task' and state matches 'Done|Removed'" value="To Do[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Bug' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Bug' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feature' and state=='Done'" value="In Progress[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feature' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feedback Request' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Product Backlog Item' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Product Backlog Item' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Shared Parameter' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Shared Steps' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Case' and state=='Closed'" value="Ready[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Case' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Plan' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Suite' and state=='Completed'" value="In Planning[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Issue' and state=='Resolved'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<!-- <entry key="workItemType=='Issue' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" /> -->
-			<!-- Entry that was not in SSC, but is required to re-open bugs in VSTS Agile workflow -->
-			<entry key="workItemType=='Bug' and state matches 'Resolved|Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-		</map></property>
-		<property name="transitionsForClosingIssue"><map>
-			<!-- TODO Add transitions for closing issues -->
-			<!-- Example on performing multiple transitions to reach the target state -->
-			<entry key="state=='My Custom Status'"><list>
-				<value>IntermediateTransition1</value> <!-- Transition without comment -->
-				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
-				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
-			</list></entry>
-		</map></property>
-	</bean>
+	<import resource="components/issueState/TFSIssueState.xml"/>
 	
 </beans>

@@ -3,6 +3,7 @@ package com.fortify.processrunner.fod.processor.composite;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
@@ -33,6 +34,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * If set to false (default), a link to the submitted bug will be stored in the FoD bugLink field.
  * If set to true, information about the submitted bug will be stored as an FoD comment.
  */
+@Component
 public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractFoDProcessorRetrieveFilteredVulnerabilities {
 	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
 	private boolean useFoDCommentForSubmittedBugs = false;
@@ -101,6 +103,16 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	
 	public FoDProcessorEnrichWithVulnState getVulnState() {
 		return enrichWithVulnStateProcessor;
+	}
+	
+	@Autowired(required=false)
+	public void setConfiguration(FoDBugTrackerProcessorConfiguration config) {
+		setAllFieldRegExFilters(config.getAllFieldRegExFilters());
+		setExtraFields(config.getExtraFields());
+		setTopLevelFieldRegExFilters(config.getTopLevelFieldRegExFilters());
+		setTopLevelFieldSimpleFilters(config.getTopLevelFieldSimpleFilters());
+		setUseFoDCommentForSubmittedBugs(config.isUseFoDCommentForSubmittedBugs());
+		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
 	}
 
 	private class FoDIssueSubmittedListener implements IIssueSubmittedListener {

@@ -12,7 +12,7 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
-	<!-- SSC TO ALM OCTANE CONFIGURATION -->
+	<!-- ALM OCTANE CONFIGURATION -->
 	<!--==================================================================================-->
 	
 	<!-- This bean defines the context for the SSC to ALM Octane processing. All of these
