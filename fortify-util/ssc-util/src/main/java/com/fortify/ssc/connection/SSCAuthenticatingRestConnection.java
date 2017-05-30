@@ -77,4 +77,10 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		JSONObject data = executeRequest(HttpMethod.GET, getBaseResource().path("/api/v1/customTags").queryParam("fields", "guid,name"), JSONObject.class);
 		return JSONUtil.mapValue(SpringExpressionUtil.evaluateExpression(data, "data", JSONArray.class), "name.toLowerCase()", customTagName.toLowerCase(), "guid", String.class);
 	}
+
+	public void updateIssueSearchOptions(String applicationVersionId, IssueSearchOptions issueSearchOptions) {
+		executeRequest(HttpMethod.PUT, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issueSearchOptions")
+				.entity(issueSearchOptions.getJSONRequestData(), "application/json"), JSONObject.class);
+	}
 }

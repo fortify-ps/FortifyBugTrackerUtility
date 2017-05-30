@@ -19,7 +19,8 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSC;
-import com.fortify.util.rest.IRestConnection;
+import com.fortify.ssc.connection.IssueSearchOptions;
+import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.sun.jersey.api.client.WebResource;
@@ -48,7 +49,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("count");
 	private String uriTemplateExpression = "api/v1/projectVersions/${SSCApplicationVersionId}/issues?qm=issues&limit=50&offset=${"+KEY_START+"}";
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
-	private boolean includeRemoved;
+	private final IssueSearchOptions issueSearchOptions = new IssueSearchOptions();
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
@@ -73,10 +74,11 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		processor.process(Phase.PRE_PROCESS, context);
 		IContextSSC contextSSC = context.as(IContextSSC.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
-		IRestConnection conn = SSCConnectionFactory.getConnection(context);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String filterParamValue = contextSSC.getSSCTopLevelFilterParamValue();
 		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&q="+filterParamValue;
 		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
+		conn.updateIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
 		while ( start < count ) {
@@ -84,10 +86,6 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 			context.put(KEY_START, start);
 			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
 			WebResource resource = conn.getBaseResource().uri(uri);
-			if ( isIncludeRemoved() ) {
-				// TODO Implement this for SSC; probably have to do a PUT request on issueSearchOptions first
-				resource = resource.queryParam("includeFixed", "true").queryParam("includeSuppressed", "true");
-			}
 			LOG.debug("[SSC] Retrieving vulnerabilities from "+resource);
 			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
 			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
@@ -132,13 +130,9 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
-	public boolean isIncludeRemoved() {
-		return includeRemoved;
+	public IssueSearchOptions getIssueSearchOptions() {
+		return issueSearchOptions;
 	}
 
-	public void setIncludeRemoved(boolean includeRemoved) {
-		this.includeRemoved = includeRemoved;
-	}
-	
 	
 }
