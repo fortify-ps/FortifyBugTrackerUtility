@@ -57,7 +57,7 @@
 		<!-- Define the SSC custom tag name used to store the bug link. Note that
 		     this custom field must be assigned to the application version for
 		     which you are submitting issues to the bug tracker. -->
-		<property name="customTagName" value="bugURL"/>
+		<property name="customTagName" value="bugLink"/>
 		
 		<!-- This property defines the expression for evaluating whether an SSC 
 		     vulnerability should be considered open or closed. This expression

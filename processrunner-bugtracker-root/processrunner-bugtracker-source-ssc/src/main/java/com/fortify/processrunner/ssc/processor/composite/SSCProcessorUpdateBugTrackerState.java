@@ -1,19 +1,26 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithIssueDetails;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
+import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
+import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This {@link IProcessor} implementation allows for updating tracker state
@@ -23,14 +30,12 @@ import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVuln
  * in each group can be considered 'closed' and thus the corresponding bug
  * can be closed as well. 
  * 
- * TODO Update this for SSC
+ * TODO Test this SSC implementation for correct operation
  */
 @Component
 public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
 	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
-	private Set<String> extraFields = new HashSet<String>();
 	private String customTagName = "BugLink";
-	private boolean includeIssueDetails;
 	
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
@@ -41,81 +46,22 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	@Override
 	public List<IProcessor> getProcessors() {
-		//return Arrays.asList(createRootVulnerabilityArrayProcessor());
-		return null; // TODO
+		return Arrays.asList(createRootVulnerabilityArrayProcessor());
 	}
 	
-	/*
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
-			isUseFoDCommentForSubmittedBugs() ? createCommentBasedProcessors() : createBugLinkBasedProcessors(),
-			createAddVulnDeepLinkProcessor(),
-			createAddJSONDataProcessor(),
+			new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", true),
+			new SSCProcessorEnrichWithIssueDetails(),
+			new SSCProcessorEnrichWithVulnDeepLink(),
+			new SSCProcessorEnrichWithBugDataFromCustomTag(getCustomTagName()),
 			getVulnState(),
 			getUpdateIssueStateProcessor()
 		);
-		result.setIncludeRemoved(true);
+		result.getIssueSearchOptions().setIncludeHidden(false);
+		result.getIssueSearchOptions().setIncludeRemoved(true);
+		result.getIssueSearchOptions().setIncludeSuppressed(true);
 		return result;
-	}
-	*/
-
-	/**
-	 * Create the processors for managing bug state based on the FoD bugLink field.
-	 */
-	/*
-	protected IProcessor createBugLinkBasedProcessors() {
-		return new CompositeProcessor(
-				// Add a top-level field filter on the bugSubmitted field to include only vulnerabilities 
-				// that have already been submitted to the bug tracker
-				new SSCFilterOnBugSubmittedField("true")
-				// TODO Add processor to add bugId field to vulnerability?
-		);
-	}
-	*/
-	/**
-	 * Create the processor for managing bug state based on FoD comments.
-	 * @return
-	 */
-	/*
-	protected IProcessor createCommentBasedProcessors() {
-		return new CompositeProcessor(
-			// Add top-level field filter to include only vulnerabilities with comments
-			// (to avoid loading summary data if there are no comments anyway)
-			new SSCFilterOnHasCommentsField("true"),
-			// Add processor to add FoD summary data as required by FoDFilterOnBugSubmittedComment
-			new SSCProcessorEnrichWithIssueDetails("summary"),
-			// Add comment-based filter to include only vulnerabilities that have already been submitted 
-			// to the bug tracker
-			new FoDFilterOnBugSubmittedComment(false),
-			// Add processor to add bugLink (and bugId?) fields from comment to vulnerability
-			new FoDProcessorEnrichWithBugDataFromComment()
-		);
-	}
-	
-	protected SSCProcessorEnrichWithIssueDetails createAddJSONDataProcessor() {
-		SSCProcessorEnrichWithIssueDetails result = new SSCProcessorEnrichWithIssueDetails();
-		result.setFields(getExtraFields());
-		return result;
-	}
-	
-	protected IProcessor createAddVulnDeepLinkProcessor() {
-		return new SSCProcessorEnrichWithVulnDeepLink();
-	}
-	*/
-	
-	
-	/**
-	 * @return the extraFields
-	 */
-	public Set<String> getExtraFields() {
-		return extraFields;
-	}
-
-	/**
-	 * @param extraFields the extraFields to set
-	 */
-	public void setExtraFields(Set<String> extraFields) {
-		this.extraFields = extraFields;
 	}
 	
 	public SSCProcessorEnrichWithVulnState getVulnState() {
@@ -126,14 +72,6 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		return updateIssueStateProcessor;
 	}
 
-	public boolean isIncludeIssueDetails() {
-		return includeIssueDetails;
-	}
-
-	public void setIncludeIssueDetails(boolean includeIssueDetails) {
-		this.includeIssueDetails = includeIssueDetails;
-	}
-
 	public String getCustomTagName() {
 		return customTagName;
 	}
@@ -142,13 +80,18 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		this.customTagName = customTagName;
 	}
 
-	/*
-	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities updateIssueStateProcessor) {
+	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
+	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor) {
 		updateIssueStateProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
+		updateIssueStateProcessor.setForceGrouping(true);
 		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(SSCProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		updateIssueStateProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
 		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
 	}
-	*/
+	
+	@Autowired(required=false)
+	public void setConfiguration(SSCBugTrackerProcessorConfiguration config) {
+		setCustomTagName(config.getCustomTagName());
+		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
+	}
 }

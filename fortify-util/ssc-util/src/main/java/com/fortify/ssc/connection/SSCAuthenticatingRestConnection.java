@@ -73,7 +73,8 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		
 	}
 
-	private String getCustomTagGuid(String customTagName) {
+	// TODO cache tag name/guid mappings
+	public String getCustomTagGuid(String customTagName) {
 		JSONObject data = executeRequest(HttpMethod.GET, getBaseResource().path("/api/v1/customTags").queryParam("fields", "guid,name"), JSONObject.class);
 		return JSONUtil.mapValue(SpringExpressionUtil.evaluateExpression(data, "data", JSONArray.class), "name.toLowerCase()", customTagName.toLowerCase(), "guid", String.class);
 	}
