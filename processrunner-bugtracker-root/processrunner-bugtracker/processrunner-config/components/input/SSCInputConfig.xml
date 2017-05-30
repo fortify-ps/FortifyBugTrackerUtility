@@ -19,7 +19,7 @@
 	<!-- SSC configuration properties -->
 	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
 		<!-- Define the filters that determine which SSC vulnerabilities will
-		     be submitted to the bug tracker or file.
+		     be submitted to the external system.
 		     
 		     topLevelFieldFilters allows filtering on fields similar to the SSC/AWB
 		     search box; please see AWB or the SSC search syntax guide for information
@@ -32,35 +32,39 @@
 		     
 		     allFieldRegExFilters allows RegEx-based filtering on any
 		     vulnerability attribute returned by either 
-		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues or the
-		     additional issue details. Since these
-		     filters are only applied after loading all issue details from SSC,
-		     these filters provide worst performance. 
+		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues or
+		     /api/v1/issueDetails. Since these filters are only applied 
+		     after loading all issue details from SSC, these filters provide 
+		     worst performance. 
 		-->
 		<property name="topLevelFieldSimpleFilters"><map>
 			<entry key="analysis" value="Exploitable"/>
-			<!-- <entry key="isSuppressed" value="false"/> -->
-			<!-- <entry key="hasComments" value="false"/> -->
-			<!-- <entry key="assignedUser" value="Senden, Ruud"/> -->
-			<!-- <entry key="developerStatus" value="In Remediation"/> -->
-			<!-- <entry key="severity" value="4"/> -->
 			<!-- TODO: Add additional interesting filter fields in comments -->
 		</map></property>
 		<property name="topLevelFieldRegExFilters"><map>
-			<!-- <entry key="friority" value="Critical|High"/> -->
+			<!-- TODO: Add additional interesting filter fields in comments -->
 		</map></property>
 		<property name="allFieldRegExFilters"><map>
 		</map></property>
 		
+		<!-- Indicate whether additional issue details should be loaded from SSC. 
+		     Is set to false, only data returned by 
+		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues
+		     will be available. If set to true, data returned by
+		     /api/v1/issueDetails will also be available. -->
 		<property name="includeIssueDetails" value="true"/>
+		
+		<!-- Define the SSC custom tag name used to store the bug link. Note that
+		     this custom field must be assigned to the application version for
+		     which you are submitting issues to the bug tracker. -->
 		<property name="customTagName" value="bugURL"/>
 		
 		<!-- This property defines the expression for evaluating whether an SSC 
 		     vulnerability should be considered open or closed. This expression
 		     can use any SSC vulnerability attribute. Commonly used attributes
-		     for this expression include closedStatus and isSuppressed. -->
+		     for this expression include removed and suppressed. -->
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
-			closedStatus==false && isSuppressed==false
+			removed==false && suppressed==false
 		]]></value></property>
 	</bean>
 </beans>
