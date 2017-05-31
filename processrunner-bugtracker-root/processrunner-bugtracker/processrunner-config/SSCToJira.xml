@@ -28,9 +28,9 @@
 	     and field data submitted to JIRA. 
 	-->
 	<bean id="sscToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
-		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
-		     grouping must be explicitly enabled using the EnableGrouping context property -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->

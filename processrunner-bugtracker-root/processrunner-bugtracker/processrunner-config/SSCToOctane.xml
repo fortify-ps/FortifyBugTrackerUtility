@@ -27,44 +27,12 @@
 	     to change the fields and field data submitted to Octane. 
 	-->
 	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
-		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
-		     grouping must be explicitly enabled using the EnableGrouping context property -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
-			<!--
-				{
-				  "data": [
-				    {
-				      "parent": {
-				        "type": "work_item",
-				        "id": "1001"
-				      },
-				      "author": {
-				        "type": "workspace_user",
-				        "id": "1001"
-				      },
-				      "product_areas": {
-				        "data": [
-				          
-				        ]
-				      },
-				      "subtype": "defect",
-				      "phase": {
-				        "type": "phase",
-				        "id": "1001"
-				      },
-				      "detected_by": {
-				        "type": "workspace_user",
-				        "id": "1001"
-				      },
-				      "description": "<html><body><p>tst<\/p>\n<\/body><\/html>",
-				      "name": "test"
-				    }
-				  ]
-				} 
-			 -->
 			<entry key="name" value="SSC Detected ${issueName} at ${fullFileName}"/>
 			<entry key="description"><value><![CDATA[
 				<b>--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---</b><br/>

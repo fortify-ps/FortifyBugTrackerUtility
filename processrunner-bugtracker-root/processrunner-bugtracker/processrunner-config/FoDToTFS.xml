@@ -49,8 +49,8 @@
 	     to TFS. 
 	-->
 	<bean id="fodToTFSIssueSubmitter" class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
-		<!-- Expression for grouping vulnerabilities into a single JIRA issue. Note that
-		     grouping must be explicitly enabled using the EnableGrouping context property -->
+		<<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 		
 		<property name="fields"><map>

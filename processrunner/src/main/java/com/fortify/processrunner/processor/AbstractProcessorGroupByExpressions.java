@@ -53,7 +53,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	@Override
 	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			contextProperties.add(new ContextProperty(IContextGrouping.PRP_ENABLE_GROUPING, "Enable grouping of vulnerabilities", context, "false", false));
+			contextProperties.add(new ContextProperty(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", context, "false", false));
 		}
 		addExtraContextProperties(contextProperties, context);
 	}
@@ -100,11 +100,6 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		}
 	}
 
-	private boolean isGroupingEnabled(Context context) {
-		String enableGrouping = context.as(IContextGrouping.class).getEnableGrouping();
-		return getGroupTemplateExpression() != null && (isForceGrouping() || "true".equals(enableGrouping));
-	}
-
 	protected final boolean postProcess(Context context) {
 		boolean result = true;
 		if ( isGroupingEnabled(context) ) {
@@ -122,6 +117,11 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		}
 		groups.clear();
 		return postProcessAfterProcessingGroups(context) && result;
+	}
+	
+	private boolean isGroupingEnabled(Context context) {
+		String disableGrouping = context.as(IContextGrouping.class).getDisableGrouping();
+		return getGroupTemplateExpression() != null && (isForceGrouping() || !"true".equals(disableGrouping));
 	}
 	
 	/**
@@ -202,8 +202,8 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 
 	private static interface IContextGrouping {
-		public static final String PRP_ENABLE_GROUPING = "EnableGrouping";
-		public void setEnableGrouping(String enableGrouping);
-		public String getEnableGrouping();
+		public static final String PRP_DISABLE_GROUPING = "DisableGrouping";
+		public void setDisableGrouping(String disableGrouping);
+		public String getDisableGrouping();
 	}
 }

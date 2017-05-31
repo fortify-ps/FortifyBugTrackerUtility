@@ -19,7 +19,7 @@
 		<!-- Update the TFS description field when updating issue state -->
 		<property name="fieldsToUpdate" value="System.Description"/>
 		
-		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
+		<!-- Define when a TFS issue is considered re-openable or closeable. These expressions
 		     can utilize the workItemType (corresponding to System.WorkItemType), state
 		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->
 		<!--
