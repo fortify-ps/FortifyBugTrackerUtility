@@ -18,7 +18,11 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
 	</dependencies>
-	
-	<description>This module contains various utility classes for workign with Fortify SSC.</description>
+
+	<description>This module contains various utility classes for working with Fortify SSC.</description>
 </project>

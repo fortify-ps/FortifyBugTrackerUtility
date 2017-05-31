@@ -49,7 +49,7 @@
 	     to TFS. 
 	-->
 	<bean id="fodToTFSIssueSubmitter" class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
-		<<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
 		
