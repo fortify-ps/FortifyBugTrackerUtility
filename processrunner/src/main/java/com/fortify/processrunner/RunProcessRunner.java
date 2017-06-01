@@ -290,7 +290,7 @@ public class RunProcessRunner {
 				}
 			});
 			if ( defaultRunners.size()==1 ) {
-				return processRunnersMap.keySet().iterator().next();
+				return defaultRunners.keySet().iterator().next();
 			} else if ( defaultRunners.size()>1 ) {
 				LOG.debug("Multiple default process runners found");
 			}
