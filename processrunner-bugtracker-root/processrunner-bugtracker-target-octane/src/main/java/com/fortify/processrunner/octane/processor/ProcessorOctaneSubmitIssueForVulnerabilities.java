@@ -8,6 +8,7 @@ import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueFo
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection;
+import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneSharedSpaceAndWorkspaceId;
 import com.fortify.processrunner.octane.connection.OctaneConnectionFactory;
 import com.fortify.processrunner.octane.context.IContextOctane;
 
@@ -32,6 +33,6 @@ public class ProcessorOctaneSubmitIssueForVulnerabilities extends AbstractProces
 	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextOctane contextOctane = context.as(IContextOctane.class);
 		OctaneAuthenticatingRestConnection conn = OctaneConnectionFactory.getConnection(context);
-		return conn.submitIssue(contextOctane.getOctaneSharedSpaceUid(), contextOctane.getOctaneWorkspaceId(), issueData);
+		return conn.submitIssue(new OctaneSharedSpaceAndWorkspaceId(contextOctane.getOctaneSharedSpaceUid(), contextOctane.getOctaneWorkspaceId()), issueData);
 	}
 }

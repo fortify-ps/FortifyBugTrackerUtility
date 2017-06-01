@@ -42,9 +42,9 @@
 				</table><br/>
 			]]></value></entry> 
 			<entry key="phase.type" value="phase"/>
-			<entry key="phase.id" value="1002"/>
-			<entry key="parent.type" value="feature"/>
-			<entry key="parent.id" value="3012"/>
+			<entry key="phase.name" value="New"/>
+			<entry key="parent.type" value="work_item"/>
+			<entry key="parent.name" value="Backlog"/>
 		</map></property>
 		<!-- Define extra data to be appended to one or more of the fields defined
 		     by issue.fields above. For non-grouped vulnerabilities, we could just 
