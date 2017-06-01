@@ -20,6 +20,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
+			<artifactId>processrunner-bugtracker-target-ssc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.processrunner.bugtracker</groupId>
 			<artifactId>processrunner-bugtracker-target-jira</artifactId>
 		</dependency>
 		<dependency>

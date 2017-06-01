@@ -12,7 +12,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.processrunner.ssc.context.IContextSSC;
+import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -81,7 +81,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 
 	private class SSCIssueSubmittedListener implements IIssueSubmittedListener {
 		public void issueSubmitted(Context context, String bugTrackerName, SubmittedIssue submittedIssue, Collection<Object> vulnerabilities) {
-			IContextSSC ctx = context.as(IContextSSC.class);
+			IContextSSCSource ctx = context.as(IContextSSCSource.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
 			conn.addBugLinkToCustomTag(applicationVersionId, getCustomTagName(), submittedIssue.getDeepLink(), vulnerabilities);

@@ -29,7 +29,9 @@
 		<module>../processrunner</module>
 		<module>processrunner-bugtracker-common</module>
 		<module>processrunner-bugtracker-source-fod</module>
+		<module>processrunner-bugtracker-ssc-common</module>
 		<module>processrunner-bugtracker-source-ssc</module>
+		<module>processrunner-bugtracker-target-ssc</module>
 		<module>processrunner-bugtracker-target-jira</module>
 		<module>processrunner-bugtracker-target-file</module>
 		<module>processrunner-bugtracker-target-tfs</module>
@@ -53,7 +55,19 @@
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-ssc-common</artifactId>
+				<version>1.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-source-ssc</artifactId>
+				<version>1.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fortify.processrunner.bugtracker</groupId>
+				<artifactId>processrunner-bugtracker-target-ssc</artifactId>
 				<version>1.1</version>
 				<scope>compile</scope>
 			</dependency>

@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.ssc.context.IContextSSC;
+import com.fortify.processrunner.ssc.context.IContextSSCSource;
 
 /**
  * <p>This {@link IProcessor} implementation allows for simple contains-based
@@ -55,7 +55,7 @@ public class SSCFilterOnTopLevelField extends AbstractProcessor {
 	}
 
 	protected void appendTopLevelFieldFilterParamValue(Context context, String key, String value) {
-		IContextSSC contextSSC = context.as(IContextSSC.class);
+		IContextSSCSource contextSSC = context.as(IContextSSCSource.class);
 		String currentParamValue = contextSSC.getSSCTopLevelFilterParamValue();
 		if ( StringUtils.isBlank(currentParamValue) ) {
 			currentParamValue = "";

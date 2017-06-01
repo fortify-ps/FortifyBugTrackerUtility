@@ -1,6 +1,9 @@
 package com.fortify.ssc.connection;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 
@@ -87,7 +90,37 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		executeRequest(HttpMethod.POST, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
 				.entity(request, "application/json"), JSONObject.class);
-		
+	}
+	
+	public void authenticateForBugFiling(String applicationVersionId, String userName, String password) {
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		JSONObject request = new JSONObject();
+		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
+		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
+		builder.updateJSONObjectWithPropertyPath(request, "values.username", userName);
+		builder.updateJSONObjectWithPropertyPath(request, "values.password", password);
+		executeRequest(HttpMethod.POST, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
+				.entity(request, "application/json"), JSONObject.class);
+	}
+	
+	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds) {
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		JSONArray bugParams = new JSONArray();
+		for ( Map.Entry<String, Object> entry : issueDetails.entrySet() ) {
+			JSONObject bugParam = new JSONObject();
+			builder.updateJSONObjectWithPropertyPath(bugParam, "identifier", entry.getKey());
+			builder.updateJSONObjectWithPropertyPath(bugParam, "value", entry.getValue().toString());
+			bugParams.put(bugParam);
+		}
+		JSONObject request = new JSONObject();
+		builder.updateJSONObjectWithPropertyPath(request, "type", "FILE_BUG");
+		builder.updateJSONObjectWithPropertyPath(request, "actionResponse", "false");
+		builder.updateJSONObjectWithPropertyPath(request, "values.bugParams", bugParams);
+		builder.updateJSONObjectWithPropertyPath(request, "values.issueInstanceIds", issueInstanceIds);
+		executeRequest(HttpMethod.POST, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
+				.entity(request, "application/json"), JSONObject.class);
 	}
 
 	public void updateIssueSearchOptions(String applicationVersionId, IssueSearchOptions issueSearchOptions) {
@@ -118,5 +151,13 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.path("/api/v1/projectVersions/")
     			.path(""+applicationVersionId)
     			.path("filterSets"), JSONObject.class).optJSONArray("data");
+	}
+	
+	// TODO Remove this test method
+	public static void main(String[] args) {
+		Map<String, Object> issueDetails = new LinkedHashMap<String, Object>();
+		issueDetails.put("key1", "value1");
+		issueDetails.put("key2", "value2");
+		new SSCAuthenticatingRestConnection("https://bugtracker", "someToken", null).fileBug("1", issueDetails, null);
 	}
 }
