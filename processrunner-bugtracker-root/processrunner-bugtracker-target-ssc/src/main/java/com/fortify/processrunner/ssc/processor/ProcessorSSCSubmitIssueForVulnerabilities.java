@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
@@ -26,6 +27,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
  *      is not being called (as the issueSubmittedListener will not be called by this implementation)
  */
 public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+	private Map<String, String> fieldTypes;
+	
 	@Override
 	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		SSCConnectionFactory.addContextProperties(contextProperties, context);
@@ -47,7 +50,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		}
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		conn.authenticateForBugFiling(ctx.getSSCApplicationVersionId(), ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
-		conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
+		conn.fileBug(ctx.getSSCApplicationVersionId(), map, fieldTypes, issueInstanceIds);
 		return true;
 	}
 	
@@ -55,5 +58,13 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> fields) {
 		// We override processMap, so this method won't be called
 		return null;
+	}
+
+	public Map<String, String> getFieldTypes() {
+		return fieldTypes;
+	}
+
+	public void setFieldTypes(Map<String, String> fieldTypes) {
+		this.fieldTypes = fieldTypes;
 	}
 }

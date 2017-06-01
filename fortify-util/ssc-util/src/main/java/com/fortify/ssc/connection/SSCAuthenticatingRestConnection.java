@@ -1,7 +1,6 @@
 package com.fortify.ssc.connection;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,11 +103,12 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.entity(request, "application/json"), JSONObject.class);
 	}
 	
-	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds) {
+	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, Map<String, String> fieldTypes, List<String> issueInstanceIds) {
 		JSONObjectBuilder builder = new JSONObjectBuilder();
 		JSONArray bugParams = new JSONArray();
 		for ( Map.Entry<String, Object> entry : issueDetails.entrySet() ) {
 			JSONObject bugParam = new JSONObject();
+			builder.updateJSONObjectWithPropertyPath(bugParam, "bugParamType", fieldTypes.get(entry.getKey()));
 			builder.updateJSONObjectWithPropertyPath(bugParam, "identifier", entry.getKey());
 			builder.updateJSONObjectWithPropertyPath(bugParam, "value", entry.getValue().toString());
 			bugParams.put(bugParam);
@@ -151,13 +151,5 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.path("/api/v1/projectVersions/")
     			.path(""+applicationVersionId)
     			.path("filterSets"), JSONObject.class).optJSONArray("data");
-	}
-	
-	// TODO Remove this test method
-	public static void main(String[] args) {
-		Map<String, Object> issueDetails = new LinkedHashMap<String, Object>();
-		issueDetails.put("key1", "value1");
-		issueDetails.put("key2", "value2");
-		new SSCAuthenticatingRestConnection("https://bugtracker", "someToken", null).fileBug("1", issueDetails, null);
 	}
 }

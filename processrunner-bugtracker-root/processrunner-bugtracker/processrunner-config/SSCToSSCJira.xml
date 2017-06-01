@@ -31,23 +31,49 @@
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+		
+		<property name="fieldTypes"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="Summary" value="BUGPARAM_TEXT"/>
+			<entry key="Description" value="BUGPARAM_TEXT"/>
+			<entry key="project" value="BUGPARAM_CHOICE"/>
+			<entry key="issuetype" value="BUGPARAM_CHOICE"/>
+		</map></property>
 	
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
-			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
-			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+			<!-- 
+			<entry key="Summary"><value>Fix #if ($issues.size() == 1) $issues.get(0).get("ATTRIBUTE_CATEGORY") in $issues.get(0).get("ATTRIBUTE_FILE") #else $ATTRIBUTE_CATEGORY #end</value></entry>
+			<entry key="Description"><value>#macro( addcontent $attrib )
+#if($is.get($attrib))$is.get($attrib) $newline $newline #end    
+#end  
+  
+$newline  
+#if ($issues.size() == 1)   
+    #set ($is = $issues.get(0))  
+    #addcontent("ISSUE_DESCRIPTION")  
+    Issue Link: #addcontent("ISSUE_DEEPLINK")  
+    Issue Instance Id: #addcontent("ATTRIBUTE_INSTANCE_ID")  
+    File Name:  #addcontent("ATTRIBUTE_FILE")  
+    Line Number: #addcontent("ATTRIBUTE_LINE")  
+    Issue Category: #addcontent("ATTRIBUTE_CATEGORY")  
+    Application Name: #addcontent("PROJECT_NAME")  
+    Application Version Name: #addcontent("PROJECTVERSION_NAME") 
+    Custom Tags: $newline#addcontent("ISSUE_CUSTOMTAGS") 
+    Issue Detail: #addcontent("ISSUE_DETAIL") 
+    Issue Recommendation: $newline#addcontent("ISSUE_RECOMMENDATION") 
+    Comments: $newline#addcontent("ATTRIBUTE_COMMENTS")  
+
+#else 
+  Issue Listing 
+  $newline 
+  #foreach( $is in $issues ) 
+    Issue Link:  $is.get("ISSUE_DEEPLINK") $newline File Name: $is.get("ATTRIBUTE_FILE") $newline $newline 
+  #end 
+
+#end </value></entry>-->
 			<entry key="project" value="TST"/>
 			<entry key="issuetype" value="Bug"/>
-		</map></property>
-
-		<!-- Define extra data to be appended to one or more of the fields defined
-		     by issue.fields above. For non-grouped vulnerabilities, we could just 
-		     as well have appended these expressions to the corresponding
-		     issue.fields entry above. However, using issue.appendedFields allows 
-		     us to re-use the same issue field configuration for grouped issues.
-		-->
-		<property name="appendedFields"><map>
-			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
 	</bean>
 	
