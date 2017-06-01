@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.IProcessor.Phase;
 
@@ -15,7 +14,7 @@ import com.fortify.processrunner.processor.IProcessor.Phase;
 public class ProcessRunner implements Runnable {
 	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
 	private Context context = new Context();
-	private IProcessor processor = new CompositeProcessor();
+	private IProcessor[] processors = new IProcessor[]{};
 	private String description;
 	private boolean enabled = true;
 	private boolean _default= false;
@@ -40,18 +39,25 @@ public class ProcessRunner implements Runnable {
 	 * Run the configured processor using the configured context.
 	 */
 	public void run() {
-		Context context = getContext();
-		IProcessor processor = getProcessor();
-		if ( LOG.isDebugEnabled() ) {
-			LOG.debug("[Process] Running processor "+processor+" with context "+context);
-		}
-		if ( process(Phase.PRE_PROCESS, context, processor) ) {
-			if ( process(Phase.PROCESS, context, processor) ) {
-				process(Phase.POST_PROCESS, context, processor);
+		IProcessor[] processors = getProcessors();
+		for ( IProcessor processor : processors ) {
+			Context context = getContextForProcessRun();
+			if ( LOG.isDebugEnabled() ) {
+				LOG.debug("[Process] Running processor "+processor+" with context "+context);
+			}
+			if ( process(Phase.PRE_PROCESS, context, processor) ) {
+				if ( process(Phase.PROCESS, context, processor) ) {
+					process(Phase.POST_PROCESS, context, processor);
+				}
 			}
 		}
 	}
 	
+	protected Context getContextForProcessRun() {
+		// Make a copy of the context to avoid multiple processors from impacting each other
+		return new Context(getContext());
+	}
+
 	/**
 	 * Run the given phase with the given context on the given processor.
 	 * @param phase
@@ -73,12 +79,12 @@ public class ProcessRunner implements Runnable {
 		this.context = context;
 	}
 
-	public IProcessor getProcessor() {
-		return processor;
+	public IProcessor[] getProcessors() {
+		return processors;
 	}
 
-	public void setProcessor(IProcessor processor) {
-		this.processor = processor;
+	public void setProcessors(IProcessor... processors) {
+		this.processors = processors;
 	}
 
 	public String getDescription() {

@@ -35,6 +35,12 @@ public class Context extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 	private final Map<Class, Object> proxies = new HashMap<Class, Object>();
 	
+	public Context() {}
+	
+	public Context(Context context) {
+		super(context);
+	}
+	
 	public final void addContextProperties(Collection<ContextProperty> contextProperties) {
 		for ( Object obj : values() ) {
 			if ( obj instanceof IContextPropertyProvider ) {

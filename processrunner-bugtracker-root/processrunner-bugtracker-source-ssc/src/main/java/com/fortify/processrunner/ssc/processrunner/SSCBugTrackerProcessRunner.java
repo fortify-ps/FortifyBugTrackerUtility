@@ -1,5 +1,8 @@
 package com.fortify.processrunner.ssc.processrunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -9,7 +12,7 @@ import com.fortify.processrunner.ProcessRunner;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.processor.CompositeProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker;
 import com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState;
 
@@ -31,19 +34,19 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 	public void postConstruct() {
 		switch (type) {
 		case SUBMIT:
-			super.setProcessor(getSubmitVulnerabilitiesProcessor());
+			super.setProcessors(getSubmitVulnerabilitiesProcessor());
 			super.setEnabled(isSubmitVulnerabilitiesProcessorEnabled());
 			super.setDescription("Submit SSC vulnerabilities to "+getBugTrackerName());
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && !isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case SUBMIT_AND_UPDATE:
-			super.setProcessor(new CompositeProcessor(getSubmitVulnerabilitiesProcessor(), getUpdateBugTrackerStateProcessor()));
+			super.setProcessors(getSubmitVulnerabilitiesProcessor(), getUpdateBugTrackerStateProcessor());
 			super.setEnabled(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			super.setDescription("Submit SSC vulnerabilities to "+getBugTrackerName()+" and update issue state");
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case UPDATE:
-			super.setProcessor(getUpdateBugTrackerStateProcessor());
+			super.setProcessors(getUpdateBugTrackerStateProcessor());
 			super.setEnabled(isUpdateBugTrackerStateProcessorEnabled());
 			super.setDescription("Update "+getBugTrackerName()+" issue state based on SSC vulnerability state");
 			super.setDefault(!isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
@@ -57,17 +60,17 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 		this.submitVulnerabilitiesProcessor = submitVulnerabilitiesProcessor;
 		this.updateBugTrackerStateProcessor = updateBugTrackerStateProcessor;
 		
-		CompositeProcessor processor = new CompositeProcessor();
+		List<IProcessor> processors = new ArrayList<IProcessor>();
 		String description = "";
 		if ( submitVulnerabilitiesProcessor.getSubmitIssueProcessor()!=null ) {
-			processor.getProcessors().add(submitVulnerabilitiesProcessor);
+			processors.add(submitVulnerabilitiesProcessor);
 			description += "Submit vulnerabilities from SSC to "+submitVulnerabilitiesProcessor.getSubmitIssueProcessor().getBugTrackerName();
 		}
 		if ( updateBugTrackerStateProcessor.getUpdateIssueStateProcessor()!=null ) {
-			processor.getProcessors().add(updateBugTrackerStateProcessor);
+			processors.add(updateBugTrackerStateProcessor);
 			description += "\nand update "+submitVulnerabilitiesProcessor.getSubmitIssueProcessor().getBugTrackerName()+" issue state";
 		}
-		super.setProcessor(processor);
+		super.setProcessors(processors.toArray(new IProcessor[]{}));
 		super.setDescription(description);
 	}
 	

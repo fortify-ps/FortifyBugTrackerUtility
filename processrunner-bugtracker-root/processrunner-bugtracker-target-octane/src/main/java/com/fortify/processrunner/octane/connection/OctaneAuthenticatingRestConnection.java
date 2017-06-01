@@ -1,10 +1,14 @@
 package com.fortify.processrunner.octane.connection;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
@@ -22,6 +26,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  * This class provides an authenticated REST connection for Octane.
@@ -61,22 +66,124 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	}
 	
 	public SubmittedIssue submitIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData) {
+		JSONObject result = submitOrUpdateIssue(sharedSpaceAndWorkspaceId, issueData, HttpMethod.POST);
+		String id = SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.id", String.class);
+		if ( id == null ) {
+			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
+		}
+		OctaneIssueId fullId = new OctaneIssueId(sharedSpaceAndWorkspaceId, id);
+		return new SubmittedIssue(fullId.toString(), fullId.getDeepLink(getBaseUrl()));
+	}
+	
+	public void updateIssue(SubmittedIssue submittedIssue, Map<String, Object> issueData) {
+		OctaneIssueId issueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+		issueData.put("id", issueId.getIssueId());
+		submitOrUpdateIssue(issueId.getSharedSpaceAndWorkspaceId(), issueData, HttpMethod.PUT);
+	}
+	
+	public JSONObject getIssueState(SubmittedIssue submittedIssue) {
+		OctaneIssueId fullId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+		OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId = fullId.getSharedSpaceAndWorkspaceId();
+		String issueId = fullId.getIssueId();
+		JSONObject issue = getIssue(sharedSpaceAndWorkspaceId, issueId, "phase");
+		JSONObject result = new JSONObject();
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		String phaseId = SpringExpressionUtil.evaluateExpression(issue, "phase.id", String.class);
+		result = builder.updateJSONObjectWithPropertyPath(result, "phase.id", phaseId);
+		result = builder.updateJSONObjectWithPropertyPath(result, "phase.name", getPhaseName(sharedSpaceAndWorkspaceId, phaseId));
+		result = builder.updateJSONObjectWithPropertyPath(result, "type", SpringExpressionUtil.evaluateExpression(issue, "type", String.class));
+		return result;
+	}
+	
+	public JSONObject getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
+		return getIssue(sharedSpaceAndWorkspaceId, issueId, new String[]{});
+	}
+
+	public boolean transition(SubmittedIssue submittedIssue, String transitionName, String comment) {
+		Map<String, Object> issueData = new HashMap<String, Object>();
+		issueData.put("phase.type", "phase");
+		issueData.put("phase.name", transitionName);
+		// TODO Add comment
+		updateIssue(submittedIssue, issueData);
+		// TODO Check new state
+		return true;
+	}
+	
+	public Integer getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
+		return getIdForName(sharedSpaceAndWorkspaceId, "work_items", featureName);
+	}
+
+	public Integer getFeatureId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
+		return getIdForName(sharedSpaceAndWorkspaceId, "features", featureName);
+	}
+	
+	public Integer getPhaseId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String phaseName) {
+		return getIdForName(sharedSpaceAndWorkspaceId, "phases", phaseName);
+	}
+	
+	public String getWorkItemName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureId) {
+		return getNameForId(sharedSpaceAndWorkspaceId, "work_items", featureId);
+	}
+
+	public String getFeatureName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureId) {
+		return getNameForId(sharedSpaceAndWorkspaceId, "features", featureId);
+	}
+	
+	public String getPhaseName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String phaseId) {
+		return getNameForId(sharedSpaceAndWorkspaceId, "phases", phaseId);
+	}
+	
+	private Integer getIdForName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName, String name) {
+		return getIdForName(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), name);
+	}
+	
+	private String getNameForId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName, String id) {
+		return getNameForId(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), id);
+	}
+	
+	private Integer getIdForName(JSONArray array, String name) {
+		return JSONUtil.mapValue(array, "name", name, "id", Integer.class);
+	}
+	
+	private String getNameForId(JSONArray array, String id) {
+		return JSONUtil.mapValue(array, "id", id, "name", String.class);
+	}
+	
+	private JSONArray getEntities(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName) {
+		return executeRequest(HttpMethod.GET, getBaseResource()
+				.path("/api/shared_spaces/")
+				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
+				.path("/workspaces/")
+				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
+				.path(entityName), JSONObject.class).optJSONArray("data");
+	}
+	
+	private JSONObject getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
+		WebResource request = getBaseResource()
+				.path("/api/shared_spaces/")
+				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
+				.path("/workspaces/")
+				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
+				.path("/defects")
+				.path(issueId);
+		if ( fields != null && fields.length > 0 ) {
+			request.queryParam("fields", StringUtils.join(fields, ","));
+		}
+		return executeRequest(HttpMethod.GET, request, JSONObject.class);
+	}
+	
+	private JSONObject submitOrUpdateIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData, String httpMethod) {
 		JSONObjectBuilder builder = new JSONObjectBuilder(); 
 		JSONObject issueEntry = builder.getJSONObject(issueData);
 		replaceEntityNamesWithIds(sharedSpaceAndWorkspaceId, issueEntry);
 		JSONObject data = builder.updateJSONObjectWithPropertyPath(new JSONObject(), "data", new JSONObject[]{issueEntry});
-		JSONObject result = executeRequest(HttpMethod.POST, getBaseResource()
+		return executeRequest(httpMethod, getBaseResource()
 				.path("/api/shared_spaces/")
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
 				.path("/defects")
 				.entity(data, "application/json"), JSONObject.class);
-		String id = SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.id", String.class);
-		if ( id == null ) {
-			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
-		}
-		return new SubmittedIssue(id, getIssueDeepLink(sharedSpaceAndWorkspaceId, id));
 	}
 	
 	private void replaceEntityNamesWithIds(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, JSONObject issueEntry) {
@@ -98,38 +205,64 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		}
 		
 	}
+	
+	private static final class OctaneIssueId {
+		private static final MessageFormat FMT_ISSUE_ID = new MessageFormat("{0}/{1}/{2}");
+		private static final MessageFormat FMT_DEEP_LINK = new MessageFormat("{0}ui/entity-navigation?p={1}/{2}&entityType=work_item&id={3}");
+		private final OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId;
+		private final String issueId;
+		
+		public OctaneIssueId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
+			super();
+			this.sharedSpaceAndWorkspaceId = sharedSpaceAndWorkspaceId;
+			this.issueId = issueId;
+		}
+		
+		public OctaneSharedSpaceAndWorkspaceId getSharedSpaceAndWorkspaceId() {
+			return sharedSpaceAndWorkspaceId;
+		}
 
-	public Integer getFeatureId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
-		return getIdForName(sharedSpaceAndWorkspaceId, "features", featureName);
-	}
-	
-	public Integer getPhaseId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String phaseName) {
-		return getIdForName(sharedSpaceAndWorkspaceId, "phases", phaseName);
-	}
-	
-	private Integer getIdForName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName, String name) {
-		return getIdForName(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), name);
-	}
-	
-	private Integer getIdForName(JSONArray array, String name) {
-		return JSONUtil.mapValue(array, "name", name, "id", Integer.class);
-	}
-	
-	private JSONArray getEntities(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName) {
-		return executeRequest(HttpMethod.GET, getBaseResource()
-				.path("/api/shared_spaces/")
-				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
-				.path("/workspaces/")
-				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path(entityName), JSONObject.class).optJSONArray("data");
-	}
-	
-	private String getIssueDeepLink(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
-		return getBaseResource()
-				.path("ui/entity-navigation")
-				.queryParam("p", sharedSpaceAndWorkspaceId.asQueryParam())
-				.queryParam("entityType", "work_item")
-				.queryParam("id", issueId).getURI().toString();
+		public String getIssueId() {
+			return issueId;
+		}
+
+		@Override
+		public String toString() {
+			return FMT_ISSUE_ID.format(new Object[]{
+				sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId});
+		}
+		
+		public String getDeepLink(String baseUrl) {
+			return FMT_DEEP_LINK.format(new Object[]{
+				baseUrl, sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId
+			});
+		}
+		
+		public static final OctaneIssueId parseFromIdString(String idString) {
+			try {
+				Object[] values = FMT_ISSUE_ID.parse(idString);
+				return new OctaneIssueId(new OctaneSharedSpaceAndWorkspaceId((String)values[0], (String)values[1]), (String)values[2]);
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Error parsing Octane issue id", e);
+			}
+		}
+		
+		public static final OctaneIssueId parseFromDeepLink(String deepLink) {
+			try {
+				Object[] values = FMT_DEEP_LINK.parse(deepLink);
+				// String baseUrl = values[0];
+				return new OctaneIssueId(new OctaneSharedSpaceAndWorkspaceId((String)values[1], (String)values[2]), (String)values[3]);
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Error parsing Octane issue id", e);
+			}
+		}
+		
+		public static final OctaneIssueId parseFromSubmittedIssue(SubmittedIssue submittedIssue) {
+			String id = submittedIssue.getId();
+			return StringUtils.isBlank(id) 
+					? parseFromDeepLink(submittedIssue.getDeepLink()) 
+					: parseFromIdString(id);
+		}
 	}
 
 

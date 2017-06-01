@@ -45,6 +45,11 @@
 			<entry key="phase.name" value="New"/>
 			<entry key="parent.type" value="work_item"/>
 			<entry key="parent.name" value="Backlog"/>
+			<!-- Use the following to attach to a feature instead: -->
+			<!--
+			<entry key="parent.type" value="feature"/>
+			<entry key="parent.name" value="SomeFeatureName"/> 
+			 -->
 		</map></property>
 		<!-- Define extra data to be appended to one or more of the fields defined
 		     by issue.fields above. For non-grouped vulnerabilities, we could just 
@@ -63,5 +68,7 @@
 			]]></value></entry> 
 		</map></property>
 	</bean>
+	
+	<import resource="components/issueState/OctaneIssueState.xml"/>
 	
 </beans>

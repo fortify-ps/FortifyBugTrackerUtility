@@ -29,6 +29,7 @@ import org.springframework.core.io.Resource;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringContextUtil;
 
 /**
@@ -155,7 +156,9 @@ public class RunProcessRunner {
 	}
 
 	protected final void addContextPropertiesFromProcessRunner(ProcessRunner runner, Collection<ContextProperty> contextProperties, Context context) {
-		runner.getProcessor().addContextProperties(contextProperties, context);
+		for ( IProcessor processor : runner.getProcessors() ) {
+			processor.addContextProperties(contextProperties, context);
+		}
 	}
 	
 	protected final void addContextPropertiesFromContext(Collection<ContextProperty> contextProperties, Context context) {

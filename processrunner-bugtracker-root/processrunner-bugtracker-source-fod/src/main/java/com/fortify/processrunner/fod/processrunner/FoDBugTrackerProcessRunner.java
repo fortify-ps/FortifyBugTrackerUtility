@@ -1,5 +1,8 @@
 package com.fortify.processrunner.fod.processrunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -11,7 +14,7 @@ import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueSt
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker;
 import com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState;
-import com.fortify.processrunner.processor.CompositeProcessor;
+import com.fortify.processrunner.processor.IProcessor;
 
 public class FoDBugTrackerProcessRunner extends ProcessRunner {
 	private final ProcessRunnerType type;
@@ -31,19 +34,19 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 	public void postConstruct() {
 		switch (type) {
 		case SUBMIT:
-			super.setProcessor(getSubmitVulnerabilitiesProcessor());
+			super.setProcessors(getSubmitVulnerabilitiesProcessor());
 			super.setEnabled(isSubmitVulnerabilitiesProcessorEnabled());
 			super.setDescription("Submit FoD vulnerabilities to "+getBugTrackerName());
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && !isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case SUBMIT_AND_UPDATE:
-			super.setProcessor(new CompositeProcessor(getSubmitVulnerabilitiesProcessor(), getUpdateBugTrackerStateProcessor()));
+			super.setProcessors(getSubmitVulnerabilitiesProcessor(), getUpdateBugTrackerStateProcessor());
 			super.setEnabled(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			super.setDescription("Submit FoD vulnerabilities to "+getBugTrackerName()+"and update issue state");
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case UPDATE:
-			super.setProcessor(getUpdateBugTrackerStateProcessor());
+			super.setProcessors(getUpdateBugTrackerStateProcessor());
 			super.setEnabled(isUpdateBugTrackerStateProcessorEnabled());
 			super.setDescription("Update "+getBugTrackerName()+" issue state based on FoD vulnerability state");
 			super.setDefault(!isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
@@ -57,17 +60,17 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 		this.submitVulnerabilitiesProcessor = submitVulnerabilitiesProcessor;
 		this.updateBugTrackerStateProcessor = updateBugTrackerStateProcessor;
 		
-		CompositeProcessor processor = new CompositeProcessor();
+		List<IProcessor> processors = new ArrayList<IProcessor>();
 		String description = "";
 		if ( submitVulnerabilitiesProcessor.getSubmitIssueProcessor()!=null ) {
-			processor.getProcessors().add(submitVulnerabilitiesProcessor);
+			processors.add(submitVulnerabilitiesProcessor);
 			description += "Submit vulnerabilities from FoD to "+submitVulnerabilitiesProcessor.getSubmitIssueProcessor().getBugTrackerName();
 		}
 		if ( updateBugTrackerStateProcessor.getUpdateIssueStateProcessor()!=null ) {
-			processor.getProcessors().add(updateBugTrackerStateProcessor);
+			processors.add(updateBugTrackerStateProcessor);
 			description += "\nand update "+submitVulnerabilitiesProcessor.getSubmitIssueProcessor().getBugTrackerName()+" issue state";
 		}
-		super.setProcessor(processor);
+		super.setProcessors(processors.toArray(new IProcessor[]{}));
 		super.setDescription(description);
 	}
 	
