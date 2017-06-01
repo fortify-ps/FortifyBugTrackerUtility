@@ -47,7 +47,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(SSCProcessorRetrieveVulnerabilities.class);
 	private static final String KEY_START = "SSCProcessorRootVulnerabilityArray_start";
 	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("count");
-	private String uriTemplateExpression = "api/v1/projectVersions/${SSCApplicationVersionId}/issues?qm=issues&limit=50&offset=${"+KEY_START+"}";
+	private String uriTemplateExpression = "api/v1/projectVersions/${SSCApplicationVersionId}/issues?qm=issues&limit=50&start=${"+KEY_START+"}";
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
 	private final IssueSearchOptions issueSearchOptions = new IssueSearchOptions();
 	private IProcessor vulnerabilityProcessor;
