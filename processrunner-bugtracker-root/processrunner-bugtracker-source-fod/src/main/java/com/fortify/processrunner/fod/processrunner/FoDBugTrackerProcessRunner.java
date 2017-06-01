@@ -40,7 +40,7 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && !isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case SUBMIT_AND_UPDATE:
-			super.setProcessors(getSubmitVulnerabilitiesProcessor(), getUpdateBugTrackerStateProcessor());
+			super.setProcessors(getUpdateBugTrackerStateProcessor(), getSubmitVulnerabilitiesProcessor());
 			super.setEnabled(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			super.setDescription("Submit FoD vulnerabilities to "+getBugTrackerName()+"and update issue state");
 			super.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
