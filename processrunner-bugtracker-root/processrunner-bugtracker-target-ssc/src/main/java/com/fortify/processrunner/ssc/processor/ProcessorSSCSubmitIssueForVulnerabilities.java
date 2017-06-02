@@ -14,7 +14,6 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 
-// TODO Remove code duplication from *process methods
 public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor implements IProcessorSubmitIssueForVulnerabilities {
 	private Map<String, SSCIssueSubmitter> bugTrackers = new HashMap<String, SSCIssueSubmitter>();
 	
@@ -38,38 +37,17 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	
 	@Override
 	protected boolean preProcess(Context context) {
-		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
-		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String bugTrackerName = conn.getBugTrackerShortName(ctx.getSSCApplicationVersionId());
-		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
-		if ( submitter == null ) {
-			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);
-		}
-		return submitter.process(Phase.PRE_PROCESS, context);
+		return callIssueSubmitter(Phase.PRE_PROCESS, context);
 	}
 	
 	@Override
 	protected boolean process(Context context) {
-		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
-		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String bugTrackerName = conn.getBugTrackerShortName(ctx.getSSCApplicationVersionId());
-		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
-		if ( submitter == null ) {
-			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);
-		}
-		return submitter.process(Phase.PROCESS, context);
+		return callIssueSubmitter(Phase.PROCESS, context);
 	}
 	
 	@Override
 	protected boolean postProcess(Context context) {
-		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
-		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String bugTrackerName = conn.getBugTrackerShortName(ctx.getSSCApplicationVersionId());
-		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
-		if ( submitter == null ) {
-			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);
-		}
-		return submitter.process(Phase.POST_PROCESS, context);
+		return callIssueSubmitter(Phase.POST_PROCESS, context);
 	}
 
 	public Map<String, SSCIssueSubmitter> getBugTrackers() {
@@ -78,5 +56,16 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 
 	public void setBugTrackers(Map<String, SSCIssueSubmitter> bugTrackers) {
 		this.bugTrackers = bugTrackers;
+	}
+	
+	private final boolean callIssueSubmitter(Phase phase, Context context) {
+		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+		String bugTrackerName = conn.getBugTrackerShortName(ctx.getSSCApplicationVersionId());
+		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
+		if ( submitter == null ) {
+			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);
+		}
+		return submitter.process(phase, context);
 	}
 }
