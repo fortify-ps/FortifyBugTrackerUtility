@@ -30,9 +30,11 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		return "SSC";
 	}
 	
-	public void setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
+	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
 		// We ignore the issueSubmittedListener since we don't need to update SSC state
-		// after submitting a bug through SSC.
+		// after submitting a bug through SSC. We return false to indicate that we don't
+		// support an issue submitted listener.
+		return false;
 	}
 	
 	@Override

@@ -56,7 +56,8 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	/* (non-Javadoc)
 	 * @see com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities#setIssueSubmittedListener(com.fortify.processrunner.common.issue.IIssueSubmittedListener)
 	 */
-	public void setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
+	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
 		this.issueSubmittedListener = issueSubmittedListener;
+		return true;
 	}
 }

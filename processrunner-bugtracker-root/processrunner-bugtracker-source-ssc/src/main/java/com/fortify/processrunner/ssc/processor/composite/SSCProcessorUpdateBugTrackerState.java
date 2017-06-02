@@ -2,7 +2,10 @@ package com.fortify.processrunner.ssc.processor.composite;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,15 +14,18 @@ import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
+import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -40,6 +46,20 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
+	protected boolean preProcess(Context context) {
+		if ( getCustomTagName()==null ) {
+			IContextSSCSource ctx = context.as(IContextSSCSource.class);
+			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+			String applicationVersionId = ctx.getSSCApplicationVersionId();
+			String bugTrackerName = conn.getBugTrackerShortName(applicationVersionId);
+			if ( !"Add Existing Bugs".equals(bugTrackerName) ) {
+				throw new IllegalStateException("Either custom tag name or the 'Add Existing Bugs' SSC bug tracker needs to be configured");
+			}
+		}
+		return super.preProcess(context);
+	}
+	
+	@Override
 	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
 		SSCConnectionFactory.addContextProperties(contextProperties, context);
 	}
@@ -51,7 +71,7 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
-			new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", true),
+			createFilters(),
 			new SSCProcessorEnrichWithIssueDetails(),
 			new SSCProcessorEnrichWithVulnDeepLink(),
 			new SSCProcessorEnrichWithBugDataFromCustomTag(getCustomTagName()),
@@ -61,6 +81,19 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		result.getIssueSearchOptions().setIncludeHidden(false);
 		result.getIssueSearchOptions().setIncludeRemoved(true);
 		result.getIssueSearchOptions().setIncludeSuppressed(true);
+		return result;
+	}
+
+	private IProcessor createFilters() {
+		IProcessor result;
+		if ( getCustomTagName()!=null ) {
+			result = new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", true);
+		} else {
+			// TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
+			Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
+			filters.put("bugURL", Pattern.compile("^\\S+$"));
+			result = new FilterRegEx("CurrentVulnerability", filters);
+		}
 		return result;
 	}
 	

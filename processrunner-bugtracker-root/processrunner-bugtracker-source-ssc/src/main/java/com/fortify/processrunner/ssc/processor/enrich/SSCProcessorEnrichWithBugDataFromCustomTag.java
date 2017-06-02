@@ -18,10 +18,14 @@ public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProce
 	
 	@Override
 	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
-		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String customTagGuid = conn.getCustomTagGuid(customTagName);
-		String bugLink = JSONUtil.mapValue(SpringExpressionUtil.evaluateExpression(currentVulnerability, "details.customTagValues", JSONArray.class), "customTagGuid", customTagGuid, "textValue", String.class);
-		currentVulnerability.put("bugLink", bugLink);
+		if ( customTagName == null ) {
+			currentVulnerability.put("bugLink", currentVulnerability.optString("bugURL"));
+		} else {
+			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+			String customTagGuid = conn.getCustomTagGuid(customTagName);
+			String bugLink = JSONUtil.mapValue(SpringExpressionUtil.evaluateExpression(currentVulnerability, "details.customTagValues", JSONArray.class), "customTagGuid", customTagGuid, "textValue", String.class);
+			currentVulnerability.put("bugLink", bugLink);
+		}
 		return true;
 	}
 
