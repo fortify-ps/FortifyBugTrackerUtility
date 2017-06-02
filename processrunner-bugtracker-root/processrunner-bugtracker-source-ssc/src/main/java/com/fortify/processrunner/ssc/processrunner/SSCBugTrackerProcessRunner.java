@@ -9,8 +9,8 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.ProcessRunner;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker;
@@ -86,7 +86,7 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 		return getSubmitIssueProcessor()!=null;
 	}
 
-	protected AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
+	protected IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
 		return getSubmitVulnerabilitiesProcessor().getSubmitIssueProcessor();
 	}
 	

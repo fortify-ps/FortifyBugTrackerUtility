@@ -1,8 +1,13 @@
 package com.fortify.ssc.connection;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.HttpMethod;
 
@@ -91,36 +96,99 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.entity(request, "application/json"), JSONObject.class);
 	}
 	
-	public void authenticateForBugFiling(String applicationVersionId, String userName, String password) {
-		JSONObjectBuilder builder = new JSONObjectBuilder();
-		JSONObject request = new JSONObject();
-		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
-		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
-		builder.updateJSONObjectWithPropertyPath(request, "values.username", userName);
-		builder.updateJSONObjectWithPropertyPath(request, "values.password", password);
-		executeRequest(HttpMethod.POST, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
-				.entity(request, "application/json"), JSONObject.class);
-	}
-	
-	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, Map<String, String> fieldTypes, List<String> issueInstanceIds) {
-		JSONObjectBuilder builder = new JSONObjectBuilder();
-		JSONArray bugParams = new JSONArray();
-		for ( Map.Entry<String, Object> entry : issueDetails.entrySet() ) {
-			JSONObject bugParam = new JSONObject();
-			builder.updateJSONObjectWithPropertyPath(bugParam, "bugParamType", fieldTypes.get(entry.getKey()));
-			builder.updateJSONObjectWithPropertyPath(bugParam, "identifier", entry.getKey());
-			builder.updateJSONObjectWithPropertyPath(bugParam, "value", entry.getValue().toString());
-			bugParams.put(bugParam);
+	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds, String bugTrackerUserName, String bugTrackerPassword) {
+		// TODO Clean up this code
+		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
+		if ( SpringExpressionUtil.evaluateExpression(bugFilingRequirements, "requiresAuthentication", Boolean.class) ) {
+			bugFilingRequirements = authenticateForBugFiling(applicationVersionId, bugTrackerUserName, bugTrackerPassword);
 		}
+		Set<String> processedDependentParams = new HashSet<String>();
+		boolean allDependentParamsProcessed = false;
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		while ( !allDependentParamsProcessed ) {
+			JSONArray bugParams = bugFilingRequirements.optJSONArray("bugParams");
+			JSONArray bugParamsWithDependenciesAndChoiceList = JSONUtil.filter(bugParams, "hasDependentParams && choiceList.length()>0", true);
+			LinkedHashMap<String,JSONObject> bugParamsMap = JSONUtil.toMap(bugParamsWithDependenciesAndChoiceList, "identifier", String.class);
+			bugParamsMap.keySet().removeAll(processedDependentParams);
+			if ( bugParamsMap.isEmpty() ) {
+				allDependentParamsProcessed = true;
+			} else {
+				Iterator<Entry<String, JSONObject>> iterator = bugParamsMap.entrySet().iterator();
+				while ( iterator.hasNext() ) {
+					Map.Entry<String, JSONObject> entry = iterator.next();
+					String key = entry.getKey();
+					processedDependentParams.add(key);
+					String value = (String)issueDetails.get(key);
+					if ( value != null && !value.equals(entry.getValue().optString("value")) ) {
+						builder.updateJSONObjectWithPropertyPath(entry.getValue(), "value", value);
+						bugFilingRequirements = getBugFilingRequirements(applicationVersionId, bugFilingRequirements, key);
+						break;
+					}
+				}
+			}
+		}
+		
+		JSONArray bugParams = bugFilingRequirements.optJSONArray("bugParams");
+		JSONArray bugParamsWithoutDependencies = JSONUtil.filter(bugParams, "hasDependentParams", false);
+		for ( int i = 0 ; i < bugParamsWithoutDependencies.length() ; i++ ) {
+			JSONObject bugParam = bugParamsWithoutDependencies.optJSONObject(i);
+			String key = bugParam.optString("identifier");
+			String value = (String)issueDetails.get(key);
+			if ( value != null ) {
+				builder.updateJSONObjectWithPropertyPath(bugParam, "value", value);
+			}
+		}
+		
 		JSONObject request = new JSONObject();
 		builder.updateJSONObjectWithPropertyPath(request, "type", "FILE_BUG");
 		builder.updateJSONObjectWithPropertyPath(request, "actionResponse", "false");
-		builder.updateJSONObjectWithPropertyPath(request, "values.bugParams", bugParams);
+		builder.updateJSONObjectWithPropertyPath(request, "values.bugParams", bugFilingRequirements.optJSONArray("bugParams"));
 		builder.updateJSONObjectWithPropertyPath(request, "values.issueInstanceIds", issueInstanceIds);
 		executeRequest(HttpMethod.POST, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
 				.entity(request, "application/json"), JSONObject.class);
+	}
+	
+	public JSONObject getBugTrackerConfig(String applicationVersionId) {
+		JSONObject result = executeRequest(HttpMethod.GET, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
+				.path("bugtracker"), JSONObject.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.bugTracker", JSONObject.class);
+	}
+	
+	public String getBugTrackerShortName(String applicationVersionId) {
+		return SpringExpressionUtil.evaluateExpression(getBugTrackerConfig(applicationVersionId), "shortDisplayName", String.class);
+	}
+	
+	private JSONObject getInitialBugFilingRequirements(String applicationVersionId) {
+		JSONObject result = executeRequest(HttpMethod.GET, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
+				.path("bugfilingrequirements"), JSONObject.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
+	}
+	
+	private JSONObject getBugFilingRequirements(String applicationVersionId, JSONObject data, String changedParamIdentifier) {
+		JSONArray request = new JSONArray();
+		request.put(data);
+		JSONObject result = executeRequest(HttpMethod.PUT, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
+				.path("bugfilingrequirements")
+				.queryParam("changedParamIdentifier", changedParamIdentifier)
+				.entity(request, "application/json"), JSONObject.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
+	}
+	
+	private JSONObject authenticateForBugFiling(String applicationVersionId, String bugTrackerUserName, String bugTrackerPassword) {
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		JSONObject request = new JSONObject();
+		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
+		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
+		builder.updateJSONObjectWithPropertyPath(request, "values.username", bugTrackerUserName);
+		builder.updateJSONObjectWithPropertyPath(request, "values.password", bugTrackerPassword);
+		JSONObject result = executeRequest(HttpMethod.POST, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
+				.entity(request, "application/json"), JSONObject.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.values?.requirements", JSONObject.class);
 	}
 
 	public void updateIssueSearchOptions(String applicationVersionId, IssueSearchOptions issueSearchOptions) {

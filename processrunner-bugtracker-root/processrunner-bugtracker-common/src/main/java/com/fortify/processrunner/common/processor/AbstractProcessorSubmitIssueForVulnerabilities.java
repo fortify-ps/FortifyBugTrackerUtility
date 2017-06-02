@@ -15,7 +15,7 @@ import com.fortify.processrunner.context.ContextProperty;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.spring.SpringExpressionUtil;
 
-public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects {
+public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
 	private IIssueSubmittedListener issueSubmittedListener;
 	
@@ -44,12 +44,18 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	}
 	
 	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
+	/* (non-Javadoc)
+	 * @see com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities#getBugTrackerName()
+	 */
 	public abstract String getBugTrackerName();
 
 	public IIssueSubmittedListener getIssueSubmittedListener() {
 		return issueSubmittedListener;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities#setIssueSubmittedListener(com.fortify.processrunner.common.issue.IIssueSubmittedListener)
+	 */
 	public void setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
 		this.issueSubmittedListener = issueSubmittedListener;
 	}

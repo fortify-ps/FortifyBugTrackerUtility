@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<import resource="components/input/SSCInputConfig.xml"/>
+	
+	<!--==================================================================================-->
+	<!-- SSC TO SSC NATIVE BUG TRACKER INTEGRATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to JIRA via SSC processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
+	
+	<!-- This bean defines the processor configuration for submitting
+	     vulnerabilities via native SSC bug trackers. If necessary, you 
+	     can change the properties in this bean, for example to change 
+	     the grouping expression, fields and field data to be submitted. 
+	-->
+	<bean id="sscToSSCJiraIssueSubmitter" class="com.fortify.processrunner.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
+		<property name="bugTrackers"><map>
+			<entry key="TFS/Visual Studio Online">
+				<bean class="com.fortify.processrunner.ssc.processor.SSCIssueSubmitter">
+					<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+					     can be disabled by setting the DisableGrouping context property to 'true'. -->
+					<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+				
+					<property name="fields"><map>
+						<entry key="Collection" value="DefaultCollection"/>
+						<entry key="System.TeamProject" value="MyTestProject"/>
+						<entry key="System.WorkItemType" value="Bug"/>
+					</map></property>
+				</bean>
+			</entry>
+		</map></property>
+	</bean>
+	
+</beans>

@@ -9,7 +9,7 @@ import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.issue.SubmittedIssueCommentHelper;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
@@ -38,7 +38,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractFoDProcessorRetrieveFilteredVulnerabilities {
 	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
 	private boolean useFoDCommentForSubmittedBugs = false;
-	private AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
+	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
 	
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
@@ -91,12 +91,12 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		this.useFoDCommentForSubmittedBugs = useFoDCommentForSubmittedBugs;
 	}
 
-	public AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
+	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
 		return submitIssueProcessor;
 	}
 
 	@Autowired
-	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
+	public void setSubmitIssueProcessor(IProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
 		submitIssueProcessor.setIssueSubmittedListener(new FoDIssueSubmittedListener());
 		this.submitIssueProcessor = submitIssueProcessor;
 	}

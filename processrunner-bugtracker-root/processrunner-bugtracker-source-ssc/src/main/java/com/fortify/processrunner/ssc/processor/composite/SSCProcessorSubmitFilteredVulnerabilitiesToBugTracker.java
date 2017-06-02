@@ -1,14 +1,18 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
@@ -32,13 +36,21 @@ import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 @Component
 public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractSSCProcessorRetrieveFilteredVulnerabilities {
 	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
-	private String customTagName = "BugLink";
-	private AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
+	private String customTagName = null;
+	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
 	
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
 		CompositeProcessor result = super.createTopLevelFieldFilters();
-		result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", false));
+		if ( getCustomTagName()!=null ) {
+			result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", false));
+		} else {
+			// TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
+			Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
+			filters.put("bugURL", Pattern.compile("^$"));
+			result.getProcessors().add(new FilterRegEx("CurrentVulnerability", filters));
+		}
+		
 		return result;
 	}
 	
@@ -47,12 +59,12 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		return new CompositeProcessor(getVulnState(), getSubmitIssueProcessor());
 	}
 
-	public AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
+	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
 		return submitIssueProcessor;
 	}
 
 	@Autowired
-	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
+	public void setSubmitIssueProcessor(IProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
 		submitIssueProcessor.setIssueSubmittedListener(new SSCIssueSubmittedListener());
 		this.submitIssueProcessor = submitIssueProcessor;
 	}
@@ -84,7 +96,15 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 			IContextSSCSource ctx = context.as(IContextSSCSource.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
-			conn.addBugLinkToCustomTag(applicationVersionId, getCustomTagName(), submittedIssue.getDeepLink(), vulnerabilities);
+			if ( getCustomTagName()!=null ) {
+				conn.addBugLinkToCustomTag(applicationVersionId, getCustomTagName(), submittedIssue.getDeepLink(), vulnerabilities);
+			} else {
+				throw new RuntimeException("Not yet implemented");
+				// TODO Check if AddExistingBugLinkBugTracker is configured for the application version
+				//      (Check should probably happen earlier, as this method is only called after we have
+				//       already submitted a bug), 
+				//      then file a bug via conn.fileBug().
+			}
 		}
 	}
 }

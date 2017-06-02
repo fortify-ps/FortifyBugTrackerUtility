@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -227,8 +226,8 @@ public final class JSONUtil {
 	 * @return A map containing the {@link JSONObject}s from the given {@link JSONArray}, 
 	 * 		indexed by the result of evaluating the given keyExpression on each {@link JSONObject}
 	 */
-	public static final <K> Map<K, JSONObject> toMap(JSONArray array, String keyExpression, Class<K> keyType) {
-		Map<K, JSONObject> result = null;
+	public static final <K> LinkedHashMap<K, JSONObject> toMap(JSONArray array, String keyExpression, Class<K> keyType) {
+		LinkedHashMap<K, JSONObject> result = null;
 		if ( array != null ) {
 			result = new LinkedHashMap<K, JSONObject>();
 			for(int i=0; i<array.length(); i++){
@@ -249,8 +248,8 @@ public final class JSONUtil {
 	 * @return A map containing the {@link JSONObject}s from the given {@link List}, 
 	 * 		indexed by the result of evaluating the given keyExpression on each {@link JSONObject}
 	 */
-	public static final <K> Map<K, JSONObject> toMap(List<JSONObject> list, String keyExpression, Class<K> keyType) {
-		Map<K, JSONObject> result = null;
+	public static final <K> LinkedHashMap<K, JSONObject> toMap(List<JSONObject> list, String keyExpression, Class<K> keyType) {
+		LinkedHashMap<K, JSONObject> result = null;
 		if ( list != null ) {
 			result = new LinkedHashMap<K, JSONObject>();
 			for(JSONObject obj : list){
