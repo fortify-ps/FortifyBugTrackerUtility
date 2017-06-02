@@ -74,6 +74,7 @@ public class FilterRegEx extends AbstractProcessor {
 			Object root = getRootExpression()==null?context:SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
 			for ( Map.Entry<SimpleExpression, Pattern> filterPattern : getFilterPatterns().entrySet() ) {
 				String expressionValue = SpringExpressionUtil.evaluateExpression(root, filterPattern.getKey(), String.class);
+				if ( expressionValue==null ) { expressionValue=""; }
 				if ( !filterPattern.getValue().matcher(expressionValue).matches() ) {
 					return false;
 				}
