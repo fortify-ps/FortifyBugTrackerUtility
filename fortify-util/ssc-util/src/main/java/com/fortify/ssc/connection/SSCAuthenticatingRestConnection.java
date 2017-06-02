@@ -96,7 +96,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.entity(request, "application/json"), JSONObject.class);
 	}
 	
-	public void fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds, String bugTrackerUserName, String bugTrackerPassword) {
+	public JSONObject fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds, String bugTrackerUserName, String bugTrackerPassword) {
 		// TODO Clean up this code
 		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
 		if ( SpringExpressionUtil.evaluateExpression(bugFilingRequirements, "requiresAuthentication", Boolean.class) ) {
@@ -144,7 +144,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		builder.updateJSONObjectWithPropertyPath(request, "actionResponse", "false");
 		builder.updateJSONObjectWithPropertyPath(request, "values.bugParams", bugFilingRequirements.optJSONArray("bugParams"));
 		builder.updateJSONObjectWithPropertyPath(request, "values.issueInstanceIds", issueInstanceIds);
-		executeRequest(HttpMethod.POST, 
+		return executeRequest(HttpMethod.POST, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
 				.entity(request, "application/json"), JSONObject.class);
 	}
