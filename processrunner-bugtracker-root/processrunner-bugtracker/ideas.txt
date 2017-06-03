@@ -1,0 +1,25 @@
+- Add context properties SSCApplicationVersion and FoDRelease to specify sources by name
+  - For now, add a utility class like SSC/FoDConnectionFactory that has a private IContext interface
+    that can hold either id or name (format Application:Version/Release) and a static
+    getApplicationId(Context)/getReleaseId(context) method that either returns the provided
+    id directly, or looks up the id for the provided name.
+  - In the future, see whether we can integrate this in ContextProperty directly
+    (i.e. allow to have an alternative context property (name) that sets another context property (id)
+    
+- Add support for specifying a mapping from one context property value to multiple other property values
+  - For example given an FoD release name, set the corresponding JIRA project key
+  - If FoDReleaseId is not specified, run the process runners for all FoDReleaseId's
+    specified in this mapping
+    
+- Add support for ContextProperty instances to run some method to provide a default value
+  (probably necessary for next point)
+  
+- Add support for loading additional context properties from SSC/FoD application (version) attributes,
+  i.e. have an SSC application attribute containing the JIRA project identifier to which vulnerabilities
+  for this application version need to be filed.
+  If no SSC application version is provided, load all appversions for which this application attribute has been set
+
+
+    
+- TODO: create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
+ 
