@@ -96,12 +96,27 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.entity(request, "application/json"), JSONObject.class);
 	}
 	
-	public JSONObject fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds, String bugTrackerUserName, String bugTrackerPassword) {
+	public boolean isBugTrackerAuthenticationRequired(String applicationVersionId) {
+		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
+		return SpringExpressionUtil.evaluateExpression(bugFilingRequirements, "requiresAuthentication", Boolean.class);
+	}
+	
+	public void authenticateForBugFiling(String applicationVersionId, String bugTrackerUserName, String bugTrackerPassword) {
+		JSONObjectBuilder builder = new JSONObjectBuilder();
+		JSONObject request = new JSONObject();
+		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
+		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
+		builder.updateJSONObjectWithPropertyPath(request, "values.username", bugTrackerUserName);
+		builder.updateJSONObjectWithPropertyPath(request, "values.password", bugTrackerPassword);
+		JSONObject result = executeRequest(HttpMethod.POST, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
+				.entity(request, "application/json"), JSONObject.class);
+		// TODO Check result
+	}
+	
+	public JSONObject fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds) {
 		// TODO Clean up this code
 		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
-		if ( SpringExpressionUtil.evaluateExpression(bugFilingRequirements, "requiresAuthentication", Boolean.class) ) {
-			bugFilingRequirements = authenticateForBugFiling(applicationVersionId, bugTrackerUserName, bugTrackerPassword);
-		}
 		Set<String> processedDependentParams = new HashSet<String>();
 		boolean allDependentParamsProcessed = false;
 		JSONObjectBuilder builder = new JSONObjectBuilder();
@@ -176,19 +191,6 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				.queryParam("changedParamIdentifier", changedParamIdentifier)
 				.entity(request, "application/json"), JSONObject.class);
 		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
-	}
-	
-	private JSONObject authenticateForBugFiling(String applicationVersionId, String bugTrackerUserName, String bugTrackerPassword) {
-		JSONObjectBuilder builder = new JSONObjectBuilder();
-		JSONObject request = new JSONObject();
-		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
-		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
-		builder.updateJSONObjectWithPropertyPath(request, "values.username", bugTrackerUserName);
-		builder.updateJSONObjectWithPropertyPath(request, "values.password", bugTrackerPassword);
-		JSONObject result = executeRequest(HttpMethod.POST, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
-				.entity(request, "application/json"), JSONObject.class);
-		return SpringExpressionUtil.evaluateExpression(result, "data?.values?.requirements", JSONObject.class);
 	}
 
 	public void updateIssueSearchOptions(String applicationVersionId, IssueSearchOptions issueSearchOptions) {

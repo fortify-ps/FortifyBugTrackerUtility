@@ -27,10 +27,15 @@
 	     can change the properties in this bean, for example to change 
 	     the grouping expression, fields and field data to be submitted. 
 	-->
-	<bean id="sscToSSCJiraIssueSubmitter" class="com.fortify.processrunner.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
+	<bean id="sscToSSCIssueSubmitter" class="com.fortify.processrunner.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
 		<property name="bugTrackers"><map>
 			<entry key="TFS/Visual Studio Online">
 				<bean class="com.fortify.processrunner.ssc.processor.SSCIssueSubmitter">
+					<property name="shortName" value="TFS"/>
+					<!-- TFS username and password can either be specified here, via context properties, or read from console -->
+					<!-- <property name="userName" value="TFSUserName"/> -->
+					<!-- <property name="password" value="TFSPassword"/> -->
+					
 					<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 					     can be disabled by setting the DisableGrouping context property to 'true'. -->
 					<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>

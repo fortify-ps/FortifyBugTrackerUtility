@@ -121,7 +121,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 				Map<String, Object> issueDetails = new HashMap<String, Object>();
 				issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
 				List<String> issueInstanceIds = JSONUtil.jsonObjectArrayToList(new JSONArray(vulnerabilities), "issueInstanceId", String.class);
-				conn.fileBug(applicationVersionId, issueDetails, issueInstanceIds, null, null);
+				conn.fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			}
 		}
 	}

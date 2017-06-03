@@ -23,6 +23,9 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		SSCConnectionFactory.addContextProperties(contextProperties, context);
 		contextProperties.add(new ContextProperty(IContextSSCTarget.PRP_SSC_BUG_TRACKER_USER_NAME, "User name for SSC bug tracker", context, null, false));
 		contextProperties.add(new ContextProperty(IContextSSCTarget.PRP_SSC_BUG_TRACKER_PASSWORD, "Password for SSC bug tracker", context, null, false));
+		for ( SSCIssueSubmitter issueSubmitter : bugTrackers.values() ) {
+			issueSubmitter.addContextProperties(contextProperties, context);
+		}
 	}
 	
 	// @Override
