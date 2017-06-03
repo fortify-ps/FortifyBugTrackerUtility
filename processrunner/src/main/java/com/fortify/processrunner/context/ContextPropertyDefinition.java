@@ -9,7 +9,7 @@ import com.fortify.processrunner.processor.IProcessor;
  * whether the property is required to be available in
  * the {@link Context}.
  */
-public class ContextProperty {
+public class ContextPropertyDefinition {
 	private final String name;
 	private final String description;
 	private final String defaultValue;
@@ -21,7 +21,7 @@ public class ContextProperty {
 	 * @param description
 	 * @param required
 	 */
-	public ContextProperty(String name, String description, Context defaultContext, String defaultValue, boolean required) {
+	public ContextPropertyDefinition(String name, String description, Context defaultContext, String defaultValue, boolean required) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -60,4 +60,12 @@ public class ContextProperty {
 	public boolean isRequired() {
 		return required;
 	}
+
+	@Override
+	public String toString() {
+		return "ContextPropertyDefinition [name=" + name + ", description=" + description + ", defaultValue="
+				+ defaultValue + ", required=" + required + "]";
+	}
+	
+	
 }

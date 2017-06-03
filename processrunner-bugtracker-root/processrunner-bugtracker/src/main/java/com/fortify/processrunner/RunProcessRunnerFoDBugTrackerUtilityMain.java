@@ -1,8 +1,8 @@
 package com.fortify.processrunner;
 
-import com.fortify.processrunner.RunProcessRunner;
+import com.fortify.processrunner.RunProcessRunnerFromCLI;
 
-public class RunProcessRunnerFoDBugTrackerUtilityMain extends RunProcessRunner {
+public class RunProcessRunnerFoDBugTrackerUtilityMain extends RunProcessRunnerFromCLI {
 	public static void main(String[] args) {
 		new RunProcessRunnerFoDBugTrackerUtilityMain().runProcessRunner(args);
 	}

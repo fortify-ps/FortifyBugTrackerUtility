@@ -13,7 +13,7 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
@@ -52,10 +52,10 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
-	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",context,null,true));
+	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",context,null,true));
 		if ( vulnerabilityProcessor != null ) {
-			vulnerabilityProcessor.addContextProperties(contextProperties, context);
+			vulnerabilityProcessor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}
 	}
 	

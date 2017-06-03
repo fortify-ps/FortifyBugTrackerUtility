@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneClientCredentials;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneUserCredentials;
 import com.fortify.processrunner.octane.context.IContextOctane;
@@ -14,13 +14,13 @@ import com.fortify.util.rest.ProxyConfiguration;
 
 public final class OctaneConnectionFactory 
 {
-	public static final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextOctane.PRP_BASE_URL, "Octane base URL", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextOctane.PRP_USER_NAME, "Octane user name", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextOctane.PRP_PASSWORD, "Octane password", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextOctane.PRP_CLIENT_ID, "Octane client id", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextOctane.PRP_CLIENT_SECRET, "Octane client secret", context, "Read from console", false));
-		ContextAwareProxyConfigurationFactory.addContextProperties(contextProperties, context, "Octane");
+	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_BASE_URL, "Octane base URL", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_USER_NAME, "Octane user name", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_PASSWORD, "Octane password", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_ID, "Octane client id", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_SECRET, "Octane client secret", context, "Read from console", false));
+		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Octane");
 	}
 	
 	public static final OctaneAuthenticatingRestConnection getConnection(Context context) {

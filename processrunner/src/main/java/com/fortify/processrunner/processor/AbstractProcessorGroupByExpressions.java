@@ -11,7 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -51,19 +51,19 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 * Add context properties for grouping
 	 */
 	@Override
-	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			contextProperties.add(new ContextProperty(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", context, "false", false));
+			contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", context, "false", false));
 		}
-		addExtraContextProperties(contextProperties, context);
+		addExtraContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	/**
 	 * Subclasses can override this method to add extra context properties
-	 * @param contextProperties
+	 * @param contextPropertyDefinitions
 	 * @param context
 	 */
-	protected void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+	protected void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
 
 	@Override
 	protected final boolean preProcess(Context context) {

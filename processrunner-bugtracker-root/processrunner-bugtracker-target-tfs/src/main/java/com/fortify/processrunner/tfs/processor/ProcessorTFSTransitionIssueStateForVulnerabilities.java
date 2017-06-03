@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
@@ -22,9 +22,9 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
 	@Override
-	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		TFSConnectionFactory.addContextProperties(contextProperties, context);
-		contextProperties.add(new ContextProperty("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
+	public void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
 	}
 	
 	@Override

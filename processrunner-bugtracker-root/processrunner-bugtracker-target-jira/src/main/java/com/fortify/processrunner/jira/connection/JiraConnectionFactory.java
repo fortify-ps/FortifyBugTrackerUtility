@@ -6,18 +6,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.jira.context.IContextJira;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 import com.fortify.util.rest.ProxyConfiguration;
 
 public final class JiraConnectionFactory 
 {
-	public static final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextJira.PRP_BASE_URL, "JIRA base URL", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextJira.PRP_USER_NAME, "JIRA user name", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextJira.PRP_PASSWORD, "JIRA password", context, "Read from console", false));
-		ContextAwareProxyConfigurationFactory.addContextProperties(contextProperties, context, "Jira");
+	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_BASE_URL, "JIRA base URL", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_USER_NAME, "JIRA user name", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_PASSWORD, "JIRA password", context, "Read from console", false));
+		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Jira");
 	}
 	
 	public static final JiraRestConnection getConnection(Context context) {

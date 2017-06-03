@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
@@ -35,11 +35,11 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	}
 	
 	@Override
-	public final void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public final void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
-		// contextProperties.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
+		// contextPropertyDefinitions.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
-		addBugTrackerContextProperties(contextProperties, context);
+		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return result;
 	}
 	
-	protected void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+	protected void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
 	
 	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
 		return false;

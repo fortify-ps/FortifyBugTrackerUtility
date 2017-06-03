@@ -41,10 +41,10 @@ public class Context extends HashMap<String, Object> {
 		super(context);
 	}
 	
-	public final void addContextProperties(Collection<ContextProperty> contextProperties) {
+	public final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions) {
 		for ( Object obj : values() ) {
-			if ( obj instanceof IContextPropertyProvider ) {
-				((IContextPropertyProvider)obj).addContextProperties(contextProperties, this);
+			if ( obj instanceof IContextPropertyDefinitionProvider ) {
+				((IContextPropertyDefinitionProvider)obj).addContextPropertyDefinitions(contextPropertyDefinitions, this);
 			}
 		}
 	}

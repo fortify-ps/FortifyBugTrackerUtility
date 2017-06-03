@@ -8,14 +8,14 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection;
 import com.fortify.processrunner.octane.connection.OctaneConnectionFactory;
 
 public class ProcessorOctaneTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<JSONObject> {
 	@Override
-	protected void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		OctaneConnectionFactory.addContextProperties(contextProperties, context);
+	protected void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override

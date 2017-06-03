@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
@@ -43,8 +43,8 @@ public abstract class AbstractFoDProcessorRetrieveFilteredVulnerabilities extend
 	private Map<String,Pattern> allFieldRegExFilters;
 	
 	@Override
-	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		FoDConnectionFactory.addContextProperties(contextProperties, context);
+	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		FoDConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override

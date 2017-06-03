@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -60,8 +60,8 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	}
 	
 	@Override
-	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		SSCConnectionFactory.addContextProperties(contextProperties, context);
+	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override

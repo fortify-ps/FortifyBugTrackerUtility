@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.ProcessRunner;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker;
 import com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState;
 import com.fortify.processrunner.processor.IProcessor;
@@ -106,11 +104,5 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 			return getUpdateIssueStateProcessor().getBugTrackerName();
 		}
 		throw new IllegalStateException("Cannot determine bug tracker name");
-	}
-	
-	@Override
-	@Resource(name="contextProperties")
-	public void setContext(Context context) {
-		super.setContext(context);
 	}
 }

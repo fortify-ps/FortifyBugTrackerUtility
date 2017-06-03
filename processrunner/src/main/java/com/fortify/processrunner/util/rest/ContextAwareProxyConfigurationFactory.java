@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.util.rest.ProxyConfiguration;
 
 public final class ContextAwareProxyConfigurationFactory {
@@ -15,10 +15,10 @@ public final class ContextAwareProxyConfigurationFactory {
 	
 	private ContextAwareProxyConfigurationFactory() {}
 	
-	public static final void addContextProperties(Collection<ContextProperty> contextProperties, Context context, String name) {
-		contextProperties.add(new ContextProperty(name+PRP_SFX_URL, name+" Proxy URL", context, null, false));
-		contextProperties.add(new ContextProperty(name+PRP_SFX_USER_NAME, name+" Proxy User Name", context, null, false));
-		contextProperties.add(new ContextProperty(name+PRP_SFX_PASSWORD, name+" Proxy Password", context, "Read from console if proxy user name is set", false));
+	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context, String name) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", context, null, false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", context, null, false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", context, "Read from console if proxy user name is set", false));
 	}
 	
 	public static final ProxyConfiguration getProxyConfiguration(Context context, String name) {

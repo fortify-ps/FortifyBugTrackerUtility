@@ -1,7 +1,7 @@
 package com.fortify.processrunner.processor;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.IContextPropertyProvider;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * <p>This interface defines processors that can perform arbitrary
@@ -17,7 +17,7 @@ import com.fortify.processrunner.context.IContextPropertyProvider;
  * <p>Usually classes should not implement this interface directly,
  * but instead extend from the {@link AbstractProcessor} class.</p>
  */
-public interface IProcessor extends IContextPropertyProvider {
+public interface IProcessor extends IContextPropertyDefinitionProvider {
 	/**
 	 * Enumeration describing the available processing phases.
 	 */

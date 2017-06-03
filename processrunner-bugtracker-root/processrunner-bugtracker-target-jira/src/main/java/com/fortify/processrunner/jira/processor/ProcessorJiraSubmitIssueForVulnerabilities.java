@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
@@ -23,10 +23,10 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 	private String defaultIssueType = "Task";
 	
 	@Override
-	public void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		JiraConnectionFactory.addContextProperties(contextProperties, context);
-		contextProperties.add(new ContextProperty("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
-		contextProperties.add(new ContextProperty("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
+	public void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
 	}
 	
 	@Override

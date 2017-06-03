@@ -1,9 +1,13 @@
 package com.fortify.processrunner;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.IProcessor.Phase;
 
@@ -11,51 +15,36 @@ import com.fortify.processrunner.processor.IProcessor.Phase;
  * This class allows configuration of the initial context and the processor to
  * be run on that context. 
  */
-public class ProcessRunner implements Runnable {
+public class ProcessRunner implements IContextPropertyDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
-	private Context context = new Context();
 	private IProcessor[] processors = new IProcessor[]{};
 	private String description;
 	private boolean enabled = true;
 	private boolean _default= false;
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-	
-	public boolean isDefault() {
-		return _default;
-	}
-
-	public void setDefault(boolean _default) {
-		this._default = _default;
-	}
-
-	/**
-	 * Run the configured processor using the configured context.
-	 */
-	public void run() {
-		IProcessor[] processors = getProcessors();
+	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		for ( IProcessor processor : processors ) {
-			Context context = getContextForProcessRun();
-			if ( LOG.isDebugEnabled() ) {
-				LOG.debug("[Process] Running processor "+processor+" with context "+context);
-			}
-			if ( process(Phase.PRE_PROCESS, context, processor) ) {
-				if ( process(Phase.PROCESS, context, processor) ) {
-					process(Phase.POST_PROCESS, context, processor);
-				}
-			}
+			processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}
 	}
 	
-	protected Context getContextForProcessRun() {
-		// Make a copy of the context to avoid multiple processors from impacting each other
-		return new Context(getContext());
+	/**
+	 * Run the configured processor using the configured context.
+	 */
+	public void run(Context context) {
+		IProcessor[] processors = getProcessors();
+		for ( IProcessor processor : processors ) {
+			// Create a copy to let each processor have its own independent context
+			Context processorContext = new Context(context);
+			if ( LOG.isDebugEnabled() ) {
+				LOG.debug("[Process] Running processor "+processor+" with context "+context);
+			}
+			if ( process(Phase.PRE_PROCESS, processorContext, processor) ) {
+				if ( process(Phase.PROCESS, processorContext, processor) ) {
+					process(Phase.POST_PROCESS, processorContext, processor);
+				}
+			}
+		}
 	}
 
 	/**
@@ -71,13 +60,6 @@ public class ProcessRunner implements Runnable {
 		LOG.debug("[Process] Phase "+phase+" result: "+result);
 		return result;
 	}
-	
-	public Context getContext() {
-		return context;
-	}
-	public void setContext(Context context) {
-		this.context = context;
-	}
 
 	public IProcessor[] getProcessors() {
 		return processors;
@@ -85,6 +67,22 @@ public class ProcessRunner implements Runnable {
 
 	public void setProcessors(IProcessor... processors) {
 		this.processors = processors;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	public boolean isDefault() {
+		return _default;
+	}
+
+	public void setDefault(boolean _default) {
+		this._default = _default;
 	}
 
 	public String getDescription() {

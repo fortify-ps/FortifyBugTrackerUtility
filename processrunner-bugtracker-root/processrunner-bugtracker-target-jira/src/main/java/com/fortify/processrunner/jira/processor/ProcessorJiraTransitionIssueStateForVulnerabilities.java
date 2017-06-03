@@ -8,7 +8,7 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.util.JiraIssueJSONObjectBuilder;
@@ -17,8 +17,8 @@ public class ProcessorJiraTransitionIssueStateForVulnerabilities extends Abstrac
 	private static final JiraIssueJSONObjectBuilder MAP_TO_JSON = new JiraIssueJSONObjectBuilder();
 	
 	@Override
-	protected void addBugTrackerContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		JiraConnectionFactory.addContextProperties(contextProperties, context);
+	protected void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override

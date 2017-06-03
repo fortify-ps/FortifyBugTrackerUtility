@@ -10,10 +10,9 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -29,11 +28,11 @@ public class SSCIssueSubmitter extends AbstractProcessorBuildObjectMapFromGroupe
 	}
 	
 	@Override
-	protected void addExtraContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	protected void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		String name = getShortName();
 		if ( name!=null ) {
-			contextProperties.add(new ContextProperty(name+"UserName", name+" user name", context, "Read from console", false));
-			contextProperties.add(new ContextProperty(name+"Password", name+" password", context, "Read from console", false));
+			contextPropertyDefinitions.add(new ContextPropertyDefinition(name+"UserName", name+" user name", context, "Read from console", false));
+			contextPropertyDefinitions.add(new ContextPropertyDefinition(name+"Password", name+" password", context, "Read from console", false));
 		}
 	}
 	

@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.processrunner.context.IContextPropertyProvider;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * <p>This abstract {@link IProcessor} implementation allows subclasses
@@ -31,13 +31,13 @@ public abstract class AbstractProcessor implements IProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
 	
 	/**
-	 * Add {@link ContextProperty} instances to the provided
-	 * {@link ContextProperty} {@link Collection} that describe 
+	 * Add {@link ContextPropertyDefinition} instances to the provided
+	 * {@link ContextPropertyDefinition} {@link Collection} that describe 
 	 * the context properties supported/required by the current 
-	 * {@link IContextPropertyProvider} implementation. By 
+	 * {@link IContextPropertyDefinitionProvider} implementation. By 
 	 * default, this method does not add any context properties.
 	 */
-	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
 	
 	/**
 	 * Process the given {@link Phase} with the given {@link Context}.

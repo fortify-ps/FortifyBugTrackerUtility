@@ -71,4 +71,13 @@
 	
 	<import resource="components/issueState/OctaneIssueState.xml"/>
 	
+	<!-- TODO Remove this example -->
+	<bean class="com.fortify.processrunner.context.mapper.MapBasedContextPropertyMapper">
+		<property name="contextPropertyName" value="SSCApplicationVersionId"/>
+		<property name="contextProperties"><map>
+			<entry key="2" value="OctaneSharedSpaceUid=136002,OctaneWorkspaceId=1002"/>
+			<entry key="3" value="OctaneSharedSpaceUid=136002,OctaneWorkspaceId=1002"/>
+		</map></property>
+	</bean>
+	
 </beans>

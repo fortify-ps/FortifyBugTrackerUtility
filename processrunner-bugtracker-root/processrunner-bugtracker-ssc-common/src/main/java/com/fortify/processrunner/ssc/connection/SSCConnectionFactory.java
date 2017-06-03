@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -14,12 +14,12 @@ import com.fortify.ssc.connection.SSCConnectionRetrieverUserCredentials;
 
 public final class SSCConnectionFactory 
 {
-	public static final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		contextProperties.add(new ContextProperty(IContextSSCCommon.PRP_SSC_BASE_URL, "SSC base URL", context,  "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", context, "Read from console", false));
-		contextProperties.add(new ContextProperty(IContextSSCCommon.PRP_SSC_AUTH_TOKEN, "SSC auth token", context, "Read from console", false));
-		ContextAwareProxyConfigurationFactory.addContextProperties(contextProperties, context, "SSC");
+	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BASE_URL, "SSC base URL", context,  "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_AUTH_TOKEN, "SSC auth token", context, "Read from console", false));
+		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "SSC");
 	}
 	
 	public static final SSCAuthenticatingRestConnection getConnection(Context context) {

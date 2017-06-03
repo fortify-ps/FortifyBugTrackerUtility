@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
@@ -41,8 +41,8 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 	private boolean includeIssueDetails;
 	
 	@Override
-	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {
-		SSCConnectionFactory.addContextProperties(contextProperties, context);
+	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override

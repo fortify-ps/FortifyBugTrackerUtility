@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.processrunner.context.IContextPropertyProvider;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * This abstract {@link IProcessor} implementation provides
@@ -19,28 +19,28 @@ import com.fortify.processrunner.context.IContextPropertyProvider;
 public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	
 	/**
-	 * Add the {@link ContextProperty} instances by calling the 
-	 * {@link IContextPropertyProvider#addContextProperties(Collection, Context)} 
+	 * Add the {@link ContextPropertyDefinition} instances by calling the 
+	 * {@link IContextPropertyDefinitionProvider#addContextPropertyDefinitions(Collection, Context)} 
 	 * method on each individual {@link IProcessor} instance returned by the 
 	 * {@link #getProcessors()} method. 
 	 */
 	@Override
-	public final void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		for ( IProcessor processor : getProcessors() ) {
 			if ( processor != null ) {
-				processor.addContextProperties(contextProperties, context);
+				processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 			}
 		}
-		addCompositeContextProperties(contextProperties, context);
+		addCompositeContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	/**
 	 * Concrete implementations can override this method to add additional
-	 * {@link ContextProperty} instances.
-	 * @param contextProperties
+	 * {@link ContextPropertyDefinition} instances.
+	 * @param contextPropertyDefinitions
 	 * @param context
 	 */
-	protected void addCompositeContextProperties(Collection<ContextProperty> contextProperties, Context context) {}
+	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
 
 	/**
 	 * Run the {@link Phase#PRE_PROCESS} phase on all

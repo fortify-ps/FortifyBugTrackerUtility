@@ -3,12 +3,7 @@ package com.fortify.processrunner;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -22,15 +17,9 @@ import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
-import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringContextUtil;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 
 /**
  * <p>This is the Main class used to run a {@link ProcessRunner} configuration
@@ -52,11 +41,12 @@ import com.fortify.util.spring.SpringContextUtil;
  * 
  * <p>When invoked with invalid arguments, an error message together with
  * general usage information will be printed on standard out.</p>
+ * 
+ * TODO Update JavaDoc
  */
-public class RunProcessRunner {
-	private static final Log LOG = LogFactory.getLog(RunProcessRunner.class);
+public class RunProcessRunnerFromCLI {
+	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
 	private static final String DEFAULT_CONFIG_FILE = "processRunnerConfig.xml";
-	private static final String DEFAULT_BEAN_NAME = "defaultProcessRunner";
 	private static final String DEFAULT_LOG_FILE = "processRunner.log";
 	private static final String DEFAULT_LOG_LEVEL = "info";
 	
@@ -79,21 +69,12 @@ public class RunProcessRunner {
 		updateLogConfig(cl);
 		
 		String configFile = getConfigFileName(cl);
-		GenericApplicationContext appContext = SpringContextUtil.loadApplicationContextFromFiles(true, configFile);
-		
+		RunProcessRunnerFromSpringConfig springRunner = new RunProcessRunnerFromSpringConfig(configFile);
 		List<String> remainingArgs = cl.getArgList(); 
-		String processRunnerBeanName = getProcessRunnerBeanName(remainingArgs, appContext);
-		LOG.info("[Process] Using process runner "+processRunnerBeanName);
-		try {
-			ProcessRunner runner = appContext.getBean(processRunnerBeanName, ProcessRunner.class);
-			updateAndCheckContext(runner, remainingArgs);
-			runner.run();
-		} catch (Throwable t) {
-			LOG.fatal("[Process] Error during process run", t);
-		} finally {
-			LOG.info("[Process] Processing complete for " + processRunnerBeanName);
-			appContext.close();
-		}
+		String processRunnerName = getProcessRunnerNameFromArgs(remainingArgs);
+		Context cliContext = getContextFromArgs(springRunner.getContextPropertyDefinitions(processRunnerName), remainingArgs);
+		
+		springRunner.run(cliContext, processRunnerName);
 	}
 
 	protected CommandLine parseCommandLine(String[] argsArray) {
@@ -121,69 +102,21 @@ public class RunProcessRunner {
 		}
 	}
 
-	protected final void updateAndCheckContext(ProcessRunner runner, List<String> args) {
-		Context context = runner.getContext();
-		Collection<ContextProperty> contextProperties = getContextProperties(runner, context);
-		updateContextFromArgs(context, contextProperties, args);
-		checkContext(context, contextProperties);
-		context.refresh();
-	}
-
-	protected final void updateContextFromArgs(Context context, Collection<ContextProperty> contextProperties, List<String> args) {
+	protected final Context getContextFromArgs(Collection<ContextPropertyDefinition> contextPropertyDefinitions, List<String> args) {
+		Context context = new Context();
 		while ( args.size() > 0 ) {
 			String opt = args.remove(0);
-			if ( !opt.startsWith("-") ) { handleErrorAndExit(null, contextProperties, "ERROR: Invalid option "+opt, 3); }
-			if ( "--help".equals(opt) ) { printUsage(null, contextProperties, 0); }
+			if ( !opt.startsWith("-") ) { handleErrorAndExit(null, contextPropertyDefinitions, "ERROR: Invalid option "+opt, 3); }
+			if ( "--help".equals(opt) ) { printUsage(null, contextPropertyDefinitions, 0); }
 			// Allow options to start with either - or --, to work around JDK bug if multiple options starting with -J are given
 			if ( opt.startsWith("--") ) { opt = opt.substring(1); }
 			context.put(opt.substring(1), args.remove(0));
 		}
+		return context;
 	}
 	
-	protected final void checkContext(Context context, Collection<ContextProperty> contextProperties) {
-		for ( ContextProperty contextProperty : contextProperties ) {
-			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
-				handleErrorAndExit(null, contextProperties, "ERROR: Required option -"+contextProperty.getName()+" not set", 4);
-			}
-		}
-	}
-
-	protected final Collection<ContextProperty> getContextProperties(ProcessRunner runner, Context context) {
-		Set<ContextProperty> result = new LinkedHashSet<ContextProperty>();
-		addContextPropertiesFromProcessRunner(runner, result, context);
-		addContextPropertiesFromContext(result, context);
-		return result;
-	}
-
-	protected final void addContextPropertiesFromProcessRunner(ProcessRunner runner, Collection<ContextProperty> contextProperties, Context context) {
-		for ( IProcessor processor : runner.getProcessors() ) {
-			processor.addContextProperties(contextProperties, context);
-		}
-	}
-	
-	protected final void addContextPropertiesFromContext(Collection<ContextProperty> contextProperties, Context context) {
-		context.addContextProperties(contextProperties);
-	}
-
 	protected final String getConfigFileName(CommandLine cl) {
-		String configFile = cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt(), getDefaultConfigFilePathAndName());
-		checkConfigFile(configFile);
-		LOG.info("[Process] Using Spring configuration file "+configFile);
-		return configFile;
-	}
-	
-	/**
-	 * Check whether the given configuration file exists and is readable. 
-	 * @param configFile
-	 */
-	protected final void checkConfigFile(String configFile) {
-		Resource resource = new FileSystemResource(configFile);
-		if ( !resource.exists() ) {
-			handleErrorAndExit(null, null, "ERROR: Configuration file "+configFile+" does not exist", 1);
-		}
-		if ( !resource.isReadable() ) {
-			handleErrorAndExit(null, null, "ERROR: Configuration file "+configFile+" is not readable", 2);
-		}
+		return cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt(), getDefaultConfigFilePathAndName());
 	}
 	
 	/**
@@ -192,24 +125,12 @@ public class RunProcessRunner {
 	 * @param context
 	 * @return
 	 */
-	protected final String getProcessRunnerBeanName(List<String> args, final ApplicationContext context) {
-		Set<String> processorBeanNames = getEnabledProcessRunners(context).keySet();
-		if ( LOG.isDebugEnabled() ) { LOG.debug("[Process] Available process runners: "+processorBeanNames); }
-		String errorMessage = null;
-		if ( args.size() == 0 || args.get(0).startsWith("-") ) {
-			String defaultProcessRunnerName = getDefaultProcessRunnerName(context);
-			if ( defaultProcessRunnerName!=null ) {
-				return defaultProcessRunnerName;
-			} else {
-				errorMessage = "ERROR: No process runner id specified";
-			}
-		} else if ( !processorBeanNames.contains(args.get(0)) ) {
-			errorMessage = "ERROR: process runner id "+args.get(0)+" is not valid";
-		} else {
-			return args.remove(0);
-		}
-		handleErrorAndExit(context, null, errorMessage, 3);
-		return null;
+	protected final String getProcessRunnerNameFromArgs(List<String> args) {
+		String result = null;
+		if ( args.size() > 0 && !args.get(0).startsWith("-") ) {
+			result = args.remove(0);
+		} 
+		return result;
 	}
 	
 	/**
@@ -219,16 +140,16 @@ public class RunProcessRunner {
 	 * @param errorMessage
 	 * @param errorCode
 	 */
-	protected final void handleErrorAndExit(ApplicationContext context, Collection<ContextProperty> contextProperties, String errorMessage, int errorCode) {
+	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, Collection<ContextPropertyDefinition> contextProperties, String errorMessage, int errorCode) {
 		LOG.error("[Process] "+errorMessage);
-		printUsage(context, contextProperties, errorCode);
+		printUsage(springRunner, contextProperties, errorCode);
 	}
 	
 	/**
 	 * Print the usage information for this command.
 	 * @param context
 	 */
-	protected final void printUsage(ApplicationContext appContext, Collection<ContextProperty> contextProperties, int returnCode) {
+	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, Collection<ContextPropertyDefinition> contextProperties, int returnCode) {
 		LOG.info("Usage: "+getBaseCommand()+" [--configFile <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
 		LOG.info("");
 		LOG.info("  --configFile <configFile> specifies the configuration file to use. Default is ");
@@ -239,23 +160,18 @@ public class RunProcessRunner {
 		LOG.info("    By default no logging is performed unless at least either --logFile or --logLevel is specified.");
 		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
 		
-		if ( appContext != null ) {
-			Map<String, ProcessRunner> processRunnersMap = getEnabledProcessRunners(appContext);
-			if ( processRunnersMap!=null && processRunnersMap.size() > 0 ) {
+		if ( springRunner != null ) {
+			Collection<String> processRunners = springRunner.getEnabledProcessRunnerNames();
+			if ( processRunners!=null && processRunners.size() > 0 ) {
 				LOG.info("");
-				LOG.info("  Available process runner id's:");
-				for ( Map.Entry<String, ProcessRunner> entry : processRunnersMap.entrySet() ) {
-					LOG.info("    "+entry.getKey());
-					if ( StringUtils.isNotBlank(entry.getValue().getDescription()) ) {
-						LOG.info("      "+entry.getValue().getDescription()+"\n");
-					}
-				}
+				LOG.info("  Available process runners: "+processRunners);
+				// TODO Add back process runner descriptions
 			}
 		}
 		if ( contextProperties != null && contextProperties.size()>0 ) {
 			LOG.info("");
 			LOG.info("  [options] for the current process runner:");
-			for ( ContextProperty cp : contextProperties ) {
+			for ( ContextPropertyDefinition cp : contextProperties ) {
 				LOG.info("  -"+cp.getName()+" <value> "+(cp.isRequired()&&StringUtils.isBlank(cp.getDefaultValue())?"(required)":"(optional)"));
 				LOG.info("    "+cp.getDescription());
 				if ( StringUtils.isNotBlank(cp.getDefaultValue()) ) {
@@ -267,38 +183,6 @@ public class RunProcessRunner {
 			LOG.info("\n  Available [options] will be shown when a valid process runner has been specified.");
 		}
 		System.exit(returnCode);
-	}
-
-	private Map<String, ProcessRunner> getEnabledProcessRunners(ApplicationContext appContext) {
-		Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);
-		processRunnersMap.values().removeIf(new Predicate<ProcessRunner>() {
-			public boolean test(ProcessRunner processRunner) {
-				return !processRunner.isEnabled();
-			}
-		});
-		return processRunnersMap;
-	}
-	
-	private String getDefaultProcessRunnerName(ApplicationContext appContext) {
-		Map<String, ProcessRunner> processRunnersMap = getEnabledProcessRunners(appContext);
-		if ( processRunnersMap.containsKey(DEFAULT_BEAN_NAME) ) {
-			return DEFAULT_BEAN_NAME;
-		} else if (processRunnersMap.size()==1) {
-			return processRunnersMap.keySet().iterator().next();
-		} else {
-			Map<String, ProcessRunner> defaultRunners = new HashMap<String, ProcessRunner>(processRunnersMap);
-			defaultRunners.values().removeIf(new Predicate<ProcessRunner>() {
-				public boolean test(ProcessRunner processRunner) {
-					return !processRunner.isDefault();
-				}
-			});
-			if ( defaultRunners.size()==1 ) {
-				return defaultRunners.keySet().iterator().next();
-			} else if ( defaultRunners.size()>1 ) {
-				LOG.debug("Multiple default process runners found");
-			}
-		}
-		return null;
 	}
 	
 	protected String getDefaultConfigFileName() {

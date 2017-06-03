@@ -8,7 +8,7 @@ import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextProperty;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
@@ -18,13 +18,13 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	private Map<String, SSCIssueSubmitter> bugTrackers = new HashMap<String, SSCIssueSubmitter>();
 	
 	@Override
-	public void addContextProperties(Collection<ContextProperty> contextProperties, Context context) {
+	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
-		SSCConnectionFactory.addContextProperties(contextProperties, context);
-		contextProperties.add(new ContextProperty(IContextSSCTarget.PRP_SSC_BUG_TRACKER_USER_NAME, "User name for SSC bug tracker", context, null, false));
-		contextProperties.add(new ContextProperty(IContextSSCTarget.PRP_SSC_BUG_TRACKER_PASSWORD, "Password for SSC bug tracker", context, null, false));
+		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCTarget.PRP_SSC_BUG_TRACKER_USER_NAME, "User name for SSC bug tracker", context, null, false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCTarget.PRP_SSC_BUG_TRACKER_PASSWORD, "Password for SSC bug tracker", context, null, false));
 		for ( SSCIssueSubmitter issueSubmitter : bugTrackers.values() ) {
-			issueSubmitter.addContextProperties(contextProperties, context);
+			issueSubmitter.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}
 	}
 	
