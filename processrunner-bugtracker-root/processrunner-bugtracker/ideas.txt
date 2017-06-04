@@ -10,16 +10,20 @@
   - For example given an FoD release name, set the corresponding JIRA project key
   - If FoDReleaseId is not specified, run the process runners for all FoDReleaseId's
     specified in this mapping
+  Essentially works, requires some more work
+  Add implementations for getting all projects with for example 'JiraProjectKey' application version attribute set,
+  and automatically map application version context property to jira project key context property
     
 - Add support for ContextProperty instances to run some method to provide a default value
-  (probably necessary for next point)
-  
-- Add support for loading additional context properties from SSC/FoD application (version) attributes,
-  i.e. have an SSC application attribute containing the JIRA project identifier to which vulnerabilities
-  for this application version need to be filed.
-  If no SSC application version is provided, load all appversions for which this application attribute has been set
+  For example to read usernames/passwords from console only once for all processor invocations
 
 
     
-- TODO: create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
+TODO: 
+- create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
+- Change add/getContextPropertyDefinitions to use a map of ContextPropertyDefinition instances indexed by name
+  (to avoid duplicates from multiple processors)
+- Check whether IContextAware is being used, otherwise remove this functionality as it complicates some code
+
+
  
