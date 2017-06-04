@@ -20,6 +20,7 @@ import org.apache.log4j.PatternLayout;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
 /**
  * <p>This is the Main class used to run a {@link ProcessRunner} configuration
@@ -102,7 +103,7 @@ public class RunProcessRunnerFromCLI {
 		}
 	}
 
-	protected final Context getContextFromArgs(Collection<ContextPropertyDefinition> contextPropertyDefinitions, List<String> args) {
+	protected final Context getContextFromArgs(ContextPropertyDefinitions contextPropertyDefinitions, List<String> args) {
 		Context context = new Context();
 		while ( args.size() > 0 ) {
 			String opt = args.remove(0);
@@ -140,7 +141,7 @@ public class RunProcessRunnerFromCLI {
 	 * @param errorMessage
 	 * @param errorCode
 	 */
-	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, Collection<ContextPropertyDefinition> contextProperties, String errorMessage, int errorCode) {
+	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, ContextPropertyDefinitions contextProperties, String errorMessage, int errorCode) {
 		LOG.error("[Process] "+errorMessage);
 		printUsage(springRunner, contextProperties, errorCode);
 	}
@@ -149,7 +150,7 @@ public class RunProcessRunnerFromCLI {
 	 * Print the usage information for this command.
 	 * @param context
 	 */
-	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, Collection<ContextPropertyDefinition> contextProperties, int returnCode) {
+	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, ContextPropertyDefinitions contextPropertyDefinitions, int returnCode) {
 		LOG.info("Usage: "+getBaseCommand()+" [--configFile <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
 		LOG.info("");
 		LOG.info("  --configFile <configFile> specifies the configuration file to use. Default is ");
@@ -168,10 +169,10 @@ public class RunProcessRunnerFromCLI {
 				// TODO Add back process runner descriptions
 			}
 		}
-		if ( contextProperties != null && contextProperties.size()>0 ) {
+		if ( contextPropertyDefinitions != null && contextPropertyDefinitions.size()>0 ) {
 			LOG.info("");
 			LOG.info("  [options] for the current process runner:");
-			for ( ContextPropertyDefinition cp : contextProperties ) {
+			for ( ContextPropertyDefinition cp : contextPropertyDefinitions.values() ) {
 				LOG.info("  -"+cp.getName()+" <value> "+(cp.isRequired()&&StringUtils.isBlank(cp.getDefaultValue())?"(required)":"(optional)"));
 				LOG.info("    "+cp.getDescription());
 				if ( StringUtils.isNotBlank(cp.getDefaultValue()) ) {

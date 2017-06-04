@@ -1,7 +1,6 @@
 package com.fortify.processrunner.ssc.processor.retrieve;
 
 import java.net.URI;
-import java.util.Collection;
 
 import javax.ws.rs.HttpMethod;
 
@@ -14,6 +13,7 @@ import org.codehaus.jettison.json.JSONObject;
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -53,7 +53,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private IProcessor vulnerabilityProcessor;
 	
 	@Override
-	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("SSCApplicationVersionId","SSC application version id from which to retrieve vulnerabilities",context,null,true));
 		if ( vulnerabilityProcessor != null ) {
 			vulnerabilityProcessor.addContextPropertyDefinitions(contextPropertyDefinitions, context);

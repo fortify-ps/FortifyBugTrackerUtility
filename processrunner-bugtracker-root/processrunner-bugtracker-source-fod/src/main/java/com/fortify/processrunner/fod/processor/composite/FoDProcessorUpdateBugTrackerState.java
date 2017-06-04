@@ -1,7 +1,6 @@
 package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithBugDataFromComment;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
@@ -44,7 +43,7 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
-	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	protected void addCompositeContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		FoDConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	

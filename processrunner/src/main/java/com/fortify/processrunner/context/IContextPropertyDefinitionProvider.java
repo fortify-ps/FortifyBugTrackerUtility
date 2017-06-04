@@ -9,5 +9,5 @@ public interface IContextPropertyDefinitionProvider {
 	 * the context properties supported/required by the current 
 	 * {@link IContextPropertyDefinitionProvider} implementation. 
 	 */
-	public abstract void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context);
+	public abstract void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context);
 }

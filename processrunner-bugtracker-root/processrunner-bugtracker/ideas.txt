@@ -15,14 +15,13 @@
   and automatically map application version context property to jira project key context property
     
 - Add support for ContextProperty instances to run some method to provide a default value
-  For example to read usernames/passwords from console only once for all processor invocations
+  For example to read usernames/passwords from console only once for all processor invocations at the start of the program,
+  instead of when the property is actually checked/used.
 
 
     
 TODO: 
-- create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
-- Change add/getContextPropertyDefinitions to use a map of ContextPropertyDefinition instances indexed by name
-  (to avoid duplicates from multiple processors)
+- Create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
 - Check whether IContextAware is being used, otherwise remove this functionality as it complicates some code
 
 

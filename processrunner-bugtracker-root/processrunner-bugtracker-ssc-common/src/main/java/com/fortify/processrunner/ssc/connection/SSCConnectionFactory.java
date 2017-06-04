@@ -1,11 +1,10 @@
 package com.fortify.processrunner.ssc.connection;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -14,7 +13,7 @@ import com.fortify.ssc.connection.SSCConnectionRetrieverUserCredentials;
 
 public final class SSCConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BASE_URL, "SSC base URL", context,  "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name", context, "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", context, "Read from console", false));

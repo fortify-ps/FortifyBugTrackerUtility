@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
@@ -37,7 +38,7 @@ public abstract class AbstractProcessor implements IProcessor {
 	 * {@link IContextPropertyDefinitionProvider} implementation. By 
 	 * default, this method does not add any context properties.
 	 */
-	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
+	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 	
 	/**
 	 * Process the given {@link Phase} with the given {@link Context}.

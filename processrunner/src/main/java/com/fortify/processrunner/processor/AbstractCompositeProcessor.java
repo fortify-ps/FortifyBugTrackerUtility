@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
@@ -25,7 +26,7 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 * {@link #getProcessors()} method. 
 	 */
 	@Override
-	public final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		for ( IProcessor processor : getProcessors() ) {
 			if ( processor != null ) {
 				processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -40,7 +41,7 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 * @param contextPropertyDefinitions
 	 * @param context
 	 */
-	protected void addCompositeContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
+	protected void addCompositeContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 
 	/**
 	 * Run the {@link Phase#PRE_PROCESS} phase on all

@@ -1,18 +1,17 @@
 package com.fortify.processrunner.archer.connection;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.archer.context.IContextArcher;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 import com.fortify.util.rest.ProxyConfiguration;
 
 public final class ArcherConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_BASE_URL, "Archer base URL", context, "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_APPLICATION_NAME, "Archer application name", context, "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_INSTANCE_NAME, "Archer instance name", context, "Read from console", false));

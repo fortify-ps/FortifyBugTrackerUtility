@@ -1,7 +1,6 @@
 package com.fortify.processrunner.processor;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -51,7 +51,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 * Add context properties for grouping
 	 */
 	@Override
-	public final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
 			contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", context, "false", false));
 		}
@@ -63,7 +63,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 * @param contextPropertyDefinitions
 	 * @param context
 	 */
-	protected void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
+	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 
 	@Override
 	protected final boolean preProcess(Context context) {

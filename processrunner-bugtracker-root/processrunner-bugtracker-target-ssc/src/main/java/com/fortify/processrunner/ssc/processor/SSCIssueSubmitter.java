@@ -1,7 +1,6 @@
 package com.fortify.processrunner.ssc.processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
@@ -28,7 +28,7 @@ public class SSCIssueSubmitter extends AbstractProcessorBuildObjectMapFromGroupe
 	}
 	
 	@Override
-	protected void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		String name = getShortName();
 		if ( name!=null ) {
 			contextPropertyDefinitions.add(new ContextPropertyDefinition(name+"UserName", name+" user name", context, "Read from console", false));

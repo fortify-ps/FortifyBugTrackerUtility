@@ -1,6 +1,5 @@
 package com.fortify.processrunner.tfs.processor;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -10,6 +9,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
@@ -22,7 +22,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
 	}

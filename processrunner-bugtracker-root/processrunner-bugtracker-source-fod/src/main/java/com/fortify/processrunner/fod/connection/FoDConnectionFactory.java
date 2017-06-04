@@ -1,7 +1,5 @@
 package com.fortify.processrunner.fod.connection;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
@@ -9,12 +7,13 @@ import com.fortify.fod.connection.FoDConnectionRetrieverClientCredentials;
 import com.fortify.fod.connection.FoDConnectionRetrieverUserCredentials;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 
 public final class FoDConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_BASE_URL, "FoD base URL", context, "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_TENANT, "FoD tenant", context, "Read from console", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_USER_NAME, "FoD user name", context, "Read from console", false));

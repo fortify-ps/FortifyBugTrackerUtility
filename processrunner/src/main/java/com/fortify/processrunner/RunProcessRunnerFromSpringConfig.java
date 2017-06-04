@@ -3,10 +3,8 @@ package com.fortify.processrunner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.logging.Log;
@@ -17,6 +15,7 @@ import org.springframework.core.io.Resource;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.mapper.IContextPropertyMapper;
 import com.fortify.util.spring.SpringContextUtil;
 
@@ -59,12 +58,12 @@ public class RunProcessRunnerFromSpringConfig {
 		return appContext.getBean(processRunnerName, ProcessRunner.class);
 	}
 	
-	public Collection<ContextPropertyDefinition> getContextPropertyDefinitions(String processRunnerName) {
+	public ContextPropertyDefinitions getContextPropertyDefinitions(String processRunnerName) {
 		return getContextPropertyDefinitions(new Context(), getProcessRunner(getProcessRunnerNameOrDefault(processRunnerName)));
 	}
 	
-	private final Collection<ContextPropertyDefinition> getContextPropertyDefinitions(Context context, ProcessRunner runner) {
-		Set<ContextPropertyDefinition> result = new LinkedHashSet<ContextPropertyDefinition>();
+	private final ContextPropertyDefinitions getContextPropertyDefinitions(Context context, ProcessRunner runner) {
+		ContextPropertyDefinitions result = new ContextPropertyDefinitions();
 		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
 		addContextPropertyDefinitionsFromContext(result, context);
 		return result;
@@ -90,7 +89,7 @@ public class RunProcessRunnerFromSpringConfig {
 			context.refresh();
 		} else {
 			String defaultValuesContextPropertyName = defaultValuesGenerator.getContextPropertyName();
-			if ( getContextPropertyDefinition(context, runner, defaultValuesContextPropertyName)==null ) {
+			if ( getContextPropertyDefinitions(context, runner).get(defaultValuesContextPropertyName)==null ) {
 				throw new IllegalStateException("TODO");
 			}
 			Collection<Object> defaultValues = defaultValuesGenerator.getDefaultValues();
@@ -102,16 +101,6 @@ public class RunProcessRunnerFromSpringConfig {
 			}
 		}
 		return result;
-	}
-
-	private Object getContextPropertyDefinition(Context context, ProcessRunner runner, String contextPropertyName) {
-		Collection<ContextPropertyDefinition> defs = getContextPropertyDefinitions(context, runner);
-		for ( ContextPropertyDefinition def : defs ) {
-			if ( def.getName().equals(contextPropertyName) ) {
-				return def;
-			}
-		}
-		return null;
 	}
 
 	private Context addMappedContextPropertiesAndCheckContext(ProcessRunner runner, Context context) {
@@ -151,19 +140,19 @@ public class RunProcessRunnerFromSpringConfig {
 		return result;
 	}
 	
-	protected final void checkContext(Context context, Collection<ContextPropertyDefinition> contextPropertyDefinitions) {
-		for ( ContextPropertyDefinition contextProperty : contextPropertyDefinitions ) {
+	protected final void checkContext(Context context, ContextPropertyDefinitions contextPropertyDefinitions) {
+		for ( ContextPropertyDefinition contextProperty : contextPropertyDefinitions.values() ) {
 			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
 				throw new IllegalStateException("ERROR: Required option -"+contextProperty.getName()+" not set");
 			}
 		}
 	}
 
-	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		runner.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	protected final void addContextPropertyDefinitionsFromContext(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	protected final void addContextPropertyDefinitionsFromContext(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		context.addContextPropertyDefinitions(contextPropertyDefinitions);
 	}
 	

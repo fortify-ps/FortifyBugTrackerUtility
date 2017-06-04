@@ -1,6 +1,5 @@
 package com.fortify.processrunner.ssc.processor;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +8,7 @@ import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
@@ -18,7 +18,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	private Map<String, SSCIssueSubmitter> bugTrackers = new HashMap<String, SSCIssueSubmitter>();
 	
 	@Override
-	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCTarget.PRP_SSC_BUG_TRACKER_USER_NAME, "User name for SSC bug tracker", context, null, false));

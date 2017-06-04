@@ -1,13 +1,12 @@
 package com.fortify.processrunner.archer.processor;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import com.fortify.processrunner.archer.connection.ArcherConnectionFactory;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
 /**
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
@@ -15,7 +14,7 @@ import com.fortify.processrunner.context.ContextPropertyDefinition;
  */
 public class ProcessorArcherSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	

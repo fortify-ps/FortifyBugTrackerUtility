@@ -1,6 +1,5 @@
 package com.fortify.processrunner.common.processor;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.spring.SpringExpressionUtil;
 
@@ -24,14 +23,14 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	}
 	
 	@Override
-	public final void addExtraContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
 		// contextPropertyDefinitions.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
 		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	protected void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {}
+	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 	
 	@Override
 	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {

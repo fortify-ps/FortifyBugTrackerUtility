@@ -1,12 +1,10 @@
 package com.fortify.processrunner;
 
-import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.IProcessor.Phase;
@@ -22,7 +20,7 @@ public class ProcessRunner implements IContextPropertyDefinitionProvider {
 	private boolean enabled = true;
 	private boolean _default= false;
 
-	public void addContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		for ( IProcessor processor : processors ) {
 			processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}

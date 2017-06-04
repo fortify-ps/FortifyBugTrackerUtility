@@ -15,6 +15,7 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.expression.TemplateExpression;
 
@@ -37,7 +38,7 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 	 * Define the OutputFile context property.
 	 */
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(Collection<ContextPropertyDefinition> contextPropertyDefinitions, Context context) {
+	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
 	}
 	
