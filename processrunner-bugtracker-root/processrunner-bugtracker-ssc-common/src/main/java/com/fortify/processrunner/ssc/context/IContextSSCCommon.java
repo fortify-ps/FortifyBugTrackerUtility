@@ -12,6 +12,7 @@ public interface IContextSSCCommon {
 	public static final String PRP_SSC_AUTH_TOKEN = "SSCAuthToken";
 	public static final String PRP_SSC_USER_NAME = "SSCUserName";
 	public static final String PRP_SSC_PASSWORD = "SSCPassword";
+	public static final String PRP_SSC_APPLICATION_VERSION_ID = "SSCApplicationVersionId";
 	
 	public void setSSCBaseUrl(String baseUrl);
 	public String getSSCBaseUrl();
