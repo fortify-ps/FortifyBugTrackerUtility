@@ -23,27 +23,23 @@ import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
 /**
- * <p>This is the Main class used to run a {@link ProcessRunner} configuration
- * from the command line. By default it will load the available 
- * {@link ProcessRunner} configurations from the processRunnerConfig.xml file 
- * in the current directory. The file location and name can optionally be
- * overridden using the <code>--configFile</code> command line parameter.</p>
+ * <p>This class allows for instantiating a {@link RunProcessRunnerFromSpringConfig}
+ * instance based on command line options. The following command line options are
+ * available:</p>
+ * <ul>
+ *   <li>--configFile: Spring configuration file to be used by {@link RunProcessRunnerFromSpringConfig}</li>
+ *   <li>--logFile: Log file to write logging information</li>
+ *   <li>--logLevel: Log level (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
+ * <ul>
+ *    
+ * <p>Any remaining command line options are used to identify the
+ * {@link ProcessRunner} instance to use, and to build the initial
+ * context for that {@link ProcessRunner} instance.</p>
  * 
- * <p>Logging can be controlled using the --logFile and --logLevel parameters.
- * Any remaining command line arguments will identify the process to run,
- * together with process-specific parameters.</p>
- * 
- * <p>If no {@link ProcessRunner} configuration id argument is given, and the
- * configuration file only contains a single {@link ProcessRunner} configuration
- * or a {@link ProcessRunner} configuration named 'defaultPRocessRunner', then
- * this {@link ProcessRunner} configuration will be invoked. Otherwise, it is
- * required to specify a {@link ProcessRunner} configuration id on the command 
- * line to specify which {@link ProcessRunner} configuration to run.</p>
- * 
- * <p>When invoked with invalid arguments, an error message together with
+ * <p>When invoked with invalid arguments, or with the --help option, an message with
  * general usage information will be printed on standard out.</p>
  * 
- * TODO Update JavaDoc
+ * @author Ruud Senden
  */
 public class RunProcessRunnerFromCLI {
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
@@ -60,10 +56,8 @@ public class RunProcessRunnerFromCLI {
 	
 	/**
 	 * Main method for running a {@link ProcessRunner} configuration. This will 
-	 * load the Spring configuration file containing {@link ProcessRunner} 
-	 * definitions, and then run the specified process runner.
+	 * parse the command line options and then invoke {@link RunProcessRunnerFromSpringConfig}
 	 * @param args
-	 * @throws Exception
 	 */
 	public final void runProcessRunner(String[] argsArray) {
 		CommandLine cl = parseCommandLine(argsArray);
@@ -78,6 +72,11 @@ public class RunProcessRunnerFromCLI {
 		springRunner.run(cliContext, processRunnerName);
 	}
 
+	/**
+	 * Parse the command line options using Apache Commons CLI
+	 * @param argsArray
+	 * @return
+	 */
 	protected CommandLine parseCommandLine(String[] argsArray) {
 		try {
 			return new DefaultParser().parse(OPTIONS, argsArray, true);
@@ -87,6 +86,10 @@ public class RunProcessRunnerFromCLI {
 		}
 	}
 
+	/**
+	 * Update the log configuration based on command line options
+	 * @param cl
+	 */
 	protected final void updateLogConfig(CommandLine cl) {
 		String logFile = cl.getOptionValue(OPT_LOG_FILE.getLongOpt(), null);
 		String logLevel = cl.getOptionValue(OPT_LOG_LEVEL.getLongOpt(), null);
@@ -103,6 +106,12 @@ public class RunProcessRunnerFromCLI {
 		}
 	}
 
+	/**
+	 * Generate initial context based on command line options
+	 * @param contextPropertyDefinitions
+	 * @param args
+	 * @return
+	 */
 	protected final Context getContextFromArgs(ContextPropertyDefinitions contextPropertyDefinitions, List<String> args) {
 		Context context = new Context();
 		while ( args.size() > 0 ) {
@@ -116,15 +125,20 @@ public class RunProcessRunnerFromCLI {
 		return context;
 	}
 	
+	/**
+	 * Get the Spring configuration file name from command line options
+	 * @param cl
+	 * @return
+	 */
 	protected final String getConfigFileName(CommandLine cl) {
 		return cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt(), getDefaultConfigFilePathAndName());
 	}
 	
 	/**
-	 * Get the bean name for the {@link ProcessRunner} configuration to run.
+	 * Get the name for the {@link ProcessRunner} configuration to run.
 	 * @param args
 	 * @param context
-	 * @return
+	 * @return {@link ProcessRunner} name, or null if not provided via command line
 	 */
 	protected final String getProcessRunnerNameFromArgs(List<String> args) {
 		String result = null;

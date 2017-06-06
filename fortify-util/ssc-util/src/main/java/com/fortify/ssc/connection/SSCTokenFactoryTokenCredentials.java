@@ -5,6 +5,9 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * This class is used to properly encode an existing SSC authentication token 
  * for accessing the SSC REST API.
+ * 
+ * @author Ruud Senden
+ *
  */
 public final class SSCTokenFactoryTokenCredentials implements ISSCTokenFactory {
 	private final String token;

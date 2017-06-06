@@ -3,6 +3,9 @@ package com.fortify.ssc.connection;
 /**
  * <p>This {@link AbstractSSCConnectionRetriever} implementation
  * allows for configuring token credentials used to connect to SSC.</p>
+ * 
+ * @author Ruud Senden
+ *
  */
 public class SSCConnectionRetrieverTokenCredentials extends AbstractSSCConnectionRetriever {
 	private String authToken;

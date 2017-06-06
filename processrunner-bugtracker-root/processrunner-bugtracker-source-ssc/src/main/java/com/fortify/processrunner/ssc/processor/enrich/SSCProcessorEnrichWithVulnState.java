@@ -8,7 +8,12 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
-// TODO Change this class for SSC
+/**
+ * This class enriches the current vulnerability with the vulnerability open/closed state.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class SSCProcessorEnrichWithVulnState extends AbstractSSCProcessorEnrich {
 	public static final String NAME_VULN_STATE = "vulnState";
 	public static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");

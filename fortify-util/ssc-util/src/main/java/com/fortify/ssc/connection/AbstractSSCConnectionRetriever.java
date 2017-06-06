@@ -11,6 +11,9 @@ import com.fortify.util.rest.IRestConnectionRetriever;
  * 
  * <p>Subclasses will need to provide the actual authentication
  * data.</p>  
+ * 
+ * @author Ruud Senden
+ *
  */
 public abstract class AbstractSSCConnectionRetriever extends AbstractRestConnectionRetriever<SSCAuthenticatingRestConnection> implements ISSCConnectionRetriever {
 	private String baseUrl = "https://localhost:8080/ssc";

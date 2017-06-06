@@ -24,6 +24,8 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * the current entry should not be further processed. If all current
  * values match the corresponding pattern, then true is returned to 
  * indicate that the current entry can be processed further.</p>
+ * 
+ * @author Ruud Senden
  */
 public class FilterRegEx extends AbstractProcessor {
 	private SimpleExpression rootExpression;

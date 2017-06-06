@@ -53,4 +53,14 @@
 	
 	<import resource="components/issueState/JiraIssueState.xml"/>
 	
+	<!-- This bean allows for automatically loading all SSC application versions that
+	     have a 'Jira Project Key' attribute set, and automatically using that attribute
+	     value to generate the JiraProjectKey context property for each application
+	     version being processed. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeContextPropertyMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Jira Project Key" value="JiraProjectKey"/>
+		</map></property>
+	</bean>
+	
 </beans>

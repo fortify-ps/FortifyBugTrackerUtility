@@ -27,6 +27,8 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
  *  <li>Provides detailed logging</li>
  *  <li>Provides diagnostic {@link #toString()} method</li>
  * </ul>
+ * 
+ * @author Ruud Senden
  */
 public abstract class AbstractProcessor implements IProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);

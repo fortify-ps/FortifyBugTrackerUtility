@@ -9,6 +9,11 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import com.fortify.util.spring.SpringContextUtil;
 
+/**
+ * This class tests whether the available configuration files can be successfully loaded by Spring.
+ * @author Ruud Senden
+ *
+ */
 public class ConfigFilesTest {
 	@Test
 	public void testConfigFiles() {

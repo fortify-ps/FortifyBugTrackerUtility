@@ -10,8 +10,12 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.IProcessor.Phase;
 
 /**
- * This class allows configuration of the initial context and the processor to
- * be run on that context. 
+ * This class allows for running one or more independent {@link IProcessor}
+ * implementations as configured through the {@link #setProcessors(IProcessor...)}
+ * method.
+ * 
+ * @author Ruud Senden
+ *
  */
 public class ProcessRunner implements IContextPropertyDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
@@ -20,6 +24,10 @@ public class ProcessRunner implements IContextPropertyDefinitionProvider {
 	private boolean enabled = true;
 	private boolean _default= false;
 
+	/**
+	 * Allow all configured {@link IProcessor} implementations to add
+	 * their {@link ContextPropertyDefinitions}
+	 */
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		for ( IProcessor processor : processors ) {
 			processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -27,7 +35,8 @@ public class ProcessRunner implements IContextPropertyDefinitionProvider {
 	}
 	
 	/**
-	 * Run the configured processor using the configured context.
+	 * Run the configured processor(s) using the configured context.
+	 * Each configured processor is run with its own individual context.
 	 */
 	public void run(Context context) {
 		IProcessor[] processors = getProcessors();

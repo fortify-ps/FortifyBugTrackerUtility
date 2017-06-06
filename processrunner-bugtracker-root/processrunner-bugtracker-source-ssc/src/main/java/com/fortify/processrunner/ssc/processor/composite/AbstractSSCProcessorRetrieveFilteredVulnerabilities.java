@@ -32,6 +32,8 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
  * 
  * <p>The configured vulnerability processor can access the current
  * vulnerability using {@link IContextCurrentVulnerability#getCurrentVulnerability()}.</p>
+ * 
+ * @author Ruud Senden
  */
 public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extends AbstractCompositeProcessor {
 	private Map<String,String> topLevelFieldSimpleFilters;

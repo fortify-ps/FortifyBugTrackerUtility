@@ -59,8 +59,7 @@
 		     which you are submitting issues to the bug tracker. If not defined,
 		     you must either submit the bugs through the native SSC bug tracker
 		     integrations (see SSCToSSCBugTrackers.xml), or install and configure
-		     the SSC AddExistingBugLinkBugTracker for your application versions
-		     (this feature is not yet implemented). -->
+		     the SSC AddExistingBugLinkBugTracker for your application versions. -->
 		<!-- <property name="customTagName" value="bugLink"/> -->
 		
 		<!-- This property defines the expression for evaluating whether an SSC 

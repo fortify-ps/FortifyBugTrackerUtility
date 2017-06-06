@@ -14,6 +14,13 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker;
 import com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState;
 
+/**
+ * Depending on the configured {@link ProcessRunnerType}, this {@link ProcessRunner} implementation 
+ * allows for submitting or updating external issues based on SSC vulnerabilities, or both.
+ *  
+ * @author Ruud Senden
+ *
+ */
 public class SSCBugTrackerProcessRunner extends ProcessRunner {
 	private final ProcessRunnerType type;
 	

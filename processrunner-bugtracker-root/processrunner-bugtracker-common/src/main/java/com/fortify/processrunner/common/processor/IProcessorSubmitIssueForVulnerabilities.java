@@ -3,8 +3,20 @@ package com.fortify.processrunner.common.processor;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.processor.IProcessor;
 
+/**
+ * This interface provides the methods necessary for submitting issues for
+ * vulnerabilities.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public interface IProcessorSubmitIssueForVulnerabilities extends IProcessor {
+	/**
+	 * Get the bug tracker name for this implementation
+	 * @return
+	 */
 	public String getBugTrackerName();
+	
 	/**
 	 * Set the {@link IIssueSubmittedListener} to be called when the bug tracker
 	 * implementation has submitted an issue. This method should return true if

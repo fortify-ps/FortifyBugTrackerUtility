@@ -16,6 +16,8 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
  * 
  * <p>Usually classes should not implement this interface directly,
  * but instead extend from the {@link AbstractProcessor} class.</p>
+ * 
+ * @author Ruud Senden
  */
 public interface IProcessor extends IContextPropertyDefinitionProvider {
 	/**

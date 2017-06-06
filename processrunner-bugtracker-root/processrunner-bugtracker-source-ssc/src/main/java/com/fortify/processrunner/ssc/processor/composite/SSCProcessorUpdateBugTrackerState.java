@@ -1,7 +1,9 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -16,6 +18,9 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionFilterBugTracker;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionFilterCustomTag;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
@@ -35,7 +40,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * in each group can be considered 'closed' and thus the corresponding bug
  * can be closed as well. 
  * 
- * TODO Test this SSC implementation for correct operation
+ * @author Ruud Senden
  */
 @Component
 public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
@@ -44,13 +49,38 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
+	/**
+	 * Generate SSC application version filter based on either {@link #customTagName} (if configured)
+	 * or availability of the 'Add Existing Bugs' bug tracker integration.
+	 * 
+	 * TODO Remove code duplication between this class and {@link SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker} 
+	 */
+	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
+		if ( getCustomTagName()!=null ) {
+			SSCApplicationVersionFilterCustomTag filter = new SSCApplicationVersionFilterCustomTag();
+			filter.setCustomTagNames(new HashSet<String>(Arrays.asList(getCustomTagName())));
+			return Arrays.asList((ISSCApplicationVersionFilter)filter);
+		} else {
+			SSCApplicationVersionFilterBugTracker filter = new SSCApplicationVersionFilterBugTracker();
+			filter.setBugTrackerPluginNames(new HashSet<String>(Arrays.asList("Add Existing Bugs")));
+			return Arrays.asList((ISSCApplicationVersionFilter)filter);
+		}
+	}
+	
+	/**
+	 * This method checks whether the current application version either has the
+	 * {@link #customTagName} custom tag (if configured), or has the 'Add Existing Bugs'
+	 * bug tracker integration enabled.
+	 * 
+	 * TODO Remove code duplication between this class and {@link SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker} 
+	 */
 	@Override
 	protected boolean preProcess(Context context) {
 		if ( getCustomTagName()==null ) {
 			IContextSSCSource ctx = context.as(IContextSSCSource.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
-			String bugTrackerName = conn.getBugTrackerShortName(applicationVersionId);
+			String bugTrackerName = conn.getApplicationVersionBugTrackerShortName(applicationVersionId);
 			if ( !"Add Existing Bugs".equals(bugTrackerName) ) {
 				throw new IllegalStateException("Either custom tag name or the 'Add Existing Bugs' SSC bug tracker needs to be configured");
 			}

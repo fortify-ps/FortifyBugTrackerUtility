@@ -11,6 +11,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
 /**
  * This class determines the SSC browser-viewable deep link for the current vulnerability,
  * and adds this link as the 'deepLink' property to the current vulnerability JSON object.
+ * 
+ * @author Ruud Senden
  */
 public class SSCProcessorEnrichWithVulnDeepLink extends AbstractSSCProcessorEnrich {
 	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("/html/ssc/index.jsp#!/version/${projectVersionId}/fix/${id}/");

@@ -23,6 +23,8 @@ import com.fortify.processrunner.ssc.context.IContextSSCSource;
  * vulnerabilities for which a field matches the configured filter value will 
  * either be excluded from further processing (flag set to true) or included for
  * further processing (flag set to false, default).</p>
+ * 
+ * @author Ruud Senden
  */
 public class SSCFilterOnTopLevelField extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(SSCFilterOnTopLevelField.class);

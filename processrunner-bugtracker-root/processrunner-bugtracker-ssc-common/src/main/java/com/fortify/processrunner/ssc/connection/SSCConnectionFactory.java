@@ -11,6 +11,13 @@ import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.ssc.connection.SSCConnectionRetrieverTokenCredentials;
 import com.fortify.ssc.connection.SSCConnectionRetrieverUserCredentials;
 
+/**
+ * This utility class creates and caches an {@link SSCAuthenticatingRestConnection} instance
+ * based on {@link Context} properties. The created connection will be cached in the {@link Context}.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public final class SSCConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {

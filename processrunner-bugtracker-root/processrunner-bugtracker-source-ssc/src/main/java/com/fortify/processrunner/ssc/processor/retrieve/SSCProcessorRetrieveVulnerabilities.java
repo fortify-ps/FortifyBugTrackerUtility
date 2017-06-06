@@ -42,6 +42,8 @@ import com.sun.jersey.api.client.WebResource;
  * {@link SSCFilterOnTopLevelFields}), this filter parameter value 
  * will be passed on to SSC to allow SSC to filter the vulnerabilities 
  * being returned.</p>
+ * 
+ * @author Ruud Senden
  */
 public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(SSCProcessorRetrieveVulnerabilities.class);
@@ -78,7 +80,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		String filterParamValue = contextSSC.getSSCTopLevelFilterParamValue();
 		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&q="+filterParamValue;
 		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
-		conn.updateIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
+		conn.updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
 		while ( start < count ) {

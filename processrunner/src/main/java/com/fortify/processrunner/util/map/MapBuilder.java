@@ -11,6 +11,13 @@ import org.springframework.expression.Expression;
 
 import com.fortify.util.spring.SpringExpressionUtil;
 
+/**
+ * This class allows for building a {@link Map} based on configured
+ * {@link IMapUpdater} instances.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class MapBuilder {
 	private static final Log LOG = LogFactory.getLog(MapBuilder.class);
 	private Collection<IMapUpdater> mapUpdaters = new ArrayList<IMapUpdater>();
@@ -30,6 +37,10 @@ public class MapBuilder {
 		return this;
 	}
 	
+	/**
+	 * Interface for updating a given map.
+	 *
+	 */
 	public static interface IMapUpdater {
 		void updateMap(Map<String, Object> map);
 	}

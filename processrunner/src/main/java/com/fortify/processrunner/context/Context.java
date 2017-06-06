@@ -49,14 +49,6 @@ public class Context extends HashMap<String, Object> {
 		}
 	}
 	
-	public final void refresh() {
-		for ( Object obj : values() ) {
-			if ( obj instanceof IContextAware ) {
-				((IContextAware)obj).setContext(this);
-			}
-		}
-	}
-	
 	public final <T> T as(Class<T> iface) {
 		T result = (T)proxies.get(iface);
 		if ( result == null ) {

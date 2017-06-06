@@ -16,6 +16,18 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
+/**
+ * This abstract class extends {@link AbstractProcessorUpdateIssueStateForVulnerabilities} by
+ * adding functionality for transitioning previously submitted issues to a new state. To do
+ * so, the user can configure possible transitions for opening and closing issues, based on
+ * current issue state. Concrete implementations will need to implement the 
+ * {@link #transition(Context, SubmittedIssue, String, String)} method to actually transition
+ * the issue.
+ * 
+ * @author Ruud Senden
+ *
+ * @param <IssueStateType>
+ */
 public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<IssueStateType>
 		extends AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorTransitionIssueStateForVulnerabilities.class);

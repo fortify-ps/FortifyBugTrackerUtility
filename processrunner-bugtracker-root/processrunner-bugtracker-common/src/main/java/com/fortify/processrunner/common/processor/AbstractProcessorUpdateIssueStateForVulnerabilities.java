@@ -14,10 +14,29 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
+/**
+ * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted
+ * issues, based on possibly updated vulnerability data. Based on our superclass 
+ * {@link AbstractProcessorBuildObjectMapFromGroupedObjects}, we first group all previously
+ * submitted vulnerabilities by the corresponding external system issue link, and then update one or 
+ * more fields for the external issue using the grouped vulnerability data.</p>
+ * 
+ * <p>The fields to be updated can be configured using the {@link #setFieldsToUpdate(String[])} method;
+ * the corresponding field content expressions will be taken from the configured 
+ * {@link AbstractProcessorSubmitIssueForVulnerabilities} instance.</p>
+ * 
+ * <p>Subclasses need to implement the {@link #updateIssueFields(Context, SubmittedIssue, LinkedHashMap)}
+ * method to actually update previously submitted issues.</p>
+ * 
+ * @author Ruud Senden
+ *
+ * @param <IssueStateType>
+ */
 public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractProcessorBuildObjectMapFromGroupedObjects {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
 	private SimpleExpression isVulnStateOpenExpression;

@@ -26,18 +26,15 @@ import com.javamex.classmexer.MemoryUtil;
  * evaluated on each root object to identify the group that this
  * root object belongs to.</p>
  * 
- * <p>During the {@link Phase#POST_PROCESS}
- * phase, the configured group processor will be invoked for each 
- * individual group. The group processor can then access the root
- * objects contained in the current group using the 
- * {@link IContextGrouping#getCurrentGroup()} method.</p>
+ * <p>During the {@link Phase#POST_PROCESS} phase, the 
+ * {@link #processGroup(Context, List)} method will be called
+ * to allow actual implementations to process each group.</p>
  * 
- * <p>If no grouping expression has been defined, the group processor
- * will be invoked immediately for every individual root object.
- * Just like grouped data, the group processor can then access this
- * root object using the {@link IContextGrouping#getCurrentGroup()} method.</p>
+ * <p>If no grouping expression has been defined, or if the DisableGrouping
+ * context property has been set to true, the {@link #processGroup(Context, List)}
+ * method will be invoked immediately for every individual root object.</p>
  * 
- * TODO Update JavaDoc as it is no longer valid
+ * @author Ruud Senden
  */
 public abstract class AbstractProcessorGroupByExpressions extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorGroupByExpressions.class);

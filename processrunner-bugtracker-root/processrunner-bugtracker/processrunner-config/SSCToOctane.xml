@@ -71,12 +71,18 @@
 	
 	<import resource="components/issueState/OctaneIssueState.xml"/>
 	
-	<!-- TODO Remove this example -->
-	<bean class="com.fortify.processrunner.context.mapper.MapBasedContextPropertyMapper">
-		<property name="contextPropertyName" value="SSCApplicationVersionId"/>
-		<property name="contextProperties"><map>
-			<entry key="2" value="OctaneSharedSpaceUid=136002,OctaneWorkspaceId=1002"/>
-			<entry key="3" value="OctaneSharedSpaceUid=136002,OctaneWorkspaceId=1002"/>
+	<!-- This bean allows for automatically loading all SSC application versions that
+	     have a 'Octane Workspace Id' attribute set, and automatically using that attribute
+	     value to generate the OctaneWorkspaceId context property for each application
+	     version being processed. Optionally you can also have an 'Octane Shared Space Uid'
+	     application version attribute, which will be mapped to the OctaneSharedSpaceUid
+	     context property if the attribute contains a value. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeContextPropertyMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="Octane Shared Space Uid" value="OctaneSharedSpaceUid"/>
 		</map></property>
 	</bean>
 	

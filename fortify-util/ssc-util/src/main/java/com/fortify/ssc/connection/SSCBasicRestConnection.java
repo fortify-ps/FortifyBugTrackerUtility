@@ -9,6 +9,9 @@ import com.sun.jersey.api.client.WebResource.Builder;
  * for SSC. It's main characteristics compared to a standard 
  * {@link RestConnection} is that it will add an 
  * <code>Accept: application/json</code> header.
+ * 
+ * @author Ruud Senden
+ *
  */
 public class SSCBasicRestConnection extends RestConnection {
 	public SSCBasicRestConnection(String baseUrl, ProxyConfiguration proxy) {

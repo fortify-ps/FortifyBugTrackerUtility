@@ -7,6 +7,13 @@ import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.ProxyConfiguration;
 
+/**
+ * This class allows for generating {@link ProxyConfiguration} instances
+ * based on {@link Context} property values.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public final class ContextAwareProxyConfigurationFactory {
 	private static final String PRP_SFX_URL = "ProxyUrl";
 	private static final String PRP_SFX_USER_NAME = "ProxyUserName";

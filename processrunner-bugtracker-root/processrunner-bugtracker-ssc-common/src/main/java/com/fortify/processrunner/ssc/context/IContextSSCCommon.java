@@ -4,8 +4,9 @@ import com.fortify.processrunner.context.Context;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to SSC data like connection properties, SSC REST connection, application
- * version id and top level filter parameter values.
+ * access to SSC data like connection properties and application version id.
+ * 
+ * @author Ruud Senden
  */
 public interface IContextSSCCommon {
 	public static final String PRP_SSC_BASE_URL = "SSCBaseUrl";

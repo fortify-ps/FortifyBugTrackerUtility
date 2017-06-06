@@ -7,6 +7,12 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+/**
+ * This class describes the SSC issue search options, allowing to either 
+ * include or exclude removed, hidden and suppressed issues.
+ * @author Ruud Senden
+ *
+ */
 public class IssueSearchOptions {
 	private Map<String, Boolean> searchOptions = new HashMap<String, Boolean>();
 	

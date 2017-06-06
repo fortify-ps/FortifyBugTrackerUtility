@@ -12,8 +12,19 @@ import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
+import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 
+/**
+ * This abstract {@link IProcessor} implementation allows for submitting issues to external systems
+ * based on vulnerability data. Based on our superclass {@link AbstractProcessorBuildObjectMapFromGroupedObjects},
+ * we build a map containing issue information to be submitted from (optionally grouped) vulnerability
+ * data. Actual implementations will need to implement the {@link #submitIssue(Context, LinkedHashMap)} method
+ * to actually submit the issue to the external system.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
 	private IIssueSubmittedListener issueSubmittedListener;

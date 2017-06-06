@@ -17,6 +17,14 @@ import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 
+/**
+ * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
+ * The fields to be submitted are configured through our {@link AbstractProcessorBuildObjectMapFromGroupedObjects}
+ * superclass.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class SSCIssueSubmitter extends AbstractProcessorBuildObjectMapFromGroupedObjects {
 	private static final Log LOG = LogFactory.getLog(SSCIssueSubmitter.class);
 	private String shortName;

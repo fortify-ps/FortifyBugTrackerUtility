@@ -11,6 +11,8 @@ import java.util.List;
  * method. Based on functionality provided by 
  * {@link AbstractCompositeProcessor}, each of the configured
  * processors will be invoked. 
+ * 
+ * @author Ruud Senden
  */
 public class CompositeProcessor extends AbstractCompositeProcessor {
 	private List<IProcessor> processors = new ArrayList<IProcessor>();

@@ -16,6 +16,8 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
  * list of individual {@link IProcessor} instances to be invoked
  * during processing. The list of {@link IProcessor} instances
  * may contain null values that will be ignored.
+ * 
+ * @author Ruud Senden
  */
 public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	

@@ -3,6 +3,9 @@ package com.fortify.ssc.connection;
 /**
  * <p>This {@link AbstractSSCConnectionRetriever} implementation
  * allows for configuring user name and password used to connect to SSC.</p> 
+ * 
+ * @author Ruud Senden
+ *
  */
 public class SSCConnectionRetrieverUserCredentials extends AbstractSSCConnectionRetriever {
 	private String userName;

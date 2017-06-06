@@ -4,6 +4,8 @@ package com.fortify.processrunner.common.issue;
  * This class holds information about issues that have been
  * submitted to an external system. Bug tracker implementations
  * can optionally use subclasses to hold additional information.
+ * 
+ * @author Ruud Senden
  */
 public class SubmittedIssue {
 	private String id;

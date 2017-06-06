@@ -9,6 +9,16 @@ import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterAppendValuesFromE
 import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterPutValuesFromExpressionMap;
 import com.fortify.util.spring.expression.TemplateExpression;
 
+/**
+ * This abstract class allows for building an object map from grouped objects.
+ * Objects are grouped by our parent {@link AbstractProcessorGroupByExpressions}
+ * class. In our {@link #processGroup(Context, List)} method we build an object 
+ * map for the current group, and then call {@link #processMap(Context, List, LinkedHashMap)}
+ * to allow concrete implementation to further process the object map.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends AbstractProcessorGroupByExpressions {
 	private LinkedHashMap<String,TemplateExpression> fields;
 	private LinkedHashMap<String,TemplateExpression> appendedFields;

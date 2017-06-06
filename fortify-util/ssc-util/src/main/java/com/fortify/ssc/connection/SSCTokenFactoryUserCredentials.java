@@ -20,6 +20,9 @@ import com.fortify.util.rest.ProxyConfiguration;
  * optional proxy configuration, it will call the SSC /oauth/token
  * API to request a REST token. The token will be automatically
  * refreshed as required.
+ * 
+ * @author Ruud Senden
+ *
  */
 public final class SSCTokenFactoryUserCredentials implements ISSCTokenFactory {
 	static final Log LOG = LogFactory.getLog(SSCTokenFactoryUserCredentials.class);

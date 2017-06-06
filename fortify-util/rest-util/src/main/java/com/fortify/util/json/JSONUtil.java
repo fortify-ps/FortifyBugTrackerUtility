@@ -227,16 +227,7 @@ public final class JSONUtil {
 	 * 		indexed by the result of evaluating the given keyExpression on each {@link JSONObject}
 	 */
 	public static final <K> LinkedHashMap<K, JSONObject> toMap(JSONArray array, String keyExpression, Class<K> keyType) {
-		LinkedHashMap<K, JSONObject> result = null;
-		if ( array != null ) {
-			result = new LinkedHashMap<K, JSONObject>();
-			for(int i=0; i<array.length(); i++){
-				JSONObject obj = array.optJSONObject(i);
-				K key = SpringExpressionUtil.evaluateExpression(obj, keyExpression, keyType);
-				result.put(key, obj);
-			}
-		}
-		return result;
+		return toMap(array, keyExpression, keyType, "#this", JSONObject.class);
 	}
 	
 	/**
@@ -249,15 +240,45 @@ public final class JSONUtil {
 	 * 		indexed by the result of evaluating the given keyExpression on each {@link JSONObject}
 	 */
 	public static final <K> LinkedHashMap<K, JSONObject> toMap(List<JSONObject> list, String keyExpression, Class<K> keyType) {
-		LinkedHashMap<K, JSONObject> result = null;
-		if ( list != null ) {
-			result = new LinkedHashMap<K, JSONObject>();
-			for(JSONObject obj : list){
+		return toMap(list, keyExpression, keyType, "#this", JSONObject.class);
+	}
+	
+	/**
+	 * Given a JSONArray, this method will return a map with keys generated using the given 
+	 * keyExpression, and corresponding values generated using the given valueExpression.
+	 * @param array
+	 * @param keyExpression
+	 * @param keyType
+	 * @param valueExpression
+	 * @param valueType
+	 * @return
+	 */
+	public static final <K, V> LinkedHashMap<K, V> toMap(JSONArray array, String keyExpression, Class<K> keyType, String valueExpression, Class<V> valueType) {
+		LinkedHashMap<K, V> result = null;
+		if ( array != null ) {
+			result = new LinkedHashMap<K, V>();
+			for(int i=0; i<array.length(); i++){
+				JSONObject obj = array.optJSONObject(i);
 				K key = SpringExpressionUtil.evaluateExpression(obj, keyExpression, keyType);
-				result.put(key, obj);
+				V value = SpringExpressionUtil.evaluateExpression(obj, valueExpression, valueType);
+				result.put(key, value);
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Given a List of JSONObject instances, this method will return a map with keys generated 
+	 * using the given keyExpression, and corresponding values generated using the given valueExpression.
+	 * @param array
+	 * @param keyExpression
+	 * @param keyType
+	 * @param valueExpression
+	 * @param valueType
+	 * @return
+	 */
+	public static final <K, V> LinkedHashMap<K, V> toMap(List<JSONObject> list, String keyExpression, Class<K> keyType, String valueExpression, Class<V> valueType) {
+		return toMap(new JSONArray(list), keyExpression, keyType, valueExpression, valueType);
 	}
 	
 	/**

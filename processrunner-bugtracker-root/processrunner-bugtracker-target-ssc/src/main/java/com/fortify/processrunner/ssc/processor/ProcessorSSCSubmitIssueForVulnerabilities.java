@@ -1,5 +1,6 @@
 package com.fortify.processrunner.ssc.processor;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,16 +11,24 @@ import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulner
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.mapper.IContextPropertyMapper;
 import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionFilterBugTracker;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 
-// TODO Implement IProcessorSubmitIssueForVulnerabilities and IContextPropertyMapper in a single class (since they are related,
-//      provide two separate classes, or create an IProcessorSubmitIssueForVulnerabilities base class and
-//      a subclass that adds IContextPropertyMapper functionality?
-public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor implements IProcessorSubmitIssueForVulnerabilities, IContextPropertyMapper {
+/**
+ * This class allows for submitting vulnerabilities through native SSC bug tracker integrations.
+ * This class basically maps the SSC bug tracker name to a corresponding {@link SSCIssueSubmitter}
+ * instance; the {@link SSCIssueSubmitter} instance is responsible for actually submitting the issue
+ * via SSC.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor implements IProcessorSubmitIssueForVulnerabilities, ISSCApplicationVersionFilterFactory {
 	private Map<String, SSCIssueSubmitter> bugTrackers = new HashMap<String, SSCIssueSubmitter>();
 	
 	@Override
@@ -45,22 +54,10 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		return false;
 	}
 	
-	public String getContextPropertyName() {
-		return IContextSSCTarget.PRP_SSC_APPLICATION_VERSION_ID;
-	}
-	
-	public Collection<Object> getDefaultValues() {
-		// TODO Get all SSC project version id's for which one of the bug trackers contained
-		//      in bugTrackers map is configured.
-		throw new RuntimeException("Not yet implemented");
-	}
-	
-	public boolean isDefaultValuesGenerator() {
-		return true;
-	}
-	
-	public void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		// Do nothing; SSC contains all necessary bug tracker configuration
+	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
+		SSCApplicationVersionFilterBugTracker filter = new SSCApplicationVersionFilterBugTracker();
+		filter.setBugTrackerPluginNames(bugTrackers.keySet());
+		return Arrays.asList((ISSCApplicationVersionFilter)filter);
 	}
 	
 	@Override
@@ -89,7 +86,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	private final boolean callIssueSubmitter(Phase phase, Context context) {
 		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String bugTrackerName = conn.getBugTrackerShortName(ctx.getSSCApplicationVersionId());
+		String bugTrackerName = conn.getApplicationVersionBugTrackerShortName(ctx.getSSCApplicationVersionId());
 		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
 		if ( submitter == null ) {
 			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);

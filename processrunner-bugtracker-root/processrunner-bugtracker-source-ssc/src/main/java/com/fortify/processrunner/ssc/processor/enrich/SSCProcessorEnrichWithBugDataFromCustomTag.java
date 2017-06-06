@@ -10,6 +10,13 @@ import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONUtil;
 import com.fortify.util.spring.SpringExpressionUtil;
 
+/**
+ * Enrich the current vulnerability with the bug link from the configured {@link #customTagName}
+ * custom tag.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProcessorEnrich {
 	private final String customTagName;
 	public SSCProcessorEnrichWithBugDataFromCustomTag(String customTagName) {

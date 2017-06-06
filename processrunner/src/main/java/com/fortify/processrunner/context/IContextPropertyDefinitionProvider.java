@@ -2,6 +2,13 @@ package com.fortify.processrunner.context;
 
 import java.util.Collection;
 
+/**
+ * Interface to be implemented by classes that want to add {@link ContextPropertyDefinition}
+ * instances to {@link ContextPropertyDefinitions}.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public interface IContextPropertyDefinitionProvider {
 	/**
 	 * Add {@link ContextPropertyDefinition} instances to the provided

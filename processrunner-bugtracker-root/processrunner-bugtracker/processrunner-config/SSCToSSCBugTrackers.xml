@@ -50,4 +50,6 @@
 		</map></property>
 	</bean>
 	
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionIdGenerator"/>
+	
 </beans>

@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * This helper class allows for generating and parsing comments with submitted issue information.
+ * 
+ * @author Ruud Senden
  */
 public class SubmittedIssueCommentHelper {
 	private static final String FMT_COMMENT_STR = "--- Vulnerability submitted to {0}:{1} Location {2}";

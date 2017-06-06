@@ -12,6 +12,8 @@ import com.fortify.util.rest.IRestConnection;
 /**
  * This class allows for loading additional issue details from SSC and adding them to the 
  * current SSC vulnerability JSON object.
+ * 
+ * @author Ruud Senden
  */
 public class SSCProcessorEnrichWithIssueDetails extends AbstractSSCProcessorEnrich {
 
