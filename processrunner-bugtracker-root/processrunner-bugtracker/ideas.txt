@@ -45,6 +45,10 @@ PERFORMANCE & MEMORY USAGE:
 - Where possibly, only load required JSON fields from source and target systems, instead of full
   objects with all default fields
   
+- Use SSC bulk requests to reduce the number of round trips, for example to include issue details
+  when requesting application version issues, and including application version attributes when
+  requesting application versions
+  
 MAINTENANCE:
 - Define a common JSON data model for commonly used FoD and SSC vulnerability fields, such that
   we only need to define a single field mapping and grouping criteria that works for both FoD
