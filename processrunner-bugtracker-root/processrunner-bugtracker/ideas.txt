@@ -66,8 +66,6 @@ TODO:
 - Update README.md and Wiki
 - Rename FoDBugTrackerUtility to FortifyBugTrackerUtility (as it now supports SSC), or even
   just 'FortifyUtility' as the generic architecture can support completely different use cases.
-<<<<<<< HEAD
 - Add mappings for additional native SSC bug tracker integrations in SSCToSSCBugTracker.xml
-=======
->>>>>>> 47313cf4ad9dfbd4cee2ac1264399145ec2ec7b1
+
  
