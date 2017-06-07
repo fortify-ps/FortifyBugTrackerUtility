@@ -58,5 +58,13 @@ MAINTENANCE:
 TODO: 
 - Create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
 - Code cleanup, resolve various TODO's documented in the code
-
+- The XSLT to generate full configuration files replaces CDATA sections with XML-encoded data,
+  reducing readibility of the generated configuration files. XSLT only allows predefined output
+  elements to be output as CDATA sections (for example all <value> elements), so this probably 
+  isn't suitable as too many elements would be output as CDATA sections. We have to find a better
+  way to combine the partial configuration files, without reformatting any elements.
+- Update README.md and Wiki
+- Rename FoDBugTrackerUtility to FortifyBugTrackerUtility (as it now supports SSC), or even
+  just 'FortifyUtility' as the generic architecture can support completely different use cases.
+- Add mappings for additional native SSC bug tracker integrations in SSCToSSCBugTracker.xml
  
