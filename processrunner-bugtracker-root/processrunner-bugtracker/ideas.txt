@@ -1,3 +1,4 @@
+FUNCTIONALITY:
 - Add context properties SSCApplicationVersion and FoDRelease to specify sources by name
   - For now, add a utility class like SSC/FoDConnectionFactory that has a private IContext interface
     that can hold either id or name (format Application:Version/Release) and a static
@@ -5,24 +6,57 @@
     id directly, or looks up the id for the provided name.
   - In the future, see whether we can integrate this in ContextProperty directly
     (i.e. allow to have an alternative context property (name) that sets another context property (id)
-    
-- Add support for specifying a mapping from one context property value to multiple other property values
-  - For example given an FoD release name, set the corresponding JIRA project key
-  - If FoDReleaseId is not specified, run the process runners for all FoDReleaseId's
-    specified in this mapping
-  Essentially works, requires some more work
-  Add implementations for getting all projects with for example 'JiraProjectKey' application version attribute set,
-  and automatically map application version context property to jira project key context property
-    
-- Add support for ContextProperty instances to run some method to provide a default value
-  For example to read usernames/passwords from console only once for all processor invocations at the start of the program,
-  instead of when the property is actually checked/used.
+  
+- Add support for generating default values for FoD release id, similar to the functionality
+  in com.fortify.processrunner.ssc.appversion
+  
+- Dynamically determine any extra data to be loaded from the source system (SSC/FoD), or implement
+  functionality for loading this data on-demand (when it is actually accessed), to prevent users
+  from having to manually configure which extra data needs to be loaded.
+  
+CREDENTIALS HANDLING:
+- Add support for ContextPropertyDefinition instances to run some method to provide a default value
+  For example to read usernames/passwords from console only once for all processor invocations at 
+  the start of the program, instead of when the property is actually checked/used.
+  
+- Add functionality for securely storing usernames and passwords in a password-protected persistent
+  store. This way only the master password needs to be specified via command line or console at
+  the start of the program, allowing the remainder of the program to run without user interaction
+  to request usernames/passwords.
+  
+- Add support for Fortify pwtool to allow encoded passwords to be stored in the configuration
+  file.
+  
+PERFORMANCE & MEMORY USAGE:
+- Implement optional multi-threading to process multiple contexts in RunProcessRunnerFromSpringConfig
+  Note that this may increase memory usage, especially when grouping is enabled.
+  
+- In AbstractProcessorUpdateIssueStateForVulnerabilities, persistently cache the issueData map after
+  updating the bug tracker issue. If a cached entry exists and contents are the same, there is
+  no need to send the updated fields to the bug tracker. 
 
+- Instead of using an in-memory map for grouping, persist grouped objects to disk, for
+  example using a temporary database
+  
+- Have SSC/FoD return the vulnerabilities sorted or grouped based on the grouping criteria. This way
+  we can process one group at a time, instead of having to temporarily store all vulnerability
+  data to make sure we have collected all vulnerabilities for each group.
+  
+- Where possibly, only load required JSON fields from source and target systems, instead of full
+  objects with all default fields
+  
+MAINTENANCE:
+- Define a common JSON data model for commonly used FoD and SSC vulnerability fields, such that
+  we only need to define a single field mapping and grouping criteria that works for both FoD
+  and SSC.
 
+- We currently use different approaches for defining filters for vulnerabilities (via IProcessor
+  implementations that get configured via an auto-wired configuration object) and application 
+  versions/releases (via Filter classes that get auto-wired by Spring). Does it make sense to 
+  refactor to use the same type of architecture for both? 
     
 TODO: 
 - Create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
-- Check whether IContextAware is being used, otherwise remove this functionality as it complicates some code
-
+- Code cleanup, resolve various TODO's documented in the code
 
  
