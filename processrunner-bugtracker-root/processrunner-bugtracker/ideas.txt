@@ -75,6 +75,10 @@ TODO:
   field configuration for FoDBugTrackerUtility and SSC bug tracker doesn't provide default
   values for all required fields (for example, default values for issue type and bug tracker
   project must be configured in either SSC or FoDBugTracker, otherwise ignore the application
-  version and log a warning/error).   
+  version and log a warning/error).
+- Add the ability to reference extra data like application version attributes in bug tracker
+  field mappings. For example, this would allow for configuring the issue type and bug tracker
+  project via SSC application version attributes for native SSC bug tracker integrations that
+  do not support configuration of default values for required fields (see previous point).   
 
  
