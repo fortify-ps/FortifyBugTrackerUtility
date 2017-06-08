@@ -71,5 +71,10 @@ TODO:
 - Rename FoDBugTrackerUtility to FortifyBugTrackerUtility (as it now supports SSC), or even
   just 'FortifyUtility' as the generic architecture can support completely different use cases.
 - Add mappings for additional native SSC bug tracker integrations in SSCToSSCBugTracker.xml
+- For native SSC bug tracker integration, ignore any application versions if the combined
+  field configuration for FoDBugTrackerUtility and SSC bug tracker doesn't provide default
+  values for all required fields (for example, default values for issue type and bug tracker
+  project must be configured in either SSC or FoDBugTracker, otherwise ignore the application
+  version and log a warning/error).   
 
  
