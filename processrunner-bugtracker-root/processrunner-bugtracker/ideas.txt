@@ -70,9 +70,7 @@ TODO:
 - Update README.md and Wiki
 - Rename FoDBugTrackerUtility to FortifyBugTrackerUtility (as it now supports SSC), or even
   just 'FortifyUtility' as the generic architecture can support completely different use cases.
-- Add mappings for additional native SSC bug tracker integrations in SSCToSSCBugTracker.xml
-- Add support for configuring required and optional SSC application version attributes to
-  context properties (similar to SSCApplicationVersionAttributeFilterAndMapper) to SSCIssueSubmitted,
-  to allow specifying different attribute mappings for different SSC bug trackers.
+- Add configuration files for additional native SSC bug tracker integrations (SSCTo*ViaSSC.xml;
+  see SSCToTFSViaSSC.xml for example)
 
  
