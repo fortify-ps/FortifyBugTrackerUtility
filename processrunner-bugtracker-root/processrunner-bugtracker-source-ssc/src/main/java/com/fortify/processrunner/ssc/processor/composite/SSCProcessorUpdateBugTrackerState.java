@@ -19,7 +19,7 @@ import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerFilter;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
 import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCSource;
@@ -61,7 +61,7 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 			filter.setCustomTagNames(new HashSet<String>(Arrays.asList(getCustomTagName())));
 			return Arrays.asList((ISSCApplicationVersionFilter)filter);
 		} else {
-			SSCApplicationVersionBugTrackerFilter filter = new SSCApplicationVersionBugTrackerFilter();
+			SSCApplicationVersionBugTrackerNameFilter filter = new SSCApplicationVersionBugTrackerNameFilter();
 			filter.setBugTrackerPluginNames(new HashSet<String>(Arrays.asList("Add Existing Bugs")));
 			return Arrays.asList((ISSCApplicationVersionFilter)filter);
 		}

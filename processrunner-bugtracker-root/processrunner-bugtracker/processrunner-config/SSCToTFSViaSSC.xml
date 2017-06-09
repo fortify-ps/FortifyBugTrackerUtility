@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<import resource="components/input/SSCInputConfig.xml"/>
+	
+	<!--==================================================================================-->
+	<!-- SSC TO SSC NATIVE BUG TRACKER INTEGRATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to JIRA via SSC processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
+	
+	<!-- The default configuration assumes that you have a default team project configured 
+	     in the SSC TFS/Visual Studio Online bug tracker configuration.
+	     If you don't have a default value configured in SSC, or want to override the 
+	     default value, you can uncomment this bean to load the default value from
+	     the 'TFS Team Project' application version attribute. -->
+	<!-- 
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="TFS Team Project" value="TFSTeamProject"/>
+		</map></property>
+	</bean>
+	-->
+	
+	<!-- This bean defines the processor configuration for submitting
+	     vulnerabilities via the native SSC TFS/Visual Studio Online
+	     bug tracker plugin. If necessary, you can change the properties 
+	     in this bean, for example to change the grouping expression, 
+	     fields and field data to be submitted. Any fields not defined
+	     here will use the default values as configured in the SSC
+	     bug tracker configuration.
+	-->
+	<bean class="com.fortify.processrunner.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
+		<!-- Define the bug tracker name as it is known in SSC -->
+		<property name="sscBugTrackerName" value="TFS/Visual Studio Online"/>
+					
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+	
+		<property name="fields"><map>
+			<!-- Uncomment this to override the default collection configured in SSC -->
+			<!-- <entry key="Collection" value="DefaultCollection"/> -->
+			
+			<!-- Uncomment this to override the default project configured in SSC,
+			     and use the project configured via the 'TFS Team Project' application
+			     version attribute (see above). -->
+			<!-- <entry key="System.TeamProject" value="${#ctx.TFSTeamProject}"/> -->
+			
+			<!-- Override the work item type to use (even if a default value has been 
+			     configured in SSC) -->
+			<entry key="System.WorkItemType" value="Bug"/>
+		</map></property>
+	</bean>
+	
+</beans>

@@ -1,9 +1,14 @@
 package com.fortify.processrunner.ssc.processor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
@@ -11,42 +16,39 @@ import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulner
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.processor.AbstractProcessor;
+import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerFilter;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This class allows for submitting vulnerabilities through native SSC bug tracker integrations.
- * This class basically maps the SSC bug tracker name to a corresponding {@link SSCIssueSubmitter}
- * instance; the {@link SSCIssueSubmitter} instance is responsible for actually submitting the issue
- * via SSC.
+ * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
+ * The fields to be submitted are configured through our {@link AbstractProcessorBuildObjectMapFromGroupedObjects}
+ * superclass.
  * 
  * @author Ruud Senden
  *
  */
-public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor implements IProcessorSubmitIssueForVulnerabilities, ISSCApplicationVersionFilterFactory {
-	private Map<String, SSCIssueSubmitter> bugTrackers = new HashMap<String, SSCIssueSubmitter>();
+public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorSubmitIssueForVulnerabilities, ISSCApplicationVersionFilterFactory {
+	private static final Log LOG = LogFactory.getLog(ProcessorSSCSubmitIssueForVulnerabilities.class);
+	private String sscBugTrackerName;
 	
-	@Override
-	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
-		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCTarget.PRP_SSC_BUG_TRACKER_USER_NAME, "User name for SSC bug tracker", context, null, false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCTarget.PRP_SSC_BUG_TRACKER_PASSWORD, "Password for SSC bug tracker", context, null, false));
-		for ( SSCIssueSubmitter issueSubmitter : bugTrackers.values() ) {
-			issueSubmitter.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		}
+	public ProcessorSSCSubmitIssueForVulnerabilities() {
+		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
 	}
 	
-	// @Override
 	public String getBugTrackerName() {
-		return "SSC";
+		return getSscBugTrackerName()+" through SSC";
 	}
 	
+	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
+		return Arrays.asList((ISSCApplicationVersionFilter)new SSCApplicationVersionBugTrackerNameFilter(getSscBugTrackerName()));
+	}
+
 	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
 		// We ignore the issueSubmittedListener since we don't need to update SSC state
 		// after submitting a bug through SSC. We return false to indicate that we don't
@@ -54,43 +56,67 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		return false;
 	}
 	
-	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
-		SSCApplicationVersionBugTrackerFilter filter = new SSCApplicationVersionBugTrackerFilter();
-		filter.setBugTrackerPluginNames(bugTrackers.keySet());
-		return Arrays.asList((ISSCApplicationVersionFilter)filter);
+	
+	@Override
+	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", context, "Read from console", false));
+		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
+		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
 	@Override
-	protected boolean preProcess(Context context) {
-		return callIssueSubmitter(Phase.PRE_PROCESS, context);
-	}
-	
-	@Override
-	protected boolean process(Context context) {
-		return callIssueSubmitter(Phase.PROCESS, context);
-	}
-	
-	@Override
-	protected boolean postProcess(Context context) {
-		return callIssueSubmitter(Phase.POST_PROCESS, context);
-	}
-
-	public Map<String, SSCIssueSubmitter> getBugTrackers() {
-		return bugTrackers;
-	}
-
-	public void setBugTrackers(Map<String, SSCIssueSubmitter> bugTrackers) {
-		this.bugTrackers = bugTrackers;
-	}
-	
-	private final boolean callIssueSubmitter(Phase phase, Context context) {
+	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String bugTrackerName = conn.getApplicationVersionBugTrackerShortName(ctx.getSSCApplicationVersionId());
-		SSCIssueSubmitter submitter = getBugTrackers().get(bugTrackerName);
-		if ( submitter == null ) {
-			throw new IllegalStateException("No configuration found for bug tracker "+bugTrackerName);
+		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		if ( conn.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
+			conn.authenticateForBugFiling(applicationVersionId, getUserName(context), getPassword(context));
 		}
-		return submitter.process(phase, context);
+		List<String> issueInstanceIds = new ArrayList<String>();
+		for ( Object issue : currentGroup ) {
+			issueInstanceIds.add(SpringExpressionUtil.evaluateExpression(issue, "issueInstanceId", String.class));
+		}
+		JSONObject result = conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
+		String bugLink = SpringExpressionUtil.evaluateExpression(result, "data?.values?.externalBugDeepLink", String.class);
+		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
+		return true;
+	}
+	
+	private String getUserName(Context context) {
+		IContextSSCBugTracker ctx = context.as(IContextSSCBugTracker.class);
+		String result = ctx.getSSCBugTrackerUserName();
+		if ( result == null ) {
+			result = System.console().readLine(getSscBugTrackerName()+" User Name: ");
+		}
+		return result;
+	}
+	
+	private String getPassword(Context context) {
+		IContextSSCBugTracker ctx = context.as(IContextSSCBugTracker.class);
+		String result = ctx.getSSCBugTrackerPassword();
+		if ( result == null ) {
+			result = new String(System.console().readPassword(getSscBugTrackerName()+" Password: "));
+		}
+		return result;
+	}
+	
+	public String getSscBugTrackerName() {
+		return sscBugTrackerName;
+	}
+
+	public void setSscBugTrackerName(String sscBugTrackerName) {
+		this.sscBugTrackerName = sscBugTrackerName;
+	}
+	
+	private interface IContextSSCBugTracker {
+		public static final String PRP_USER_NAME = "SSCBugTrackerUserName";
+		public static final String PRP_PASSWORD = "SSCBugTrackerUserName";
+		
+		public void setSSCBugTrackerUserName(String userName);
+		public String getSSCBugTrackerUserName();
+		public void setSSCBugTrackerPassword(String password);
+		public String getSSCBugTrackerPassword();
+		
 	}
 }
