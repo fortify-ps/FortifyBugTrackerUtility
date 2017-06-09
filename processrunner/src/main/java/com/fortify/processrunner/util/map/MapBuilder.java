@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.Expression;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.fortify.util.spring.SpringExpressionUtil;
 
@@ -78,22 +79,26 @@ public class MapBuilder {
 	}
 	
 	public static class MapUpdaterPutValuesFromExpressionMap extends AbstractMapUpdaterWithRootObjectAndExpressionMap {
+		private StandardEvaluationContext evaluationContext;
 		public MapUpdaterPutValuesFromExpressionMap() {}
-		public MapUpdaterPutValuesFromExpressionMap(Object rootObject, LinkedHashMap<String, ? extends Expression> expressions) {
+		public MapUpdaterPutValuesFromExpressionMap(StandardEvaluationContext evaluationContext, Object rootObject, LinkedHashMap<String, ? extends Expression> expressions) {
 			setRootObject(rootObject);
 			setExpressions(expressions);
+			this.evaluationContext = evaluationContext;
 		}
 		@Override
 		protected Object getValue(Map<String, Object> map, String key, Object rootObject, Expression expression) {
-			return SpringExpressionUtil.evaluateExpression(rootObject, expression, Object.class);
+			return SpringExpressionUtil.evaluateExpression(evaluationContext, rootObject, expression, Object.class);
 		}
 	}
 	
 	public static class MapUpdaterAppendValuesFromExpressionMap extends AbstractMapUpdaterWithRootObjectAndExpressionMap {
+		private StandardEvaluationContext evaluationContext;
 		public MapUpdaterAppendValuesFromExpressionMap() {}
-		public MapUpdaterAppendValuesFromExpressionMap(Object rootObject, LinkedHashMap<String, ? extends Expression> expressions) {
+		public MapUpdaterAppendValuesFromExpressionMap(StandardEvaluationContext evaluationContext, Object rootObject, LinkedHashMap<String, ? extends Expression> expressions) {
 			setRootObject(rootObject);
 			setExpressions(expressions);
+			this.evaluationContext = evaluationContext;
 		}
 		@Override
 		protected Object getValue(Map<String, Object> map, String key, Object rootObject, Expression expression) {
@@ -115,7 +120,7 @@ public class MapBuilder {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		protected Object appendValue(Object value, Object rootObject, Expression expression) {
-			Object valueToAppend = SpringExpressionUtil.evaluateExpression(rootObject, expression, Object.class); 
+			Object valueToAppend = SpringExpressionUtil.evaluateExpression(evaluationContext, rootObject, expression, Object.class); 
 			if ( value instanceof String ) {
 				value = value+""+valueToAppend;
 			} else if ( value instanceof Collection ) {

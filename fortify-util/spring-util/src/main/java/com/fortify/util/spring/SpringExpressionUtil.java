@@ -21,13 +21,13 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * Spring Expression Language, for example for evaluating
  * (template) expressions on input objects.
  */
-public final class SpringExpressionUtil {
+public class SpringExpressionUtil {
 	private static final Log LOG = LogFactory.getLog(SpringContextUtil.class);
 	private static final Collection<PropertyAccessor> PROPERTY_ACCESSORS = getPropertyAccessors();
 	private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
 	private static final StandardEvaluationContext SPEL_CONTEXT = createStandardEvaluationContext();
 	
-	private SpringExpressionUtil() {}
+	protected SpringExpressionUtil() {}
 	
 	/**
 	 * Automatically load all PropertyAccessor implementations
@@ -77,16 +77,17 @@ public final class SpringExpressionUtil {
 	}
 	
 	public static final <T> T evaluateExpression(Object input, Expression expression, Class<T> returnType) {
-		return evaluateExpression(getStandardEvaluationContext(), input, expression, returnType);
+		return evaluateExpression(null, input, expression, returnType);
 	}
 
 	public static final <T> T evaluateExpression(EvaluationContext context, Object input, Expression expression, Class<T> returnType) {
 		if ( input==null || expression==null ) { return null; }
+		context = context!=null ? context : getStandardEvaluationContext(); 
 		return expression.getValue(context, input, returnType);
 	}
 	
 	public static final <T> T evaluateExpression(Object input, String expression, Class<T> returnType) {
-		return evaluateExpression(getStandardEvaluationContext(), input, expression, returnType);
+		return evaluateExpression(null, input, expression, returnType);
 	}
 
 	public static final <T> T evaluateExpression(EvaluationContext context, Object input, String expression, Class<T> returnType) {
@@ -94,7 +95,7 @@ public final class SpringExpressionUtil {
 	}
 	
 	public static final <T> T evaluateTemplateExpression(Object input, String expression, Class<T> returnType) {
-		return evaluateTemplateExpression(getStandardEvaluationContext(), input, expression, returnType);
+		return evaluateTemplateExpression(null, input, expression, returnType);
 	}
 
 	public static final <T> T evaluateTemplateExpression(EvaluationContext context, Object input, String expression, Class<T> returnType) {

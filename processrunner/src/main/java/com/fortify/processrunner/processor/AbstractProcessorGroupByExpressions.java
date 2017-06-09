@@ -12,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -91,7 +92,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			// If a group template expression is defined, we collect the group
 			// data and invoke the process() method of the group processor
 			// in our postProcess() method once all data has been grouped.
-			String groupKey = SpringExpressionUtil.evaluateExpression(rootObject, groupTemplateExpression, String.class);
+			String groupKey = ContextSpringExpressionUtil.evaluateExpression(context, rootObject, groupTemplateExpression, String.class);
 			groups.add(groupKey, rootObject);
 			return true;
 		}
@@ -197,7 +198,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	public void setForceGrouping(boolean forceGrouping) {
 		this.forceGrouping = forceGrouping;
 	}
-
+	
 	private static interface IContextGrouping {
 		public static final String PRP_DISABLE_GROUPING = "DisableGrouping";
 		public void setDisableGrouping(String disableGrouping);

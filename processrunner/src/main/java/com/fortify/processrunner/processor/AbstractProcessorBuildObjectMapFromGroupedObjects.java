@@ -3,7 +3,10 @@ package com.fortify.processrunner.processor;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.util.map.MapBuilder;
 import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterAppendValuesFromExpressionMap;
 import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterPutValuesFromExpressionMap;
@@ -25,9 +28,10 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	
 	@Override
 	protected boolean processGroup(Context context, List<Object> currentGroup) {
+		StandardEvaluationContext sec = ContextSpringExpressionUtil.createStandardEvaluationContext(context);
 		LinkedHashMap<String, Object> map = new MapBuilder()
-				.addMapUpdater(new MapUpdaterPutValuesFromExpressionMap(currentGroup.get(0), getFields()))
-				.addMapUpdater(new MapUpdaterAppendValuesFromExpressionMap(currentGroup, getAppendedFields()))
+				.addMapUpdater(new MapUpdaterPutValuesFromExpressionMap(sec, currentGroup.get(0), getFields()))
+				.addMapUpdater(new MapUpdaterAppendValuesFromExpressionMap(sec, currentGroup, getAppendedFields()))
 				.build(new LinkedHashMap<String, Object>());
 		return processMap(context, currentGroup, map);
 	}
