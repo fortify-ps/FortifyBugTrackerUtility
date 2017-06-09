@@ -1,43 +1,41 @@
 package com.fortify.processrunner.ssc.appversion;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 
 /**
- * This class generates default values for the {@link IContextSSCCommon#PRP_SSC_APPLICATION_VERSION_ID}
- * context property by loading all SSC application versions and filtering them through any
- * configured {@link ISSCApplicationVersionFilter} instances. Filters for configured {@link #requiredAttributeMappings}
- * are automatically added. For each SSC application version id, this class will generate dependent
- * {@link Context} properties based on the configured {@link #requiredAttributeMappings} and
- * {@link #optionalAttributeMappings}. 
+ * Filter SSC application versions based on application version attributes,
+ * and map application version attribute values to context properties.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionAttributeContextPropertyMapper extends SSCApplicationVersionIdGenerator {
+public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplicationVersionFilter, ISSCApplicationVersionContextUpdater {
 	private Map<String, String> optionalAttributeMappings = null;
 	private Map<String, String> requiredAttributeMappings = null;
 	
-	@Override
-	protected void addMappedContextProperties(Context context, String pvId) {
-		Map<String, List<String>> avAttributes = SSCConnectionFactory.getConnection(context).getApplicationVersionAttributeValuesByName(pvId);
+	public int getOrder() {
+		return 2;
+	}
+	
+	public boolean isApplicationVersionIncluded(Context context, JSONObject applicationVersion) {
+		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
+		return checkAttributesHaveValues(avAttributes, requiredAttributeMappings.keySet());
+	}
+	
+	public void updateContext(Context context, JSONObject applicationVersion) {
+		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
 		addMappedAttributes(context, avAttributes, optionalAttributeMappings, false);
 		addMappedAttributes(context, avAttributes, requiredAttributeMappings, true);
 	}
 	
-	@Override
-	protected void addExtraFilters(Context context, List<ISSCApplicationVersionFilter> filters) {
-		if ( getRequiredAttributeMappings()!=null ) {
-			SSCApplicationVersionFilterAttributeValue filter = new SSCApplicationVersionFilterAttributeValue();
-			filter.setAttributesWithAnyValue(requiredAttributeMappings.keySet());
-			filters.add(filter);
-		}
-	}
-
 	public Map<String, String> getOptionalAttributeMappings() {
 		return optionalAttributeMappings;
 	}
@@ -69,5 +67,20 @@ public class SSCApplicationVersionAttributeContextPropertyMapper extends SSCAppl
 				}
 			}
 		}
+	}
+
+	private Map<String, List<String>> getApplicationVersionAttributeValuesByName(Context context, JSONObject applicationVersion) {
+		return SSCConnectionFactory.getConnection(context).getApplicationVersionAttributeValuesByName(applicationVersion.optString("id"));
+	}
+
+	private boolean checkAttributesHaveValues(Map<String, List<String>> avAttributes, Set<String> attributes) {
+		if ( attributes != null ) {
+			Set<String> attributesCopy = new HashSet<String>(attributes);
+			attributesCopy.removeAll(avAttributes.keySet());
+			if ( !attributesCopy.isEmpty() ) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -1,6 +1,7 @@
 package com.fortify.processrunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,8 @@ import org.springframework.core.io.Resource;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.mapper.IContextPropertyMapper;
+import com.fortify.processrunner.context.IContextGenerator;
+import com.fortify.processrunner.context.IContextUpdater;
 import com.fortify.util.spring.SpringContextUtil;
 
 /**
@@ -52,9 +54,10 @@ public class RunProcessRunnerFromSpringConfig {
 		processRunnerName = getProcessRunnerNameOrDefault(processRunnerName);
 		LOG.info("[Process] Using process runner "+processRunnerName);
 		ProcessRunner runner = getProcessRunner(processRunnerName);
-		List<Context> contexts = getContexts(runner, externalContext);
+		Collection<Context> contexts = getContexts(externalContext);
 		for ( Context context : contexts ) {
 			try {
+				checkContext(runner, context);
 				runner.run(context);
 			} catch (Throwable t) {
 				LOG.error("[Process] Error during process run for "+processRunnerName+": "+t.getLocalizedMessage());
@@ -95,7 +98,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @return
 	 */
 	public ContextPropertyDefinitions getContextPropertyDefinitions(String processRunnerName) {
-		return getContextPropertyDefinitions(new Context(), getProcessRunner(getProcessRunnerNameOrDefault(processRunnerName)));
+		return getContextPropertyDefinitions(getProcessRunner(getProcessRunnerNameOrDefault(processRunnerName)), new Context());
 	}
 	
 	/**
@@ -103,7 +106,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param processRunnerName
 	 * @return
 	 */
-	private final ContextPropertyDefinitions getContextPropertyDefinitions(Context context, ProcessRunner runner) {
+	private final ContextPropertyDefinitions getContextPropertyDefinitions(ProcessRunner runner, Context context) {
 		ContextPropertyDefinitions result = new ContextPropertyDefinitions();
 		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
 		addContextPropertyDefinitionsFromContext(result, context);
@@ -127,62 +130,35 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Get the {@link Context} instances to use to run the given {@link ProcessRunner} instance.
-	 * This method will generate {@link Context} instances based on the following procedure:
-	 * <ul>
-	 *   <li>Merge the provided externalContext with static Context instances provided in the Spring configuration</li>
-	 *   <li>Generate a new context for every default value provided by an {@link IContextPropertyMapper} (if available)</li>
-	 *   <li>Add any mapped context properties based on other {@link IContextPropertyMapper} instances</li>
-	 *   <li>Check the {@link Context} for any missing context property values, based on {@link ContextPropertyDefinitions}</li> 
-	 * </ul>
-	 * @param runner
+	 * <p>Get the {@link Context} instances to use to run the given {@link ProcessRunner} instance.
+	 * This method will combine the provided external context and a configured context (if available),
+	 * and use this combined context to generate {@link Context} instances.</p>
+	 * 
+	 * <p>If an enabled {@link IContextGenerator} has been configured, it will be invoked to generate
+	 * the {@link Context} instances. If not, this method will simply return the single (combined)
+	 * {@link Context} instance.</p>
 	 * @param externalContext
 	 * @return
 	 */
-	protected List<Context> getContexts(ProcessRunner runner, Context externalContext) {
-		List<Context> result = new ArrayList<Context>();
+	protected Collection<Context> getContexts(Context externalContext) {
 		Context context = mergeContexts(getConfigContext(), externalContext);
-		IContextPropertyMapper defaultValuesGenerator = getDefaultValuesGenerator();
-		if ( defaultValuesGenerator == null 
-				|| context.containsKey(defaultValuesGenerator.getContextPropertyName()) ) {
-			result.add(addMappedContextPropertiesAndCheckContext(runner, context, null));
-		} else {
-			String defaultValuesContextPropertyName = defaultValuesGenerator.getContextPropertyName();
-			if ( getContextPropertyDefinitions(context, runner).get(defaultValuesContextPropertyName)==null ) {
-				throw new IllegalStateException("Unknown context property: "+defaultValuesContextPropertyName);
-			}
-			Map<Object, Context> defaultValues = defaultValuesGenerator.getDefaultValuesWithExtraContextProperties(context);
-			if ( defaultValues==null || defaultValues.isEmpty() ) {
-				LOG.info("[Process] No default values available");
-			} else {
-				for ( Map.Entry<Object, Context> defaultValue : defaultValues.entrySet() ) {
-					Context contextWithDefaultValue = mergeContexts(context, defaultValue.getValue());
-					contextWithDefaultValue.put(defaultValuesContextPropertyName, defaultValue.getKey());
-					result.add(addMappedContextPropertiesAndCheckContext(runner, contextWithDefaultValue, defaultValuesGenerator));
-				}
-			}
-		}
-		return result;
+		IContextGenerator contextGenerator = getEnabledContextGenerator();
+		
+		return contextGenerator == null
+			? Arrays.asList(addMappedContextPropertiesAndCheckContext(context))
+			: contextGenerator.generateContexts(context);
 	}
 
 	/**
-	 * Add mapped context properties using the configured {@link IContextPropertyMapper} instances,
-	 * optionally ignoring the given {@link IContextPropertyMapper} (to avoid re-adding properties
-	 * already provided through a default values generator)
-	 * @param runner
+	 * Update {@link Context} using the configured {@link IContextUpdater} instances
 	 * @param context
-	 * @param ignore
 	 * @return
 	 */
-	private Context addMappedContextPropertiesAndCheckContext(ProcessRunner runner, Context context, IContextPropertyMapper ignore) {
-		Collection<IContextPropertyMapper> contextPropertyMappers = getContextPropertyMappers();
-		for ( IContextPropertyMapper contextPropertyMapper : contextPropertyMappers ) {
-			if ( contextPropertyMapper != ignore ) {
-				Object contextPropertyValue = context.get(contextPropertyMapper.getContextPropertyName());
-				contextPropertyMapper.addMappedContextProperties(context, contextPropertyValue);
-			}
+	private Context addMappedContextPropertiesAndCheckContext(Context context) {
+		Collection<IContextUpdater> contextUpdaters = getContextUpdaters();
+		for ( IContextUpdater contextUpdater : contextUpdaters ) {
+			contextUpdater.updateContext(context);
 		}
-		checkContext(context, getContextPropertyDefinitions(context, runner));
 		return context;
 	}
 
@@ -219,7 +195,8 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param context
 	 * @param contextPropertyDefinitions
 	 */
-	protected final void checkContext(Context context, ContextPropertyDefinitions contextPropertyDefinitions) {
+	protected final void checkContext(ProcessRunner runner, Context context) {
+		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
 		for ( ContextPropertyDefinition contextProperty : contextPropertyDefinitions.values() ) {
 			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
 				throw new IllegalStateException("ERROR: Required option -"+contextProperty.getName()+" not set");
@@ -292,31 +269,39 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Get the single configured instance of {@link IContextPropertyMapper} that
-	 * is enabled for generating default values for some specific context property
+	 * Get the single configured instance of {@link IContextGenerator} that
+	 * is enabled for generating {@link Context} instances
 	 * @return
 	 */
-	protected IContextPropertyMapper getDefaultValuesGenerator() {
-		IContextPropertyMapper result = null;
-		List<IContextPropertyMapper> contextPropertyMappers = new ArrayList<IContextPropertyMapper>(getContextPropertyMappers());
-		contextPropertyMappers.removeIf(new Predicate<IContextPropertyMapper>() {
-			public boolean test(IContextPropertyMapper contextPropertyMapper) {
-				return !contextPropertyMapper.isDefaultValuesGenerator();
+	protected IContextGenerator getEnabledContextGenerator() {
+		IContextGenerator result = null;
+		List<IContextGenerator> contextGenerators = new ArrayList<IContextGenerator>(getContextGenerators());
+		contextGenerators.removeIf(new Predicate<IContextGenerator>() {
+			public boolean test(IContextGenerator contextPropertyMapper) {
+				return !contextPropertyMapper.isContextGeneratorEnabled();
 			}
 		});
-		if ( contextPropertyMappers.size()==1 ) {
-			result = contextPropertyMappers.get(0);
-		} else if ( contextPropertyMappers.size()>1 ) {
-			throw new IllegalStateException("More than 1 default values generator found");
+		if ( contextGenerators.size()==1 ) {
+			result = contextGenerators.get(0);
+		} else if ( contextGenerators.size()>1 ) {
+			throw new IllegalStateException("More than 1 enabled context generator found");
 		}
 		return result;
 	}
 	
 	/**
-	 * Get all configured {@link IContextPropertyMapper} instances
+	 * Get all configured {@link IContextGenerator} instances
 	 * @return
 	 */
-	protected Collection<IContextPropertyMapper> getContextPropertyMappers() {
-		return appContext.getBeansOfType(IContextPropertyMapper.class).values();
+	protected Collection<IContextGenerator> getContextGenerators() {
+		return appContext.getBeansOfType(IContextGenerator.class).values();
+	}
+	
+	/**
+	 * Get all configured {@link IContextUpdater} instances
+	 * @return
+	 */
+	protected Collection<IContextUpdater> getContextUpdaters() {
+		return appContext.getBeansOfType(IContextUpdater.class).values();
 	}
 }

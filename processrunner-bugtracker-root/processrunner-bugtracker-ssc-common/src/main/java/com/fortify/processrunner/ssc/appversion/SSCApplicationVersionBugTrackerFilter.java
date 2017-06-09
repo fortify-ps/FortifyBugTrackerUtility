@@ -14,7 +14,7 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionFilterBugTracker extends AbstractSSCApplicationVersionFilter {
+public class SSCApplicationVersionBugTrackerFilter extends AbstractSSCApplicationVersionFilter {
 	private Set<String> bugTrackerPluginIds = null;
 	private Set<String> bugTrackerPluginNames = null;
 	

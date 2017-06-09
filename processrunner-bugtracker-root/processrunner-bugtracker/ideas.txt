@@ -36,7 +36,7 @@ PERFORMANCE & MEMORY USAGE:
   no need to send the updated fields to the bug tracker. 
 
 - Instead of using an in-memory map for grouping, persist grouped objects to disk, for
-  example using a temporary database
+  example using a temporary database, to reduce memory usage
   
 - Have SSC/FoD return the vulnerabilities sorted or grouped based on the grouping criteria. This way
   we can process one group at a time, instead of having to temporarily store all vulnerability
@@ -47,7 +47,7 @@ PERFORMANCE & MEMORY USAGE:
   
 - Use SSC bulk requests to reduce the number of round trips, for example to include issue details
   when requesting application version issues, and including application version attributes when
-  requesting application versions
+  requesting application versions. Not sure whether this is actually possible.
   
 MAINTENANCE:
 - Define a common JSON data model for commonly used FoD and SSC vulnerability fields, such that
@@ -71,10 +71,8 @@ TODO:
 - Rename FoDBugTrackerUtility to FortifyBugTrackerUtility (as it now supports SSC), or even
   just 'FortifyUtility' as the generic architecture can support completely different use cases.
 - Add mappings for additional native SSC bug tracker integrations in SSCToSSCBugTracker.xml
-- For native SSC bug tracker integration, ignore any application versions if the combined
-  field configuration for FoDBugTrackerUtility and SSC bug tracker doesn't provide default
-  values for all required fields (for example, default values for issue type and bug tracker
-  project must be configured in either SSC or FoDBugTracker, otherwise ignore the application
-  version and log a warning/error).
+- Add support for configuring required and optional SSC application version attributes to
+  context properties (similar to SSCApplicationVersionAttributeFilterAndMapper) to SSCIssueSubmitted,
+  to allow specifying different attribute mappings for different SSC bug trackers.
 
  

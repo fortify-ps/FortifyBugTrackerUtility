@@ -14,33 +14,29 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.OrderComparator;
+import org.springframework.stereotype.Component;
 
+import com.fortify.processrunner.context.AbstractContextGeneratorAndUpdater;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.mapper.AbstractContextPropertyMapper;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.sun.jersey.api.client.WebResource;
 
-/**
- * This class generates default values for the {@link IContextSSCCommon#PRP_SSC_APPLICATION_VERSION_ID}
- * context property by loading all SSC application versions and filtering them through any
- * configured {@link ISSCApplicationVersionFilter} instances. {@link ISSCApplicationVersionFilter} and
- * {@link ISSCApplicationVersionFilterFactory} will be automatically wired by Spring. 
- * 
- * @author Ruud Senden
- *
- */
-public class SSCApplicationVersionIdGenerator extends AbstractContextPropertyMapper {
-	private static final Log LOG = LogFactory.getLog(SSCApplicationVersionIdGenerator.class);
+@Component
+public final class SSCContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater {
+	private static final Log LOG = LogFactory.getLog(SSCContextGeneratorAndUpdater.class);
 	private List<ISSCApplicationVersionFilter> filters;
 	private List<ISSCApplicationVersionFilterFactory> filterFactories;
+	private List<ISSCApplicationVersionContextUpdater> updaters;
+	private List<ISSCApplicationVersionContextUpdaterFactory> updaterFactories;
 
-	public SSCApplicationVersionIdGenerator() {
+	public SSCContextGeneratorAndUpdater() {
 		setContextPropertyName(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID);
+		setUseForDefaultValueGeneration(true);
 	}
 	
-	public Map<Object, Context> getDefaultValuesWithExtraContextProperties(Context context) {
+	public Map<Object, Context> getDefaultValuesWithMappedContextProperties(Context context) {
 		Map<Object, Context> result = new HashMap<Object, Context>();
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		List<ISSCApplicationVersionFilter> filtersForContext = getFiltersForContext(context);
@@ -60,12 +56,25 @@ public class SSCApplicationVersionIdGenerator extends AbstractContextPropertyMap
 				String pvId = pv.optString("id");
 				if ( isApplicationVersionIncluded(context, filtersForContext, pv) ) {
 					Context extraContextProperties = new Context();
-					addMappedContextProperties(context, pvId);
+					addMappedContextProperties(context, pv);
 					result.put(pvId, extraContextProperties);
 				}
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	protected void addMappedContextProperties(Context context, Object contextPropertyValue) {
+		JSONObject applicationVersion = SSCConnectionFactory.getConnection(context).getApplicationVersion((String)contextPropertyValue);
+		addMappedContextProperties(context, applicationVersion);
+		
+	}
+
+	private void addMappedContextProperties(Context context, JSONObject applicationVersion) {
+		for ( ISSCApplicationVersionContextUpdater updater : getContextUpdatersForContext(context) ) {
+			updater.updateContext(context, applicationVersion);
+		}
 	}
 
 	private List<ISSCApplicationVersionFilter> getFiltersForContext(Context context) {
@@ -82,12 +91,26 @@ public class SSCApplicationVersionIdGenerator extends AbstractContextPropertyMap
 				}
 			}
 		}
-		addExtraFilters(context, filtersForContext);
 		filtersForContext.sort(new OrderComparator());
 		return filtersForContext;
 	}
 	
-	protected void addExtraFilters(Context context, List<ISSCApplicationVersionFilter> filters) {}
+	private List<ISSCApplicationVersionContextUpdater> getContextUpdatersForContext(Context context) {
+		List<ISSCApplicationVersionContextUpdater> updatersForContext = getUpdaters();
+		List<ISSCApplicationVersionContextUpdaterFactory> updatersForContextFactories = getUpdaterFactories();
+		if ( updatersForContext == null ) {
+			updatersForContext = new ArrayList<ISSCApplicationVersionContextUpdater>();
+		}
+		if ( updatersForContextFactories != null ) {
+			for ( ISSCApplicationVersionContextUpdaterFactory factory : updatersForContextFactories ) {
+				Collection<ISSCApplicationVersionContextUpdater> updatersFromFactory = factory.getSSCApplicationVersionContextUpdaters(context);
+				if ( updatersFromFactory!= null ) {
+					updatersForContext.addAll(updatersFromFactory);
+				}
+			}
+		}
+		return updatersForContext;
+	}
 	
 	private final boolean isApplicationVersionIncluded(Context context, List<ISSCApplicationVersionFilter> filtersForContext, JSONObject pv) {
 		if ( pv == null ) { return false; }
@@ -99,11 +122,6 @@ public class SSCApplicationVersionIdGenerator extends AbstractContextPropertyMap
 		return true;
 	}
 
-	public void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		addMappedContextProperties(context, (String)contextPropertyValue);
-	}
-	
-	protected void addMappedContextProperties(Context context, String pvId) {}
 
 	public final List<ISSCApplicationVersionFilter> getFilters() {
 		return filters;
@@ -122,4 +140,24 @@ public class SSCApplicationVersionIdGenerator extends AbstractContextPropertyMap
 	public final void setFilterFactories(List<ISSCApplicationVersionFilterFactory> filterFactories) {
 		this.filterFactories = filterFactories;
 	}
+
+	public List<ISSCApplicationVersionContextUpdater> getUpdaters() {
+		return updaters;
+	}
+
+	@Autowired(required=false)
+	public void setUpdaters(List<ISSCApplicationVersionContextUpdater> updaters) {
+		this.updaters = updaters;
+	}
+
+	public List<ISSCApplicationVersionContextUpdaterFactory> getUpdaterFactories() {
+		return updaterFactories;
+	}
+
+	@Autowired(required=false)
+	public void setUpdaterFactories(List<ISSCApplicationVersionContextUpdaterFactory> updaterFactories) {
+		this.updaterFactories = updaterFactories;
+	}
+	
+	
 }

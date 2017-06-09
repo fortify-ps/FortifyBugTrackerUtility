@@ -15,7 +15,7 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionFilterCustomTag extends AbstractSSCApplicationVersionFilter {
+public class SSCApplicationVersionCustomTagFilter extends AbstractSSCApplicationVersionFilter {
 	private Set<String> customTagNames = null;
 	
 	public int getOrder() {

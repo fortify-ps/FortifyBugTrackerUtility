@@ -77,7 +77,7 @@
 	     version being processed. Optionally you can also have an 'Octane Shared Space Uid'
 	     application version attribute, which will be mapped to the OctaneSharedSpaceUid
 	     context property if the attribute contains a value. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeContextPropertyMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
 		</map></property>

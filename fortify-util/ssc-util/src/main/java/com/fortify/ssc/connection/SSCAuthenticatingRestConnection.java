@@ -436,4 +436,10 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
 	}
 
+	public JSONObject getApplicationVersion(String applicationVersionId) {
+		return executeRequest(HttpMethod.GET, 
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
+				, JSONObject.class).optJSONObject("data");
+	}
+
 }

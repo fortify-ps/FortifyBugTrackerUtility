@@ -1,14 +1,11 @@
-package com.fortify.processrunner.context.mapper;
+package com.fortify.processrunner.context;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fortify.processrunner.context.Context;
-
 /**
- * <p>This implementation of {@link IContextPropertyMapper} allows for configuring
- * a static Map of values for a configured context property name with their
+ * <p>This implementation of {@link AbstractContextGeneratorAndUpdater} allows for 
+ * configuring a static Map of values for a configured context property name with their
  * corresponding dependent context properties.</p>
  * 
  * For example:
@@ -24,21 +21,24 @@ import com.fortify.processrunner.context.Context;
  * If the user specified value 1 for SomeIdProperty, the corresponding values for DependentProperty1
  * and DependentProperty2 will be added to the {@link Context}. If the user didn't generate a value
  * for SomeIdProperty, this class will provide default values 1 and 2 for SomeIdProperty, together
- * with the corresponding context properties. 
+ * with the corresponding context properties, assuming the {@link #useForDefaultValueGeneration}
+ * property is set to true.
+ *  
  * @author Ruud Senden
  *
  */
-public class MapBasedContextPropertyMapper extends AbstractContextPropertyMapper {
+public class MapBasedContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater {
 	private Map<Object, Context> contexts = new HashMap<Object, Context>();
 
-	public void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		Map<String, Object> mappedContextProperties = contexts.get(contextPropertyValue);
+	protected void addMappedContextProperties(Context context, Object contextPropertyValue) {
+		Map<String, Object> mappedContextProperties = getContexts().get(contextPropertyValue);
 		if ( mappedContextProperties!=null ) {
 			context.putAll(mappedContextProperties);
 		}
 	}
 	
-	public Map<Object, Context> getDefaultValuesWithExtraContextProperties(Context initialContext) {
+	@Override
+	protected Map<Object, Context> getDefaultValuesWithMappedContextProperties(Context initialContext) {
 		return getContexts();
 	}
 
@@ -49,10 +49,4 @@ public class MapBasedContextPropertyMapper extends AbstractContextPropertyMapper
 	public void setContexts(Map<Object, Context> contexts) {
 		this.contexts = contexts;
 	}
-	
-	public static final class ContextPropertiesMap extends LinkedHashMap<String, Object> {
-		private static final long serialVersionUID = 1L;
-	}
-
-
 }

@@ -14,7 +14,7 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionFilterBugTracker;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -55,7 +55,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	}
 	
 	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
-		SSCApplicationVersionFilterBugTracker filter = new SSCApplicationVersionFilterBugTracker();
+		SSCApplicationVersionBugTrackerFilter filter = new SSCApplicationVersionBugTrackerFilter();
 		filter.setBugTrackerPluginNames(bugTrackers.keySet());
 		return Arrays.asList((ISSCApplicationVersionFilter)filter);
 	}
