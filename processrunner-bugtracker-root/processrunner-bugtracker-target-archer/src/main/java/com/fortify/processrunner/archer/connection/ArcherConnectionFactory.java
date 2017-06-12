@@ -1,7 +1,5 @@
 package com.fortify.processrunner.archer.connection;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fortify.processrunner.archer.context.IContextArcher;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -12,12 +10,12 @@ import com.fortify.util.rest.ProxyConfiguration;
 public final class ArcherConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_BASE_URL, "Archer base URL", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_APPLICATION_NAME, "Archer application name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_INSTANCE_NAME, "Archer instance name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_NAME, "Archer user name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_DOMAIN, "Archer user domain, use 'undefined' if not defined", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_PASSWORD, "Archer password", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_BASE_URL, "Archer base URL", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_APPLICATION_NAME, "Archer application name", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_INSTANCE_NAME, "Archer instance name", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_NAME, "Archer user name", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_DOMAIN, "Archer user domain, use 'undefined' if not defined", false).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_PASSWORD, "Archer password", true).readFromConsole(true).isPassword(true));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Archer");
 	}
 	
@@ -40,32 +38,9 @@ public final class ArcherConnectionFactory
 		String applicationName = ctx.getArcherApplicationName();
 		auth.setInstanceName(ctx.getArcherInstanceName());
 		auth.setUserName(ctx.getArcherUserName());
-		auth.setUserDomain(ctx.getArcherUserDomain());
+		auth.setUserDomain("undefined".equals(ctx.getArcherUserDomain())?null:ctx.getArcherUserDomain());
 		auth.setPassword(ctx.getArcherPassword());
 		
-		// Read base URL from console if not defined
-		if ( StringUtils.isBlank(baseUrl) ) {
-			baseUrl = System.console().readLine("Archer URL: ");
-		}
-		
-		if ( StringUtils.isBlank(applicationName) ) {
-			applicationName = System.console().readLine("Archer Application Name: ");
-		}
-		if ( StringUtils.isBlank(auth.getInstanceName()) ) {
-			auth.setInstanceName(System.console().readLine("Archer Instance Name: "));
-		}
-		if ( StringUtils.isBlank(auth.getUserName()) ) {
-			auth.setUserName(System.console().readLine("Archer User Name: "));
-		}
-		if ( StringUtils.isBlank(auth.getUserDomain()) ) {
-			auth.setUserDomain(System.console().readLine("Archer User Domain: "));
-		}
-		if ( StringUtils.isBlank(auth.getUserDomain()) || "undefined".equalsIgnoreCase(auth.getUserDomain()) ) {
-			auth.setUserDomain(null);
-		}
-		if ( auth.getPassword()==null ) {
-			auth.setPassword(new String(System.console().readPassword("Archer Password: ")));
-		}
 		
 		ProxyConfiguration proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Archer");
 		return new ArcherAuthenticatingRestConnection(baseUrl, auth, applicationName, proxy);

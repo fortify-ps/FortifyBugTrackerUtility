@@ -53,7 +53,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",context,null,true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("FoDReleaseId","FoD release id from which to retrieve vulnerabilities",true));
 		if ( vulnerabilityProcessor != null ) {
 			vulnerabilityProcessor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}

@@ -1,5 +1,9 @@
 package com.fortify.processrunner.context;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import com.fortify.processrunner.processor.IProcessor;
 
 /**
@@ -12,8 +16,13 @@ import com.fortify.processrunner.processor.IProcessor;
 public class ContextPropertyDefinition {
 	private final String name;
 	private final String description;
-	private final String defaultValue;
 	private final boolean required;
+	private String defaultValue = null;
+	private boolean readFromConsole = false;
+	private boolean isPassword = false;
+	private String ignoreIfPropertySet = null;
+	private String ignoreIfPropertyNotSet = null;
+	
 	
 	/**
 	 * Constructor for setting the context property name, description and required flag.
@@ -21,11 +30,10 @@ public class ContextPropertyDefinition {
 	 * @param description
 	 * @param required
 	 */
-	public ContextPropertyDefinition(String name, String description, Context defaultContext, String defaultValue, boolean required) {
+	public ContextPropertyDefinition(String name, String description, boolean required) {
 		super();
 		this.name = name;
 		this.description = description;
-		this.defaultValue = (String)defaultContext.getOrDefault(name, defaultValue);
 		this.required = required;
 	}
 
@@ -45,12 +53,52 @@ public class ContextPropertyDefinition {
 		return description;
 	}
 	
+	
 	/**
-	 * Get the context property default value (hardcoded or from current context).
+	 * Get the context property default value.
 	 * @return
 	 */
-	public String getDefaultValue() {
-		return defaultValue;
+	public String getDefaultValue(Context context) {
+		String result = defaultValue;
+		if ( isReadFromConsole() && isNotIgnored(context) ) {
+			if ( isPassword ) {
+				result = readPassword();
+			} else {
+				result = readText();
+			}
+		}
+		return result;
+	}
+	
+	public boolean isRequired(Context context) {
+		return isRequired() && isNotIgnored(context);
+	}
+	
+	public boolean isNotIgnored(Context context) {
+		return ( ignoreIfPropertyNotSet==null || context.hasValue(ignoreIfPropertyNotSet) ) &&
+				( ignoreIfPropertySet==null || !context.hasValue(ignoreIfPropertySet) );
+	}
+
+	private String readText() {
+		return System.console()==null?readTextFromStdin():System.console().readLine(getDescription()+": ");
+	}
+
+	private String readPassword() {
+		return System.console()==null?readTextFromStdin():new String(System.console().readPassword(getDescription()+": "));
+	}
+	
+	private String readTextFromStdin() {
+		System.out.print(String.format(getDescription()+ ": "));
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	    try {
+			return reader.readLine();
+		} catch (IOException e) {
+			throw new RuntimeException("Error reading text from stdin", e);
+		}
+	}
+	
+	public String getDefaultValueDescription() {
+		return readFromConsole ? "Read from console" : defaultValue;
 	}
 
 	/**
@@ -61,11 +109,54 @@ public class ContextPropertyDefinition {
 		return required;
 	}
 
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
+	public boolean isReadFromConsole() {
+		return readFromConsole;
+	}
+	
+	public boolean isPassword() {
+		return isPassword;
+	}
+	
+	public String getIgnoreIfPropertySet() {
+		return ignoreIfPropertySet;
+	}
+	
+	public String getIgnoreIfPropertyNotSet() {
+		return ignoreIfPropertyNotSet;
+	}
+	
+	public ContextPropertyDefinition defaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+		return this;
+	}
+
+	public ContextPropertyDefinition readFromConsole(boolean readFromConsole) {
+		this.readFromConsole = readFromConsole;
+		return this;
+	}
+
+	public ContextPropertyDefinition isPassword(boolean isPassword) {
+		this.isPassword = isPassword;
+		return this;
+	}
+
+	public ContextPropertyDefinition ignoreIfPropertySet(String property) {
+		this.ignoreIfPropertySet = property;
+		return this;
+	}
+
+	public ContextPropertyDefinition ignoreIfPropertyNotSet(String property) {
+		this.ignoreIfPropertyNotSet = property;
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		return "ContextPropertyDefinition [name=" + name + ", description=" + description + ", defaultValue="
 				+ defaultValue + ", required=" + required + "]";
 	}
-	
-	
 }

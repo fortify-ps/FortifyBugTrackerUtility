@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * <p>This class defines the process runner context. It is basically a 
  * {@link HashMap} that can contain arbitrary String keys together with 
@@ -46,6 +48,11 @@ public class Context extends HashMap<String, Object> {
 				((IContextPropertyDefinitionProvider)obj).addContextPropertyDefinitions(contextPropertyDefinitions, this);
 			}
 		}
+	}
+	
+	public final boolean hasValue(String key) {
+		Object value = get(key);
+		return value!=null && !(value instanceof String && StringUtils.isBlank((String)value)); 
 	}
 	
 	public final <T> T as(Class<T> iface) {

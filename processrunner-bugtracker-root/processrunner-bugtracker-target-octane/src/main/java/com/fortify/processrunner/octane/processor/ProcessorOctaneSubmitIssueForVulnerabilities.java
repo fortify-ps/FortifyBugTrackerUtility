@@ -20,8 +20,8 @@ public class ProcessorOctaneSubmitIssueForVulnerabilities extends AbstractProces
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_SHARED_SPACE_UID, "Octane Shared Space UID", context, null, true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", context, null, true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_SHARED_SPACE_UID, "Octane Shared Space UID", true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true));
 	}
 	
 	@Override

@@ -59,8 +59,8 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 	
 	@Override
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name", false).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", false).readFromConsole(true).isPassword(true));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
@@ -71,7 +71,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
 		if ( conn.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
-			conn.authenticateForBugFiling(applicationVersionId, getUserName(context), getPassword(context));
+			conn.authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
 		}
 		List<String> issueInstanceIds = new ArrayList<String>();
 		for ( Object issue : currentGroup ) {
@@ -81,24 +81,6 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		String bugLink = SpringExpressionUtil.evaluateExpression(result, "data?.values?.externalBugDeepLink", String.class);
 		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
 		return true;
-	}
-	
-	private String getUserName(Context context) {
-		IContextSSCBugTracker ctx = context.as(IContextSSCBugTracker.class);
-		String result = ctx.getSSCBugTrackerUserName();
-		if ( result == null ) {
-			result = System.console().readLine(getSscBugTrackerName()+" User Name: ");
-		}
-		return result;
-	}
-	
-	private String getPassword(Context context) {
-		IContextSSCBugTracker ctx = context.as(IContextSSCBugTracker.class);
-		String result = ctx.getSSCBugTrackerPassword();
-		if ( result == null ) {
-			result = new String(System.console().readPassword(getSscBugTrackerName()+" Password: "));
-		}
-		return result;
 	}
 	
 	public String getSscBugTrackerName() {

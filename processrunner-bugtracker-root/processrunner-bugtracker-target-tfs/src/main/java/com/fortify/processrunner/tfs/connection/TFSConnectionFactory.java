@@ -1,6 +1,5 @@
 package com.fortify.processrunner.tfs.connection;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
 
 import com.fortify.processrunner.context.Context;
@@ -13,9 +12,9 @@ import com.fortify.util.rest.ProxyConfiguration;
 public final class TFSConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_BASE_URL, "TFS base URL", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_USER_NAME, "TFS user name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_PASSWORD, "TFS password", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_BASE_URL, "TFS base URL", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_USER_NAME, "TFS user name", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_PASSWORD, "TFS password", true).readFromConsole(true).isPassword(true));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "TFS");
 	}
 	
@@ -35,22 +34,6 @@ public final class TFSConnectionFactory
 		String baseUrl = ctx.getTFSBaseUrl();
 		String userName = ctx.getTFSUserName();
 		String password = ctx.getTFSPassword();
-		
-		// Read base URL from console if not defined
-		if ( StringUtils.isBlank(baseUrl) ) {
-			baseUrl = System.console().readLine("TFS URL: ");
-		}
-		
-		// Read user name from console if not defined
-		if ( StringUtils.isBlank(userName) ) {
-			userName = System.console().readLine("TFS User Name: ");
-		}
-		
-		// Read password from console if not defined
-		if ( StringUtils.isBlank(password) ) {
-			password = new String(System.console().readPassword("TFS Password: "));
-		}
-		
 		ProxyConfiguration proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "TFS");
 		return new TFSRestConnection(baseUrl, new UsernamePasswordCredentials(userName, password), proxy);
 	}

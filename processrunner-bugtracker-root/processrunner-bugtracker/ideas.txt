@@ -14,11 +14,7 @@ FUNCTIONALITY:
   functionality for loading this data on-demand (when it is actually accessed), to prevent users
   from having to manually configure which extra data needs to be loaded.
   
-CREDENTIALS HANDLING:
-- Add support for ContextPropertyDefinition instances to run some method to provide a default value
-  For example to read usernames/passwords from console only once for all processor invocations at 
-  the start of the program, instead of when the property is actually checked/used.
-  
+CREDENTIALS HANDLING:  
 - Add functionality for securely storing usernames and passwords in a password-protected persistent
   store. This way only the master password needs to be specified via command line or console at
   the start of the program, allowing the remainder of the program to run without user interaction
@@ -30,6 +26,8 @@ CREDENTIALS HANDLING:
 PERFORMANCE & MEMORY USAGE:
 - Implement optional multi-threading to process multiple contexts in RunProcessRunnerFromSpringConfig
   Note that this may increase memory usage, especially when grouping is enabled.
+  TODO: Check that IProcessor implementations do not store context-specific information as instance variables,
+        since instance variables are shared between threads.
   
 - In AbstractProcessorUpdateIssueStateForVulnerabilities, persistently cache the issueData map after
   updating the bug tracker issue. If a cached entry exists and contents are the same, there is

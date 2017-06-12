@@ -14,12 +14,12 @@ import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory
 public final class FoDConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_BASE_URL, "FoD base URL", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_TENANT, "FoD tenant", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_USER_NAME, "FoD user name", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_PASSWORD, "FoD password", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_ID, "FoD client id", context, "Read from console", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_SECRET, "FoD client secret", context, "Read from console", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_BASE_URL, "FoD base URL", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_TENANT, "FoD tenant", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_USER_NAME, "FoD user name (leave blank to use client credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextFoD.PRP_CLIENT_ID));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_PASSWORD, "FoD password", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextFoD.PRP_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_ID, "FoD client id (leave blank to use user credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextFoD.PRP_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_SECRET, "FoD client secret", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextFoD.PRP_CLIENT_ID));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "FoD");
 	}
 	
@@ -36,52 +36,24 @@ public final class FoDConnectionFactory
 	private static final FoDAuthenticatingRestConnection createConnection(Context context) {
 		IContextFoD ctx = context.as(IContextFoD.class);
 		
-		FoDAuthenticatingRestConnection result;
-		FoDConnectionRetrieverUserCredentials userCreds = new FoDConnectionRetrieverUserCredentials();
-		FoDConnectionRetrieverClientCredentials clientCreds = new FoDConnectionRetrieverClientCredentials();
-		
-		String baseUrl = ctx.getFoDBaseUrl();
-		userCreds.setTenant(ctx.getFoDTenant());
-		userCreds.setUserName(ctx.getFoDUserName());
-		userCreds.setPassword(ctx.getFoDPassword());
-		clientCreds.setClientId(ctx.getFoDClientId());
-		clientCreds.setClientSecret(ctx.getFoDClientSecret());
-		
-		// Read base URL from console if not defined
-		if ( StringUtils.isBlank(baseUrl) ) {
-			baseUrl = System.console().readLine("FoD URL: ");
-		}
-		
-		// Read userName from console if neither userName or clientId is defined
-		if ( StringUtils.isBlank(userCreds.getUserName()) && StringUtils.isBlank(clientCreds.getClientId()) ) {
-			userCreds.setUserName(System.console().readLine("FoD User Name (leave blank to use client credentials): "));
-		}
-		
-		if ( StringUtils.isNotBlank(userCreds.getUserName()) ) {
-			// If userName is defined or entered via console, read password and tenant from console if not defined
-			if ( StringUtils.isBlank(userCreds.getPassword()) ) {
-				userCreds.setPassword(new String(System.console().readPassword("FoD Password: ")));
-			}
-			if ( StringUtils.isBlank(userCreds.getTenant())) {
-				userCreds.setTenant(System.console().readLine("FoD Tenant: "));
-			}
-			userCreds.setBaseUrl(baseUrl);
+		if ( StringUtils.isNotBlank(ctx.getFoDUserName()) ) {
+			FoDConnectionRetrieverUserCredentials userCreds = new FoDConnectionRetrieverUserCredentials();
+			userCreds.setBaseUrl(ctx.getFoDBaseUrl());
 			userCreds.setProxy(ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD"));
-			result = userCreds.getConnection();
-		} else {
-			// If userName is not defined and not entered via console, read clientId and clientSecret from console if not defined
-			if ( StringUtils.isBlank(clientCreds.getClientId()) ) {
-				clientCreds.setClientId(System.console().readLine("FoD Client Id: "));
-			}
-			if ( StringUtils.isBlank(clientCreds.getClientSecret()) ) {
-				clientCreds.setClientSecret(new String(System.console().readPassword("FoD Client Secret: ")));
-			}
-			clientCreds.setBaseUrl(baseUrl);
+			userCreds.setTenant(ctx.getFoDTenant());
+			userCreds.setUserName(ctx.getFoDUserName());
+			userCreds.setPassword(ctx.getFoDPassword());
+			return userCreds.getConnection();
+		} else if ( StringUtils.isNotBlank(ctx.getFoDClientId()) ) {
+			FoDConnectionRetrieverClientCredentials clientCreds = new FoDConnectionRetrieverClientCredentials();
+			clientCreds.setBaseUrl(ctx.getFoDBaseUrl());
 			clientCreds.setProxy(ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD"));
-			result = clientCreds.getConnection();
+			clientCreds.setClientId(ctx.getFoDClientId());
+			clientCreds.setClientSecret(ctx.getFoDClientSecret());
+			return clientCreds.getConnection();
+		} else {
+			throw new IllegalStateException("Either FoD username and password, or client id and client secret must be specified");
 		}
-		
-		return result;
 	}
 	
 	private interface IContextFoDConnection {

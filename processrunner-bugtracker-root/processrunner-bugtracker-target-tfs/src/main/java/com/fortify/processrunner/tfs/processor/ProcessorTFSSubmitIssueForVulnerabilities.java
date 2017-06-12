@@ -29,9 +29,9 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSProject", "TFS project to submit vulnerabilities to", context, null, true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSWorkItemType", "TFS work item type", context, getDefaultWorkItemType(), false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSProject", "TFS project to submit vulnerabilities to", true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSWorkItemType", "TFS work item type", true).defaultValue(getDefaultWorkItemType()));
 	}
 	
 	@Override

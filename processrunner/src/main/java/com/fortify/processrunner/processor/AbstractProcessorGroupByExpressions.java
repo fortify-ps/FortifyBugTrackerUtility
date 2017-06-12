@@ -51,7 +51,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	@Override
 	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", context, "false", false));
+			contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false));
 		}
 		addExtraContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}

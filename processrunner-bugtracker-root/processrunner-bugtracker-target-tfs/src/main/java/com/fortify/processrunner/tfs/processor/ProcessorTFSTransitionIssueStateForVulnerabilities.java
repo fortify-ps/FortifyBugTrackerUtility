@@ -24,7 +24,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", context, null, true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", true));
 	}
 	
 	@Override

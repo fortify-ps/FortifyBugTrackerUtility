@@ -39,7 +39,7 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 	 */
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("OutputFile", "File to write the issues to", context, DEFAULT_OUTPUT_FILE, false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("OutputFile", "File to write the issues to", true).defaultValue(DEFAULT_OUTPUT_FILE));
 	}
 	
 	@Override

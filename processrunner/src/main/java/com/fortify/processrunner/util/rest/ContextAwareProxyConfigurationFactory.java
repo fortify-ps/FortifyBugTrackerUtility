@@ -22,9 +22,9 @@ public final class ContextAwareProxyConfigurationFactory {
 	private ContextAwareProxyConfigurationFactory() {}
 	
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context, String name) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", context, null, false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", context, null, false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", context, "Read from console if proxy user name is set", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(name+PRP_SFX_USER_NAME));
 	}
 	
 	public static final ProxyConfiguration getProxyConfiguration(Context context, String name) {
@@ -37,10 +37,9 @@ public final class ContextAwareProxyConfigurationFactory {
 			if ( StringUtils.isNotBlank(userName) ) {
 				proxy.setUserName(userName);
 				String password = (String)context.get(name+PRP_SFX_PASSWORD);
-				if ( StringUtils.isBlank(password) ) {
-					password = new String(System.console().readPassword(name+" Proxy Password: "));
+				if ( StringUtils.isNotBlank(password) ) {
+					proxy.setPassword(password);
 				}
-				proxy.setPassword(password);
 			}
 		}
 		return proxy;

@@ -25,8 +25,8 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", context, null, true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraIssueType", "JIRA issue type", context, getDefaultIssueType(), false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraIssueType", "JIRA issue type", true).defaultValue(getDefaultIssueType()));
 	}
 	
 	@Override

@@ -187,10 +187,10 @@ public class RunProcessRunnerFromCLI {
 			LOG.info("");
 			LOG.info("  [options] for the current process runner:");
 			for ( ContextPropertyDefinition cp : contextPropertyDefinitions.values() ) {
-				LOG.info("  -"+cp.getName()+" <value> "+(cp.isRequired()&&StringUtils.isBlank(cp.getDefaultValue())?"(required)":"(optional)"));
+				LOG.info("  -"+cp.getName()+" <value> "+(cp.isRequired()?"(required)":"(optional)"));
 				LOG.info("    "+cp.getDescription());
-				if ( StringUtils.isNotBlank(cp.getDefaultValue()) ) {
-					LOG.info("    Default value: "+cp.getDefaultValue());
+				if ( StringUtils.isNotBlank(cp.getDefaultValueDescription()) ) {
+					LOG.info("    Default value: "+cp.getDefaultValueDescription());
 				}
 				LOG.info("");
 			}

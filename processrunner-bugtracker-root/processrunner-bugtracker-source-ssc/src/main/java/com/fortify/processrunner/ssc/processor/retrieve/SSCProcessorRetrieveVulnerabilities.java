@@ -56,7 +56,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("SSCApplicationVersionId","SSC application version id from which to retrieve vulnerabilities",context,null,true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition("SSCApplicationVersionId","SSC application version id from which to retrieve vulnerabilities",true));
 		if ( vulnerabilityProcessor != null ) {
 			vulnerabilityProcessor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}

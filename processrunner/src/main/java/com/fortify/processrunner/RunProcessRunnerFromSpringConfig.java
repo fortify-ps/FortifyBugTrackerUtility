@@ -54,6 +54,7 @@ public class RunProcessRunnerFromSpringConfig {
 		processRunnerName = getProcessRunnerNameOrDefault(processRunnerName);
 		LOG.info("[Process] Using process runner "+processRunnerName);
 		ProcessRunner runner = getProcessRunner(processRunnerName);
+		addDefaultValues(runner, externalContext);
 		Collection<Context> contexts = getContexts(externalContext);
 		for ( Context context : contexts ) {
 			try {
@@ -145,7 +146,7 @@ public class RunProcessRunnerFromSpringConfig {
 		IContextGenerator contextGenerator = getEnabledContextGenerator();
 		
 		return contextGenerator == null
-			? Arrays.asList(addMappedContextPropertiesAndCheckContext(context))
+			? Arrays.asList(updateContext(context))
 			: contextGenerator.generateContexts(context);
 	}
 
@@ -154,7 +155,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param context
 	 * @return
 	 */
-	private Context addMappedContextPropertiesAndCheckContext(Context context) {
+	private Context updateContext(Context context) {
 		Collection<IContextUpdater> contextUpdaters = getContextUpdaters();
 		for ( IContextUpdater contextUpdater : contextUpdaters ) {
 			contextUpdater.updateContext(context);
@@ -191,15 +192,26 @@ public class RunProcessRunnerFromSpringConfig {
 	
 	/**
 	 * Check the given {@link Context} for any missing context property values, based on
-	 * the given {@link ContextPropertyDefinitions}
+	 * the available {@link ContextPropertyDefinitions}
+	 * @param runner
 	 * @param context
-	 * @param contextPropertyDefinitions
 	 */
 	protected final void checkContext(ProcessRunner runner, Context context) {
 		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
-		for ( ContextPropertyDefinition contextProperty : contextPropertyDefinitions.values() ) {
-			if ( contextProperty.isRequired() && !context.containsKey(contextProperty.getName()) ) {
-				throw new IllegalStateException("ERROR: Required option -"+contextProperty.getName()+" not set");
+		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
+			String name = contextPropertyDefinition.getName();
+			if ( contextPropertyDefinition.isRequired(context) && !context.hasValue(name) ) {
+				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
+			}
+		}
+	}
+	
+	protected final void addDefaultValues(ProcessRunner runner, Context context) {
+		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
+		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
+			String name = contextPropertyDefinition.getName();
+			if ( !context.hasValue(name) ) {
+				context.put(name, contextPropertyDefinition.getDefaultValue(context));
 			}
 		}
 	}

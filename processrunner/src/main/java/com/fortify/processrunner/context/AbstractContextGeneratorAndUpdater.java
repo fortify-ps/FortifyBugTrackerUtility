@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * <p>This abstract base class combines {@link IContextGenerator} and {@link IContextUpdater}
  * to allow implementations to generate default values for the configured {@link #contextPropertyName},
@@ -23,8 +25,9 @@ public abstract class AbstractContextGeneratorAndUpdater implements IContextGene
 	
 	public final Collection<Context> generateContexts(Context initialContext) {
 		Collection<Context> result = new ArrayList<Context>();
-		if ( initialContext.containsKey(getContextPropertyName()) ) {
-			addMappedContextProperties(initialContext, initialContext.get(getContextPropertyName()));
+		Object value = initialContext.get(getContextPropertyName());
+		if ( value!=null && !(value instanceof String && StringUtils.isBlank((String)value)) ) {
+			addMappedContextProperties(initialContext, value);
 			result.add(initialContext);
 		}
 		for ( Map.Entry<Object, Context> entry : getDefaultValuesWithMappedContextProperties(initialContext).entrySet() ) {
