@@ -9,13 +9,13 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<import resource="components/input/FoDInputConfig.xml"/>
+	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
 	<!-- TFS CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- This bean defines the context for the FoD to TFS processing. All of these
+	<!-- This bean defines the context for the SSC to TFS processing. All of these
 	     properties can also be specified on the command line. -->
 	<util:map id="contextProperties">
 		<!-- TODO Add all possible properties -->
@@ -43,7 +43,7 @@
 		</property>
 	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting FoD 
+	<!-- This bean defines the processor configuration for submitting SSC 
 	     vulnerabilities to TFS. If necessary, you can change the properties 
 	     in this bean, for example to change the fields and field data submitted 
 	     to TFS. 
@@ -51,13 +51,13 @@
 	<bean class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 		
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
-			<entry key="System.Title" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':' 4 - Low'}.get(severityString)}"/>
-			<entry key="System.Description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
+			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
+			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':' 4 - Low'}.get(friority)}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
