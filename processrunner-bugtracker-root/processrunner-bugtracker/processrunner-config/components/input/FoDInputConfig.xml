@@ -25,15 +25,15 @@
 		     If your customized configuration depends on summary data, you 
 		     will need to enable the summary field here. -->
 		<property name="extraFields"><list>
-			<!-- <value>summary</value> -->
-			<!-- <value>details</value> -->
-			<!-- <value>recommendations</value> -->
-			<!-- <value>screenshots</value> -->
-			<!-- <value>history</value> -->
-			<!-- <value>requestResponse</value> -->
-			<!-- <value>headers</value> -->
-			<!-- <value>parameters</value> -->
-			<!-- <value>traces</value> -->
+<!-- 			<value>summary</value> -->
+<!-- 			<value>details</value> -->
+<!-- 			<value>recommendations</value> -->
+<!-- 			<value>screenshots</value> -->
+<!-- 			<value>history</value> -->
+<!-- 			<value>request-response</value> -->
+<!-- 			<value>headers</value> -->
+<!-- 			<value>parameters</value> -->
+<!-- 			<value>traces</value> -->
 		</list></property>
 		
 		<!-- Define the filters that determine which FoD vulnerabilities will
@@ -75,7 +75,7 @@
 		<!-- This flag can be set to true to add information about submitted bugs to 
 		     FoD vulnerability comments. By default (false), the bug link will
 		     be stored in the dedicated FoD bugLink field. -->
-		<property name="useFoDCommentForSubmittedBugs" value="false"/>
+		<property name="useFoDCommentForSubmittedBugs" value="true"/>
 		
 		<!-- This property defines the expression for evaluating whether an FoD 
 		     vulnerability should be considered open or closed. This expression

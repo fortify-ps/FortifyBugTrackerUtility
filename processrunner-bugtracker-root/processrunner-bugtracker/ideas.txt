@@ -14,6 +14,8 @@ FUNCTIONALITY:
   functionality for loading this data on-demand (when it is actually accessed), to prevent users
   from having to manually configure which extra data needs to be loaded.
   
+- For processrunner-bugtracker-target-file, use Jackson to serialize data to CSV and possibly other formats
+  
 CREDENTIALS HANDLING:  
 - Add functionality for securely storing usernames and passwords in a password-protected persistent
   store. This way only the master password needs to be specified via command line or console at
@@ -34,7 +36,11 @@ PERFORMANCE & MEMORY USAGE:
   no need to send the updated fields to the bug tracker. 
 
 - Instead of using an in-memory map for grouping, persist grouped objects to disk, for
-  example using a temporary database, to reduce memory usage
+  example using a temporary database, to reduce memory usage. This has now been implemented
+  using MVStore but needs to be further tested.
+  
+- Instead of storing grouped source objects, change the API to store and update the generated fields
+  map? If we do this, how do we pass the relevant vulnerability id's on to the IssueSubmittedListener?
   
 - Have SSC/FoD return the vulnerabilities sorted or grouped based on the grouping criteria. This way
   we can process one group at a time, instead of having to temporarily store all vulnerability
@@ -55,7 +61,9 @@ MAINTENANCE:
 - We currently use different approaches for defining filters for vulnerabilities (via IProcessor
   implementations that get configured via an auto-wired configuration object) and application 
   versions/releases (via Filter classes that get auto-wired by Spring). Does it make sense to 
-  refactor to use the same type of architecture for both? 
+  refactor to use the same type of architecture for both? Note that submitVulnerabilities and
+  updateVulnerabilities require different sets of filters, so may be more difficult to auto-wire
+  all filters.
     
 TODO: 
 - Create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code

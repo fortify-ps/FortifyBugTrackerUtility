@@ -1,8 +1,9 @@
 package com.fortify.ssc.connection;
 
+import javax.ws.rs.client.Invocation.Builder;
+
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * This class provides a basic, non-authenticating REST connection
@@ -25,6 +26,6 @@ public class SSCBasicRestConnection extends RestConnection {
 	@Override
 	public Builder updateBuilder(Builder builder) {
 		return super.updateBuilder(builder)
-				.accept("application/json").type("application/json");
+				.accept("application/json").header("Content-Type", "application/json");
 	}
 }

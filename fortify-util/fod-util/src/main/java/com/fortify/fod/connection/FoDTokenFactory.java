@@ -1,15 +1,17 @@
 package com.fortify.fod.connection;
 
 import java.util.Date;
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fortify.util.rest.ProxyConfiguration;
 
 /**
@@ -22,33 +24,34 @@ import com.fortify.util.rest.ProxyConfiguration;
 public final class FoDTokenFactory {
 	static final Log LOG = LogFactory.getLog(FoDTokenFactory.class);
 	private final FoDBasicRestConnection conn;
-	private final MultivaluedMap<String, String> auth;
+	private final Form auth;
 	private FoDTokenFactory.TokenData tokenData = null;
-	public FoDTokenFactory(String baseUrl, MultivaluedMap<String, String> auth, ProxyConfiguration proxyConfig) {
+	public FoDTokenFactory(String baseUrl, Form auth, ProxyConfiguration proxyConfig) {
 		conn = new FoDBasicRestConnection(baseUrl, proxyConfig);
 		this.auth = auth;
 	}
 	
 	public String getToken() {
 		if ( tokenData == null || tokenData.isExpired() ) {
-			tokenData = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/oauth/token").entity(auth, "application/x-www-form-urlencoded"), FoDTokenFactory.TokenData.class);
+			//Map test = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/oauth/token"), Entity.entity(auth, "application/x-www-form-urlencoded"), Map.class);
+			tokenData = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/oauth/token"), Entity.entity(auth, "application/x-www-form-urlencoded"), FoDTokenFactory.TokenData.class);
 			LOG.info("[FoD] Obtained access token, expiring at "+new Date(tokenData.getExpiresAt()).toString());
 		}
 		return tokenData.getAccessToken();
 	}
 	
-	@XmlRootElement
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static final class TokenData {
 		private String accessToken;
 		private long expiresAt;
 		public String getAccessToken() {
 			return accessToken;
 		}
-		@XmlElement(name="access_token")
+		@JsonProperty("access_token")
 		public void setAccessToken(String accessToken) {
 			this.accessToken = accessToken;
 		}
-		@XmlElement(name="expires_in")
+		@JsonProperty("expires_in")
 		public void setExpiresIn(long expiresIn) {
 			this.expiresAt = new Date().getTime()+((expiresIn-5)*1000);
 		}

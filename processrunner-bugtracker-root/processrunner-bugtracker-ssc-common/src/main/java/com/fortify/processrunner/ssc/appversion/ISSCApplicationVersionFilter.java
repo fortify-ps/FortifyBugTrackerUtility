@@ -1,9 +1,9 @@
 package com.fortify.processrunner.ssc.appversion;
 
-import org.codehaus.jettison.json.JSONObject;
 import org.springframework.core.Ordered;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.json.JSONMap;
 
 /**
  * This interface allows for filtering SSC application versions by implementing the
@@ -13,7 +13,7 @@ import com.fortify.processrunner.context.Context;
  *
  */
 public interface ISSCApplicationVersionFilter extends Ordered {
-	public boolean isApplicationVersionIncluded(Context context, JSONObject applicationVersion);
+	public boolean isApplicationVersionIncluded(Context context, JSONMap applicationVersion);
 	/**
 	 * This method defines the filter order, to have less expensive filters
 	 * be processed before more expensive filters. As a rule of thumb, this

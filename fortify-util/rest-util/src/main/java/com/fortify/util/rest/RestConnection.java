@@ -1,41 +1,51 @@
 package com.fortify.util.rest;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.commons.lang.CharEncoding;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.logging.LoggingFeature;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
-import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
+import com.fortify.util.rest.connector.ApacheClientProperties;
+import com.fortify.util.rest.connector.ApacheConnectorProvider;
 
 /**
  * Utility for working with a REST API. Instances of this class can be configured
@@ -46,6 +56,8 @@ import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
  * 
  * TODO Add various HttpClient timeouts to prevent the program from stalling.
  *      (see http://stackoverflow.com/questions/9925113/httpclient-stuck-without-any-exception answer 3)
+ *      
+ * TODO Update JavaDoc for executeRequest methods
  */
 public class RestConnection implements IRestConnection {
 	//private static final Log LOG = LogFactory.getLog(RestConnection.class);
@@ -116,8 +128,21 @@ public class RestConnection implements IRestConnection {
 	 * @param returnType The return type for the data returned by the request.
 	 * @return The result of executing the HTTP request.
 	 */
-	public <T> T executeRequest(String httpMethod, WebResource webResource, Class<T> returnType) {
-		return executeRequest(httpMethod, webResource.getRequestBuilder(), returnType);
+	public <T> T executeRequest(String httpMethod, WebTarget webResource, Class<T> returnType) {
+		return executeRequest(httpMethod, webResource, null, returnType);
+	}
+	
+	/**
+	 * Execute a request for the given method using the given web resource and entity.
+	 * @param httpMethod The HTTP method to be used, as specified by one of the constants
+	 *                   in {@link HttpMethod}
+	 * @param webResource The web resource used to execute the request. Usually this web resource 
+	 * 					  is created using {@link #getBaseResource()}.path(...)...
+	 * @param returnType The return type for the data returned by the request.
+	 * @return The result of executing the HTTP request.
+	 */
+	public <T> T executeRequest(String httpMethod, WebTarget webResource, Entity<?> entity, Class<T> returnType) {
+		return executeRequest(httpMethod, webResource.request(), entity, returnType);
 	}
 	
 	/**
@@ -129,15 +154,15 @@ public class RestConnection implements IRestConnection {
 	 * @param returnType The return type for the data returned by the request.
 	 * @return The result of executing the HTTP request.
 	 */
-	public <T> T executeRequest(String httpMethod, Builder builder, Class<T> returnType) {
-		ClientResponse response = null;
+	public <T> T executeRequest(String httpMethod, Builder builder, Entity<?> entity, Class<T> returnType) {
+		Response response = null;
 		try {
 			initializeConnection(httpMethod);
 			builder = updateBuilder(builder);
-			response = builder.method(httpMethod, ClientResponse.class);
+			response = builder.build(httpMethod, entity).invoke();
 			return checkResponseAndGetOutput(httpMethod, builder, response, returnType);
-		} catch ( ClientHandlerException e ) {
-			throw new RuntimeException("Error connecting to bug tracker:\n"+e.getMessage(), e);
+		} catch ( ClientErrorException e ) {
+			throw new RuntimeException("Error accessing remote system:\n"+e.getMessage(), e);
 		} finally {
 			if ( response != null ) { response.close(); }
 		}
@@ -210,7 +235,7 @@ public class RestConnection implements IRestConnection {
 	 * @param returnType
 	 * @return The entity from the given {@link ClientResponse} if available
 	 */
-	protected <T> T checkResponseAndGetOutput(String httpMethod, Builder builder, ClientResponse response, Class<T> returnType) {
+	protected <T> T checkResponseAndGetOutput(String httpMethod, Builder builder, Response response, Class<T> returnType) {
 		StatusType status = response.getStatusInfo();
 		if ( status != null && status.getFamily() == Family.SUCCESSFUL ) {
 			return getSuccessfulResponse(response, returnType, status);
@@ -227,20 +252,20 @@ public class RestConnection implements IRestConnection {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> T getSuccessfulResponse(ClientResponse response, Class<T> returnType, StatusType status) {
+	protected <T> T getSuccessfulResponse(Response response, Class<T> returnType, StatusType status) {
 		if ( returnType == null || status.getStatusCode() == Status.NO_CONTENT.getStatusCode() ) {
 			return null;
 		} else if ( returnType.isAssignableFrom(response.getClass()) ) {
 			return (T)response;
 		} else {
-			return response.getEntity(returnType);
+			return response.readEntity(returnType);
 		}
 	}
 	
-	protected RuntimeException getUnsuccesfulResponseException(ClientResponse response) {
+	protected RuntimeException getUnsuccesfulResponseException(Response response) {
 		String reasonPhrase = getReasonPhrase(response);
 		String msg = "Error accessing remote system "+getBaseUrl()+": "+reasonPhrase;
-		String longMsg = msg+", response contents: \n"+response.getEntity(String.class);
+		String longMsg = msg+", response contents: \n"+response.readEntity(String.class);
 		// By adding a new exception as the cause, we make sure that the response
 		// contents will be logged whenever this RuntimeException is logged.
 		RuntimeException re = new RuntimeException(msg, new Exception(longMsg));
@@ -254,8 +279,8 @@ public class RestConnection implements IRestConnection {
 	 * @param response to get the reason phrase from
 	 * @return Reason phrase from the response
 	 */
-	private String getReasonPhrase(ClientResponse response) {
-		List<String> reasonPhrases = response.getHeaders().get("Reason-Phrase");
+	private String getReasonPhrase(Response response) {
+		List<String> reasonPhrases = response.getStringHeaders().get("Reason-Phrase");
 		StatusType status = response.getStatusInfo();
 		String reasonPhrase;
 		if ( reasonPhrases!=null&&reasonPhrases.size()>0 ) {
@@ -269,28 +294,28 @@ public class RestConnection implements IRestConnection {
 	}
 	
 	/**
-	 * Get a {@link WebResource} object for the configured REST base URL.
-	 * @return A {@link WebResource} instance for the configured REST base URL.
+	 * Get a {@link WebTarget} object for the configured REST base URL.
+	 * @return A {@link WebTarget} instance for the configured REST base URL.
 	 */
-	public final WebResource getBaseResource() {
+	public final WebTarget getBaseResource() {
 		return getResource(baseUrl);
 	}
 	
 	/**
-	 * Get a {@link WebResource} object for the given URL. Usually one should
+	 * Get a {@link WebTarget} object for the given URL. Usually one should
 	 * call {@link #getBaseResource()} instead, to use the configured REST base
 	 * URL. The {@link #getResource(String)} method should usually only be used 
 	 * for executing requests on full URL's returned by previous REST requests.
 	 * 
 	 * Subclasses can override this method to add additional information
-	 * to the {@link WebResource}, for example request parameters that
+	 * to the {@link WebTarget}, for example request parameters that
 	 * need to be sent on every request.
 	 * 
-	 * @param url for which to get a {@link WebResource} instance.
-	 * @return A {@link WebResource} instance for the given URL.
+	 * @param url for which to get a {@link WebTarget} instance.
+	 * @return A {@link WebTarget} instance for the given URL.
 	 */
-	public WebResource getResource(String url) {
-		return getClient().resource(url);
+	public WebTarget getResource(String url) {
+		return getClient().target(url);
 	}
 
 	/**
@@ -326,43 +351,32 @@ public class RestConnection implements IRestConnection {
 	 * @return New {@link Client} instance
 	 */
 	protected Client createClient() {
-		HttpClient apacheClient = createApacheHttpClientBuilder().build();
-		Client client = new Client(new ApacheHttpClient4Handler(apacheClient, createCookieStore(), doPreemptiveBasicAuthentication()), createClientConfig());
-		// TODO Allow subclasses to override this and other settings
-		client.getProperties().put(ApacheHttpClient4Config.PROPERTY_ENABLE_BUFFERING, true);
+		ClientConfig config = createClientConfig();
+		Client client = ClientBuilder.newClient(config);
 		return client;
 	}
 	
 	protected ClientConfig createClientConfig() {
-		return new DefaultClientConfig();
-	}
-	
-	/**
-	 * Subclasses can override this method to customize the Apache
-	 * HttpClient configuration. Usually subclasses would call
-	 * super.createApacheHttpClientBuilder() to re-use the default
-	 * implementation and add additional configuration on top of that.
-	 * @return
-	 */
-	protected HttpClientBuilder createApacheHttpClientBuilder() {
-		// TODO Disable chunked encoding
-		// TODO Set auth header charset
-		HttpClientBuilder builder = HttpClientBuilder.create();
-		builder.setDefaultCredentialsProvider(getCredentialsProvider());
-		// Add proxy host
+		ClientConfig config = new ClientConfig();
 		if ( proxy != null && proxy.getUri() != null ) {
-			URI u = proxy.getUri();
-			builder.setProxy(new HttpHost(u.getHost(), u.getPort(), u.getScheme()));
-			
-			// Add proxy credentials
-			if ( StringUtils.isNotBlank(proxy.getUserName()) && StringUtils.isNotBlank( proxy.getPassword()) ) {
-				getCredentialsProvider().setCredentials(new AuthScope(u.getHost(), u.getPort()),
-			            new UsernamePasswordCredentials(proxy.getUserName(), proxy.getPassword()));
-			}
+			config.property(ClientProperties.PROXY_URI, proxy.getUriString());
+			config.property(ClientProperties.PROXY_USERNAME, proxy.getUserName());
+			config.property(ClientProperties.PROXY_PASSWORD, proxy.getPassword());
 		}
-		return builder;
+		config.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+		config.property(ApacheClientProperties.CREDENTIALS_PROVIDER, getCredentialsProvider());
+		config.property(ApacheClientProperties.SERVICE_UNAVAILABLE_RETRY_STRATEGY, getServiceUnavailableRetryStrategy());
+		config.property(ApacheClientProperties.PREEMPTIVE_BASIC_AUTHENTICATION, doPreemptiveBasicAuthentication());
+		config.connectorProvider(new ApacheConnectorProvider());
+		config.register(JacksonFeature.class);
+		config.register(new LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.FINE, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));
+		return config;
 	}
 	
+	protected ServiceUnavailableRetryStrategy getServiceUnavailableRetryStrategy() {
+		return null;
+	}
+
 	/**
 	 * Create the {@link CookieStore} to use between requests.
 	 * This default implementation returns a {@link BasicCookieStore}
@@ -457,4 +471,26 @@ public class RestConnection implements IRestConnection {
 		return new ReflectionToStringBuilder(this).toString();
 	}
 
+	
+	protected static class JacksonFeature implements Feature {
+
+	    @SuppressWarnings("serial")
+		private static final ObjectMapper mapper =
+	        new ObjectMapper(){{
+	        	final SimpleModule module = new SimpleModule("treemaps");
+	            module.addAbstractTypeMapping(Map.class, JSONMap.class);
+	            module.addAbstractTypeMapping(List.class, JSONList.class);
+	            registerModule(module);
+	        }};
+	 
+	    private static final JacksonJaxbJsonProvider provider =
+	        new JacksonJaxbJsonProvider(){{
+	            setMapper(mapper);
+	        }};
+	 
+	    public boolean configure(FeatureContext context) {
+	        context.register(provider);
+	        return true;
+	    }
+	}
 }

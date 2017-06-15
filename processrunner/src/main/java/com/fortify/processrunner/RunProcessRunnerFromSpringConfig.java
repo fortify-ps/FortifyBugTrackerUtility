@@ -61,8 +61,7 @@ public class RunProcessRunnerFromSpringConfig {
 				checkContext(runner, context);
 				runner.run(context);
 			} catch (Throwable t) {
-				LOG.error("[Process] Error during process run for "+processRunnerName+": "+t.getLocalizedMessage());
-				LOG.debug("Details", t);
+				LOG.error("[Process] Error during process run for "+processRunnerName+": "+t.getLocalizedMessage(), t);
 			}
 		}
 		LOG.info("[Process] Processing complete for " + processRunnerName);

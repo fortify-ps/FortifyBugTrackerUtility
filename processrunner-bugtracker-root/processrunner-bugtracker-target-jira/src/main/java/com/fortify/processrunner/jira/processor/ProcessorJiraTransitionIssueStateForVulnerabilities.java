@@ -2,19 +2,15 @@ package com.fortify.processrunner.jira.processor;
 
 import java.util.LinkedHashMap;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
-import com.fortify.processrunner.jira.util.JiraIssueJSONObjectBuilder;
+import com.fortify.util.json.JSONMap;
 
-public class ProcessorJiraTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<JSONObject> {
-	private static final JiraIssueJSONObjectBuilder MAP_TO_JSON = new JiraIssueJSONObjectBuilder();
-	
+public class ProcessorJiraTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<JSONMap> {
 	@Override
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -26,8 +22,8 @@ public class ProcessorJiraTransitionIssueStateForVulnerabilities extends Abstrac
 	}
 	
 	@Override
-	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
-		getJiraConnection(context).updateIssueData(submittedIssue, MAP_TO_JSON.getJSONObject(issueData));
+	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueFields) {
+		getJiraConnection(context).updateIssueData(submittedIssue, issueFields);
 		return true;
 	}
 
@@ -36,7 +32,7 @@ public class ProcessorJiraTransitionIssueStateForVulnerabilities extends Abstrac
 	}
 	
 	@Override
-	protected JSONObject getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
+	protected JSONMap getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
 		return getJiraConnection(context).getIssueState(submittedIssue);
 	}
 	

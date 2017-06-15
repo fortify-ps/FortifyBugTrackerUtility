@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
@@ -23,6 +22,7 @@ import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerN
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -77,7 +77,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		for ( Object issue : currentGroup ) {
 			issueInstanceIds.add(SpringExpressionUtil.evaluateExpression(issue, "issueInstanceId", String.class));
 		}
-		JSONObject result = conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
+		JSONMap result = conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
 		String bugLink = SpringExpressionUtil.evaluateExpression(result, "data?.values?.externalBugDeepLink", String.class);
 		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
 		return true;

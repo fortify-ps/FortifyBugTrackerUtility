@@ -3,7 +3,6 @@ package com.fortify.processrunner.tfs.processor;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -14,7 +13,6 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.context.IContextTFS;
-import com.fortify.processrunner.tfs.util.TFSWorkItemJSONObjectBuilder;
 import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
 
 /**
@@ -22,7 +20,6 @@ import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
  * submits issues to TFS.
  */
 public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
-	private static final TFSWorkItemJSONObjectBuilder MAP_TO_JSON = new TFSWorkItemJSONObjectBuilder("add");
 	private String defaultWorkItemType = "Bug";
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
@@ -46,8 +43,7 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
 		String workItemType = getWorkItemType(contextTFS);
 		fieldRenamer.renameFields(workItemType, issueData);
-		JSONArray operations = MAP_TO_JSON.getJSONArray(issueData);
-		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), workItemType, operations);
+		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), workItemType, issueData);
 	}
 	
 	protected String getWorkItemType(IContextTFS context) {

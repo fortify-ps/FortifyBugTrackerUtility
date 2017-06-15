@@ -1,13 +1,15 @@
 package com.fortify.processrunner.processor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -16,7 +18,6 @@ import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
-import com.javamex.classmexer.MemoryUtil;
 
 /**
  * <p>This {@link IProcessor} implementation allows for collecting
@@ -41,9 +42,9 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorGroupByExpressions.class);
 	private SimpleExpression rootExpression;
 	private TemplateExpression groupTemplateExpression;
-	private MultiValueMap<String, Object> groups;
-	private int totalCount = 0;
 	private boolean forceGrouping = false;
+	private final ThreadLocal<DB> mapDB = new ThreadLocal<DB>();
+	private final ThreadLocal<Map<String, List<Object>>> groups = new ThreadLocal<Map<String, List<Object>>>();
 	
 	/**
 	 * Add context properties for grouping
@@ -63,10 +64,15 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 */
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean preProcess(Context context) {
-		groups = new LinkedMultiValueMap<String, Object>();
-		totalCount = 0;
+		mapDB.set(DBMaker.tempFileDB()
+				.closeOnJvmShutdown().fileDeleteAfterClose()
+				.fileMmapEnableIfSupported()
+				.make());
+		groups.set(mapDB.get().hashMap("groups", Serializer.STRING, Serializer.JAVA).create());
+		getGroupsMap(context).clear(); // Make sure that we start with a clean cache 
 		return preProcessBeforeGrouping(context);
 	}
 	
@@ -75,7 +81,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			return false;
 		}
 		
-		totalCount++;
+		//totalCount++;
 		SimpleExpression rootExpression = getRootExpression();
 		TemplateExpression groupTemplateExpression = getGroupTemplateExpression();
 		Object rootObject = SpringExpressionUtil.evaluateExpression(context, rootExpression, Object.class);
@@ -93,27 +99,31 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			// data and invoke the process() method of the group processor
 			// in our postProcess() method once all data has been grouped.
 			String groupKey = ContextSpringExpressionUtil.evaluateExpression(context, rootObject, groupTemplateExpression, String.class);
-			groups.add(groupKey, rootObject);
+			addGroupEntry(context, groupKey, rootObject);
 			return true;
 		}
 	}
 
 	protected final boolean postProcess(Context context) {
 		boolean result = true;
+		Map<String, List<Object>> groupsMap = getGroupsMap(context);
 		if ( isGroupingEnabled(context) ) {
 			// If a group template expression is defined, we call the
 			// process() method on the group processor for every
 			// group that we have collected.
 			logStatistics();
 			
-			for ( Map.Entry<String, List<Object>> group : groups.entrySet() ) {
+			for ( Map.Entry<String, List<Object>> group : groupsMap.entrySet() ) {
+				//System.out.println(group.getKey()+": "+group.getValue());
+				
 				if ( !processGroup(context, group.getValue()) ) {
 					result = false; break; // Stop processing remainder of groups
 				};
+				
 			}
 			
 		}
-		groups.clear();
+		removeGroupsMap(groupsMap);
 		return postProcessAfterProcessingGroups(context) && result;
 	}
 	
@@ -160,10 +170,11 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 	
 	protected void logGroupsInfo() {
-		LOG.info("[Process] Grouped "+totalCount+" items in "+(groups==null?0:groups.size())+" groups"); 
+		//LOG.info("[Process] Grouped "+totalCount+" items in "+(groups==null?0:groups.size())+" groups"); 
 	}
 
 	protected void logMemoryUsage() {
+		/*
 		if ( groups != null ) {
 			try {
 				LOG.info("[Process] Grouped data memory usage: "+MemoryUtil.deepMemoryUsageOf(groups)+" bytes");
@@ -173,6 +184,34 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 						+"Classmexer can be downloaded from http://www.javamex.com/classmexer/classmexer-0_03.zip");
 			}
 		}
+		*/
+	}
+	
+	protected synchronized Map<String, List<Object>> getGroupsMap(Context context) {
+		return groups.get();
+	}
+	
+	protected void removeGroupsMap(Map<String, List<Object>> map) {
+		map.clear();
+		mapDB.get().close();
+	}
+	
+	/**
+	 * Add a new group entry. This will dynamically add the group entry
+	 * to the groups map if it does not yet exist. Depending on the
+	 * disk-backed map implementation, updated values may not be stored,
+	 * so we explicitly create a new value list and overwrite the existing
+	 * map entry.
+	 * @param context
+	 * @param key
+	 * @param value
+	 */
+	protected synchronized void addGroupEntry(Context context, String key, Object value) {
+		Map<String, List<Object>> map = getGroupsMap(context);
+		List<Object> cachedList = map.getOrDefault(key, new ArrayList<Object>());
+		List<Object> newList = new ArrayList<Object>(cachedList);
+		newList.add(value);
+		map.put(key, newList);
 	}
 	
 	public SimpleExpression getRootExpression() {

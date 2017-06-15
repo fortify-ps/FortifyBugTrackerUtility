@@ -3,9 +3,8 @@ package com.fortify.ssc.connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 
 /**
  * This class describes the SSC issue search options, allowing to either 
@@ -35,22 +34,17 @@ public class IssueSearchOptions {
 		searchOptions.put("HIDDEN", includeHidden);
 	}
 	
-	JSONArray getJSONRequestData() {
-		JSONArray result = new JSONArray();
-		result.put(getOption("REMOVED"));
-		result.put(getOption("SUPPRESSED"));
-		result.put(getOption("HIDDEN"));
+	JSONList getJSONRequestData() {
+		JSONList result = new JSONList();
+		result.add(getOption("REMOVED"));
+		result.add(getOption("SUPPRESSED"));
+		result.add(getOption("HIDDEN"));
 		return result;
 	}
-	private JSONObject getOption(String optionType) {
-		try {
-			JSONObject result = new JSONObject();
-			result.put("optionType", optionType);
-			result.put("optionValue", searchOptions.getOrDefault(optionType, false));
-			return result;
-		} catch (JSONException e) {
-			throw new RuntimeException("Error building JSON Object", e);
-		}
+	private JSONMap getOption(String optionType) {
+		JSONMap result = new JSONMap();
+		result.put("optionType", optionType);
+		result.put("optionValue", searchOptions.getOrDefault(optionType, false));
+		return result;
 	}
-	
 }

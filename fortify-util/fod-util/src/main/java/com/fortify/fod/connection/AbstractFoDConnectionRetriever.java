@@ -1,8 +1,12 @@
 package com.fortify.fod.connection;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.core.Form;
+
 import com.fortify.util.rest.AbstractRestConnectionRetriever;
 import com.fortify.util.rest.IRestConnectionRetriever;
-import com.sun.jersey.api.representation.Form;
 
 /**
  * <p>This abstract {@link IRestConnectionRetriever} will create 
@@ -20,8 +24,8 @@ public abstract class AbstractFoDConnectionRetriever extends AbstractRestConnect
 	
 	protected final FoDAuthenticatingRestConnection createConnection() {
 		Form form = new Form();
-		form.putSingle("scope",getScope());
-		form.putSingle("grant_type", getGrantType());
+		form.param("scope",getScope());
+		form.param("grant_type", getGrantType());
 		addCredentials(form);
 		return new FoDAuthenticatingRestConnection(getBaseUrl(), form, getProxy());
 	}

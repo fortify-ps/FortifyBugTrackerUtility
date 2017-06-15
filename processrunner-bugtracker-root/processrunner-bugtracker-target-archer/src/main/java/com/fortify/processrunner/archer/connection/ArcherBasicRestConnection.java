@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
@@ -20,10 +21,10 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.stream.StreamSource;
 
+import org.glassfish.jersey.client.ClientConfig;
+
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * This class provides a basic, non-authenticating REST and SOAP
@@ -47,12 +48,14 @@ public class ArcherBasicRestConnection extends RestConnection {
 				.accept("application/json", "text/xml");
 	}
 	
+	
 	@Override
 	protected ClientConfig createClientConfig() {
 		ClientConfig result = super.createClientConfig();
-		result.getClasses().add(SoapProvider.class);
+		result.register(SoapProvider.class);
 		return result;
 	}
+	
 	
 	@Provider
 	@Consumes(MediaType.TEXT_XML)

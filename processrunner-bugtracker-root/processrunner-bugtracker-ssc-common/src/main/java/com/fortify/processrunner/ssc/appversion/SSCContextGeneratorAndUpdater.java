@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,8 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.sun.jersey.api.client.WebResource;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 
 @Component
 public final class SSCContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater {
@@ -44,16 +44,15 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		int count=50;
 		while ( start < count ) {
 			LOG.info("[SSC] Loading next set of application versions");
-			WebResource resource = conn.getBaseResource().path("api/v1/projectVersions")
+			WebTarget resource = conn.getBaseResource().path("api/v1/projectVersions")
 					.queryParam("start", ""+start).queryParam("limit", "");
 			LOG.debug("[SSC] Retrieving application versions from "+resource);
-			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
-			count = data.optInt("count");
-			JSONArray pvArray = data.optJSONArray("data");
-			start += pvArray.length();
-			for ( int i = 0 ; i < pvArray.length() ; i++ ) {
-				JSONObject pv = pvArray.optJSONObject(i);
-				String pvId = pv.optString("id");
+			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);
+			count = data.get("count", Integer.class);
+			JSONList pvArray = data.get("data", JSONList.class);
+			start += pvArray.size();
+			for ( JSONMap pv : pvArray.asValueType(JSONMap.class) ) {
+				String pvId = pv.get("id", String.class);
 				if ( isApplicationVersionIncluded(context, filtersForContext, pv) ) {
 					Context extraContextProperties = new Context();
 					addMappedContextProperties(context, pv);
@@ -66,12 +65,12 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 	
 	@Override
 	protected void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		JSONObject applicationVersion = SSCConnectionFactory.getConnection(context).getApplicationVersion((String)contextPropertyValue);
+		JSONMap applicationVersion = SSCConnectionFactory.getConnection(context).getApplicationVersion((String)contextPropertyValue);
 		addMappedContextProperties(context, applicationVersion);
 		
 	}
 
-	private void addMappedContextProperties(Context context, JSONObject applicationVersion) {
+	private void addMappedContextProperties(Context context, JSONMap applicationVersion) {
 		for ( ISSCApplicationVersionContextUpdater updater : getContextUpdatersForContext(context) ) {
 			updater.updateContext(context, applicationVersion);
 		}
@@ -112,7 +111,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		return updatersForContext;
 	}
 	
-	private final boolean isApplicationVersionIncluded(Context context, List<ISSCApplicationVersionFilter> filtersForContext, JSONObject pv) {
+	private final boolean isApplicationVersionIncluded(Context context, List<ISSCApplicationVersionFilter> filtersForContext, JSONMap pv) {
 		if ( pv == null ) { return false; }
 		for ( ISSCApplicationVersionFilter filter : filtersForContext ) {
 			if ( !filter.isApplicationVersionIncluded(context, pv) ) {

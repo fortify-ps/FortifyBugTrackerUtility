@@ -3,10 +3,9 @@ package com.fortify.processrunner.ssc.appversion;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.util.json.JSONMap;
 
 /**
  * Filter SSC application versions based on whether the SSC application version contains
@@ -23,7 +22,7 @@ public class SSCApplicationVersionCustomTagFilter extends AbstractSSCApplication
 	}
 
 	@Override
-	public boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONObject applicationVersion) {
+	public boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONMap applicationVersion) {
 		Set<String> namesToCheck = getCustomTagNames();
 		List<String> avCustomTagNames = SSCConnectionFactory.getConnection(context).getApplicationVersionCustomTagNames(applicationVersionId);
 		boolean result = true;

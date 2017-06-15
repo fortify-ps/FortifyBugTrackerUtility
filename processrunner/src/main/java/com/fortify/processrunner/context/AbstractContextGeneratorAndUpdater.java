@@ -29,13 +29,14 @@ public abstract class AbstractContextGeneratorAndUpdater implements IContextGene
 		if ( value!=null && !(value instanceof String && StringUtils.isBlank((String)value)) ) {
 			addMappedContextProperties(initialContext, value);
 			result.add(initialContext);
-		}
-		for ( Map.Entry<Object, Context> entry : getDefaultValuesWithMappedContextProperties(initialContext).entrySet() ) {
-			Context newContext = new Context(initialContext);
-			newContext.putAll(initialContext);
-			newContext.put(getContextPropertyName(), entry.getKey());
-			newContext.put(isContextGeneratedFromDefaultValuesKey, true);
-			result.add(newContext);
+		} else {
+			for ( Map.Entry<Object, Context> entry : getDefaultValuesWithMappedContextProperties(initialContext).entrySet() ) {
+				Context newContext = new Context(initialContext);
+				newContext.putAll(initialContext);
+				newContext.put(getContextPropertyName(), entry.getKey());
+				newContext.put(isContextGeneratedFromDefaultValuesKey, true);
+				result.add(newContext);
+			}
 		}
 		return result;
 	}

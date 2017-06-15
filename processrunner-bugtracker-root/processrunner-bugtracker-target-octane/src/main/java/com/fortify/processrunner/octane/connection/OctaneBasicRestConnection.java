@@ -1,8 +1,9 @@
 package com.fortify.processrunner.octane.connection;
 
+import javax.ws.rs.client.Invocation.Builder;
+
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * This class provides a basic, non-authenticating REST connection

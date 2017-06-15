@@ -8,11 +8,9 @@ import java.util.Set;
 
 import javax.ws.rs.HttpMethod;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -47,22 +45,22 @@ public class FoDProcessorEnrichWithExtraFoDData extends AbstractFoDProcessorEnri
 	}
 
 	@Override
-	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		for ( String field : fields ) {
-			currentVulnerability.putOpt(field, getJSONObject(context, field));
+			currentVulnerability.put(field, getJSONMap(context, field));
 		}
 		return true;
 	}
 
-	private JSONObject getJSONObject(Context context, String field) {
+	private JSONMap getJSONMap(Context context, String field) {
 		IRestConnection conn = FoDConnectionFactory.getConnection(context);
 		TemplateExpression uriExpr = FIELD_TO_URI_EXPRESSION_MAP.get(field); 
 		if ( uriExpr == null ) {
 			throw new RuntimeException("Unknown FoD field "+field);
 		}
 		String uri = SpringExpressionUtil.evaluateExpression(context, uriExpr, String.class);
-		JSONObject data = conn.executeRequest(HttpMethod.GET, 
-				conn.getBaseResource().path(uri), JSONObject.class);
+		JSONMap data = conn.executeRequest(HttpMethod.GET, 
+				conn.getBaseResource().path(uri), JSONMap.class);
 		return data;
 	}
 	

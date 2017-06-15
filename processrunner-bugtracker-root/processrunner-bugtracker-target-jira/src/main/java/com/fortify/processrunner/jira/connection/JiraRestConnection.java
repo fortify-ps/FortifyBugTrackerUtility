@@ -1,20 +1,21 @@
 package com.fortify.processrunner.jira.connection;
 
+import java.util.Map;
+
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.auth.Credentials;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.util.json.JSONObjectBuilder;
-import com.fortify.util.json.JSONUtil;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
-import com.sun.jersey.api.client.WebResource;
 
 public final class JiraRestConnection extends RestConnection {
 	private static final Log LOG = LogFactory.getLog(JiraRestConnection.class);
@@ -29,32 +30,39 @@ public final class JiraRestConnection extends RestConnection {
 		return true;
 	}
 	
-	public SubmittedIssue submitIssue(JSONObject issueData) {
-		LOG.trace(String.format("[Jira] Submitting issue: %s", issueData));
-		WebResource.Builder resource = getBaseResource().path("/rest/api/latest/issue").entity(issueData);
-		JSONObject submitResult = executeRequest(HttpMethod.POST, resource, JSONObject.class);
+	public SubmittedIssue submitIssue(Map<String, Object> issueFields) {
+		LOG.trace(String.format("[Jira] Submitting issue: %s", issueFields));
+		WebTarget target = getBaseResource().path("/rest/api/latest/issue");
+		JSONMap request = getIssueRequestData(issueFields);
+		JSONMap submitResult = executeRequest(HttpMethod.POST, target, Entity.entity(request, "application/json"), JSONMap.class);
 		
-		String submittedIssueKey = submitResult.optString("key");
+		String submittedIssueKey = submitResult.get("key", String.class);
 		String submittedIssueBrowserURL = getBaseResource()
-				.path("/browse/").path(submittedIssueKey).getURI().toString();
+				.path("/browse/").path(submittedIssueKey).getUri().toString();
 		return new SubmittedIssue(submittedIssueKey, submittedIssueBrowserURL);
 	}
+
+	private JSONMap getIssueRequestData(Map<String, Object> issueFields) {
+		JSONMap request = new JSONMap();
+		request.getOrCreateJSONMap("fields").putPaths(issueFields);
+		return request;
+	}
 	
-	public void updateIssueData(SubmittedIssue submittedIssue, JSONObject issueData) {
-		LOG.trace(String.format("[Jira] Updating issue data for %s: %s", submittedIssue.getDeepLink(), issueData)); 
+	public void updateIssueData(SubmittedIssue submittedIssue, Map<String, Object> issueFields) {
+		LOG.trace(String.format("[Jira] Updating issue data for %s: %s", submittedIssue.getDeepLink(), issueFields)); 
 		String issueId = getIssueId(submittedIssue);
-		WebResource.Builder resource = getBaseResource().path("/rest/api/latest/issue").path(issueId).entity(issueData);
-		executeRequest(HttpMethod.PUT, resource, null);
+		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId);
+		executeRequest(HttpMethod.PUT, target, Entity.entity(getIssueRequestData(issueFields), "application/json"), null);
 	}
 
 	public String getTransitionId(String issueId, String transitionName) {
 		if ( transitionName==null ) { return null; }
-		WebResource resource = getBaseResource().path("/rest/api/latest/issue").path(issueId).path("transitions");
-		JSONObject result = executeRequest(HttpMethod.GET, resource, JSONObject.class);
-		JSONArray transitions = result.optJSONArray("transitions");
-		String transitionId = JSONUtil.mapValue(transitions, "name", transitionName, "id", String.class);
+		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId).path("transitions");
+		JSONMap result = executeRequest(HttpMethod.GET, target, JSONMap.class);
+		JSONList transitions = result.get("transitions", JSONList.class);
+		String transitionId = transitions.mapValue("name", transitionName, "id", String.class);
 		if ( transitionId==null ) {
-			LOG.warn(String.format("[Jira] Transition %s does not exist in list of available transitions %s", transitionName, JSONUtil.jsonObjectArrayToList(transitions, "name", String.class)));
+			LOG.warn(String.format("[Jira] Transition %s does not exist in list of available transitions %s", transitionName, transitions.getValues("name", String.class)));
 		}
 		return transitionId;
 	}
@@ -64,33 +72,33 @@ public final class JiraRestConnection extends RestConnection {
 		String transitionId = getTransitionId(issueId, transitionName);
 		if ( transitionId == null ) { return false; }
 		
-		final JSONObjectBuilder builder = new JSONObjectBuilder();
-		WebResource resource = getBaseResource().path("/rest/api/latest/issue").path(issueId).path("transitions");
+		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId).path("transitions");
 
 		// { "transition" : { "id" : <transitionId> } }
-		JSONObject jsonRequest = builder.updateJSONObjectWithPropertyPath(new JSONObject(), "transition.id", transitionId);
+		JSONMap request = new JSONMap();
+		request.putPath("transition.id", transitionId);
 		
 		if ( StringUtils.isNotBlank(comment)) {
 			// { "update" : { "comment" : [ { "add" : { "body" : <comment> } } ] }
-			new JSONObjectBuilder().updateJSONObjectWithPropertyPath(jsonRequest, "update.comment[].add.body", comment);
+			request.putPath("update.comment[].add.body", comment);
 		}
 
-		executeRequest(HttpMethod.POST, resource.entity(jsonRequest), JSONObject.class);
+		executeRequest(HttpMethod.POST, target, Entity.entity(request, "application/json"), JSONMap.class);
 		return true;
 	}
 	
-	public JSONObject getIssueDetails(SubmittedIssue submittedIssue, String... fields) {
+	public JSONMap getIssueDetails(SubmittedIssue submittedIssue, String... fields) {
 		String issueId = getIssueId(submittedIssue);
-		WebResource resource = getBaseResource().path("/rest/api/latest/issue").path(issueId);
+		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId);
 		if ( fields!=null ) {
-			resource = resource.queryParam("fields", StringUtils.join(fields, ","));
+			target = target.queryParam("fields", StringUtils.join(fields, ","));
 		}
-		return executeRequest(HttpMethod.GET, resource, JSONObject.class);
+		return executeRequest(HttpMethod.GET, target, JSONMap.class);
 	}
 	
-	public JSONObject getIssueState(SubmittedIssue submittedIssue) {
-		JSONObject issueDetails = getIssueDetails(submittedIssue, "status", "resolution");
-		return issueDetails.optJSONObject("fields");
+	public JSONMap getIssueState(SubmittedIssue submittedIssue) {
+		JSONMap issueDetails = getIssueDetails(submittedIssue, "status", "resolution");
+		return issueDetails.get("fields", JSONMap.class);
 		// status.name, resolution
 	}
 	

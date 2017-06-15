@@ -1,14 +1,13 @@
 package com.fortify.processrunner.ssc.processor.retrieve;
 
-import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
@@ -21,9 +20,9 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.ssc.connection.IssueSearchOptions;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * <p>This {@link IProcessor} implementation retrieves a list of
@@ -47,9 +46,7 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(SSCProcessorRetrieveVulnerabilities.class);
-	private static final String KEY_START = "SSCProcessorRootVulnerabilityArray_start";
 	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("count");
-	private String uriTemplateExpression = "api/v1/projectVersions/${SSCApplicationVersionId}/issues?qm=issues&limit=50&start=${"+KEY_START+"}";
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
 	private final IssueSearchOptions issueSearchOptions = new IssueSearchOptions();
 	private IProcessor vulnerabilityProcessor;
@@ -78,44 +75,40 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String filterParamValue = contextSSC.getSSCTopLevelFilterParamValue();
-		String filterParam = StringUtils.isBlank(filterParamValue)?"":"&q="+filterParamValue;
 		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
 		conn.updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
 		while ( start < count ) {
 			LOG.info("[SSC] Loading next set of data");
-			context.put(KEY_START, start);
-			URI uri = SpringExpressionUtil.evaluateTemplateExpression(context, getUriTemplateExpression()+filterParam, URI.class);
-			WebResource resource = conn.getBaseResource().uri(uri);
+			WebTarget resource = conn.getBaseResource()
+					.path("/api/v1/projectVersions/{SSCApplicationVersionId}/issues")
+					.queryParam("qm", "issues")
+					.queryParam("limit", "50")
+					.queryParam("start", start)
+					.resolveTemplate("SSCApplicationVersionId", contextSSC.getSSCApplicationVersionId());
+			if ( StringUtils.isNotBlank(filterParamValue) ) {
+				resource = resource.queryParam("q", filterParamValue);
+			}
 			LOG.debug("[SSC] Retrieving vulnerabilities from "+resource);
-			JSONObject data = conn.executeRequest(HttpMethod.GET, resource, JSONObject.class);
+			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);
 			count = SpringExpressionUtil.evaluateExpression(data, EXPR_COUNT, Integer.class);
-			JSONArray vulnerabilitiesArray = SpringExpressionUtil.evaluateExpression(data, getRootExpression(), JSONArray.class);
-			start += vulnerabilitiesArray.length();
-			for ( int i = 0 ; i < vulnerabilitiesArray.length() ; i++ ) {
-				JSONObject vuln = vulnerabilitiesArray.optJSONObject(i);
+			List<?> vulnerabilitiesArray = SpringExpressionUtil.evaluateExpression(data, getRootExpression(), List.class);
+			start += vulnerabilitiesArray.size();
+			for ( int i = 0 ; i < vulnerabilitiesArray.size() ; i++ ) {
+				Object vuln = vulnerabilitiesArray.get(i);
 				if ( LOG.isTraceEnabled() ) {
-					LOG.trace("[SSC] Processing vulnerability "+vuln.optString("vulnId"));
+					//LOG.trace("[SSC] Processing vulnerability "+vuln.optString("vulnId"));
 				}
 				contextCurrentVulnerability.setCurrentVulnerability(vuln);
 				// We ignore the boolean result as we want to continue processing next vulnerabilities
 				processor.process(Phase.PROCESS, context);
 				contextCurrentVulnerability.setCurrentVulnerability(null);
 			}
-			context.remove(KEY_START);
 		}
 		return processor.process(Phase.POST_PROCESS, context);
 	}
 	
-	public String getUriTemplateExpression() {
-		return uriTemplateExpression;
-	}
-
-	public void setUriTemplateExpression(String uriTemplateExpression) {
-		this.uriTemplateExpression = uriTemplateExpression;
-	}
-
 	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}

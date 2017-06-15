@@ -2,16 +2,15 @@ package com.fortify.processrunner.octane.processor;
 
 import java.util.LinkedHashMap;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.common.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection;
 import com.fortify.processrunner.octane.connection.OctaneConnectionFactory;
+import com.fortify.util.json.JSONMap;
 
-public class ProcessorOctaneTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<JSONObject> {
+public class ProcessorOctaneTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<JSONMap> {
 	@Override
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -33,7 +32,7 @@ public class ProcessorOctaneTransitionIssueStateForVulnerabilities extends Abstr
 	}
 	
 	@Override
-	protected JSONObject getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
+	protected JSONMap getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
 		return getOctaneConnection(context).getIssueState(submittedIssue);
 	}
 	

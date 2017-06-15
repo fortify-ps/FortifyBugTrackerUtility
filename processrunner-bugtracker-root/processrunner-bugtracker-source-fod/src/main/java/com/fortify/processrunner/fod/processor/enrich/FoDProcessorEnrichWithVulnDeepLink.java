@@ -1,10 +1,8 @@
 package com.fortify.processrunner.fod.processor.enrich;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
@@ -16,7 +14,7 @@ public class FoDProcessorEnrichWithVulnDeepLink extends AbstractFoDProcessorEnri
 	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("redirect/Issues/${vulnId}");
 
 	@Override
-	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		String baseUrl = FoDConnectionFactory.getConnection(context).getBaseUrl();
 		String deepLink = baseUrl + SpringExpressionUtil.evaluateExpression(currentVulnerability, deepLinkUriExpression, String.class);
 		currentVulnerability.put("deepLink", deepLink);

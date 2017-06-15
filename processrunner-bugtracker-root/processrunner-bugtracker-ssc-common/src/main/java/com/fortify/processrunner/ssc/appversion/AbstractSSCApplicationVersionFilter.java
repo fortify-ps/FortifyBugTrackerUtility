@@ -1,8 +1,7 @@
 package com.fortify.processrunner.ssc.appversion;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.json.JSONMap;
 
 /**
  * This abstract base class allows for either including or excluding SSC application versions
@@ -16,11 +15,11 @@ import com.fortify.processrunner.context.Context;
 public abstract class AbstractSSCApplicationVersionFilter implements ISSCApplicationVersionFilter {
 	private boolean includeMatched = true;
 	
-	public final boolean isApplicationVersionIncluded(Context context, JSONObject applicationVersion) {
-		return isApplicationVersionMatching(context, applicationVersion.optString("id"), applicationVersion) == isIncludeMatched();
+	public final boolean isApplicationVersionIncluded(Context context, JSONMap applicationVersion) {
+		return isApplicationVersionMatching(context, applicationVersion.get("id", String.class), applicationVersion) == isIncludeMatched();
 	}
 	
-	public abstract boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONObject applicationVersion);
+	public abstract boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONMap applicationVersion);
 
 	public boolean isIncludeMatched() {
 		return includeMatched;

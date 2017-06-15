@@ -9,9 +9,8 @@ import javax.ws.rs.HttpMethod;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;
 
 /**
@@ -39,19 +38,15 @@ public final class SSCTokenFactoryUserCredentials implements ISSCTokenFactory {
 	public String getToken() {
 		if ( tokenData == null || tokenData.isExpired() ) {
 			String authHeaderValue = "Basic "+Base64.encodeBase64String((userName+":"+password).getBytes());
-			tokenData = getTokenData(conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/api/v1/auth/obtain_token").header("Authorization", authHeaderValue), JSONObject.class));
+			tokenData = getTokenData(conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/api/v1/auth/obtain_token").request().header("Authorization", authHeaderValue), null, JSONMap.class));
 			LOG.info("[SSC] Obtained access token, expiring at "+tokenData.getTerminalDate().toString());
 		}
 		return tokenData.getToken();
 	}
 	
-	private TokenData getTokenData(JSONObject json) {
-		try {
-			JSONObject data = json.getJSONObject("data");
-			return new TokenData(data.getString("token"), data.getString("terminalDate"));
-		} catch (JSONException e) {
-			throw new RuntimeException("Error getting authentication token from SSC", e);
-		}
+	private TokenData getTokenData(JSONMap json) {
+		JSONMap data = (JSONMap)json.get("data");
+		return new TokenData((String)data.get("token"), (String)data.get("terminalDate"));
 	}
 
 	private static final class TokenData {

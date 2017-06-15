@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,7 @@ import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONUtil;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class extends {@link AbstractSSCProcessorRetrieveFilteredVulnerabilities} with the following
@@ -155,6 +154,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	 * Update SSC with the details for the submitted issue.
 	 */
 	private class SSCIssueSubmittedListener implements IIssueSubmittedListener {
+		@SuppressWarnings("unchecked")
 		public void issueSubmitted(Context context, String bugTrackerName, SubmittedIssue submittedIssue, Collection<Object> vulnerabilities) {
 			IContextSSCSource ctx = context.as(IContextSSCSource.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
@@ -164,7 +164,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 			} else {
 				Map<String, Object> issueDetails = new HashMap<String, Object>();
 				issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
-				List<String> issueInstanceIds = JSONUtil.jsonObjectArrayToList(new JSONArray(vulnerabilities), "issueInstanceId", String.class);
+				List<String> issueInstanceIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![issueInstanceId]", List.class);
 				conn.fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			}
 		}

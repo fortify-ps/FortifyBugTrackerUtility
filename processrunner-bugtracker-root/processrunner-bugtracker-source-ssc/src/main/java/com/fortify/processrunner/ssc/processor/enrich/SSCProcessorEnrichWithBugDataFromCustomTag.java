@@ -1,13 +1,10 @@
 package com.fortify.processrunner.ssc.processor.enrich;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONUtil;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -24,13 +21,13 @@ public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProce
 	}
 	
 	@Override
-	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		if ( customTagName == null ) {
-			currentVulnerability.put("bugLink", currentVulnerability.optString("bugURL"));
+			currentVulnerability.put("bugLink", currentVulnerability.get("bugURL"));
 		} else {
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String customTagGuid = conn.getCustomTagGuid(customTagName);
-			String bugLink = JSONUtil.mapValue(SpringExpressionUtil.evaluateExpression(currentVulnerability, "details.customTagValues", JSONArray.class), "customTagGuid", customTagGuid, "textValue", String.class);
+			String bugLink = SpringExpressionUtil.evaluateExpression(currentVulnerability, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
 			currentVulnerability.put("bugLink", bugLink);
 		}
 		return true;

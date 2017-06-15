@@ -1,5 +1,6 @@
 package com.fortify.ssc.connection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,13 +14,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
-import com.fortify.util.json.JSONObjectBuilder;
-import com.fortify.util.json.JSONUtil;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.google.common.base.Supplier;
@@ -27,7 +28,6 @@ import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * This class provides an authenticated REST connection for SSC.
@@ -37,40 +37,40 @@ import com.sun.jersey.api.client.WebResource.Builder;
 public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	private final ISSCTokenFactory tokenFactory;
 	/** Cache for project version filter sets */
-	private final LoadingCache<String, JSONArray> avfilterSetsCache = CacheBuilder.newBuilder().maximumSize(10)
-			.build(new CacheLoader<String, JSONArray>() {
+	private final LoadingCache<String, JSONList> avfilterSetsCache = CacheBuilder.newBuilder().maximumSize(10)
+			.build(new CacheLoader<String, JSONList>() {
 				@Override
-				public JSONArray load(String projectVersionId) {
+				public JSONList load(String projectVersionId) {
 					return getApplicationVersionEntities(projectVersionId, "filterSets");
 				}
 			});
 	/** Cache for project version custom tags */
-	private final LoadingCache<String, JSONArray> avCustomTagsCache = CacheBuilder.newBuilder().maximumSize(10)
-			.build(new CacheLoader<String, JSONArray>() {
+	private final LoadingCache<String, JSONList> avCustomTagsCache = CacheBuilder.newBuilder().maximumSize(10)
+			.build(new CacheLoader<String, JSONList>() {
 				@Override
-				public JSONArray load(String projectVersionId) {
+				public JSONList load(String projectVersionId) {
 					return getApplicationVersionEntities(projectVersionId, "customTags");
 				}
 			});
 	/** Cache for project version custom tags */
-	private final LoadingCache<String, JSONArray> avAttributesCache = CacheBuilder.newBuilder().maximumSize(10)
-			.build(new CacheLoader<String, JSONArray>() {
+	private final LoadingCache<String, JSONList> avAttributesCache = CacheBuilder.newBuilder().maximumSize(10)
+			.build(new CacheLoader<String, JSONList>() {
 				@Override
-				public JSONArray load(String projectVersionId) {
+				public JSONList load(String projectVersionId) {
 					return getApplicationVersionEntities(projectVersionId, "attributes");
 				}
 			});
 	/** Memoized supplier for custom tags */
-	private final Supplier<JSONArray> customTagsSupplier = Suppliers.memoize(new Supplier<JSONArray>() {
-		public JSONArray get() { return getEntities("customTags"); };
+	private final Supplier<JSONList> customTagsSupplier = Suppliers.memoize(new Supplier<JSONList>() {
+		public JSONList get() { return getEntities("customTags"); };
 	});
 	/** Memoized supplier for bug trackers */
-	private final Supplier<JSONArray> bugTrackersSupplier = Suppliers.memoize(new Supplier<JSONArray>() {
-		public JSONArray get() { return getEntities("bugtrackers"); };
+	private final Supplier<JSONList> bugTrackersSupplier = Suppliers.memoize(new Supplier<JSONList>() {
+		public JSONList get() { return getEntities("bugtrackers"); };
 	});
 	/** Memoized supplier for attribute definitions */
-	private final Supplier<JSONArray> attributeDefinitionsSupplier = Suppliers.memoize(new Supplier<JSONArray>() {
-		public JSONArray get() { return getEntities("attributeDefinitions"); };
+	private final Supplier<JSONList> attributeDefinitionsSupplier = Suppliers.memoize(new Supplier<JSONList>() {
+		public JSONList get() { return getEntities("attributeDefinitions"); };
 	});
 
 	/**
@@ -123,25 +123,24 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 */
 	public void setCustomTagValue(String applicationVersionId, String customTagName, String value, Collection<Object> vulns) {
 		// TODO Simplify this code
-		JSONObject request = new JSONObject();
-		JSONObject customTagAudit = new JSONObject();
-		JSONObjectBuilder builder = new JSONObjectBuilder();
-		builder.updateJSONObjectWithPropertyPath(request, "type", "AUDIT_ISSUE");
+		JSONMap request = new JSONMap();
+		JSONMap customTagAudit = new JSONMap();
+		request.put("type", "AUDIT_ISSUE");
 
-		JSONArray issues = new JSONArray();
+		List<JSONMap> issues = new ArrayList<JSONMap>();
 		for ( Object vuln : vulns ) {
-			JSONObject issue = new JSONObject();
-			builder.updateJSONObjectWithPropertyPath(issue, "id", SpringExpressionUtil.evaluateExpression(vuln, "id", Long.class));
-			builder.updateJSONObjectWithPropertyPath(issue, "revision", SpringExpressionUtil.evaluateExpression(vuln, "revision", Long.class));
-			issues.put(issue);
+			JSONMap issue = new JSONMap();
+			issue.put("id", SpringExpressionUtil.evaluateExpression(vuln, "id", Long.class));
+			issue.put("revision", SpringExpressionUtil.evaluateExpression(vuln, "revision", Long.class));
+			issues.add(issue);
 		}
-		builder.updateJSONObjectWithPropertyPath(request, "values.issues", issues);
-		builder.updateJSONObjectWithPropertyPath(customTagAudit, "customTagGuid", getCustomTagGuid(customTagName));
-		builder.updateJSONObjectWithPropertyPath(customTagAudit, "textValue", value);
-		builder.updateJSONObjectWithPropertyPath(request, "values.customTagAudit", new Object[]{customTagAudit});
+		request.putPath("values.issues", issues);
+		customTagAudit.put("customTagGuid", getCustomTagGuid(customTagName));
+		customTagAudit.put("textValue", value);
+		request.putPath("values.customTagAudit", new Object[]{customTagAudit});
 		executeRequest(HttpMethod.POST, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
-				.entity(request, "application/json"), JSONObject.class);
+				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action"),
+				Entity.entity(request, "application/json"), JSONMap.class);
 	}
 	
 	/**
@@ -150,7 +149,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @return
 	 */
 	public boolean isBugTrackerAuthenticationRequired(String applicationVersionId) {
-		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
+		JSONMap bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
 		return SpringExpressionUtil.evaluateExpression(bugFilingRequirements, "requiresAuthentication", Boolean.class);
 	}
 	
@@ -161,15 +160,15 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @param bugTrackerPassword
 	 */
 	public void authenticateForBugFiling(String applicationVersionId, String bugTrackerUserName, String bugTrackerPassword) {
-		JSONObjectBuilder builder = new JSONObjectBuilder();
-		JSONObject request = new JSONObject();
-		builder.updateJSONObjectWithPropertyPath(request, "type", "login");
-		builder.updateJSONObjectWithPropertyPath(request, "ids", new JSONArray()); // Is this necessary to add?
-		builder.updateJSONObjectWithPropertyPath(request, "values.username", bugTrackerUserName);
-		builder.updateJSONObjectWithPropertyPath(request, "values.password", bugTrackerPassword);
-		JSONObject result = executeRequest(HttpMethod.POST, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("bugfilingrequirements/action")
-				.entity(request, "application/json"), JSONObject.class);
+		JSONMap request = new JSONMap();
+		request.put("type", "login");
+		request.put("ids", new JSONList()); // Is this necessary to add?
+		request.putPath("values.username", bugTrackerUserName);
+		request.putPath("values.password", bugTrackerPassword);
+		JSONMap result = executeRequest(HttpMethod.POST, 
+				getBaseResource().path("/api/v1/projectVersions")
+				.path(applicationVersionId).path("bugfilingrequirements/action"),
+				Entity.entity(request, "application/json"), JSONMap.class);
 		// TODO Check result
 	}
 	
@@ -180,28 +179,27 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @param issueInstanceIds
 	 * @return
 	 */
-	public JSONObject fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds) {
+	public JSONMap fileBug(String applicationVersionId, Map<String,Object> issueDetails, List<String> issueInstanceIds) {
 		// TODO Clean up this code
-		JSONObject bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
+		JSONMap bugFilingRequirements = getInitialBugFilingRequirements(applicationVersionId);
 		Set<String> processedDependentParams = new HashSet<String>();
 		boolean allDependentParamsProcessed = false;
-		JSONObjectBuilder builder = new JSONObjectBuilder();
 		while ( !allDependentParamsProcessed ) {
-			JSONArray bugParams = bugFilingRequirements.optJSONArray("bugParams");
-			JSONArray bugParamsWithDependenciesAndChoiceList = JSONUtil.filter(bugParams, "hasDependentParams && choiceList.length()>0", true);
-			LinkedHashMap<String,JSONObject> bugParamsMap = JSONUtil.toMap(bugParamsWithDependenciesAndChoiceList, "identifier", String.class);
+			JSONList bugParams = bugFilingRequirements.get("bugParams", JSONList.class);
+			JSONList bugParamsWithDependenciesAndChoiceList = bugParams.filter("hasDependentParams && choiceList.size()>0", true);
+			LinkedHashMap<String,JSONMap> bugParamsMap = bugParamsWithDependenciesAndChoiceList.toMap("identifier", String.class, JSONMap.class);
 			bugParamsMap.keySet().removeAll(processedDependentParams);
 			if ( bugParamsMap.isEmpty() ) {
 				allDependentParamsProcessed = true;
 			} else {
-				Iterator<Entry<String, JSONObject>> iterator = bugParamsMap.entrySet().iterator();
+				Iterator<Entry<String, JSONMap>> iterator = bugParamsMap.entrySet().iterator();
 				while ( iterator.hasNext() ) {
-					Map.Entry<String, JSONObject> entry = iterator.next();
+					Map.Entry<String, JSONMap> entry = iterator.next();
 					String key = entry.getKey();
 					processedDependentParams.add(key);
 					String value = (String)issueDetails.get(key);
-					if ( value != null && !value.equals(entry.getValue().optString("value")) ) {
-						builder.updateJSONObjectWithPropertyPath(entry.getValue(), "value", value);
+					if ( value != null && !value.equals(entry.getValue().get("value")) ) {
+						entry.getValue().put("value", value);
 						bugFilingRequirements = getBugFilingRequirements(applicationVersionId, bugFilingRequirements, key);
 						break;
 					}
@@ -209,25 +207,25 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 			}
 		}
 		
-		JSONArray bugParams = bugFilingRequirements.optJSONArray("bugParams");
-		JSONArray bugParamsWithoutDependencies = JSONUtil.filter(bugParams, "hasDependentParams", false);
-		for ( int i = 0 ; i < bugParamsWithoutDependencies.length() ; i++ ) {
-			JSONObject bugParam = bugParamsWithoutDependencies.optJSONObject(i);
-			String key = bugParam.optString("identifier");
+		JSONList bugParams = bugFilingRequirements.get("bugParams", JSONList.class);
+		JSONList bugParamsWithoutDependencies = bugParams.filter("hasDependentParams", false);
+		for ( JSONMap bugParam : bugParamsWithoutDependencies.asValueType(JSONMap.class) ) {
+			String key = bugParam.get("identifier", String.class);
 			String value = (String)issueDetails.get(key);
 			if ( value != null ) {
-				builder.updateJSONObjectWithPropertyPath(bugParam, "value", value);
+				bugParam.put("value", value);
 			}
 		}
 		
-		JSONObject request = new JSONObject();
-		builder.updateJSONObjectWithPropertyPath(request, "type", "FILE_BUG");
-		builder.updateJSONObjectWithPropertyPath(request, "actionResponse", "false");
-		builder.updateJSONObjectWithPropertyPath(request, "values.bugParams", bugFilingRequirements.optJSONArray("bugParams"));
-		builder.updateJSONObjectWithPropertyPath(request, "values.issueInstanceIds", issueInstanceIds);
+		JSONMap request = new JSONMap();
+		request.put("type", "FILE_BUG");
+		request.put("actionResponse", "false");
+		request.putPath("values.bugParams", bugFilingRequirements.get("bugParams", JSONList.class));
+		request.putPath("values.issueInstanceIds", issueInstanceIds);
 		return executeRequest(HttpMethod.POST, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action")
-				.entity(request, "application/json"), JSONObject.class);
+				getBaseResource().path("/api/v1/projectVersions")
+				.path(applicationVersionId).path("issues/action"),
+				Entity.entity(request, "application/json"), JSONMap.class);
 	}
 	
 	/**
@@ -235,11 +233,11 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @param applicationVersionId
 	 * @return
 	 */
-	public JSONObject getApplicationVersionBugTracker(String applicationVersionId) {
-		JSONObject result = executeRequest(HttpMethod.GET, 
+	public JSONMap getApplicationVersionBugTracker(String applicationVersionId) {
+		JSONMap result = executeRequest(HttpMethod.GET, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
-				.path("bugtracker"), JSONObject.class);
-		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.bugTracker", JSONObject.class);
+				.path("bugtracker"), JSONMap.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.bugTracker", JSONMap.class);
 	}
 	
 	/**
@@ -257,7 +255,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @return
 	 */
 	public List<String> getApplicationVersionCustomTagNames(String applicationVersionId) {
-		return JSONUtil.jsonObjectArrayToList(getCachedApplicationVersionCustomTags(applicationVersionId), "name", String.class);
+		return getCachedApplicationVersionCustomTags(applicationVersionId).getValues("name", String.class);
 	}
 	
 	/**
@@ -266,7 +264,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @return
 	 */
 	public List<String> getApplicationVersionCustomTagGuids(String applicationVersionId) {
-		return JSONUtil.jsonObjectArrayToList(getCachedApplicationVersionCustomTags(applicationVersionId), "guid", String.class);
+		return getCachedApplicationVersionCustomTags(applicationVersionId).getValues("guid", String.class);
 	}
 
 	/**
@@ -276,8 +274,9 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 */
 	public void updateApplicationVersionIssueSearchOptions(String applicationVersionId, IssueSearchOptions issueSearchOptions) {
 		executeRequest(HttpMethod.PUT, 
-				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issueSearchOptions")
-				.entity(issueSearchOptions.getJSONRequestData(), "application/json"), JSONObject.class);
+				getBaseResource().path("/api/v1/projectVersions")
+				.path(applicationVersionId).path("issueSearchOptions"),
+				Entity.entity(issueSearchOptions.getJSONRequestData(), "application/json"), JSONMap.class);
 	}
 	
 	/**
@@ -286,7 +285,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @return
 	 */
 	public String getCustomTagGuid(String customTagName) {
-		return JSONUtil.mapValue(getCachedCustomTags(), "name.toLowerCase()", customTagName.toLowerCase(), "guid", String.class);
+		return getCachedCustomTags().mapValue("name.toLowerCase()", customTagName.toLowerCase(), "guid", String.class);
 	}
 	
 	/**
@@ -310,7 +309,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 * @return
 	 */
 	public Map<String, String> getBugTrackerShortDisplayNamesByIds() {
-		return JSONUtil.toMap(getCachedBugTrackers(), "pluginId", String.class, "shortDisplayName", String.class);
+		return getCachedBugTrackers().toMap("pluginId", String.class, "shortDisplayName", String.class);
 	}
 	
 	/**
@@ -321,125 +320,124 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	 */
 	public Map<String, List<String>> getApplicationVersionAttributeValuesByName(String applicationVersionId) {
 		Map<String, List<String>> result = new HashMap<String, List<String>>();
-		JSONArray attrs = getCachedApplicationVersionAttributes(applicationVersionId);
-		for ( int i = 0 ; i < attrs.length() ; i++ ) {
-			JSONObject attr = attrs.optJSONObject(i);
-			String attrName = JSONUtil.mapValue(getCachedAttributeDefinitions(), "guid", attr.optString("guid"), "name", String.class);
-			JSONArray attrValuesArray = attr.optJSONArray("values");
-			String attrValue = attr.optString("value");
+		JSONList attrs = getCachedApplicationVersionAttributes(applicationVersionId);
+		for ( JSONMap attr : attrs.asValueType(JSONMap.class) ) {
+			String attrName = getCachedAttributeDefinitions().mapValue("guid", attr.get("guid", String.class), "name", String.class);
+			JSONList attrValuesArray = attr.get("values", JSONList.class);
+			String attrValue = attr.get("value", String.class);
 			List<String> attrValues = StringUtils.isNotBlank(attrValue) 
 					? Arrays.asList(attrValue) 
-					: JSONUtil.jsonObjectArrayToList(attrValuesArray, "name", String.class);
+					: attrValuesArray==null ? null : attrValuesArray.getValues("name", String.class);
 			result.put(attrName, attrValues);
 		}
 		return result;
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available native bug tracker integrations defined in SSC
+	 * Get a cached JSONList describing all available native bug tracker integrations defined in SSC
 	 * @return
 	 */
-	public JSONArray getCachedBugTrackers() {
+	public JSONList getCachedBugTrackers() {
 		return bugTrackersSupplier.get();
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available custom tags defined in SSC
+	 * Get a cached JSONList describing all available custom tags defined in SSC
 	 * @return
 	 */
-	public JSONArray getCachedCustomTags() {
+	public JSONList getCachedCustomTags() {
 		return customTagsSupplier.get();
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available attribute definitions defined in SSC
+	 * Get a cached JSONList describing all available attribute definitions defined in SSC
 	 * @return
 	 */
-	public JSONArray getCachedAttributeDefinitions() {
+	public JSONList getCachedAttributeDefinitions() {
 		return attributeDefinitionsSupplier.get();
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available filter sets for the given application version
+	 * Get a cached JSONList describing all available filter sets for the given application version
 	 * @return
 	 */
-	public JSONArray getCachedApplicationVersionFilterSets(String applicationVersionId) {
+	public JSONList getCachedApplicationVersionFilterSets(String applicationVersionId) {
 		return avfilterSetsCache.getUnchecked(applicationVersionId);
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available custom tags for the given application version
+	 * Get a cached JSONList describing all available custom tags for the given application version
 	 * @return
 	 */
-	public JSONArray getCachedApplicationVersionCustomTags(String applicationVersionId) {
+	public JSONList getCachedApplicationVersionCustomTags(String applicationVersionId) {
 		return avCustomTagsCache.getUnchecked(applicationVersionId);
 	}
 	
 	/**
-	 * Get a cached JSONArray describing all available attributes for the given application version
+	 * Get a cached JSONList describing all available attributes for the given application version
 	 * @return
 	 */
-	public JSONArray getCachedApplicationVersionAttributes(String applicationVersionId) {
+	public JSONList getCachedApplicationVersionAttributes(String applicationVersionId) {
 		return avAttributesCache.getUnchecked(applicationVersionId);
 	}
 	
 	/**
-	 * Get a JSONArray containing all entities for the given entityName
+	 * Get a List<JSONMap> containing all entities for the given entityName
 	 * @param entityName
 	 * @return
 	 */
-	private final JSONArray getEntities(String entityName) {
-		JSONObject data = executeRequest(HttpMethod.GET, getBaseResource().path("/api/v1").path(entityName), JSONObject.class);
-		return SpringExpressionUtil.evaluateExpression(data, "data", JSONArray.class);
+	private final JSONList getEntities(String entityName) {
+		JSONMap data = executeRequest(HttpMethod.GET, getBaseResource().path("/api/v1").path(entityName), JSONMap.class);
+		return SpringExpressionUtil.evaluateExpression(data, "data", JSONList.class);
 	}
 	
 	/**
-	 * Get a JSONArray containing all entities for the given entityName for the given application version
+	 * Get a List<JSONMap> containing all entities for the given entityName for the given application version
 	 * @param entityName
 	 * @return
 	 */
-	private final JSONArray getApplicationVersionEntities(String applicationVersionId, String entityName) {
+	private final JSONList getApplicationVersionEntities(String applicationVersionId, String entityName) {
 		return executeRequest(HttpMethod.GET, getBaseResource()
 				.path("/api/v1/projectVersions/")
     			.path(""+applicationVersionId)
-    			.path(entityName), JSONObject.class).optJSONArray("data");
+    			.path(entityName), JSONMap.class).get("data", JSONList.class);
 	}
 	
 	/**
-	 * Get a JSONObject describing the initial bug filing requirements for the given application version
+	 * Get a JSONMap describing the initial bug filing requirements for the given application version
 	 * @param applicationVersionId
 	 * @return
 	 */
-	private JSONObject getInitialBugFilingRequirements(String applicationVersionId) {
-		JSONObject result = executeRequest(HttpMethod.GET, 
+	private JSONMap getInitialBugFilingRequirements(String applicationVersionId) {
+		JSONMap result = executeRequest(HttpMethod.GET, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
-				.path("bugfilingrequirements"), JSONObject.class);
-		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
+				.path("bugfilingrequirements"), JSONMap.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONMap.class);
 	}
 	
 	/**
-	 * Get a JSONObject describing the bug filing requirements for the given application version and
+	 * Get a JSONMap describing the bug filing requirements for the given application version and
 	 * given bug parameter data
 	 * @param applicationVersionId
 	 * @param data
 	 * @param changedParamIdentifier
 	 * @return
 	 */
-	private JSONObject getBugFilingRequirements(String applicationVersionId, JSONObject data, String changedParamIdentifier) {
-		JSONArray request = new JSONArray();
-		request.put(data);
-		JSONObject result = executeRequest(HttpMethod.PUT, 
+	private JSONMap getBugFilingRequirements(String applicationVersionId, JSONMap data, String changedParamIdentifier) {
+		List<JSONMap> request = new ArrayList<JSONMap>();
+		request.add(data);
+		JSONMap result = executeRequest(HttpMethod.PUT, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
 				.path("bugfilingrequirements")
-				.queryParam("changedParamIdentifier", changedParamIdentifier)
-				.entity(request, "application/json"), JSONObject.class);
-		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONObject.class);
+				.queryParam("changedParamIdentifier", changedParamIdentifier),
+				Entity.entity(request, "application/json"), JSONMap.class);
+		return SpringExpressionUtil.evaluateExpression(result, "data?.get(0)", JSONMap.class);
 	}
 
-	public JSONObject getApplicationVersion(String applicationVersionId) {
+	public JSONMap getApplicationVersion(String applicationVersionId) {
 		return executeRequest(HttpMethod.GET, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId)
-				, JSONObject.class).optJSONObject("data");
+				, JSONMap.class).get("data", JSONMap.class);
 	}
 
 }

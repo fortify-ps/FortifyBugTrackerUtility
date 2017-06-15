@@ -1,11 +1,12 @@
 package com.fortify.fod.connection;
 
-import org.apache.http.impl.client.HttpClientBuilder;
+import javax.ws.rs.client.Invocation.Builder;
+
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.rest.RestConnection;
 import com.fortify.util.rest.TooManyRequestsRetryStrategy;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * This class provides a basic, non-authenticating REST connection
@@ -31,7 +32,7 @@ public class FoDBasicRestConnection extends RestConnection {
 	}
 	
 	@Override
-	protected HttpClientBuilder createApacheHttpClientBuilder() {
-		return super.createApacheHttpClientBuilder().setServiceUnavailableRetryStrategy(new TooManyRequestsRetryStrategy("X-Rate-Limit-Reset"));
+	protected ServiceUnavailableRetryStrategy getServiceUnavailableRetryStrategy() {
+		return new TooManyRequestsRetryStrategy("X-Rate-Limit-Reset");
 	}
 }

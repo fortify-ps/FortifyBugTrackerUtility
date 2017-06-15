@@ -4,10 +4,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.util.json.JSONMap;
 
 /**
  * Filter SSC application versions based on the SSC bug tracker plugin name configured
@@ -30,9 +29,9 @@ public class SSCApplicationVersionBugTrackerNameFilter extends AbstractSSCApplic
 	}
 
 	@Override
-	public boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONObject applicationVersion) {
+	public boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONMap applicationVersion) {
 		Set<String> pluginIds = getBugTrackerPluginIdsForNames(context, getBugTrackerPluginNames());
-		return pluginIds!=null && pluginIds.contains(applicationVersion.opt("bugTrackerPluginId"));
+		return pluginIds!=null && pluginIds.contains(applicationVersion.get("bugTrackerPluginId", String.class));
 	}
 
 	private Set<String> getBugTrackerPluginIdsForNames(Context context, Set<String> bugTrackerPluginNames) {

@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.util.json.JSONMap;
 
 /**
  * Filter SSC application versions based on application version attributes,
@@ -25,12 +24,12 @@ public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplic
 		return 2;
 	}
 	
-	public boolean isApplicationVersionIncluded(Context context, JSONObject applicationVersion) {
+	public boolean isApplicationVersionIncluded(Context context, JSONMap applicationVersion) {
 		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
 		return checkAttributesHaveValues(avAttributes, requiredAttributeMappings.keySet());
 	}
 	
-	public void updateContext(Context context, JSONObject applicationVersion) {
+	public void updateContext(Context context, JSONMap applicationVersion) {
 		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
 		addMappedAttributes(context, avAttributes, optionalAttributeMappings, false);
 		addMappedAttributes(context, avAttributes, requiredAttributeMappings, true);
@@ -69,8 +68,8 @@ public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplic
 		}
 	}
 
-	private Map<String, List<String>> getApplicationVersionAttributeValuesByName(Context context, JSONObject applicationVersion) {
-		return SSCConnectionFactory.getConnection(context).getApplicationVersionAttributeValuesByName(applicationVersion.optString("id"));
+	private Map<String, List<String>> getApplicationVersionAttributeValuesByName(Context context, JSONMap applicationVersion) {
+		return SSCConnectionFactory.getConnection(context).getApplicationVersionAttributeValuesByName(applicationVersion.get("id",String.class));
 	}
 
 	private boolean checkAttributesHaveValues(Map<String, List<String>> avAttributes, Set<String> attributes) {

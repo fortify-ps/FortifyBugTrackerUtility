@@ -1,6 +1,6 @@
 package com.fortify.fod.connection;
 
-import com.sun.jersey.api.representation.Form;
+import javax.ws.rs.core.Form;
 
 /**
  * <p>This {@link AbstractFoDConnectionRetriever} implementation
@@ -16,8 +16,8 @@ public class FoDConnectionRetrieverClientCredentials extends AbstractFoDConnecti
 	
 	@Override
 	public void addCredentials(Form form) {
-		form.putSingle("client_id", getClientId());
-		form.putSingle("client_secret", getClientSecret());
+		form.param("client_id", getClientId());
+		form.param("client_secret", getClientSecret());
 	}
 
 	public String getClientId() {

@@ -1,8 +1,8 @@
 package com.fortify.processrunner.tfs.processor;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -14,11 +14,9 @@ import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.processrunner.tfs.context.IContextTFS;
-import com.fortify.processrunner.tfs.util.TFSWorkItemJSONObjectBuilder;
 import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
 
 public class ProcessorTFSTransitionIssueStateForVulnerabilities extends AbstractProcessorTransitionIssueStateForVulnerabilities<TFSIssueState> {
-	private static final TFSWorkItemJSONObjectBuilder MAP_TO_JSON = new TFSWorkItemJSONObjectBuilder("add");
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
 	@Override
@@ -42,7 +40,7 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 			return false;
 		} else {
 			fieldRenamer.renameFields(workItemType, issueData);
-			return conn.updateIssueData(collection, submittedIssue, MAP_TO_JSON.getJSONArray(issueData));
+			return conn.updateIssueData(collection, submittedIssue, issueData);
 		}
 	}
 	
@@ -59,12 +57,12 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 		IContextTFS contextTFS = context.as(IContextTFS.class);
 		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
-		JSONArray ops = new JSONArray();
+		Map<String, Object> fields = new LinkedHashMap<String, Object>();
 		if ( comment != null ) {
-			ops.put(MAP_TO_JSON.getOperation("add", "/fields/System.History", comment));
+			fields.put("System.History", comment);
 		}
-		ops.put(MAP_TO_JSON.getOperation("replace", "/fields/System.State", transitionName));
-		return conn.updateIssueData(collection, submittedIssue, ops);
+		fields.put("System.State", transitionName);
+		return conn.updateIssueData(collection, submittedIssue, fields);
 	}
 
 	public WorkItemTypeToFieldRenamer getFieldRenamer() {

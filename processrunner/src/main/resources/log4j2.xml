@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Properties>
+    <Property name="filename">processrunner.log</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="[%t] %m%n"/>
+      <ThresholdFilter level="info"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+  	<Logger name="com.fortify.processrunner" level="info" additivity="true">
+  		<AppenderRef ref="Console"/>
+  	</Logger>
+    <Root level="warn"></Root>
+  </Loggers>
+</Configuration>

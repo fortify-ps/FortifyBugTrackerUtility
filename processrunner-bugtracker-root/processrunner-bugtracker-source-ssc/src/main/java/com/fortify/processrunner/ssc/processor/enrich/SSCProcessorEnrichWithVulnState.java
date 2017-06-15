@@ -1,10 +1,8 @@
 package com.fortify.processrunner.ssc.processor.enrich;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.common.issue.IssueState;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
@@ -20,9 +18,9 @@ public class SSCProcessorEnrichWithVulnState extends AbstractSSCProcessorEnrich 
 	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	
 	@Override
-	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		boolean isOpen = SpringExpressionUtil.evaluateExpression(currentVulnerability, isVulnerabilityOpenExpression, Boolean.class);
-		currentVulnerability.putOpt(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
+		currentVulnerability.put(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
 		return true;
 	}
 

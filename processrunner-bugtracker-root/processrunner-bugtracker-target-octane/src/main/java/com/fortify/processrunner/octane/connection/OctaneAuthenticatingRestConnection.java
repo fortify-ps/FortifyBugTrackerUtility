@@ -5,28 +5,26 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.util.json.JSONObjectBuilder;
-import com.fortify.util.json.JSONUtil;
+import com.fortify.util.json.JSONList;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * This class provides an authenticated REST connection for Octane.
@@ -34,15 +32,15 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnection {
 	private final IOctaneCredentials credentials;
-	private final LoadingCache<OctaneSharedSpaceAndWorkspaceId, LoadingCache<String, JSONArray>> entityCache = 
+	private final LoadingCache<OctaneSharedSpaceAndWorkspaceId, LoadingCache<String, JSONList>> entityCache = 
 			CacheBuilder.newBuilder().maximumSize(10)
-			.build(new CacheLoader<OctaneSharedSpaceAndWorkspaceId, LoadingCache<String, JSONArray>>() {
+			.build(new CacheLoader<OctaneSharedSpaceAndWorkspaceId, LoadingCache<String, JSONList>>() {
 				@Override
-				public LoadingCache<String, JSONArray> load(final OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId) {
+				public LoadingCache<String, JSONList> load(final OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId) {
 					return CacheBuilder.newBuilder().maximumSize(10)
-							.build(new CacheLoader<String, JSONArray>() {
+							.build(new CacheLoader<String, JSONList>() {
 								@Override
-								public JSONArray load(String entityName) {
+								public JSONList load(String entityName) {
 									return getEntities(sharedSpaceAndWorkspaceId, entityName);
 								}
 							});
@@ -54,19 +52,14 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		this.credentials = credentials;
 	}
 	
-	/**
-	 * Call our superclass to create the {@link HttpClientBuilder}, and
-	 * add {@link OctaneUnauthorizedRetryStrategy} to automatically authorize
-	 * with Octane if necessary.
-	 */
+	
 	@Override
-	protected HttpClientBuilder createApacheHttpClientBuilder() {
-		return super.createApacheHttpClientBuilder()
-				.setServiceUnavailableRetryStrategy(new OctaneUnauthorizedRetryStrategy());
+	protected ServiceUnavailableRetryStrategy getServiceUnavailableRetryStrategy() {
+		return new OctaneUnauthorizedRetryStrategy();
 	}
 	
 	public SubmittedIssue submitIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData) {
-		JSONObject result = submitOrUpdateIssue(sharedSpaceAndWorkspaceId, issueData, HttpMethod.POST);
+		JSONMap result = submitOrUpdateIssue(sharedSpaceAndWorkspaceId, issueData, HttpMethod.POST);
 		String id = SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.id", String.class);
 		if ( id == null ) {
 			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
@@ -81,21 +74,20 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		submitOrUpdateIssue(issueId.getSharedSpaceAndWorkspaceId(), issueData, HttpMethod.PUT);
 	}
 	
-	public JSONObject getIssueState(SubmittedIssue submittedIssue) {
+	public JSONMap getIssueState(SubmittedIssue submittedIssue) {
 		OctaneIssueId fullId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
 		OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId = fullId.getSharedSpaceAndWorkspaceId();
 		String issueId = fullId.getIssueId();
-		JSONObject issue = getIssue(sharedSpaceAndWorkspaceId, issueId, "phase");
-		JSONObject result = new JSONObject();
-		JSONObjectBuilder builder = new JSONObjectBuilder();
+		JSONMap issue = getIssue(sharedSpaceAndWorkspaceId, issueId, "phase");
+		JSONMap result = new JSONMap();
 		String phaseId = SpringExpressionUtil.evaluateExpression(issue, "phase.id", String.class);
-		result = builder.updateJSONObjectWithPropertyPath(result, "phase.id", phaseId);
-		result = builder.updateJSONObjectWithPropertyPath(result, "phase.name", getPhaseName(sharedSpaceAndWorkspaceId, phaseId));
-		result = builder.updateJSONObjectWithPropertyPath(result, "type", SpringExpressionUtil.evaluateExpression(issue, "type", String.class));
+		result.putPath("phase.id", phaseId);
+		result.putPath("phase.name", getPhaseName(sharedSpaceAndWorkspaceId, phaseId));
+		result.putPath("type", SpringExpressionUtil.evaluateExpression(issue, "type", String.class));
 		return result;
 	}
 	
-	public JSONObject getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
+	public JSONMap getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
 		return getIssue(sharedSpaceAndWorkspaceId, issueId, new String[]{});
 	}
 
@@ -141,25 +133,25 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		return getNameForId(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), id);
 	}
 	
-	private Integer getIdForName(JSONArray array, String name) {
-		return JSONUtil.mapValue(array, "name", name, "id", Integer.class);
+	private Integer getIdForName(JSONList array, String name) {
+		return array.mapValue("name", name, "id", Integer.class);
 	}
 	
-	private String getNameForId(JSONArray array, String id) {
-		return JSONUtil.mapValue(array, "id", id, "name", String.class);
+	private String getNameForId(JSONList array, String id) {
+		return array.mapValue("id", id, "name", String.class);
 	}
 	
-	private JSONArray getEntities(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName) {
+	private JSONList getEntities(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName) {
 		return executeRequest(HttpMethod.GET, getBaseResource()
 				.path("/api/shared_spaces/")
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path(entityName), JSONObject.class).optJSONArray("data");
+				.path(entityName), JSONMap.class).get("data", JSONList.class);
 	}
 	
-	private JSONObject getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
-		WebResource request = getBaseResource()
+	private JSONMap getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
+		WebTarget request = getBaseResource()
 				.path("/api/shared_spaces/")
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
@@ -169,37 +161,34 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		if ( fields != null && fields.length > 0 ) {
 			request.queryParam("fields", StringUtils.join(fields, ","));
 		}
-		return executeRequest(HttpMethod.GET, request, JSONObject.class);
+		return executeRequest(HttpMethod.GET, request, JSONMap.class);
 	}
 	
-	private JSONObject submitOrUpdateIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData, String httpMethod) {
-		JSONObjectBuilder builder = new JSONObjectBuilder(); 
-		JSONObject issueEntry = builder.getJSONObject(issueData);
+	private JSONMap submitOrUpdateIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData, String httpMethod) {
+		JSONMap issueEntry = new JSONMap();
+		issueEntry.putPaths(issueData);
 		replaceEntityNamesWithIds(sharedSpaceAndWorkspaceId, issueEntry);
-		JSONObject data = builder.updateJSONObjectWithPropertyPath(new JSONObject(), "data", new JSONObject[]{issueEntry});
+		JSONMap data = new JSONMap();
+		data.put("data", new JSONMap[]{issueEntry});
 		return executeRequest(httpMethod, getBaseResource()
 				.path("/api/shared_spaces/")
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path("/defects")
-				.entity(data, "application/json"), JSONObject.class);
+				.path("/defects"),
+				Entity.entity(data, "application/json"), JSONMap.class);
 	}
 	
-	private void replaceEntityNamesWithIds(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, JSONObject issueEntry) {
-		JSONArray names = issueEntry.names();
-		for ( int i = 0 ; i < names.length(); i++ ) {
-			Object value = issueEntry.opt(names.optString(i));
-			if ( value instanceof JSONObject ) {
-				JSONObject jsonValue = (JSONObject)value;
-				if ( jsonValue.has("type") && jsonValue.has("name") ) {
-					try {
-						Integer id = getIdForName(sharedSpaceAndWorkspaceId, jsonValue.getString("type")+"s", jsonValue.getString("name"));
-						jsonValue.put("id", id);
-						jsonValue.remove("name");
-					} catch ( JSONException e ) {
-						throw new RuntimeException("Error while replacing entity names with id's", e);
-					}
+	private void replaceEntityNamesWithIds(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, JSONMap issueEntry) {
+		Set<String> names = issueEntry.keySet();
+		for ( String name : names ) {
+			Object value = issueEntry.get(name);
+			if ( value instanceof JSONMap ) {
+				JSONMap jsonValue = (JSONMap)value;
+				if ( jsonValue.containsKey("type") && jsonValue.containsKey("name") ) {
+					Integer id = getIdForName(sharedSpaceAndWorkspaceId, jsonValue.get("type", String.class)+"s", jsonValue.get("name", String.class));
+					jsonValue.put("id", id);
+					jsonValue.remove("name");
 				}
 			}
 		}
@@ -266,9 +255,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	}
 
 
-	public interface IOctaneCredentials {
-		public JSONObject getCredentials();
-	}
+	public interface IOctaneCredentials {}
 	
 	public static final class OctaneUserCredentials implements IOctaneCredentials {
 		public String user;
@@ -284,10 +271,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		}
 		public void setPassword(String password) {
 			this.password = password;
-		}
-		
-		public JSONObject getCredentials() {
-			return new JSONObject(this, new String[]{"user", "password"});
 		}
 	}
 	
@@ -306,10 +289,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		public void setClientSecret(String clientSecret) {
 			this.client_secret = clientSecret;
 		}
-		
-		public JSONObject getCredentials() {
-			return new JSONObject(this, new String[]{"client_id", "client_secret"});
-		}
 	}
 	
 	/**
@@ -321,7 +300,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	private final class OctaneUnauthorizedRetryStrategy implements ServiceUnavailableRetryStrategy {
 		public boolean retryRequest(HttpResponse response, int executionCount, HttpContext context) {
 			if ( executionCount < 2 && Arrays.asList(401, 403).contains(response.getStatusLine().getStatusCode()) ) {
-				executeRequest(HttpMethod.POST, getBaseResource().path("/authentication/sign_in").entity(credentials.getCredentials(), "application/json"), null);
+				executeRequest(HttpMethod.POST, getBaseResource().path("/authentication/sign_in"), Entity.entity(credentials, "application/json"), null);
 				return true;
 			}
 			return false;

@@ -2,11 +2,9 @@ package com.fortify.processrunner.ssc.processor.enrich;
 
 import javax.ws.rs.HttpMethod;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.IRestConnection;
 
 /**
@@ -18,11 +16,11 @@ import com.fortify.util.rest.IRestConnection;
 public class SSCProcessorEnrichWithIssueDetails extends AbstractSSCProcessorEnrich {
 
 	@Override
-	protected boolean enrich(Context context, JSONObject currentVulnerability) throws JSONException {
+	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		IRestConnection conn = SSCConnectionFactory.getConnection(context);
-		JSONObject details = conn.executeRequest(HttpMethod.GET,  
-				conn.getBaseResource().path("/api/v1/issueDetails").path(currentVulnerability.getString("id")), JSONObject.class);
-		currentVulnerability.put("details", details.getJSONObject("data"));
+		JSONMap details = conn.executeRequest(HttpMethod.GET,  
+				conn.getBaseResource().path("/api/v1/issueDetails").path(""+currentVulnerability.get("id")), JSONMap.class);
+		currentVulnerability.put("details", details.get("data"));
 		return true;
 	}
 }
