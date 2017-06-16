@@ -70,4 +70,8 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 		this.issueSubmittedListener = issueSubmittedListener;
 		return true;
 	}
+	
+	public boolean isIgnorePreviouslySubmittedIssues() {
+		return true;
+	}
 }

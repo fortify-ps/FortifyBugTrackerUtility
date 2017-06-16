@@ -102,13 +102,15 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
 		CompositeProcessor result = super.createTopLevelFieldFilters();
-		if ( getCustomTagName()!=null ) {
-			result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", false));
-		} else {
-			// TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
-			Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
-			filters.put("bugURL", Pattern.compile("^$"));
-			result.getProcessors().add(new FilterRegEx("CurrentVulnerability", filters));
+		if ( submitIssueProcessor.isIgnorePreviouslySubmittedIssues() ) {
+			if ( getCustomTagName()!=null ) {
+				result.getProcessors().add(new SSCFilterOnTopLevelField(getCustomTagName(), "<none>", false));
+			} else {
+				// TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
+				Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
+				filters.put("bugURL", Pattern.compile("^$"));
+				result.getProcessors().add(new FilterRegEx("CurrentVulnerability", filters));
+			}
 		}
 		return result;
 	}

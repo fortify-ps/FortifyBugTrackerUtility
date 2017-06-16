@@ -91,6 +91,10 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractProcessor
 		this.sscBugTrackerName = sscBugTrackerName;
 	}
 	
+	public boolean isIgnorePreviouslySubmittedIssues() {
+		return true;
+	}
+	
 	private interface IContextSSCBugTracker {
 		public static final String PRP_USER_NAME = "SSCBugTrackerUserName";
 		public static final String PRP_PASSWORD = "SSCBugTrackerUserName";

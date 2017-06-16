@@ -1,115 +1,77 @@
 package com.fortify.processrunner.file;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fortify.processrunner.common.context.IContextBugTracker;
+import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
+import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link IProcessor} implementation allows for writing data from the 
  * current {@link Context} instance to a file based on a list of configured 
  * {@link TemplateExpression} instances.
+ * 
+ * @author Ruud Senden
  */
-public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapsFromGroupedObjects implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(ProcessorFileSubmitIssueForVulnerabilities.class);
-	private static final String DEFAULT_OUTPUT_FILE = "FoDVulnerabilities.csv";
 	
-	private String fieldSeparator = ",";
-	private PrintWriter writer;
-	private File file;
-	private boolean writeHeader = true;
-	
-	
-	/**
-	 * Define the OutputFile context property.
-	 */
-	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("OutputFile", "File to write the issues to", true).defaultValue(DEFAULT_OUTPUT_FILE));
+	public ProcessorFileSubmitIssueForVulnerabilities() {
+		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
 	}
 	
-	@Override
 	public String getBugTrackerName() {
 		return "File";
 	}
 	
-	/**
-	 * Get the output file name from the current {@link Context},
-	 * open this file for writing, and add configured headers to this 
-	 * file if the file has been newly created. 
-	 */
+	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
+		// We ignore the issueSubmittedListener since we want to do a full export each time.
+		// TODO should we make this configurable (full or partial export)?
+		// We return false to indicate that we don't  support an issue submitted listener.
+		return false;
+	}
+	
+	
 	@Override
-	protected boolean preProcessBeforeGrouping(Context context) {
-		String fileName = (String)context.get("OutputFile");
-		if ( StringUtils.isBlank(fileName) ) {
-			fileName = DEFAULT_OUTPUT_FILE;
+	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
+	}
+	
+	@Override
+	protected boolean processMaps(Context context, String groupName, List<Object> currentGroup, List<LinkedHashMap<String, Object>> listOfMaps) {
+		CsvSchema.Builder schemaBuilder = CsvSchema.builder();
+	    for (String col : getFields().keySet()) {
+            schemaBuilder.addColumn(col);
+        }
+	    CsvSchema schema = schemaBuilder.build().withHeader();
+	    try {
+			new CsvMapper().writer(schema).writeValue(new File(groupName), listOfMaps);
+		} catch (Exception e) {
+			throw new RuntimeException("Error writing data to file "+groupName, e);
 		}
-		LOG.info(String.format("[%s] Writing vulnerabilities to file %s", getBugTrackerName(), fileName));
-		try {
-			file = new File(fileName);
-			writer = new PrintWriter(new FileWriter(file, true));
-			LOG.debug(String.format("[%s] Opened file %s", getBugTrackerName(), fileName));
-		} catch ( IOException e ) {
-			throw new RuntimeException("Error opening file appender", e);
-		}
+		LOG.info(String.format("[File] Submitted %d vulnerabilities to %s", currentGroup.size(), groupName));
 		return true;
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> fields) {
-		Collection<String> keys = fields.keySet();
-		writeHeader(keys);
-		
-		StringBuffer currentLine = new StringBuffer();
-		for ( String key: keys ) {
-			if ( currentLine.length()>0 ) { currentLine.append(getFieldSeparator()); }
-			currentLine.append(fields.get(key));
-		}
-		
-		writer.println(currentLine);
-		writer.flush();
-		
-		return new SubmittedIssue(null, file.toURI().toASCIIString());
-	}
-	
-	@Override
-	protected boolean postProcessAfterProcessingGroups(Context context) {
-		writer.close();
-		LOG.debug(String.format("[%s] Closed file %s", getBugTrackerName(), context.get("OutputFile")));
+	public boolean isForceGrouping() {
 		return true;
 	}
 	
-	/**
-	 * Append the headers to the current output file
-	 * @param context
-	 */
-	protected void writeHeader(Collection<String> headers) {
-		if ( writeHeader && (!file.exists() || file.length()==0) && headers!=null) {
-			writer.println(StringUtils.join(headers, getFieldSeparator()));
-			writer.flush();
-		}
-		writeHeader = false;
-	}
-
-	public String getFieldSeparator() {
-		return fieldSeparator;
-	}
-
-	public void setFieldSeparator(String fieldSeparator) {
-		this.fieldSeparator = fieldSeparator;
+	public boolean isIgnorePreviouslySubmittedIssues() {
+		return false;
 	}
 }

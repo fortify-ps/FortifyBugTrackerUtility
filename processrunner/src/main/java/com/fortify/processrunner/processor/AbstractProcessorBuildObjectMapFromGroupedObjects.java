@@ -27,7 +27,7 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	private LinkedHashMap<String,TemplateExpression> appendedFields;
 	
 	@Override
-	protected boolean processGroup(Context context, List<Object> currentGroup) {
+	protected boolean processGroup(Context context, String groupName, List<Object> currentGroup) {
 		StandardEvaluationContext sec = ContextSpringExpressionUtil.createStandardEvaluationContext(context);
 		LinkedHashMap<String, Object> map = new MapBuilder()
 				.addMapUpdater(new MapUpdaterPutValuesFromExpressionMap(sec, currentGroup.get(0), getFields()))

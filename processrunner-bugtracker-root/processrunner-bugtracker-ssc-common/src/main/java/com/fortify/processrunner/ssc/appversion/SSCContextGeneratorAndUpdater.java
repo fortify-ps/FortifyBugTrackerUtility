@@ -74,6 +74,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		for ( ISSCApplicationVersionContextUpdater updater : getContextUpdatersForContext(context) ) {
 			updater.updateContext(context, applicationVersion);
 		}
+		context.put("appVersion", applicationVersion);
 	}
 
 	private List<ISSCApplicationVersionFilter> getFiltersForContext(Context context) {

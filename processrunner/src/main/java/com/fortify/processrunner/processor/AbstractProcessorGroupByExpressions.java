@@ -42,9 +42,6 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorGroupByExpressions.class);
 	private SimpleExpression rootExpression;
 	private TemplateExpression groupTemplateExpression;
-	private boolean forceGrouping = false;
-	private final ThreadLocal<DB> mapDB = new ThreadLocal<DB>();
-	private final ThreadLocal<Map<String, List<Object>>> groups = new ThreadLocal<Map<String, List<Object>>>();
 	
 	/**
 	 * Add context properties for grouping
@@ -67,12 +64,15 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean preProcess(Context context) {
-		mapDB.set(DBMaker.tempFileDB()
+		IContextGrouping ctx = context.as(IContextGrouping.class);
+		DB db = DBMaker.tempFileDB()
 				.closeOnJvmShutdown().fileDeleteAfterClose()
 				.fileMmapEnableIfSupported()
-				.make());
-		groups.set(mapDB.get().hashMap("groups", Serializer.STRING, Serializer.JAVA).create());
-		getGroupsMap(context).clear(); // Make sure that we start with a clean cache 
+				.make();
+		Map<String, List<Object>> groups = db.hashMap("groups", Serializer.STRING, Serializer.JAVA).create();
+		groups.clear(); // Make sure that we start with a clean cache 
+		ctx.setGroupByExpressionsMapDB(db);
+		ctx.setGroupByExpressionsGroupsMap(groups);
 		return preProcessBeforeGrouping(context);
 	}
 	
@@ -93,7 +93,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		if ( !isGroupingEnabled(context) ) {
 			// If grouping is not enabled, we directly process the 
 			// group since we do not need to group the data first.
-			return processGroup(context, Arrays.asList(new Object[]{rootObject}));
+			return processGroup(context, null, Arrays.asList(new Object[]{rootObject}));
 		} else {
 			// If a group template expression is defined, we collect the group
 			// data and invoke the process() method of the group processor
@@ -116,14 +116,14 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			for ( Map.Entry<String, List<Object>> group : groupsMap.entrySet() ) {
 				//System.out.println(group.getKey()+": "+group.getValue());
 				
-				if ( !processGroup(context, group.getValue()) ) {
+				if ( !processGroup(context, group.getKey(), group.getValue()) ) {
 					result = false; break; // Stop processing remainder of groups
 				};
 				
 			}
 			
 		}
-		removeGroupsMap(groupsMap);
+		removeGroupsMap(context);
 		return postProcessAfterProcessingGroups(context) && result;
 	}
 	
@@ -162,7 +162,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		return true;
 	}
 	
-	protected abstract boolean processGroup(Context context, List<Object> currentGroup);
+	protected abstract boolean processGroup(Context context, String groupName, List<Object> currentGroup);
 	
 	protected void logStatistics() {
 		logGroupsInfo();
@@ -188,12 +188,12 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 	
 	protected synchronized Map<String, List<Object>> getGroupsMap(Context context) {
-		return groups.get();
+		return context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap();
 	}
 	
-	protected void removeGroupsMap(Map<String, List<Object>> map) {
-		map.clear();
-		mapDB.get().close();
+	protected void removeGroupsMap(Context context) {
+		context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap().clear();
+		context.as(IContextGrouping.class).getGroupByExpressionsMapDB().close();
 	}
 	
 	/**
@@ -231,16 +231,16 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 	
 	public boolean isForceGrouping() {
-		return forceGrouping;
+		return false;
 	}
 
-	public void setForceGrouping(boolean forceGrouping) {
-		this.forceGrouping = forceGrouping;
-	}
-	
 	private static interface IContextGrouping {
 		public static final String PRP_DISABLE_GROUPING = "DisableGrouping";
 		public void setDisableGrouping(String disableGrouping);
 		public String getDisableGrouping();
+		public void setGroupByExpressionsMapDB(DB db);
+		public DB getGroupByExpressionsMapDB();
+		public void setGroupByExpressionsGroupsMap(Map<String, List<Object>> groups);
+		public Map<String, List<Object>> getGroupByExpressionsGroupsMap();
 	}
 }

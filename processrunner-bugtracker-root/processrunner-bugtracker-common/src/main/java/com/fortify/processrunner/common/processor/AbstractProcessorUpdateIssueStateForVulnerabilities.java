@@ -240,6 +240,11 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		this.fieldsToUpdate = fieldsToUpdate;
 	}
 	
+	@Override
+	public boolean isForceGrouping() {
+		return true;
+	}
+	
 	@PostConstruct
 	public void postContruct() {
 		String[] fieldsToUpdate = getFieldsToUpdate();

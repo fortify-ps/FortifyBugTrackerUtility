@@ -43,7 +43,7 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	@Override
 	protected CompositeProcessor createTopLevelFieldFilters() {
 		CompositeProcessor result = super.createTopLevelFieldFilters();
-		if ( !isUseFoDCommentForSubmittedBugs() ) {
+		if ( !isUseFoDCommentForSubmittedBugs() && submitIssueProcessor.isIgnorePreviouslySubmittedIssues() ) {
 			// If FoD comments are not used for submitted bugs, we add a top-level field filter on bugSubmitted=false
 			result.getProcessors().add(new FoDFilterOnBugSubmittedField("false"));
 		}
@@ -53,7 +53,7 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	@Override
 	protected CompositeProcessor createSubLevelFieldFilters() {
 		CompositeProcessor result = super.createSubLevelFieldFilters();
-		if ( isUseFoDCommentForSubmittedBugs() ) {
+		if ( isUseFoDCommentForSubmittedBugs() && submitIssueProcessor.isIgnorePreviouslySubmittedIssues() ) {
 			// If FoD comments are used for submitted bugs, we add a comment-based filter to exclude vulnerabilities
 			// that have already been submitted to the bug tracker
 			result.getProcessors().add(new FoDFilterOnBugSubmittedComment(true));
@@ -64,7 +64,7 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	@Override
 	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
 		FoDProcessorEnrichWithExtraFoDData result = super.createAddJSONDataProcessor();
-		if ( isUseFoDCommentForSubmittedBugs() ) {
+		if ( isUseFoDCommentForSubmittedBugs() && submitIssueProcessor.isIgnorePreviouslySubmittedIssues() ) {
 			// Add summary field if we used FoD comments for submitted vulnerabilities, 
 			// since the FoDFilterOnBugSubmittedComment filter requires access to this field.
 			result.getFields().add("summary");

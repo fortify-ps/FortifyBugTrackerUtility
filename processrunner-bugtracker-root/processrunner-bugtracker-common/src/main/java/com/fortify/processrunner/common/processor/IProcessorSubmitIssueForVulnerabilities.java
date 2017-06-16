@@ -28,4 +28,6 @@ public interface IProcessorSubmitIssueForVulnerabilities extends IProcessor {
 	 * @return true if {@link IIssueSubmittedListener} is supported, false otherwise
 	 */
 	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener);
+	
+	public boolean isIgnorePreviouslySubmittedIssues();
 }

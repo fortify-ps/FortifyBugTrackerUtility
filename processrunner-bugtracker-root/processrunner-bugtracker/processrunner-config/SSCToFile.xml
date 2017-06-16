@@ -27,11 +27,12 @@
 	     example to change the fields and field data submitted to the file.
 	-->
 	<bean id="sscToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueForVulnerabilities">
+		<property name="groupTemplateExpression" value="Vulnerabilities-${#ctx.appVersion.project.name}-${#ctx.appVersion.name}.csv"/>
 		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
-			<entry key="issueInstanceId" value="issueInstanceId"/>
-			<entry key="issueName" value="issueName"/>
-			<entry key="fullFileName" value="fullFileName"/>
+			<entry key="issueInstanceId" value="${issueInstanceId}"/>
+			<entry key="issueName" value="${issueName}"/>
+			<entry key="fullFileName" value="${fullFileName}"/>
 			<entry key="friority" value="${friority}"/>
 			<entry key="deepLink" value="${deepLink}"/>
 		</map></property>

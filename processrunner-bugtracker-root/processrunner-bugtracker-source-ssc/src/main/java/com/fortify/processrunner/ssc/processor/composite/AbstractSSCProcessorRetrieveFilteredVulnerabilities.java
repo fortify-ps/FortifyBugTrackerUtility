@@ -60,7 +60,7 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 			getVulnerabilityProcessor()
 		);
 	}
-	
+
 	protected CompositeProcessor createTopLevelFieldFilters() {
 		return new CompositeProcessor(
 			createTopLevelFieldSimpleFilter(),
