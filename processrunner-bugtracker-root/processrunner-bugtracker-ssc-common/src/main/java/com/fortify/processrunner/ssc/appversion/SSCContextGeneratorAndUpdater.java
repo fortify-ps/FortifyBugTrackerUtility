@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.context.AbstractContextGeneratorAndUpdater;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -24,7 +27,7 @@ import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 
 @Component
-public final class SSCContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater {
+public final class SSCContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater implements IContextPropertyDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(SSCContextGeneratorAndUpdater.class);
 	private List<ISSCApplicationVersionFilter> filters;
 	private List<ISSCApplicationVersionFilterFactory> filterFactories;
@@ -36,10 +39,49 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		setUseForDefaultValueGeneration(true);
 	}
 	
+	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+		// Since we generate the SSCApplicationVersionId property either automatically or from
+		// application versions specified through the SSCApplicationVersions property, we remove
+		// the option for setting a single application version.
+		contextPropertyDefinitions.remove(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID);
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_APPLICATION_VERSIONS, "SSC application version names (<project>:<version>) or id's, separated by comma's", false));
+	}
+	
 	public Map<Object, Context> getDefaultValuesWithMappedContextProperties(Context context) {
+		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+		String appVersions = ctx.getSSCApplicationVersions();
+		if ( appVersions != null ) {
+			return getDefaultValuesWithMappedContextPropertiesForAppVersions(context, appVersions.split(","));
+		} else {
+			return getDefaultValuesWithMappedContextPropertiesFromFilters(context, getFiltersForContext(context));
+		}
+	}
+	
+	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesForAppVersions(Context context, String[] appVersions) {
 		Map<Object, Context> result = new HashMap<Object, Context>();
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		List<ISSCApplicationVersionFilter> filtersForContext = getFiltersForContext(context);
+		for ( String appVersion : appVersions ) {
+			JSONMap applicationVersion;
+			String[] appVersionElements = appVersion.split(":");
+			if ( appVersionElements.length == 1 ) {
+				applicationVersion = conn.getApplicationVersion(appVersionElements[0]);
+			} else if ( appVersionElements.length == 2 ) {
+				applicationVersion = conn.getApplicationVersion(appVersionElements[0], appVersionElements[1]);
+			} else {
+				throw new IllegalArgumentException("Applications or versions containing a ':' can only be specified by id");
+			}
+			if ( applicationVersion == null ) {
+				LOG.warn("[SSC] Application version "+appVersion+" not found");
+			} else {
+				putDefaultValuesWithMappedContextProperties(result, context, applicationVersion);
+			}
+		}
+		return result;
+	}
+
+	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesFromFilters(Context context, List<ISSCApplicationVersionFilter> filtersForContext) {
+		Map<Object, Context> result = new HashMap<Object, Context>();
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		int start=0;
 		int count=50;
 		while ( start < count ) {
@@ -52,15 +94,18 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 			JSONList pvArray = data.get("data", JSONList.class);
 			start += pvArray.size();
 			for ( JSONMap pv : pvArray.asValueType(JSONMap.class) ) {
-				String pvId = pv.get("id", String.class);
 				if ( isApplicationVersionIncluded(context, filtersForContext, pv) ) {
-					Context extraContextProperties = new Context();
-					addMappedContextProperties(context, pv);
-					result.put(pvId, extraContextProperties);
+					putDefaultValuesWithMappedContextProperties(result, context, pv);
 				}
 			}
 		}
 		return result;
+	}
+	
+	private void putDefaultValuesWithMappedContextProperties(Map<Object, Context> defaultValuesWithMappedContextProperties, Context initialContext,	JSONMap applicationVersion) {
+		Context extraContextProperties = new Context();
+		addMappedContextProperties(initialContext, applicationVersion);
+		defaultValuesWithMappedContextProperties.put(applicationVersion.get("id", String.class), extraContextProperties);
 	}
 	
 	@Override
@@ -74,7 +119,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		for ( ISSCApplicationVersionContextUpdater updater : getContextUpdatersForContext(context) ) {
 			updater.updateContext(context, applicationVersion);
 		}
-		context.put("appVersion", applicationVersion);
+		context.as(IContextSSCCommon.class).setAppVersion(applicationVersion);
 	}
 
 	private List<ISSCApplicationVersionFilter> getFiltersForContext(Context context) {
@@ -158,6 +203,4 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 	public void setUpdaterFactories(List<ISSCApplicationVersionContextUpdaterFactory> updaterFactories) {
 		this.updaterFactories = updaterFactories;
 	}
-	
-	
 }

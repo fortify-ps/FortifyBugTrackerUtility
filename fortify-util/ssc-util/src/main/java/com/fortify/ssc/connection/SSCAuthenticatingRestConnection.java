@@ -440,4 +440,17 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 				, JSONMap.class).get("data", JSONMap.class);
 	}
 
+	public JSONMap getApplicationVersion(String applicationName, String versionName) {
+		JSONList appVersions = executeRequest(HttpMethod.GET, getBaseResource()
+				.path("/api/v1/projectVersions")
+				.queryParam("q", "project.name:\""+applicationName+"\"+and+name:\""+versionName+"\"")
+				.queryParam("fields", "id")
+				, JSONMap.class).get("data", JSONList.class);
+		if ( appVersions==null || appVersions.size()!=1 ) {
+			return null;
+		} else {
+			return (JSONMap)appVersions.get(0);
+		}
+	}
+
 }

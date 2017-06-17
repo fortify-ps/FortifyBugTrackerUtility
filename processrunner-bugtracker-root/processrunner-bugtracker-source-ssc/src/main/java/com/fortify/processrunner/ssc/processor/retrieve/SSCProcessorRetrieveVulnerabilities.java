@@ -17,6 +17,7 @@ import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.ssc.connection.IssueSearchOptions;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
@@ -53,7 +54,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("SSCApplicationVersionId","SSC application version id from which to retrieve vulnerabilities",true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID, "SSC application version id from which to retrieve vulnerabilities", true));
 		if ( vulnerabilityProcessor != null ) {
 			vulnerabilityProcessor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}

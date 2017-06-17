@@ -18,6 +18,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextGenerator;
+import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.context.IContextUpdater;
 import com.fortify.util.spring.SpringContextUtil;
 
@@ -110,6 +111,7 @@ public class RunProcessRunnerFromSpringConfig {
 		ContextPropertyDefinitions result = new ContextPropertyDefinitions();
 		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
 		addContextPropertyDefinitionsFromContext(result, context);
+		addContextPropertyDefinitionsFromContextGenerator(result, context);
 		return result;
 	}
 
@@ -221,6 +223,14 @@ public class RunProcessRunnerFromSpringConfig {
 	
 	protected final void addContextPropertyDefinitionsFromContext(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		context.addContextPropertyDefinitions(contextPropertyDefinitions);
+	}
+	
+	protected final void addContextPropertyDefinitionsFromContextGenerator(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+		IContextGenerator generator = getEnabledContextGenerator();
+		if ( generator != null && generator instanceof IContextPropertyDefinitionProvider ) {
+			((IContextPropertyDefinitionProvider)generator).addContextPropertyDefinitions(contextPropertyDefinitions, context);
+		}
+		
 	}
 	
 	/**
