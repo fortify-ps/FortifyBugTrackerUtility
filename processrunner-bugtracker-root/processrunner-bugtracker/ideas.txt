@@ -1,11 +1,6 @@
 FUNCTIONALITY:
-- Add context properties SSCApplicationVersion and FoDRelease to specify sources by name
-  - For now, add a utility class like SSC/FoDConnectionFactory that has a private IContext interface
-    that can hold either id or name (format Application:Version/Release) and a static
-    getApplicationId(Context)/getReleaseId(context) method that either returns the provided
-    id directly, or looks up the id for the provided name.
-  - In the future, see whether we can integrate this in ContextProperty directly
-    (i.e. allow to have an alternative context property (name) that sets another context property (id)
+- Add context property FoDReleases to specify one or more FoD Releases by name
+  or id, similar to how this is implemented for SSC. 
   
 - Add support for generating default values for FoD release id, similar to the functionality
   in com.fortify.processrunner.ssc.appversion

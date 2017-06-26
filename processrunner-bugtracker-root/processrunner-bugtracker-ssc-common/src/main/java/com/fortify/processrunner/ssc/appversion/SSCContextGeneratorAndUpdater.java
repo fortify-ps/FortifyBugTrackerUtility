@@ -1,3 +1,26 @@
+/*******************************************************************************
+ * (c) Copyright 2017 Hewlett Packard Enterprise Development LP
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the Software"),
+ * to deal in the Software without restriction, including without limitation 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ * and/or sell copies of the Software, and to permit persons to whom the 
+ * Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included 
+ * in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ * KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+ * IN THE SOFTWARE.
+ ******************************************************************************/
 package com.fortify.processrunner.ssc.appversion;
 
 import java.util.ArrayList;
@@ -5,9 +28,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +43,7 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONList;
+import com.fortify.util.json.IJSONMapProcessor;
 import com.fortify.util.json.JSONMap;
 
 @Component
@@ -79,26 +99,16 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		return result;
 	}
 
-	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesFromFilters(Context context, List<ISSCApplicationVersionFilter> filtersForContext) {
-		Map<Object, Context> result = new HashMap<Object, Context>();
-		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		int start=0;
-		int count=50;
-		while ( start < count ) {
-			LOG.info("[SSC] Loading next set of application versions");
-			WebTarget resource = conn.getBaseResource().path("api/v1/projectVersions")
-					.queryParam("start", ""+start).queryParam("limit", "");
-			LOG.debug("[SSC] Retrieving application versions from "+resource);
-			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);
-			count = data.get("count", Integer.class);
-			JSONList pvArray = data.get("data", JSONList.class);
-			start += pvArray.size();
-			for ( JSONMap pv : pvArray.asValueType(JSONMap.class) ) {
-				if ( isApplicationVersionIncluded(context, filtersForContext, pv) ) {
-					putDefaultValuesWithMappedContextProperties(result, context, pv);
+	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesFromFilters(final Context context, final List<ISSCApplicationVersionFilter> filtersForContext) {
+		final Map<Object, Context> result = new HashMap<Object, Context>();
+		LOG.info("[SSC] Loading application versions");
+		SSCConnectionFactory.getConnection(context).processApplicationVersions(new IJSONMapProcessor() {	
+			public void process(JSONMap applicationVersion) {
+				if ( isApplicationVersionIncluded(context, filtersForContext, applicationVersion) ) {
+					putDefaultValuesWithMappedContextProperties(result, context, applicationVersion);
 				}
 			}
-		}
+		});
 		return result;
 	}
 	
