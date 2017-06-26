@@ -26,7 +26,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.util</groupId>
 	<artifactId>fortify-util</artifactId>
-	<version>1.1</version>
+	<version>2.0</version>
 	<packaging>pom</packaging>
 	<!-- TODO Add description, developers, license, ... -->
 	<inceptionYear>2016</inceptionYear>
@@ -41,25 +41,25 @@
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>spring-util</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>rest-util</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>fod-util</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>ssc-util</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>

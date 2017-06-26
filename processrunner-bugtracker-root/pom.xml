@@ -26,7 +26,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.processrunner.bugtracker</groupId>
 	<artifactId>processrunner-bugtracker-root</artifactId>
-	<version>1.1</version>
+	<version>2.0</version>
 	<packaging>pom</packaging>
 	<organization>
 		<name>HPE Security Fortify</name>
@@ -67,61 +67,61 @@
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-common</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-source-fod</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-ssc-common</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-source-ssc</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-ssc</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-jira</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-file</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-tfs</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-archer</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-octane</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
@@ -133,7 +133,7 @@
 			<dependency>
 				<groupId>com.fortify.processrunner</groupId>
 				<artifactId>processrunner</artifactId>
-				<version>1.1</version>
+				<version>2.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
