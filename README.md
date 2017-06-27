@@ -24,7 +24,7 @@ lists the currently supported functionalities.
 | CSV File      | Yes      | Yes      | No       | No               | By default, a separate output file is written for each application version/release. All relevant vulnerabilities are exported on each run, overwriting any existing files |
 | Atlassian Jira | Yes     | Yes      | Yes      | Yes              | |
 | ALM Octane     | Yes     | Yes      | Yes      | Yes              | State transition comments are not yet supported |
-| Microsoft TFS  | Yes     | Yes      | Yes      | Yes              | |
+| Microsoft TFS  | Yes     | Yes      | Yes      | Yes              | Additional state transitions may need to be configured |
 | SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC TFS bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
 
 For more information about downloading the release, building from source, configuring and running the utility, please see the Wiki: https://github.com/HPFOD/FoDBugTrackerUtility/wiki

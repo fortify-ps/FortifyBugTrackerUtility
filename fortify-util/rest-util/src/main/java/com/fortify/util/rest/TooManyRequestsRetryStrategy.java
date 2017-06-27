@@ -49,7 +49,8 @@ public final class TooManyRequestsRetryStrategy implements ServiceUnavailableRet
 	}
 
 	public boolean retryRequest(HttpResponse response, int executionCount, HttpContext context) {
-		if ( executionCount < 2 && response.getStatusLine().getStatusCode()==429 ) {
+		// TODO Temporary executionCount work-around for FoD issues; should check executionCount<2 
+		if ( executionCount < 5 && response.getStatusLine().getStatusCode()==429 ) {
 			interval = new ThreadLocal<Integer>();
 			interval.set(Integer.parseInt(response.getFirstHeader(retryAfterHeaderName).getValue()));
 			return true;
@@ -60,6 +61,10 @@ public final class TooManyRequestsRetryStrategy implements ServiceUnavailableRet
 	public long getRetryInterval() {
 		long result = interval==null ? -1 : (interval.get()*1000);
 		interval = null;
+		// TODO Temporary work-around for FoD returning negative numbers
+		if ( result < 0 ) {
+			result = -result;
+		}
 		return result;
 	}
 }

@@ -98,4 +98,22 @@
 	
 	<import resource="components/issueState/TFSIssueState.xml"/>
 	
+	<!-- This bean allows for automatically loading all FoD application release for which
+	     the corresponding application has a 'TFS Project' attribute set, and 
+	     automatically using that attribute value to generate the TFSProject context 
+	     property for each release being processed. Optionally you can also have a 
+	     'TFS Collection' application attribute, which will be mapped to the TFSCollection
+	     context property if the attribute contains a value.
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to specify individual application releases as a context property.
+	     -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="TFS Project" value="TFSProject"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="TFS Collection" value="TFSCollection"/>
+		</map></property>
+	</bean>
 </beans>

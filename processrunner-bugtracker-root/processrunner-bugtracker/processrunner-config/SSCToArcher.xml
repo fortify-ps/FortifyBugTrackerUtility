@@ -64,4 +64,14 @@
 		</map></property>
 	</bean>
 	
+	<!-- This bean allows for automatically loading all SSC application versions for which
+	     the 'Archer Application Name' attribute has been set, and 
+	     automatically using that attribute value to generate the ArcherApplicationName context 
+	     property for each release being processed. -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Archer Application Name" value="ArcherApplicationName"/>
+		</map></property>
+	</bean>
+	
 </beans>

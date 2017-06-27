@@ -94,4 +94,22 @@
 	
 	<import resource="components/issueState/OctaneIssueState.xml"/>
 	
+	<!-- This bean allows for automatically loading all FoD application release for which
+	     the corresponding application has a 'Octane Workspace Id' attribute set, and 
+	     automatically using that attribute value to generate the OctaneWorkspaceId context 
+	     property for each release being processed. Optionally you can also 
+	     have an 'Octane Shared Space Uid' application attribute, which will be mapped to 
+	     the OctaneSharedSpaceUid context property if the attribute contains a value.
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to specify individual application releases as a context property.
+	     -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="Octane Shared Space Uid" value="OctaneSharedSpaceUid"/>
+		</map></property>
+	</bean>
 </beans>

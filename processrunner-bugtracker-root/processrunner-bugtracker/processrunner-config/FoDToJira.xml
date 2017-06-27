@@ -76,4 +76,18 @@
 	
 	<import resource="components/issueState/JiraIssueState.xml"/>
 	
+	<!-- This bean allows for automatically loading all FoD application release for which
+	     the corresponding application has a 'Jira Project Key' attribute set, and 
+	     automatically using that attribute value to generate the JiraProjectKey context 
+	     property for each release being processed. 
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to specify individual application releases as a context property.
+	     -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Jira Project Key" value="JiraProjectKey"/>
+		</map></property>
+	</bean>
+	
 </beans>

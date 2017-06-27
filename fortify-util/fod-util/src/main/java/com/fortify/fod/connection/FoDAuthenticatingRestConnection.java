@@ -24,6 +24,7 @@
 package com.fortify.fod.connection;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -75,7 +76,7 @@ public class FoDAuthenticatingRestConnection extends FoDBasicRestConnection {
 	// TODO Allow extra request parameters to be set by caller, like filters and ordering 
 	//      (order by application id for optimal applicationsCache use)
 	public void processReleases(IJSONMapProcessor processor) {
-		process(getBaseResource().path("/api/v3/releases"), processor);
+		process(getBaseResource().path("/api/v3/releases").queryParam("orderBy", "applicationId"), processor);
 	}
 	
 	public void processReleases(String applicationId, IJSONMapProcessor processor) {
@@ -149,5 +150,11 @@ public class FoDAuthenticatingRestConnection extends FoDBasicRestConnection {
 
 	private void postBulk(String path, JSONMap data) {
 		executeRequest(HttpMethod.POST, getBaseResource().path(path), Entity.entity(data,MediaType.APPLICATION_JSON), JSONMap.class);
+	}
+
+	public Map<String, String> getApplicationAttributeValuesByName(String applicationId) {
+		JSONMap application = getCachedApplication(applicationId);
+		JSONList attributes = application.get("attributes", JSONList.class);
+		return attributes.filter("value!='(Not Set)'", true).toMap("name", String.class, "value", String.class);
 	}
 }
