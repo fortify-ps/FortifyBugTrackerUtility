@@ -131,18 +131,13 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		boolean result = true;
 		Map<String, List<Object>> groupsMap = getGroupsMap(context);
 		if ( isGroupingEnabled(context) ) {
-			// If a group template expression is defined, we call the
-			// process() method on the group processor for every
-			// group that we have collected.
-			logStatistics();
+			// If grouping is enabled, we call the process() method on 
+			// the group processor for every group that we have collected.
 			
 			for ( Map.Entry<String, List<Object>> group : groupsMap.entrySet() ) {
-				//System.out.println(group.getKey()+": "+group.getValue());
-				
 				if ( !processGroup(context, group.getKey(), group.getValue()) ) {
 					result = false; break; // Stop processing remainder of groups
 				};
-				
 			}
 			
 		}
@@ -186,29 +181,6 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	}
 	
 	protected abstract boolean processGroup(Context context, String groupName, List<Object> currentGroup);
-	
-	protected void logStatistics() {
-		logGroupsInfo();
-		logMemoryUsage();
-	}
-	
-	protected void logGroupsInfo() {
-		//LOG.info("[Process] Grouped "+totalCount+" items in "+(groups==null?0:groups.size())+" groups"); 
-	}
-
-	protected void logMemoryUsage() {
-		/*
-		if ( groups != null ) {
-			try {
-				LOG.info("[Process] Grouped data memory usage: "+MemoryUtil.deepMemoryUsageOf(groups)+" bytes");
-			} catch ( IllegalStateException e ) {
-				LOG.debug("[Process] Agent unavailable; memory information cannot be displayed.\n"
-						+"To enable memory information, add -javaagent:path/to/classmexer-0.03.jar to Java command line.\n"
-						+"Classmexer can be downloaded from http://www.javamex.com/classmexer/classmexer-0_03.zip");
-			}
-		}
-		*/
-	}
 	
 	protected synchronized Map<String, List<Object>> getGroupsMap(Context context) {
 		return context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap();
