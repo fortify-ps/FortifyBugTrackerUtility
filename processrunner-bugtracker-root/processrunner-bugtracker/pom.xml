@@ -161,6 +161,7 @@
 				<version>2.9</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 				</configuration>
 			</plugin>
 		</plugins>
