@@ -58,7 +58,7 @@
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
-			<entry key="description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+			<entry key="description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
 			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(friority)}"/>
 			<entry key="labels" value="${{'SSC'}}"/>
 		</map></property>

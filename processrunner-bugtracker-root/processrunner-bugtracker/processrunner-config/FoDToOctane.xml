@@ -58,7 +58,7 @@
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description"><value><![CDATA[
-				<b>--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---</b><br/>
+				<b>--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---</b><br/>
 				<table>
 					<tr><td>Category:</td><td>${category}</td></tr>
 					<tr><td>File Name:</td><td>${primaryLocationFull}</td></tr>

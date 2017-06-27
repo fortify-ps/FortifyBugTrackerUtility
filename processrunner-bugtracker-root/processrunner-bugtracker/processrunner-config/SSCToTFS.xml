@@ -80,7 +80,7 @@
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
 			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(friority)}"/>
-			<entry key="System.Description" value="--- Changes to the description will be overwritten when FoDBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
