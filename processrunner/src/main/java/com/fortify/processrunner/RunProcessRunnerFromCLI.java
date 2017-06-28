@@ -78,7 +78,6 @@ public class RunProcessRunnerFromCLI {
 		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 	}
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
-	private static final String DEFAULT_CONFIG_FILE = "processRunnerConfig.xml";
 	private static final String DEFAULT_LOG_FILE = "processRunner.log";
 	private static final String DEFAULT_LOG_LEVEL = "info";
 
@@ -101,6 +100,9 @@ public class RunProcessRunnerFromCLI {
 		updateLogConfig(cl);
 
 		String configFile = getConfigFileName(cl);
+		if ( configFile == null ) {
+			handleErrorAndExit(null, null, "No configuration file specified", 1);
+		}
 		RunProcessRunnerFromSpringConfig springRunner = new RunProcessRunnerFromSpringConfig(configFile);
 		List<String> remainingArgs = cl.getArgList();
 		String processRunnerName = getProcessRunnerNameFromArgs(remainingArgs);
@@ -186,7 +188,7 @@ public class RunProcessRunnerFromCLI {
 	 * @return
 	 */
 	protected final String getConfigFileName(CommandLine cl) {
-		return cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt(), getDefaultConfigFilePathAndName());
+		return cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt());
 	}
 
 	/**
@@ -227,10 +229,9 @@ public class RunProcessRunnerFromCLI {
 	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner,
 			ContextPropertyDefinitions contextPropertyDefinitions, int returnCode) {
 		LOG.info("Usage: " + getBaseCommand()
-				+ " [--configFile <configFile>] [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
+				+ " --configFile <configFile> [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
 		LOG.info("");
-		LOG.info("  --configFile <configFile> specifies the configuration file to use. Default is ");
-		LOG.info("    " + getDefaultConfigFilePathAndName());
+		LOG.info("  --configFile <configFile> specifies the configuration file to use.");
 		LOG.info("  --logFile <logFile> specifies the log file to use. Default is " + getDefaultLogFileName());
 		LOG.info(
 				"  --logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
@@ -262,19 +263,6 @@ public class RunProcessRunnerFromCLI {
 			LOG.info("\n  Available [options] will be shown when a valid process runner has been specified.");
 		}
 		System.exit(returnCode);
-	}
-
-	protected String getDefaultConfigFileName() {
-		return DEFAULT_CONFIG_FILE;
-	}
-
-	protected String getDefaultConfigFilePathAndName() {
-		File jar = getJarFile();
-		if (jar == null) {
-			return getDefaultConfigFileName();
-		} else {
-			return jar.getParentFile().getPath() + File.separator + getDefaultConfigFileName();
-		}
 	}
 
 	protected String getDefaultLogFileName() {
