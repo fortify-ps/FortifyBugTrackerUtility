@@ -63,6 +63,12 @@ MAINTENANCE:
   all filters.
     
 TODO: 
+- Check the processing of initial context and mapped context properties for correct behavior.
+  I.e. what functionality should use the initial context (for example with credentials to 
+  access FoD/SSC), what functionality should use only the mapped context properties, and what
+  functionality should use combined initial context and mapped context properties?
+  (See IContextGenerator, IContextUpdater AbstractContextGeneratorAndUpdater, FoD/SSC-specific 
+   implementations)
 - Create repo's for fortify-maven-support and bugtracker-add-existing-bug, and commit code
 - Code cleanup, resolve various TODO's documented in the code
 - The XSLT to generate full configuration files replaces CDATA sections with XML-encoded data,

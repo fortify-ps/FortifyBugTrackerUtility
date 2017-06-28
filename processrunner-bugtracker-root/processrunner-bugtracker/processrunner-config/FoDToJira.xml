@@ -35,6 +35,50 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- FOD RELEASE FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for defining a static mapping between application and release name,
+	     and corresponding context properties. This can for example be used to map FoD release 
+	     names to the corresponding Jira project keys.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[releaseName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${applicationName}. 
+	     
+	     The mappings below are just examples; you will need to update these to match your
+	     FoD application and release names. -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameFilterAndMapper">
+		<property name="releaseNameMappings"><map>
+			<entry key="MyApp:MyRelease" value="JiraProjectKey=APP"/>
+			<entry key="MyOtherApp:.*" value="JiraProjectKey=OTHER"/>
+			<entry key=".*:current" value="JiraProjectKey=${applicationName}"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
+	     attribute-based mapping here. This bean allows for automatically loading all 
+	     FoD application release for which the corresponding application has a 
+	     'Jira Project Key' attribute set, and automatically using that attribute value 
+	     to generate the JiraProjectKey context property for each release being processed. 
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to (also) use the static mapping above to filter on specific
+	     release names.
+	     -->
+	<!-- 
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Jira Project Key" value="JiraProjectKey"/>
+		</map></property>
+	</bean>
+	-->
+	
+	<!--==================================================================================-->
 	<!-- JIRA CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -75,19 +119,5 @@
 	</bean>
 	
 	<import resource="components/issueState/JiraIssueState.xml"/>
-	
-	<!-- This bean allows for automatically loading all FoD application release for which
-	     the corresponding application has a 'Jira Project Key' attribute set, and 
-	     automatically using that attribute value to generate the JiraProjectKey context 
-	     property for each release being processed. 
-	     
-	     Note that all releases for any matching applications will be processed; if this is not
-	     desired you will need to specify individual application releases as a context property.
-	     -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Jira Project Key" value="JiraProjectKey"/>
-		</map></property>
-	</bean>
 	
 </beans>

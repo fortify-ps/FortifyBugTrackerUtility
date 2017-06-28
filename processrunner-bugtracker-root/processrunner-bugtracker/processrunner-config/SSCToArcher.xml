@@ -35,6 +35,45 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for automatically loading all SSC application versions for which
+	     the 'Archer Application Name' attribute has been set, and 
+	     automatically using that attribute value to generate the ArcherApplicationName context 
+	     property for each release being processed. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Archer Application Name" value="ArcherApplicationName"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the attribute-based mapping above, and uncomment 
+	     the static mapping here. This allows for maintaining a static mapping between 
+	     application version names and corresponding context properties in this configuration
+	     file, instead of configuring the mappings through SSC application version attributes.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[versionName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${project.name} and ${name} (version name). 
+	     
+	     The mappings below are just examples; you will need to update these to match your
+	     SSC application and version names. -->
+	<!--
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+		<property name="applicationVersionNameMappings"><map>
+			<entry key="MyApp:MyVersion" value="ArcherApplicationName=MyApp"/>
+			<entry key="MyOtherApp:.*" value="ArcherApplicationName=MyOtherApp"/>
+			<entry key=".*:current" value="ArcherApplicationName=${project.name}"/>
+		</map></property>
+	</bean>
+	-->	
+	
+	<!--==================================================================================-->
 	<!-- ARCHER CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -61,16 +100,6 @@
 			<entry key="Analyzer" value="${analyzer}"/>
 			<entry key="Priority" value="${friority}"/>
 			<entry key="Recommendation" value="${details.recommendation}"/>
-		</map></property>
-	</bean>
-	
-	<!-- This bean allows for automatically loading all SSC application versions for which
-	     the 'Archer Application Name' attribute has been set, and 
-	     automatically using that attribute value to generate the ArcherApplicationName context 
-	     property for each release being processed. -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Archer Application Name" value="ArcherApplicationName"/>
 		</map></property>
 	</bean>
 	

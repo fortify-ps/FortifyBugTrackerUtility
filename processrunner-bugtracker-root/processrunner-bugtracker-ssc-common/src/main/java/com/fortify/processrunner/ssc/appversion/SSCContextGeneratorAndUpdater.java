@@ -113,8 +113,8 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 	}
 	
 	private void putDefaultValuesWithMappedContextProperties(Map<Object, Context> defaultValuesWithMappedContextProperties, Context initialContext,	JSONMap applicationVersion) {
-		Context extraContextProperties = new Context();
-		addMappedContextProperties(initialContext, applicationVersion);
+		Context extraContextProperties = new Context(initialContext);
+		addMappedContextProperties(extraContextProperties, applicationVersion);
 		defaultValuesWithMappedContextProperties.put(applicationVersion.get("id", String.class), extraContextProperties);
 	}
 	

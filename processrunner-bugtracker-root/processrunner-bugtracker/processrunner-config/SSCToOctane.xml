@@ -35,6 +35,50 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for automatically loading all SSC application versions that
+	     have a 'Octane Workspace Id' attribute set, and automatically using that attribute
+	     value to generate the OctaneWorkspaceId context property for each application
+	     version being processed. Optionally you can also have an 'Octane Shared Space Uid'
+	     application version attribute, which will be mapped to the OctaneSharedSpaceUid
+	     context property if the attribute contains a value. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="Octane Shared Space Uid" value="OctaneSharedSpaceUid"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the attribute-based mapping above, and uncomment 
+	     the static mapping here. This allows for maintaining a static mapping between 
+	     application version names and corresponding context properties in this configuration
+	     file, instead of configuring the mappings through SSC application version attributes.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[versionName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${project.name} and ${name} (version name). 
+	     
+	     The mappings below are just examples; you will need to update these to match your
+	     SSC application and version names. -->
+	<!--
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+		<property name="applicationVersionNameMappings"><map>
+			<entry key="MyApp:MyVersion" value="OctaneWorkspaceId=5"/>
+			<entry key="MyOtherApp:.*" value="OctaneWorkspaceId=6"/>
+		</map></property>
+	</bean>
+	-->	
+	
+	
+	<!--==================================================================================-->
 	<!-- ALM OCTANE CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -93,20 +137,5 @@
 	</bean>
 	
 	<import resource="components/issueState/OctaneIssueState.xml"/>
-	
-	<!-- This bean allows for automatically loading all SSC application versions that
-	     have a 'Octane Workspace Id' attribute set, and automatically using that attribute
-	     value to generate the OctaneWorkspaceId context property for each application
-	     version being processed. Optionally you can also have an 'Octane Shared Space Uid'
-	     application version attribute, which will be mapped to the OctaneSharedSpaceUid
-	     context property if the attribute contains a value. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
-		</map></property>
-		<property name="optionalAttributeMappings"><map>
-			<entry key="Octane Shared Space Uid" value="OctaneSharedSpaceUid"/>
-		</map></property>
-	</bean>
 	
 </beans>

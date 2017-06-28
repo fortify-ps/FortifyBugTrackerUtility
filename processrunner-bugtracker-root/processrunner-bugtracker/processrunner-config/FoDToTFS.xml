@@ -35,6 +35,54 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- FOD RELEASE FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for defining a static mapping between application and release name,
+	     and corresponding context properties. This can for example be used to map FoD release 
+	     names to the corresponding TFS projects.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[releaseName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${applicationName}. 
+	     
+	     The mappings below are just examples; you will need to update these to match your
+	     FoD application and release names. -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameFilterAndMapper">
+		<property name="releaseNameMappings"><map>
+			<entry key="MyApp:MyRelease" value="TFSProject=MyProject"/>
+			<entry key="MyOtherApp:.*" value="TFSProject=OtherProject"/>
+			<entry key=".*:current" value="TFSProject=${applicationName}"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
+	     attribute-based mapping here. This bean allows for automatically loading all 
+	     FoD application release for which the corresponding application has a 
+	     'TFS Project Key' attribute and optional 'TFS Collection' attribute set, and 
+	     automatically using these attribute values to generate the TFSProject and
+	     TFSCollection context properties for each release being processed. 
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to (also) use the static mapping above to filter on specific
+	     release names.
+	     -->
+	<!-- 
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="TFS Project" value="TFSProject"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="TFS Collection" value="TFSCollection"/>
+		</map></property>
+	</bean>
+	-->
+	
+	<!--==================================================================================-->
 	<!-- TFS CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -97,23 +145,4 @@
 	</bean>
 	
 	<import resource="components/issueState/TFSIssueState.xml"/>
-	
-	<!-- This bean allows for automatically loading all FoD application release for which
-	     the corresponding application has a 'TFS Project' attribute set, and 
-	     automatically using that attribute value to generate the TFSProject context 
-	     property for each release being processed. Optionally you can also have a 
-	     'TFS Collection' application attribute, which will be mapped to the TFSCollection
-	     context property if the attribute contains a value.
-	     
-	     Note that all releases for any matching applications will be processed; if this is not
-	     desired you will need to specify individual application releases as a context property.
-	     -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="TFS Project" value="TFSProject"/>
-		</map></property>
-		<property name="optionalAttributeMappings"><map>
-			<entry key="TFS Collection" value="TFSCollection"/>
-		</map></property>
-	</bean>
 </beans>

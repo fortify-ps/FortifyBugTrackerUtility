@@ -35,6 +35,48 @@
 	<import resource="components/input/FoDInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- FOD RELEASE FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for defining a static mapping between application and release name,
+	     and corresponding context properties. This can for example be used to map FoD release 
+	     names to a corresponding output file.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[releaseName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${applicationName}. 
+	     
+	     This example configuration will match all application releases, and set the
+	     OutputFile context property based on application and release name. -->
+	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameFilterAndMapper">
+		<property name="releaseNameMappings"><map>
+			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
+	     attribute-based mapping here. This bean allows for automatically loading all 
+	     FoD application release for which the corresponding application has a 
+	     'Output File' attribute set, and automatically using that attribute value 
+	     to generate the OutputFile context property for each release being processed. 
+	     
+	     Note that all releases for any matching applications will be processed; if this is not
+	     desired you will need to (also) use the static mapping above to filter on specific
+	     release names.
+	     -->
+	<!-- 
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Output File" value="OutputFile"/>
+		</map></property>
+	</bean>
+	-->
+	
+	<!--==================================================================================-->
 	<!-- CSV FILE EXPORT CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -50,7 +92,7 @@
 	     example to change the fields and field data submitted to the file.
 	-->
 	<bean id="fodToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueForVulnerabilities">
-		<property name="groupTemplateExpression" value="Vulnerabilities-${#ctx.Release.applicationName}-${#ctx.Release.releaseName}.csv"/>
+		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="vulnId" value="${vulnId}"/>

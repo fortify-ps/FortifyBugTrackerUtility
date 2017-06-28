@@ -35,6 +35,43 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for defining a static mapping between application and version name,
+	     and corresponding context properties. This can for example be used to map SSC application
+	     version names to a corresponding output file.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application versions that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[versionName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${project.name} and ${name} (version name). 
+	     
+	     This example configuration will match all application releases, and set the
+	     OutputFile context property based on application and version name. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+		<property name="applicationVersionNameMappings"><map>
+			<entry key=".*" value="OutputFile=Vulnerabilities-${project.name}-${name}.csv"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
+	     attribute-based mapping here. This bean allows for automatically loading all 
+	     SSC application versions that have the 'Output File' attribute set, and 
+	     automatically using that attribute value to generate the OutputFile context 
+	     property for each application version being processed. -->
+	<!-- 
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Output File" value="OutputFile"/>
+		</map></property>
+	</bean>
+	-->
+	
+	<!--==================================================================================-->
 	<!-- CSV FILE EXPORT CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -50,7 +87,7 @@
 	     example to change the fields and field data submitted to the file.
 	-->
 	<bean id="sscToFileIssueSubmitter" class="com.fortify.processrunner.file.ProcessorFileSubmitIssueForVulnerabilities">
-		<property name="groupTemplateExpression" value="Vulnerabilities-${#ctx.appVersion.project.name}-${#ctx.appVersion.name}.csv"/>
+		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="issueInstanceId" value="${issueInstanceId}"/>

@@ -34,8 +34,8 @@ import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.util.json.JSONMap;
 
 /**
- * Filter SSC application versions based on application version attributes,
- * and map application version attribute values to context properties.
+ * Filter FoD releases based on application attributes, and map application 
+ * attribute values to context properties.
  * 
  * @author Ruud Senden
  *
@@ -53,8 +53,8 @@ public class FoDApplicationAttributeFilterAndMapper implements IFoDReleaseFilter
 		return checkAttributesHaveValues(applicationAttributes, requiredAttributeMappings.keySet());
 	}
 	
-	public void updateContext(Context context, JSONMap applicationVersion) {
-		Map<String, String> applicationAttributes = getApplicationAttributeValuesByName(context, applicationVersion);
+	public void updateContext(Context context, JSONMap release) {
+		Map<String, String> applicationAttributes = getApplicationAttributeValuesByName(context, release);
 		addMappedAttributes(context, applicationAttributes, optionalAttributeMappings, false);
 		addMappedAttributes(context, applicationAttributes, requiredAttributeMappings, true);
 	}

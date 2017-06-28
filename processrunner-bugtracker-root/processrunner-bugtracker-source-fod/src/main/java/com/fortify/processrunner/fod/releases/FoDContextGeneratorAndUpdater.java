@@ -113,8 +113,8 @@ public final class FoDContextGeneratorAndUpdater extends AbstractContextGenerato
 	}
 	
 	private void putDefaultValuesWithMappedContextProperties(Map<Object, Context> defaultValuesWithMappedContextProperties, Context initialContext,	JSONMap release) {
-		Context extraContextProperties = new Context();
-		addMappedContextProperties(initialContext, release);
+		Context extraContextProperties = new Context(initialContext);
+		addMappedContextProperties(extraContextProperties, release);
 		defaultValuesWithMappedContextProperties.put(release.get("releaseId", String.class), extraContextProperties);
 	}
 	
