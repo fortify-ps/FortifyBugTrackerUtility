@@ -89,15 +89,11 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
-	     to Octane. If necessary, you can change the properties in this bean, for example 
-	     to change the fields and field data submitted to Octane. 
+	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
+	     you can change the properties in this bean, for example to change the fields and 
+	     field data submitted to the bug tracker. 
 	-->
-	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
-	
+	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -134,6 +130,19 @@
 				</table><br/>
 			]]></value></entry> 
 		</map></property>
+		
+		<!-- Update the Octane description field when updating issue state -->
+		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
+	     to Octane. If necessary, you can change the properties in this bean, for example 
+	     to change the grouping expression. 
+	-->
+	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	</bean>
 	
 	<import resource="components/issueState/OctaneIssueState.xml"/>

@@ -26,11 +26,8 @@ package com.fortify.processrunner.common.processor;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.issue.SubmittedIssue;
@@ -40,7 +37,6 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGr
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted
@@ -60,16 +56,13 @@ import com.fortify.util.spring.expression.TemplateExpression;
  *
  * @param <IssueStateType>
  */
-public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractProcessorBuildObjectMapFromGroupedObjects {
+public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractBugTrackerFieldsBasedProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
 	private SimpleExpression isVulnStateOpenExpression;
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
 	private SimpleExpression isIssueOpenableExpression;
 	private SimpleExpression isIssueCloseableExpression;
-	private AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
-	private String[] fieldsToUpdate;
-	
 	
 	public AbstractProcessorUpdateIssueStateForVulnerabilities() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
@@ -246,47 +239,17 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		this.isIssueCloseableExpression = isIssueCloseableExpression;
 	}
 	
-	public AbstractProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
-		return submitIssueProcessor;
-	}
-
-	@Autowired(required=false) // Only required if fieldsToUpdate is set, checked in postConstruct()
-	public void setSubmitIssueProcessor(AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
-		this.submitIssueProcessor = submitIssueProcessor;
-	}
-
-	public String[] getFieldsToUpdate() {
-		return fieldsToUpdate;
-	}
-
-	public void setFieldsToUpdate(String[] fieldsToUpdate) {
-		this.fieldsToUpdate = fieldsToUpdate;
-	}
-	
 	@Override
 	public boolean isForceGrouping() {
 		return true;
 	}
 	
-	@PostConstruct
-	public void postContruct() {
-		String[] fieldsToUpdate = getFieldsToUpdate();
-		if ( fieldsToUpdate!=null && fieldsToUpdate.length>0 ) {
-			AbstractProcessorSubmitIssueForVulnerabilities submitIssueProcessor = getSubmitIssueProcessor();
-			if ( submitIssueProcessor == null ) {
-				throw new IllegalStateException("submitIssueProcessor not set");
-			}
-			setFields(getFilteredMap(submitIssueProcessor.getFields(), fieldsToUpdate));
-			setAppendedFields(getFilteredMap(submitIssueProcessor.getAppendedFields(), fieldsToUpdate));
-		}
+	/** 
+	 * Indicate that we want only bug tracker fields that need to be updated
+	 * during state management to be configured on this instance.
+	 */
+	@Override
+	protected boolean includeOnlyFieldsToBeUpdated() {
+		return true;
 	}
-
-	private LinkedHashMap<String, TemplateExpression> getFilteredMap(LinkedHashMap<String, TemplateExpression> inputMap, String[] keys) {
-		LinkedHashMap<String, TemplateExpression> result = new LinkedHashMap<String, TemplateExpression>(keys.length);
-		for ( String key : keys ) {
-			result.put(key, inputMap.get(key));
-		}
-		return result;
-	}
-	
 }

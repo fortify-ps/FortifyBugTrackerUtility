@@ -84,16 +84,11 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the processor configuration for submitting
-	     vulnerabilities to JIRA. If necessary, you can change the properties 
-	     in this bean, for example to change the grouping expression, fields 
-	     and field data submitted to JIRA. 
+	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
+	     you can change the properties in this bean, for example to change the fields and 
+	     field data submitted to the bug tracker. 
 	-->
-	<bean id="sscToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
-	
+	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -111,6 +106,19 @@
 		<property name="appendedFields"><map>
 			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
 		</map></property>
+		
+		<!-- Update the JIRA description field when updating issue state -->
+		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting
+	     vulnerabilities to JIRA. If necessary, you can change the properties 
+	     in this bean, for example to change the grouping expression. 
+	-->
+	<bean id="sscToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	</bean>
 	
 	<import resource="components/issueState/JiraIssueState.xml"/>

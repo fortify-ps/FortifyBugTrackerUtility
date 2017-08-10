@@ -39,9 +39,6 @@
 	     will not be performed.
 	-->
 	<bean id="jiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
-		<!-- Update the JIRA description field when updating issue state -->
-		<property name="fieldsToUpdate" value="description"/>
-		
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If

@@ -89,6 +89,34 @@
 		<entry key="" value=""/>
 	</util:map>
 	
+	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
+	     you can change the properties in this bean, for example to change the fields and 
+	     field data submitted to the bug tracker. 
+	-->
+	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
+			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(friority)}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<property name="appendedFields"><map>
+			<entry key="System.Description"><value><![CDATA[
+				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
+			]]></value></entry>
+		</map></property>
+		
+		<!-- Update the TFS description field when updating issue state -->
+		<property name="fieldsToUpdateDuringStateManagement" value="System.Description"/>
+	</bean>
+	
 	<!-- This bean allows for renaming work item fields as defined in the various 
 	     processor configurations for specific work item types. This allows for
 	     re-using a single processor configuration for different work item types. 
@@ -112,32 +140,12 @@
 	
 	<!-- This bean defines the processor configuration for submitting SSC 
 	     vulnerabilities to TFS. If necessary, you can change the properties 
-	     in this bean, for example to change the fields and field data submitted 
-	     to TFS. 
+	     in this bean, for example to change the grouping expression. 
 	-->
 	<bean class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
-		
-		<property name="fields"><map>
-			<!-- TODO Add examples for recommendations etcetera -->
-			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
-			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(friority)}"/>
-			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
-		</map></property>
-
-		<!-- Define extra data to be appended to one or more of the fields defined
-		     by issue.fields above. For non-grouped vulnerabilities, we could just 
-		     as well have appended these expressions to the corresponding
-		     issue.fields entry above. However, using issue.appendedFields allows 
-		     us to re-use the same issue field configuration for grouped issues.
-		-->
-		<property name="appendedFields"><map>
-			<entry key="System.Description"><value><![CDATA[
-				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
-			]]></value></entry>
-		</map></property>
 	</bean>
 	
 	<import resource="components/issueState/TFSIssueState.xml"/>

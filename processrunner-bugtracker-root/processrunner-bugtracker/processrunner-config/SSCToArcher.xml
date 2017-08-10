@@ -84,11 +84,11 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
-	     to Archer. If necessary, you can change the properties in this bean, for example 
-	     to change the fields and field data submitted to Archer. 
+	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
+	     you can change the properties in this bean, for example to change the fields and 
+	     field data submitted to the bug tracker. 
 	-->
-	<bean id="sscToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Archer fields -->
 			<entry key="ID" value="${id}"/>
@@ -101,6 +101,13 @@
 			<entry key="Priority" value="${friority}"/>
 			<entry key="Recommendation" value="${details.recommendation}"/>
 		</map></property>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
+	     to Archer. If necessary, you can change the properties in this bean, for example 
+	     to add a grouping expression. 
+	-->
+	<bean id="sscToArcherIssueSubmitter" class="com.fortify.processrunner.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 	</bean>
 	
 </beans>

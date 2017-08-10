@@ -48,7 +48,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorSubmitIssueForVulnerabilities {
+public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
 	private IIssueSubmittedListener issueSubmittedListener;
 	
@@ -92,5 +92,14 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	
 	public boolean isIgnorePreviouslySubmittedIssues() {
 		return true;
+	}
+	
+	/** 
+	 * Indicate that we want all bug tracker fields to be configured on
+	 * this instance for the initial bug submission.
+	 */
+	@Override
+	protected boolean includeOnlyFieldsToBeUpdated() {
+		return false;
 	}
 }
