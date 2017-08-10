@@ -71,7 +71,7 @@
 		</map></property>
 		
 		<!-- Indicate whether additional issue details should be loaded from SSC. 
-		     Is set to false, only data returned by 
+		     If set to false, only data returned by 
 		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues
 		     will be available. If set to true, data returned by
 		     /api/v1/issueDetails will also be available. -->
