@@ -50,7 +50,6 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraIssueType", "JIRA issue type", true).defaultValue(getDefaultIssueType()));
 	}
 	
-	@Override
 	public String getBugTrackerName() {
 		return "Jira";
 	}

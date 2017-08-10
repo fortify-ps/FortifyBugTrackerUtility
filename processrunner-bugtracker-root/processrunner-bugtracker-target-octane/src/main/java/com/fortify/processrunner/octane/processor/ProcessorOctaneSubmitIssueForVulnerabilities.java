@@ -47,7 +47,6 @@ public class ProcessorOctaneSubmitIssueForVulnerabilities extends AbstractProces
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true));
 	}
 	
-	@Override
 	public String getBugTrackerName() {
 		return "Octane";
 	}

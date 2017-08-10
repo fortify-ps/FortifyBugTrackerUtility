@@ -54,7 +54,6 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSWorkItemType", "TFS work item type", true).defaultValue(getDefaultWorkItemType()));
 	}
 	
-	@Override
 	public String getBugTrackerName() {
 		return "TFS";
 	}

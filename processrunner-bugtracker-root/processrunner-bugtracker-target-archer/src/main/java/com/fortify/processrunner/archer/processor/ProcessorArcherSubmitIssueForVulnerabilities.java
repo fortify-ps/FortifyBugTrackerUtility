@@ -41,7 +41,6 @@ public class ProcessorArcherSubmitIssueForVulnerabilities extends AbstractProces
 		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	@Override
 	public String getBugTrackerName() {
 		return "Archer";
 	}
