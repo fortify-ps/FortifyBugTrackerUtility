@@ -118,10 +118,30 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		Map<String, Object> issueData = new HashMap<String, Object>();
 		issueData.put("phase.type", "phase");
 		issueData.put("phase.name", transitionName);
-		// TODO Add comment
+		// TODO Can we add a comment immediately when updating the work item, or do we need 2 separate REST calls?
 		updateIssue(submittedIssue, issueData);
+		addComment(submittedIssue, comment);
 		// TODO Check new state
 		return true;
+	}
+	
+	public void addComment(SubmittedIssue submittedIssue, String comment) {
+		OctaneIssueId octaneIssueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+		
+		JSONMap data = new JSONMap();
+		data.putPath("text", comment);
+		data.putPath("owner_work_item.type", "work_item");
+		data.putPath("owner_work_item.id", octaneIssueId.getIssueId());
+		JSONMap request = new JSONMap();
+		request.put("data", new JSONMap[]{data});
+		
+		executeRequest(HttpMethod.POST, getBaseResource()
+				.path("/api/shared_spaces/")
+				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getSharedSpaceUid())
+				.path("/workspaces/")
+				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getWorkspaceId())
+				.path("/comments"),
+				Entity.entity(request, "application/json"), JSONMap.class);
 	}
 	
 	public Integer getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
