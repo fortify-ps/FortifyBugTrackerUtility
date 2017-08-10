@@ -60,4 +60,5 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides common processrunner-related functionality for submitting Fortify/FoD vulnerabilities to bug trackers.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

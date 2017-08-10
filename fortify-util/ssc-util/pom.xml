@@ -65,4 +65,5 @@
 	</dependencies>
 
 	<description>This module contains various utility classes for working with Fortify SSC.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

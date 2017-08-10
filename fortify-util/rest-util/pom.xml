@@ -163,4 +163,5 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

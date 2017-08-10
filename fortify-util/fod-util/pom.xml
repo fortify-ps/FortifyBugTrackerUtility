@@ -65,4 +65,5 @@
 	</dependencies>
 	
 	<description>This module contains various utility classes for workign with Fortify on Demand.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

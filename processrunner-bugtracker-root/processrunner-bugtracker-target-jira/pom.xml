@@ -76,4 +76,5 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides functionality for submitting issues to JIRA. This includes setting up a connection to JIRA, a JIRA-specific Context interface, and processors for actually submitting issues to JIRA.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

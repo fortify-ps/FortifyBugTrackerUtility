@@ -76,4 +76,5 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides functionality for submitting issues to TFS. This includes setting up a connection to TFS, a TFS-specific Context interface, and processors for actually submitting issues to TFS.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

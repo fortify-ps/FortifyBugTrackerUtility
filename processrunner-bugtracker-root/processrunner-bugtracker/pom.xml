@@ -188,4 +188,5 @@
 	<description>This module provides processrunner-related functionality that is based on multiple/all available bugtracker-related modules. This includes (composite) processors that combine for example FoD with JIRA, and example configuration files.
 
 This module also generates the shaded JAR-file that includes all generic processrunner-related code, processrunner-related code for bug tracker integrations, and all dependencies.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

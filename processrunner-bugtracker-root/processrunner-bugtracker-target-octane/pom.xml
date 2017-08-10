@@ -86,4 +86,5 @@
 
 	</dependencies>
 	<description>This module provides functionality for submitting issues to ALM Octane. This includes setting up a connection to Octane, an Octane-specific Context interface, and processors for actually submitting issues to Octane.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

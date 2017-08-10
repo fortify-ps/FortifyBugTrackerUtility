@@ -72,4 +72,5 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides functionality for submitting issues to a file.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

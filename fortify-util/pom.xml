@@ -93,4 +93,5 @@
 		</dependencies>
 	</dependencyManagement>
 	<description>This module contains several sub-modules that provide utilities for working with Fortify products, as well as generic utility classes used by some existing Fortify integrations.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>
