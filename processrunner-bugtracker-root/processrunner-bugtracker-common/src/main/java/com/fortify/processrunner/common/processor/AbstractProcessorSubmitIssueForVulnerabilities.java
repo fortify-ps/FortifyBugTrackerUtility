@@ -77,10 +77,6 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	}
 	
 	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
-	/* (non-Javadoc)
-	 * @see com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities#getBugTrackerName()
-	 */
-	public abstract String getBugTrackerName();
 
 	public IIssueSubmittedListener getIssueSubmittedListener() {
 		return issueSubmittedListener;
