@@ -21,49 +21,40 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.issue;
+package com.fortify.processrunner.common.bugtracker.issue;
 
-/**
- * This class holds information about issues that have been
- * submitted to an external system. Bug tracker implementations
- * can optionally use subclasses to hold additional information.
- * 
+import java.util.LinkedHashMap;
+
+import com.fortify.util.spring.expression.TemplateExpression;
+
+/** 
+ * This class describes the bug tracker fields and their contents to be submitted
+ * or updated by FortifyBugTrackerUtility.
+ *  
  * @author Ruud Senden
  */
-public class SubmittedIssue {
-	private String id;
-	private String deepLink;
+public class BugTrackerFieldConfiguration {
+	private LinkedHashMap<String,TemplateExpression> fields;
+	private LinkedHashMap<String,TemplateExpression> appendedFields;
+	private String[] fieldsToUpdateDuringStateManagement;
 	
-	public SubmittedIssue() {}
-	
-	public SubmittedIssue(String id, String deepLink) {
-		this.id = id;
-		this.deepLink = deepLink;
+	public LinkedHashMap<String, TemplateExpression> getFields() {
+		return fields;
 	}
-
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
+	public void setFields(LinkedHashMap<String, TemplateExpression> fields) {
+		this.fields = fields;
 	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
+	public LinkedHashMap<String, TemplateExpression> getAppendedFields() {
+		return appendedFields;
 	}
-	/**
-	 * @return the deepLink
-	 */
-	public String getDeepLink() {
-		return deepLink;
+	public void setAppendedFields(LinkedHashMap<String, TemplateExpression> appendedFields) {
+		this.appendedFields = appendedFields;
 	}
-	/**
-	 * @param deepLink the deepLink to set
-	 */
-	public void setDeepLink(String deepLink) {
-		this.deepLink = deepLink;
+	public String[] getFieldsToUpdateDuringStateManagement() {
+		return fieldsToUpdateDuringStateManagement;
+	}
+	public void setFieldsToUpdateDuringStateManagement(String[] fieldsToUpdateDuringStateManagement) {
+		this.fieldsToUpdateDuringStateManagement = fieldsToUpdateDuringStateManagement;
 	}
 	
 	

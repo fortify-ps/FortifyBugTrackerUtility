@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
@@ -49,10 +49,10 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * 
  * @author Ruud Senden
  *
- * @param <IssueStateType>
+ * @param <IssueStateDetailsType>
  */
-public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<IssueStateType>
-		extends AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> {
+public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<IssueStateDetailsType>
+		extends AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateDetailsType> {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorTransitionIssueStateForVulnerabilities.class);
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForOpeningIssue;
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForClosingIssue;
@@ -69,13 +69,13 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	}
 
 	@Override
-	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForOpeningIssue());
 		return transition(context, submittedIssue, currentIssueState, transitions);
 	}
 	
 	@Override
-	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForClosingIssue());
 		return transition(context, submittedIssue, currentIssueState, transitions);
 	}
@@ -93,16 +93,16 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	}
 	
 	@Override
-	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return isIssueTransitionable(currentIssueState, super.isIssueCloseable(context, submittedIssue, currentIssueState), getTransitionsForClosingIssue());
 	}
 	
 	@Override
-	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return isIssueTransitionable(currentIssueState, super.isIssueOpenable(context, submittedIssue, currentIssueState), getTransitionsForOpeningIssue());
 	}
 
-	protected boolean isIssueTransitionable(IssueStateType currentIssueState, boolean defaultValue, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions) {
+	protected boolean isIssueTransitionable(IssueStateDetailsType currentIssueState, boolean defaultValue, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions) {
 		if ( defaultValue ) {
 			for ( SimpleExpression expression : transitions.keySet() ) {
 				if ( SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class) ) {
@@ -113,7 +113,7 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 		return false;
 	}
 
-	protected List<TransitionWithComment> getTransitions(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {
+	protected List<TransitionWithComment> getTransitions(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {
 		if ( transitionsMap != null ) {
 			for ( Map.Entry<SimpleExpression, List<TransitionWithComment>> entry : transitionsMap.entrySet() ) {
 				if ( SpringExpressionUtil.evaluateExpression(currentIssueState, entry.getKey(), Boolean.class) ) {
@@ -124,7 +124,7 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 		return null;
 	}
 	
-	protected boolean transition(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState, List<TransitionWithComment> transitions) {
+	protected boolean transition(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, List<TransitionWithComment> transitions) {
 		if ( transitions==null ) {
 			LOG.debug(String.format("[%s] No transitions found for issue %s with issue state %s", getBugTrackerName(), submittedIssue.getDeepLink(), currentIssueState));
 			return false; 

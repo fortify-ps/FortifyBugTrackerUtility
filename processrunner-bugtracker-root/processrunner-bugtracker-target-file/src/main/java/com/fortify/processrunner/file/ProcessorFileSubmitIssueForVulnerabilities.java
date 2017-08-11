@@ -29,12 +29,14 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
 import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
@@ -60,7 +62,7 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 		return "File";
 	}
 	
-	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
+	public boolean setVulnerabilityUpdater(IVulnerabilityUpdater issueSubmittedListener) {
 		// We ignore the issueSubmittedListener since we want to do a full export each time.
 		// TODO should we make this configurable (full or partial export)?
 		// We return false to indicate that we don't  support an issue submitted listener.
@@ -96,5 +98,14 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 	
 	public boolean isIgnorePreviouslySubmittedIssues() {
 		return false;
+	}
+	
+	/**
+	 * Autowire the bug tracker field configuration from the Spring configuration file.
+	 * @param bugTrackerFieldConfiguration
+	 */
+	@Autowired
+	public void setBugTrackerFieldConfiguration(BugTrackerFieldConfiguration bugTrackerFieldConfiguration) {
+		super.setFields(bugTrackerFieldConfiguration.getFields());
 	}
 }

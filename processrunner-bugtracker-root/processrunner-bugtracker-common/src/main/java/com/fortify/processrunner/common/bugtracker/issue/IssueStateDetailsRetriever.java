@@ -21,27 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.processor;
+package com.fortify.processrunner.common.bugtracker.issue;
 
-import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.context.Context;
 
-/**
- * This interface provides the methods necessary for submitting issues for
- * vulnerabilities.
- * 
- * @author Ruud Senden
- *
- */
-public interface IProcessorSubmitIssueForVulnerabilities extends IProcessor {
-	/**
-	 * Get the bug tracker name for this implementation
-	 * @return
-	 */
-	public String getBugTrackerName();
-	
-	/**
-	 * Indicate whether previously submitted issues should be ignored
-	 * @return
-	 */
-	public boolean isIgnorePreviouslySubmittedIssues();
+public interface IssueStateDetailsRetriever<IssueStateDetailsType> {
+	public IssueStateDetailsType getIssueStateDetails(Context context, SubmittedIssue submittedIssue);
 }

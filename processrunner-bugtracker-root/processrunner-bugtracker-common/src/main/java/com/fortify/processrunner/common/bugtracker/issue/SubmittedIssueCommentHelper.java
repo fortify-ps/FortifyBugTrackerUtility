@@ -21,41 +21,40 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.issue;
+package com.fortify.processrunner.common.bugtracker.issue;
 
-import java.util.LinkedHashMap;
+import java.text.MessageFormat;
 
-import com.fortify.util.spring.expression.TemplateExpression;
+import org.apache.commons.lang.StringUtils;
 
-/** 
- * This class describes the bug tracker fields and their contents to be submitted
- * or updated by FortifyBugTrackerUtility.
- *  
+/**
+ * This helper class allows for generating and parsing comments with submitted issue information.
+ * 
  * @author Ruud Senden
  */
-public class BugTrackerFieldConfiguration {
-	private LinkedHashMap<String,TemplateExpression> fields;
-	private LinkedHashMap<String,TemplateExpression> appendedFields;
-	private String[] fieldsToUpdateDuringStateManagement;
+public class SubmittedIssueCommentHelper {
+	private static final String FMT_COMMENT_STR = "--- Vulnerability submitted to {0}:{1} Location {2}";
+	private static final MessageFormat FMT_COMMENT = new MessageFormat(FMT_COMMENT_STR);
 	
-	public LinkedHashMap<String, TemplateExpression> getFields() {
-		return fields;
-	}
-	public void setFields(LinkedHashMap<String, TemplateExpression> fields) {
-		this.fields = fields;
-	}
-	public LinkedHashMap<String, TemplateExpression> getAppendedFields() {
-		return appendedFields;
-	}
-	public void setAppendedFields(LinkedHashMap<String, TemplateExpression> appendedFields) {
-		this.appendedFields = appendedFields;
-	}
-	public String[] getFieldsToUpdateDuringStateManagement() {
-		return fieldsToUpdateDuringStateManagement;
-	}
-	public void setFieldsToUpdateDuringStateManagement(String[] fieldsToUpdateDuringStateManagement) {
-		this.fieldsToUpdateDuringStateManagement = fieldsToUpdateDuringStateManagement;
+	private SubmittedIssueCommentHelper() {}
+	
+	public static final String getCommentForSubmittedIssue(String bugTrackerName, SubmittedIssue submittedIssue) {
+		StringBuffer sb = new StringBuffer("--- Vulnerability submitted to ").append(bugTrackerName). append(": ");
+		if ( submittedIssue.getId()!=null ) {
+			sb.append("ID ").append(submittedIssue.getId()).append(" ");
+		}
+		sb.append("Location ").append(submittedIssue.getDeepLink());
+		return sb.toString();
 	}
 	
-	
+	public static final SubmittedIssue getSubmittedIssueFromComment(String comment) {
+		try {
+			Object[] fields = FMT_COMMENT.parse(comment);
+			String id = StringUtils.removeStart(StringUtils.trim((String)fields[1]), "ID ");
+			String deepLink = StringUtils.trim((String)fields[2]);
+			return new SubmittedIssue(id, deepLink);
+		} catch (Exception e) {
+			throw new RuntimeException("Error parsing comment "+comment);
+		}
+	}
 }

@@ -122,7 +122,11 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 			// data and invoke the process() method of the group processor
 			// in our postProcess() method once all data has been grouped.
 			String groupKey = ContextSpringExpressionUtil.evaluateExpression(context, rootObject, groupTemplateExpression, String.class);
-			addGroupEntry(context, groupKey, rootObject);
+			if ( groupKey != null ) {
+				addGroupEntry(context, groupKey, rootObject);
+			} else {
+				LOG.warn("Group key is null for "+rootObject);
+			}
 			return true;
 		}
 	}

@@ -35,6 +35,21 @@
 	<import resource="components/input/SSCInputConfig.xml"/>
 	
 	<!--==================================================================================-->
+	<!-- SSC VULNERABILITY UPDATER CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean is responsible for updating SSC vulnerabilities with information
+	     about submitted bug tracker issues. -->
+	<bean class="com.fortify.processrunner.ssc.vulnerability.SSCVulnerabilityUpdater">
+		<!-- Define the SSC custom tag name used to store the bug link. Note that
+		     this custom field must be assigned to the application version for
+		     which you are submitting issues to the bug tracker. If not defined 
+		     (commented out), you must install and configure the SSC 
+		     AddExistingBugLinkBugTracker for your application versions. -->
+		<property name="bugLinkCustomTagName" value="ArcherBugLink"/>
+	</bean>
+	
+	<!--==================================================================================-->
 	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
 	<!--==================================================================================-->
 	
@@ -88,7 +103,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Archer fields -->
 			<entry key="ID" value="${id}"/>

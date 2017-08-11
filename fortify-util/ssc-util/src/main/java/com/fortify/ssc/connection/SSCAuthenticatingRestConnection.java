@@ -161,16 +161,14 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	
 
 	/**
-	 * Set a custom tag value for the given collection of vulnerabilities
+	 * Set multiple custom tag values for the given collection of vulnerabilities
 	 * @param applicationVersionId
-	 * @param customTagName
-	 * @param value
+	 * @param customTagNamesAndValues
 	 * @param vulns
 	 */
-	public void setCustomTagValue(String applicationVersionId, String customTagName, String value, Collection<Object> vulns) {
+	public void setCustomTagValues(String applicationVersionId, Map<String,String> customTagNamesAndValues, Collection<Object> vulns) {
 		// TODO Simplify this code
 		JSONMap request = new JSONMap();
-		JSONMap customTagAudit = new JSONMap();
 		request.put("type", "AUDIT_ISSUE");
 
 		List<JSONMap> issues = new ArrayList<JSONMap>();
@@ -181,12 +179,30 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 			issues.add(issue);
 		}
 		request.putPath("values.issues", issues);
-		customTagAudit.put("customTagGuid", getCustomTagGuid(customTagName));
-		customTagAudit.put("textValue", value);
-		request.putPath("values.customTagAudit", new Object[]{customTagAudit});
+		JSONList customTagAuditValues = new JSONList(customTagNamesAndValues.size());
+		for ( Map.Entry<String, String> customTagNameAndValue : customTagNamesAndValues.entrySet() ) {
+			JSONMap customTagAudit = new JSONMap();
+			customTagAudit.put("customTagGuid", getCustomTagGuid(customTagNameAndValue.getKey()));
+			customTagAudit.put("textValue", customTagNameAndValue.getValue());
+			customTagAuditValues.add(customTagAudit);
+		}
+		request.putPath("values.customTagAudit", customTagAuditValues);
 		executeRequest(HttpMethod.POST, 
 				getBaseResource().path("/api/v1/projectVersions").path(applicationVersionId).path("issues/action"),
 				Entity.entity(request, "application/json"), JSONMap.class);
+	}
+	
+	/**
+	 * Set a custom tag value for the given collection of vulnerabilities
+	 * @param applicationVersionId
+	 * @param customTagName
+	 * @param value
+	 * @param vulns
+	 */
+	public void setCustomTagValue(String applicationVersionId, String customTagName, String value, Collection<Object> vulns) {
+		Map<String,String> customTagValues = new HashMap<String, String>(1);
+		customTagValues.put(customTagName, value);
+		setCustomTagValues(applicationVersionId, customTagValues, vulns);
 	}
 	
 	/**

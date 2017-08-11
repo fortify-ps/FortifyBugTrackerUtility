@@ -28,13 +28,15 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.tfs.connection.TFSConnectionFactory;
 import com.fortify.processrunner.tfs.connection.TFSRestConnection;
+import com.fortify.processrunner.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.processrunner.tfs.context.IContextTFS;
 import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
 
@@ -42,7 +44,7 @@ import com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer;
  * This {@link AbstractProcessorSubmitIssueForVulnerabilities} implementation
  * submits issues to TFS.
  */
-public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities<TFSIssueState> {
 	private String defaultWorkItemType = "Bug";
 	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
 	
@@ -67,6 +69,16 @@ public class ProcessorTFSSubmitIssueForVulnerabilities extends AbstractProcessor
 		fieldRenamer.renameFields(workItemType, issueData);
 		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), workItemType, issueData);
 	}
+	
+	@Override
+	protected IssueStateDetailsRetriever<TFSIssueState> getIssueStateDetailsRetriever() {
+		return new IssueStateDetailsRetriever<TFSIssueState>() {
+			public TFSIssueState getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
+				return TFSConnectionFactory.getConnection(context).getIssueState(context.as(IContextTFS.class).getTFSCollection(), submittedIssue);
+			}
+		};
+	}
+	
 	
 	protected String getWorkItemType(IContextTFS context) {
 		String issueType = context.getTFSWorkItemType();

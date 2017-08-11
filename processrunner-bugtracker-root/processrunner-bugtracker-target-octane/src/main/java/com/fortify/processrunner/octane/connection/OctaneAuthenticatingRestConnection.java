@@ -40,7 +40,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;

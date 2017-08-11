@@ -25,8 +25,8 @@ package com.fortify.processrunner.fod.processor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
-import com.fortify.processrunner.common.issue.SubmittedIssueCommentHelper;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.processor.filter.FoDFilterOnComments;
 import com.fortify.util.json.JSONMap;

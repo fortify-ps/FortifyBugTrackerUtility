@@ -28,10 +28,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.issue.IIssueSubmittedListener;
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
@@ -48,9 +50,9 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities {
+public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateDetailsType> extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
-	private IIssueSubmittedListener issueSubmittedListener;
+	private IVulnerabilityUpdater vulnerabilityUpdater;
 	
 	public AbstractProcessorSubmitIssueForVulnerabilities() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
@@ -70,24 +72,23 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities extends Abs
 	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		SubmittedIssue submittedIssue = submitIssue(context, map); 
 		if ( submittedIssue != null ) {
-			issueSubmittedListener.issueSubmitted(context, getBugTrackerName(), submittedIssue, currentGroup);
+			if ( vulnerabilityUpdater != null ) {
+				vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getBugTrackerName(), submittedIssue, getIssueStateDetailsRetriever(), currentGroup);
+			}
 			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getBugTrackerName(), currentGroup.size(), submittedIssue.getDeepLink()));
 		}
 		return true;
 	}
 	
 	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
-
-	public IIssueSubmittedListener getIssueSubmittedListener() {
-		return issueSubmittedListener;
+	
+	protected IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() { 
+		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities#setIssueSubmittedListener(com.fortify.processrunner.common.issue.IIssueSubmittedListener)
-	 */
-	public boolean setIssueSubmittedListener(IIssueSubmittedListener issueSubmittedListener) {
-		this.issueSubmittedListener = issueSubmittedListener;
-		return true;
+	@Autowired(required=false)
+	public void setVulnerabilityUpdater(IVulnerabilityUpdater vulnerabilityUpdater) {
+		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 	
 	public boolean isIgnorePreviouslySubmittedIssues() {

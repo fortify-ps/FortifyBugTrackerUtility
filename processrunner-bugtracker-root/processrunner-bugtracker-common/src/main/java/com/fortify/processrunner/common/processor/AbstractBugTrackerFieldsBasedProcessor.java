@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration;
+import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.spring.expression.TemplateExpression;
 

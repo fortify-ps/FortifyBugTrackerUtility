@@ -70,7 +70,9 @@ public class FoDProcessorEnrichWithExtraFoDData extends AbstractFoDProcessorEnri
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		for ( String field : fields ) {
-			currentVulnerability.put(field, getJSONMap(context, field));
+			if ( !currentVulnerability.containsKey(field) ) {
+				currentVulnerability.put(field, getJSONMap(context, field));
+			}
 		}
 		return true;
 	}

@@ -88,7 +88,7 @@ public class SSCFilterOnTopLevelField extends AbstractProcessor {
 			currentParamValue += "+";
 		}
 		try {
-			contextSSC.setSSCTopLevelFilterParamValue(currentParamValue + key+getOperator()+URLEncoder.encode(value,"UTF-8"));
+			contextSSC.setSSCTopLevelFilterParamValue(currentParamValue + key + getOperator() + URLEncoder.encode(value,"UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("Error encoding URL for filter values", e);
 		}

@@ -28,7 +28,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -68,11 +69,12 @@ public class ProcessorTFSTransitionIssueStateForVulnerabilities extends Abstract
 	}
 	
 	@Override
-	protected TFSIssueState getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
-		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
-		String collection = contextTFS.getTFSCollection();
-		return conn.getIssueState(collection, submittedIssue);
+	protected IssueStateDetailsRetriever<TFSIssueState> getIssueStateDetailsRetriever() {
+		return new IssueStateDetailsRetriever<TFSIssueState>() {
+			public TFSIssueState getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
+				return TFSConnectionFactory.getConnection(context).getIssueState(context.as(IContextTFS.class).getTFSCollection(), submittedIssue);
+			}
+		};
 	}
 	
 	@Override

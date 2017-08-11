@@ -43,7 +43,6 @@ public class SSCBugTrackerProcessorConfiguration {
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
 	private boolean includeIssueDetails;
-	private String customTagName = null;
 	private SimpleExpression isVulnerabilityOpenExpression = SSCProcessorEnrichWithVulnState.DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	
 	public Map<String, String> getTopLevelFieldSimpleFilters() {
@@ -69,12 +68,6 @@ public class SSCBugTrackerProcessorConfiguration {
 	}
 	public void setIncludeIssueDetails(boolean includeIssueDetails) {
 		this.includeIssueDetails = includeIssueDetails;
-	}
-	public String getCustomTagName() {
-		return customTagName;
-	}
-	public void setCustomTagName(String customTagName) {
-		this.customTagName = customTagName;
 	}
 	public SimpleExpression getIsVulnerabilityOpenExpression() {
 		return isVulnerabilityOpenExpression;

@@ -27,7 +27,8 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -35,12 +36,13 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
+import com.fortify.util.json.JSONMap;
 
 /**
  * This {@link AbstractProcessorSubmitIssueForVulnerabilities} implementation
  * submits issues to Jira.
  */
-public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities {
+public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcessorSubmitIssueForVulnerabilities<JSONMap> {
 	private String defaultIssueType = "Task";
 	
 	@Override
@@ -62,6 +64,15 @@ public class ProcessorJiraSubmitIssueForVulnerabilities extends AbstractProcesso
 		issueFields.put("issuetype.name", getIssueType(contextJira));
 		issueFields.put("summary", StringUtils.abbreviate((String)issueFields.get("summary"), 254));
 		return conn.submitIssue(issueFields);
+	}
+	
+	@Override
+	protected IssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
+		return new IssueStateDetailsRetriever<JSONMap>() {
+			public JSONMap getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
+				return JiraConnectionFactory.getConnection(context).getIssueState(submittedIssue);
+			}
+		};
 	}
 	
 	protected String getIssueType(IContextJira context) {

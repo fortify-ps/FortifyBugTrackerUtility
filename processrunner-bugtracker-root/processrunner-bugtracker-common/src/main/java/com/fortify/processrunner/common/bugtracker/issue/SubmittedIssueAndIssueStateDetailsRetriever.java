@@ -21,27 +21,36 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.processor;
+package com.fortify.processrunner.common.bugtracker.issue;
 
-import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.context.Context;
 
-/**
- * This interface provides the methods necessary for submitting issues for
- * vulnerabilities.
- * 
- * @author Ruud Senden
- *
- */
-public interface IProcessorSubmitIssueForVulnerabilities extends IProcessor {
-	/**
-	 * Get the bug tracker name for this implementation
-	 * @return
-	 */
-	public String getBugTrackerName();
+public class SubmittedIssueAndIssueStateDetailsRetriever<IssueStateDetailsType> {
+	private final Context context;
+	private final SubmittedIssue submittedIssue;
+	private final IssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever;
 	
-	/**
-	 * Indicate whether previously submitted issues should be ignored
-	 * @return
-	 */
-	public boolean isIgnorePreviouslySubmittedIssues();
+	public SubmittedIssueAndIssueStateDetailsRetriever(Context context, SubmittedIssue submittedIssue, IssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever) {
+		super();
+		this.context = context;
+		this.submittedIssue = submittedIssue;
+		this.issueStateDetailsRetriever = issueStateDetailsRetriever;
+	}
+
+	public Context getContext() {
+		return context;
+	}
+
+	public SubmittedIssue getSubmittedIssue() {
+		return submittedIssue;
+	}
+
+	public IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
+		return issueStateDetailsRetriever;
+	}
+	
+	public IssueStateDetailsType getIssueState() {
+		return getIssueStateDetailsRetriever().getIssueStateDetails(getContext(), getSubmittedIssue());
+	}
+	
 }

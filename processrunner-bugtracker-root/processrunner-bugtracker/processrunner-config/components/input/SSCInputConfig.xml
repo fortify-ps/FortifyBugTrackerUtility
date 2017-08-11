@@ -77,14 +77,6 @@
 		     /api/v1/issueDetails will also be available. -->
 		<property name="includeIssueDetails" value="true"/>
 		
-		<!-- Define the SSC custom tag name used to store the bug link. Note that
-		     this custom field must be assigned to the application version for
-		     which you are submitting issues to the bug tracker. If not defined,
-		     you must either submit the bugs through the native SSC bug tracker
-		     integrations (see SSCToSSCBugTrackers.xml), or install and configure
-		     the SSC AddExistingBugLinkBugTracker for your application versions. -->
-		<!-- <property name="customTagName" value="bugLink"/> -->
-		
 		<!-- This property defines the expression for evaluating whether an SSC 
 		     vulnerability should be considered open or closed. This expression
 		     can use any SSC vulnerability attribute. Commonly used attributes

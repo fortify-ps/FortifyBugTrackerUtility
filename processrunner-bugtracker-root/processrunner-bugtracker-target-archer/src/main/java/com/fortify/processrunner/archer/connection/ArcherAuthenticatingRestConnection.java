@@ -40,7 +40,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;

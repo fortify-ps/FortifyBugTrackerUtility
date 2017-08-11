@@ -28,9 +28,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
@@ -54,10 +57,11 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * 
  * @author Ruud Senden
  *
- * @param <IssueStateType>
+ * @param <IssueStateDetailsType>
  */
-public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateType> extends AbstractBugTrackerFieldsBasedProcessor {
+public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateDetailsType> extends AbstractBugTrackerFieldsBasedProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
+	private IVulnerabilityUpdater vulnerabilityUpdater;
 	private SimpleExpression isVulnStateOpenExpression;
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
@@ -77,13 +81,13 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	}
 	
 	@Override
-	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
-		SubmittedIssue submittedIssue = getSubmittedIssue(currentGroup.get(0));
+	protected boolean processMap(Context context, List<Object> vulnerabilities, LinkedHashMap<String, Object> map) {
+		SubmittedIssue submittedIssue = getSubmittedIssue(vulnerabilities.get(0));
 		String fieldNames = map.keySet().toString();
 		if ( updateIssueFields(context, submittedIssue, map) ) {
 			LOG.info(String.format("[%s] Updated field(s) %s for issue %s", getBugTrackerName(), fieldNames, submittedIssue.getDeepLink()));
 		}
-		if ( hasOpenVulnerabilities(currentGroup) ) {
+		if ( hasOpenVulnerabilities(vulnerabilities) ) {
 			if ( openIssueIfClosed(context, submittedIssue) ) {
 				LOG.info(String.format("[%s] Re-opened issue %s", getBugTrackerName(), submittedIssue.getDeepLink()));
 			}
@@ -91,6 +95,9 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 			if ( closeIssueIfOpen(context, submittedIssue) ) {
 				LOG.info(String.format("[%s] Closed issue %s", getBugTrackerName(), submittedIssue.getDeepLink()));
 			}
+		}
+		if ( vulnerabilityUpdater!=null ) {
+			vulnerabilityUpdater.updateVulnerabilityStateForExistingIssue(context, getBugTrackerName(), submittedIssue, getIssueStateDetailsRetriever(), vulnerabilities);
 		}
 		
 		return true;
@@ -111,7 +118,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	
 	protected boolean openIssueIfClosed(Context context, SubmittedIssue submittedIssue) {
 		if ( canDetemineIssueIsClosed(context, submittedIssue) ) {
-			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
+			IssueStateDetailsType currentIssueState = getCurrentIssueStateDetails(context, submittedIssue);
 			if ( isIssueOpenable(context, submittedIssue, currentIssueState) ) {
 				return openIssue(context, submittedIssue, currentIssueState);
 			}
@@ -121,7 +128,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 
 	protected boolean closeIssueIfOpen(Context context, SubmittedIssue submittedIssue) {
 		if ( canDetemineIssueIsOpen(context, submittedIssue) ) {
-			IssueStateType currentIssueState = getCurrentIssueState(context, submittedIssue);
+			IssueStateDetailsType currentIssueState = getCurrentIssueStateDetails(context, submittedIssue);
 			if ( isIssueCloseable(context, submittedIssue, currentIssueState) ) {
 				return closeIssue(context, submittedIssue, currentIssueState);
 			}
@@ -129,15 +136,19 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return false;
 	}
 
-	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return false;
 	}
 	
-	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return false;
 	}
 	
-	protected IssueStateType getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
+	protected final IssueStateDetailsType getCurrentIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
+		return getIssueStateDetailsRetriever()==null ? null : getIssueStateDetailsRetriever().getIssueStateDetails(context, submittedIssue);
+	}
+	
+	protected IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
 		return null;
 	}
 	
@@ -151,15 +162,15 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return getIsIssueOpenableExpression()!=null;
 	}
 	
-	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueCloseableExpression());
 	}
 
-	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState) {
+	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueOpenableExpression());
 	}
 	
-	protected boolean doesIssueStateMatchExpression(Context context, SubmittedIssue submittedIssue, IssueStateType currentIssueState, SimpleExpression expression) {
+	protected boolean doesIssueStateMatchExpression(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, SimpleExpression expression) {
 		if ( expression!=null && currentIssueState!=null ) {
 			return SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class);
 		}
@@ -251,5 +262,10 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	@Override
 	protected boolean includeOnlyFieldsToBeUpdated() {
 		return true;
+	}
+	
+	@Autowired(required=false)
+	public void setVulnerabilityUpdater(IVulnerabilityUpdater vulnerabilityUpdater) {
+		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 }

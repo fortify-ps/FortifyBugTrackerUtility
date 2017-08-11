@@ -31,19 +31,16 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.processrunner.common.issue.IssueState;
+import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
-import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithBugDataFromComment;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
-import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugSubmittedComment;
-import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugSubmittedField;
-import com.fortify.processrunner.fod.processor.filter.FoDFilterOnHasCommentsField;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
+import com.fortify.processrunner.fod.vulnerability.FoDVulnerabilityUpdater;
 import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
@@ -61,7 +58,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
 	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
 	private Set<String> extraFields = new HashSet<String>();
-	private boolean useFoDCommentForSubmittedBugs = false;
+	private FoDVulnerabilityUpdater vulnerabilityUpdater;
 	
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
@@ -77,7 +74,7 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		FoDProcessorRetrieveVulnerabilities result = new FoDProcessorRetrieveVulnerabilities(
-			isUseFoDCommentForSubmittedBugs() ? createCommentBasedProcessors() : createBugLinkBasedProcessors(),
+			getVulnerabilityUpdater()==null?new CompositeProcessor():getVulnerabilityUpdater().createVulnerabilityAlreadySubmittedFilter(),
 			createAddVulnDeepLinkProcessor(),
 			createAddJSONDataProcessor(),
 			getVulnState(),
@@ -85,37 +82,6 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		);
 		result.setIncludeRemoved(true);
 		return result;
-	}
-
-	/**
-	 * Create the processors for managing bug state based on the FoD bugLink field.
-	 */
-	protected IProcessor createBugLinkBasedProcessors() {
-		return new CompositeProcessor(
-				// Add a top-level field filter on the bugSubmitted field to include only vulnerabilities 
-				// that have already been submitted to the bug tracker
-				new FoDFilterOnBugSubmittedField("true")
-				// TODO Add processor to add bugId field to vulnerability?
-		);
-	}
-	
-	/**
-	 * Create the processor for managing bug state based on FoD comments.
-	 * @return
-	 */
-	protected IProcessor createCommentBasedProcessors() {
-		return new CompositeProcessor(
-			// Add top-level field filter to include only vulnerabilities with comments
-			// (to avoid loading summary data if there are no comments anyway)
-			new FoDFilterOnHasCommentsField("true"),
-			// Add processor to add FoD summary data as required by FoDFilterOnBugSubmittedComment
-			new FoDProcessorEnrichWithExtraFoDData("summary"),
-			// Add comment-based filter to include only vulnerabilities that have already been submitted 
-			// to the bug tracker
-			new FoDFilterOnBugSubmittedComment(false),
-			// Add processor to add bugLink (and bugId?) fields from comment to vulnerability
-			new FoDProcessorEnrichWithBugDataFromComment()
-		);
 	}
 	
 	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
@@ -126,20 +92,6 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	protected IProcessor createAddVulnDeepLinkProcessor() {
 		return new FoDProcessorEnrichWithVulnDeepLink();
-	}
-
-	/**
-	 * @return the useFoDCommentForSubmittedBugs
-	 */
-	public boolean isUseFoDCommentForSubmittedBugs() {
-		return useFoDCommentForSubmittedBugs;
-	}
-
-	/**
-	 * @param useFoDCommentForSubmittedBugs the useFoDCommentForSubmittedBugs to set
-	 */
-	public void setUseFoDCommentForSubmittedBugs(boolean useFoDCommentForSubmittedBugs) {
-		this.useFoDCommentForSubmittedBugs = useFoDCommentForSubmittedBugs;
 	}
 	
 	/**
@@ -176,7 +128,15 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	@Autowired(required=false)
 	public void setConfiguration(FoDBugTrackerProcessorConfiguration config) {
 		setExtraFields(config.getExtraFields());
-		setUseFoDCommentForSubmittedBugs(config.isUseFoDCommentForSubmittedBugs());
 		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
+	}
+
+	public FoDVulnerabilityUpdater getVulnerabilityUpdater() {
+		return vulnerabilityUpdater;
+	}
+
+	@Autowired(required=false)
+	public void setVulnerabilityUpdater(FoDVulnerabilityUpdater vulnerabilityUpdater) {
+		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 }

@@ -45,7 +45,6 @@ public class FoDBugTrackerProcessorConfiguration {
 	private Map<String,String> topLevelFieldSimpleFilters;
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
-	private boolean useFoDCommentForSubmittedBugs = false;
 	private SimpleExpression isVulnerabilityOpenExpression = FoDProcessorEnrichWithVulnState.DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	
 	public Set<String> getExtraFields() {
@@ -71,12 +70,6 @@ public class FoDBugTrackerProcessorConfiguration {
 	}
 	public void setAllFieldRegExFilters(Map<String, Pattern> allFieldRegExFilters) {
 		this.allFieldRegExFilters = allFieldRegExFilters;
-	}
-	public boolean isUseFoDCommentForSubmittedBugs() {
-		return useFoDCommentForSubmittedBugs;
-	}
-	public void setUseFoDCommentForSubmittedBugs(boolean useFoDCommentForSubmittedBugs) {
-		this.useFoDCommentForSubmittedBugs = useFoDCommentForSubmittedBugs;
 	}
 	public SimpleExpression getIsVulnerabilityOpenExpression() {
 		return isVulnerabilityOpenExpression;

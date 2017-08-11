@@ -39,7 +39,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.ProxyConfiguration;

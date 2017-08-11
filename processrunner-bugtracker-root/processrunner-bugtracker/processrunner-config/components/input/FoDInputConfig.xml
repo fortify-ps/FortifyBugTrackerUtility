@@ -95,11 +95,6 @@
 		<property name="allFieldRegExFilters"><map>
 		</map></property>
 		
-		<!-- This flag can be set to true to add information about submitted bugs to 
-		     FoD vulnerability comments. By default (false), the bug link will
-		     be stored in the dedicated FoD bugLink field. -->
-		<property name="useFoDCommentForSubmittedBugs" value="true"/>
-		
 		<!-- This property defines the expression for evaluating whether an FoD 
 		     vulnerability should be considered open or closed. This expression
 		     can use any FoD vulnerability attribute. Commonly used attributes
@@ -107,5 +102,16 @@
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
 			closedStatus==false && isSuppressed==false
 		]]></value></property>
+	</bean>
+	
+	<!-- This bean is responsible for updating FoD vulnerabilities with information
+	     about submitted bug tracker issues. -->
+	<bean class="com.fortify.processrunner.fod.vulnerability.FoDVulnerabilityUpdater">
+		<!-- By default (true), information about submitted bugs is added as
+		     an FoD vulnerability comment. This flag can be set to false if
+		     you want to store the bug link in the dedicated FoD bug link field.
+		     Note that only one bug tracker implementation may use the FoD
+		     bug link field. -->
+		<property name="useFoDCommentForSubmittedBugs" value="true"/>
 	</bean>
 </beans>

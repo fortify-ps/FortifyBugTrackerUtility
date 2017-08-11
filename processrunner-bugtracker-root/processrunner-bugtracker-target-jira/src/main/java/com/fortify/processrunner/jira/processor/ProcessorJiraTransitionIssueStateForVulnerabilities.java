@@ -25,7 +25,8 @@ package com.fortify.processrunner.jira.processor;
 
 import java.util.LinkedHashMap;
 
-import com.fortify.processrunner.common.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -55,8 +56,12 @@ public class ProcessorJiraTransitionIssueStateForVulnerabilities extends Abstrac
 	}
 	
 	@Override
-	protected JSONMap getCurrentIssueState(Context context, SubmittedIssue submittedIssue) {
-		return getJiraConnection(context).getIssueState(submittedIssue);
+	protected IssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
+		return new IssueStateDetailsRetriever<JSONMap>() {
+			public JSONMap getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
+				return getJiraConnection(context).getIssueState(submittedIssue);
+			}
+		};
 	}
 	
 	@Override

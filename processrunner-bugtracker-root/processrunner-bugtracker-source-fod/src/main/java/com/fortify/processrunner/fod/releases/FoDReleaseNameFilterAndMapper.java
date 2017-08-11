@@ -51,7 +51,10 @@ public class FoDReleaseNameFilterAndMapper implements IFoDReleaseFilter, IFoDRel
 	}
 	
 	public void updateContext(Context context, JSONMap release) {
-		addMappedAttributes(context, release, getReleaseNameMapping(release).getValue());
+		Map.Entry<Pattern, Context> releaseNameMapping = getReleaseNameMapping(release);
+		if ( releaseNameMapping != null ) {
+			addMappedAttributes(context, release, releaseNameMapping.getValue());
+		}
 	}
 
 	public LinkedHashMap<Pattern, Context> getReleaseNameMappings() {

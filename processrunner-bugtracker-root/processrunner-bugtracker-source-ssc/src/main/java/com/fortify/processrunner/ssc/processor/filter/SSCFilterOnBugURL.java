@@ -21,30 +21,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.issue;
+package com.fortify.processrunner.ssc.processor.filter;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
-import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.filter.FilterRegEx;
 
-/**
- * This interface can be used to get notified after an issue has been submitted
- * to an external system/bug tracker. It can for example be used to update the
- * source system with information about the submitted issue.
- * 
- * @author Ruud Senden
- *
- */
-public interface IIssueSubmittedListener {
-	/**
-	 * Notification that the given {@link SubmittedIssue} has been submitted to
-	 * the bug tracker identified by bugTrackerName. The issue was submitted for
-	 * all vulnerabilities identified by the vulnerabilities parameter.
-	 * 
-	 * @param context
-	 * @param bugTrackerName
-	 * @param submittedIssue
-	 * @param vulnerabilities
-	 */
-	public void issueSubmitted(Context context, String bugTrackerName, SubmittedIssue submittedIssue, Collection<Object> vulnerabilities);
+//TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
+public class SSCFilterOnBugURL extends FilterRegEx {
+	public SSCFilterOnBugURL(boolean excludeVulnerabilitiesWithBugURL) {
+		super("CurrentVulnerability", getBugURLFilterMap(excludeVulnerabilitiesWithBugURL));
+	}
+
+	private static final Map<String, Pattern> getBugURLFilterMap(boolean excludeVulnerabilitiesWithBugURL) {
+		Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
+		filters.put("bugURL", Pattern.compile(excludeVulnerabilitiesWithBugURL?"^$":"^\\S+$"));
+		return filters;
+	}
 }

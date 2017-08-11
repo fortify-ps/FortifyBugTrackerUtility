@@ -23,7 +23,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.enrich;
 
-import com.fortify.processrunner.common.issue.IssueState;
+import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;

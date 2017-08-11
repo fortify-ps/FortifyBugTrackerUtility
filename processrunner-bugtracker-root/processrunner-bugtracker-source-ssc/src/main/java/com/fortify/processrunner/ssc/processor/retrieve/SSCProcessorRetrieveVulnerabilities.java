@@ -112,7 +112,8 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 					.queryParam("start", start)
 					.resolveTemplate("SSCApplicationVersionId", contextSSC.getSSCApplicationVersionId());
 			if ( StringUtils.isNotBlank(filterParamValue) ) {
-				resource = resource.queryParam("q", filterParamValue);
+				// Any better way to add query parameter without encoding the value?
+				resource = conn.getResource(resource.getUri().toString()+"&q="+filterParamValue);
 			}
 			LOG.debug("[SSC] Retrieving vulnerabilities from "+resource);
 			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);

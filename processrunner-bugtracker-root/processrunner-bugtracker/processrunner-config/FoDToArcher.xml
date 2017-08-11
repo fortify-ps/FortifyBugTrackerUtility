@@ -94,7 +94,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.common.issue.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<!-- TODO Add additional Archer fields -->
