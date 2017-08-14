@@ -49,9 +49,9 @@
 		<property name="bugLinkCustomTagName" value="OctaneBugLink"/>
 		
 		<!-- Allow the user to see ALM Octane issue phase name in SSC. Any custom tags that 
-		     do not assist or are not assigned to the application version will be ignored. -->
+		     do not exist or are not assigned to the application version will be ignored. -->
 		<property name="extraCustomTags"><map>
-			<entry key="OctaneIssueState" value="${issueState.phase.name}"/>
+			<entry key="OctaneIssueState" value="${issueStateDetails.phase.name}"/>
 		</map></property>
 	</bean>
 	

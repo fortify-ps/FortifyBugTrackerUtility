@@ -25,31 +25,63 @@ package com.fortify.processrunner.common.bugtracker.issue;
 
 import com.fortify.processrunner.context.Context;
 
+/**
+ * Instances of this class hold information about the current {@link Context}
+ * and {@link SubmittedIssue}, together with an {@link IIssueStateDetailsRetriever}
+ * implementation that allows for retrieving issue state details for the submitted
+ * issue.
+ * 
+ * @author Ruud Senden
+ *
+ * @param <IssueStateDetailsType>
+ */
 public class SubmittedIssueAndIssueStateDetailsRetriever<IssueStateDetailsType> {
 	private final Context context;
 	private final SubmittedIssue submittedIssue;
-	private final IssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever;
+	private final IIssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever;
 	
-	public SubmittedIssueAndIssueStateDetailsRetriever(Context context, SubmittedIssue submittedIssue, IssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever) {
+	/**
+	 * Constructor for setting {@link Context}, {@link SubmittedIssue} and {@link IIssueStateDetailsRetriever}
+	 * @param context
+	 * @param submittedIssue
+	 * @param issueStateDetailsRetriever
+	 */
+	public SubmittedIssueAndIssueStateDetailsRetriever(Context context, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<IssueStateDetailsType> issueStateDetailsRetriever) {
 		super();
 		this.context = context;
 		this.submittedIssue = submittedIssue;
 		this.issueStateDetailsRetriever = issueStateDetailsRetriever;
 	}
 
+	/**
+	 * Get the current {@link Context}
+	 * @return
+	 */
 	public Context getContext() {
 		return context;
 	}
 
+	/**
+	 * Get the {@link SubmittedIssue}
+	 * @return
+	 */
 	public SubmittedIssue getSubmittedIssue() {
 		return submittedIssue;
 	}
 
-	public IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
+	/**
+	 * Get the {@link IIssueStateDetailsRetriever}
+	 * @return
+	 */
+	public IIssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
 		return issueStateDetailsRetriever;
 	}
 	
-	public IssueStateDetailsType getIssueState() {
+	/**
+	 * Get the issue state details from the configured {@link IIssueStateDetailsRetriever}
+	 * @return
+	 */
+	public IssueStateDetailsType getIssueStateDetails() {
 		return getIssueStateDetailsRetriever().getIssueStateDetails(getContext(), getSubmittedIssue());
 	}
 	

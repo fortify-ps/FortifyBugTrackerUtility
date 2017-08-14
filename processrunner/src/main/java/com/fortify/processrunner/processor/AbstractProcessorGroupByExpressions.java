@@ -83,21 +83,40 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 */
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 
+	/**
+	 * If grouping is enabled, initialize the temporary cache that will hold grouped objects.
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean preProcess(Context context) {
-		IContextGrouping ctx = context.as(IContextGrouping.class);
-		DB db = DBMaker.tempFileDB()
-				.closeOnJvmShutdown().fileDeleteAfterClose()
-				.fileMmapEnableIfSupported()
-				.make();
-		Map<String, List<Object>> groups = db.hashMap("groups", Serializer.STRING, Serializer.JAVA).create();
-		groups.clear(); // Make sure that we start with a clean cache 
-		ctx.setGroupByExpressionsMapDB(db);
-		ctx.setGroupByExpressionsGroupsMap(groups);
+		if ( isGroupingEnabled(context) ) {
+			IContextGrouping ctx = context.as(IContextGrouping.class);
+			DB db = DBMaker.tempFileDB()
+					.closeOnJvmShutdown().fileDeleteAfterClose()
+					.fileMmapEnableIfSupported()
+					.make();
+			Map<String, List<Object>> groups = db.hashMap("groups", Serializer.STRING, Serializer.JAVA).create();
+			groups.clear(); // Make sure that we start with a clean cache 
+			ctx.setGroupByExpressionsMapDB(db);
+			ctx.setGroupByExpressionsGroupsMap(groups);
+		}
 		return preProcessBeforeGrouping(context);
 	}
 	
+	/**
+	 * <p>This method retrieves the current root object by evaluating the expression configured through 
+	 * {@link #setRootExpression(SimpleExpression)} on the given {@link Context}.</p>
+	 * 
+	 * <p>If grouping is enabled, the group key will then be determined by evaluating the expression 
+	 * configured through {@link #setGroupTemplateExpression(TemplateExpression)} on the root object, 
+	 * and the root object will be stored in the temporary cache based on the group key. The grouped 
+	 * objects will be further processed by the {@link #postProcess(Context)} method once all objects
+	 * have been grouped.</p>
+	 * 
+	 * 
+	 * <p>If grouping is not enabled, the {@link #processGroup(Context, String, List)} method will be 
+	 * called directly in order to immediately process the single root object.</p>
+	 */
 	protected final boolean process(Context context) {
 		if ( processBeforeGrouping(context)==false ) {
 			return false;
@@ -130,6 +149,14 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		}
 	}
 
+	/**
+	 * If grouping is enabled, this method will get each group of objects from
+	 * the group cache, and call the {@link #processGroup(Context, String, List)}
+	 * method for each group of objects. If grouping is not enabled, the 
+	 * {@link #processGroup(Context, String, List)} method will already have
+	 * been called by the {@link #process(Context)} method and thus will not be
+	 * called again. Once finished, the temporary cache will be cleaned up.
+	 */
 	protected final boolean postProcess(Context context) {
 		boolean result = true;
 		Map<String, List<Object>> groupsMap = getGroupsMap(context);
@@ -148,6 +175,16 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		return postProcessAfterProcessingGroups(context) && result;
 	}
 	
+	/**
+	 * Indicate whether grouping is enabled. If no group template expression is configured
+	 * through {@link #setGroupTemplateExpression(TemplateExpression)}, grouping will be disabled.
+	 * Otherwise, if the {@link #isForceGrouping()} method returns true, grouping will be enabled
+	 * without allowing a user to disable grouping through the 'DisableGrouping' context property.
+	 * If grouping is not forced, then grouping will be enabled unless the 'DisableGrouping' context
+	 * property is set to 'true'.
+	 * @param context
+	 * @return
+	 */
 	private boolean isGroupingEnabled(Context context) {
 		String disableGrouping = context.as(IContextGrouping.class).getDisableGrouping();
 		return getGroupTemplateExpression() != null && (isForceGrouping() || !"true".equals(disableGrouping));
@@ -183,12 +220,31 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		return true;
 	}
 	
+	/**
+	 * Subclasses must implement this method to actually process an individual
+	 * group. Note that groupName may be null if grouping is disabled; in that 
+	 * case currentGroup will contain only a single object.
+	 * @param context
+	 * @param groupName
+	 * @param currentGroup
+	 * @return
+	 */
 	protected abstract boolean processGroup(Context context, String groupName, List<Object> currentGroup);
 	
+	/**
+	 * Get the groups map from the {@link Context}
+	 * @param context
+	 * @return
+	 */
 	protected synchronized Map<String, List<Object>> getGroupsMap(Context context) {
 		return context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap();
 	}
 	
+	/**
+	 * Remove the groups map from the {@link Context}, and close the
+	 * temporary cache.
+	 * @param context
+	 */
 	protected void removeGroupsMap(Context context) {
 		context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap().clear();
 		context.as(IContextGrouping.class).getGroupByExpressionsMapDB().close();
@@ -212,26 +268,50 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		map.put(key, newList);
 	}
 	
+	/**
+	 * Get the configured expression for determining the root object from the {@link Context}
+	 * @return
+	 */
 	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
 
+	/**
+	 * Set the expression for determining the root object from the {@link Context}
+	 * @param rootExpression
+	 */
 	public void setRootExpression(SimpleExpression rootExpression) {
 		this.rootExpression = rootExpression;
 	}
 
+	/**
+	 * Get the configured expression for determining the group key from the root object
+	 * @return
+	 */
 	public TemplateExpression getGroupTemplateExpression() {
 		return groupTemplateExpression;
 	}
 
+	/**
+	 * Set the configured expression for determining the group key from the root object
+	 * @param groupTemplateExpression
+	 */
 	public void setGroupTemplateExpression(TemplateExpression groupTemplateExpression) {
 		this.groupTemplateExpression = groupTemplateExpression;
 	}
 	
+	/**
+	 * Subclasses can override this method to force grouping, disallowing users from
+	 * disabling grouping based on the 'DisableGrouping' context property.
+	 * @return
+	 */
 	public boolean isForceGrouping() {
 		return false;
 	}
 
+	/**
+	 * Interface for type-safe access to grouping-related data in the {@link Context}
+	 */
 	private static interface IContextGrouping {
 		public static final String PRP_DISABLE_GROUPING = "DisableGrouping";
 		public void setDisableGrouping(String disableGrouping);

@@ -74,7 +74,8 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
  */
 public class RunProcessRunnerFromCLI {
 	static {
-		// We need to do this first, before initializing any of the other (static) fields
+		// We need to do this first, before initializing any of the other (static) fields,
+		// to make sure the correct log manager is used
 		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 	}
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
@@ -90,8 +91,7 @@ public class RunProcessRunnerFromCLI {
 
 	/**
 	 * Main method for running a {@link ProcessRunner} configuration. This will
-	 * parse the command line options and then invoke
-	 * {@link RunProcessRunnerFromSpringConfig}
+	 * parse the command line options and then invoke {@link RunProcessRunnerFromSpringConfig}
 	 * 
 	 * @param args
 	 */
@@ -237,8 +237,7 @@ public class RunProcessRunnerFromCLI {
 				"  --logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
 		LOG.info("");
 		LOG.info("    By default no logging is performed unless at least either --logFile or --logLevel is specified.");
-		LOG.info(
-				"    Note that log levels debug or trace may generate big log files that contain sensitive information.");
+		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
 
 		if (springRunner != null) {
 			Collection<String> processRunners = springRunner.getEnabledProcessRunnerNames();
@@ -265,14 +264,27 @@ public class RunProcessRunnerFromCLI {
 		System.exit(returnCode);
 	}
 
+	/**
+	 * Get the default log file name
+	 * @return
+	 */
 	protected String getDefaultLogFileName() {
 		return DEFAULT_LOG_FILE;
 	}
 
+	/**
+	 * Get the base command for running this utility
+	 * @return
+	 */
 	protected String getBaseCommand() {
 		return "java -jar " + getJarName();
 	}
 
+	/**
+	 * Get the name of the JAR file used to invoke the utility,
+	 * or "&lt;jar name&gt;" if unknown
+	 * @return
+	 */
 	protected String getJarName() {
 		File jar = getJarFile();
 		if (jar == null) {
@@ -282,6 +294,11 @@ public class RunProcessRunnerFromCLI {
 		}
 	}
 
+	/**
+	 * Get the JAR file used to invoke the utility, or null if
+	 * JAR file cannot be identified
+	 * @return
+	 */
 	protected File getJarFile() {
 		try {
 			return new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -290,6 +307,10 @@ public class RunProcessRunnerFromCLI {
 		}
 	}
 	
+	/**
+	 * Main method for invoking the utility from the command line.
+	 * @param args
+	 */
 	public static final void main(String[] args) {
 		new RunProcessRunnerFromCLI().runProcessRunner(args);
 	}

@@ -26,6 +26,7 @@ package com.fortify.processrunner.processor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -38,8 +39,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
 /**
  * This abstract class allows for building a object maps from grouped objects.
  * Objects are grouped by our parent {@link AbstractProcessorGroupByExpressions}
- * class. In our {@link #processGroup(Context, String, List)} method we build object 
- * maps for each entry in the current group, and then call 
+ * class. In our {@link #processGroup(Context, String, List)} method we build an
+ * object map for each entry in the current group, and then call 
  * {@link #processMap(Context, String, List, LinkedHashMap)} to allow concrete implementations 
  * to further process the object maps.
  * 
@@ -49,6 +50,11 @@ import com.fortify.util.spring.expression.TemplateExpression;
 public abstract class AbstractProcessorBuildObjectMapsFromGroupedObjects extends AbstractProcessorGroupByExpressions {
 	private LinkedHashMap<String,TemplateExpression> fields;
 	
+	/**
+	 * Generate a list of {@link Map} instance for every object in the current group,
+	 * and then call {@link #processMaps(Context, String, List, List)} to further
+	 * process the list of generated {@link Map} instances.
+	 */
 	@Override
 	protected boolean processGroup(Context context, String groupName, List<Object> currentGroup) {
 		StandardEvaluationContext sec = ContextSpringExpressionUtil.createStandardEvaluationContext(context);
@@ -61,12 +67,31 @@ public abstract class AbstractProcessorBuildObjectMapsFromGroupedObjects extends
 		return processMaps(context, groupName, currentGroup, listOfMaps);
 	}
 	
+	/**
+	 * Method to be implemented by subclasses to process the generated {@link Map} instances for the group currently
+	 * being processed.
+	 * @param context
+	 * @param groupName
+	 * @param currentGroup
+	 * @param listOfMaps
+	 * @return
+	 */
 	protected abstract boolean processMaps(Context context, String groupName, List<Object> currentGroup, List<LinkedHashMap<String, Object>> listOfMaps);
 
+	/**
+	 * Get the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values.
+	 * @return
+	 */
 	public LinkedHashMap<String,TemplateExpression> getFields() {
 		return fields;
 	}
 
+	/**
+	 * Set the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values.
+	 * @return
+	 */
 	public void setFields(LinkedHashMap<String,TemplateExpression> fields) {
 		this.fields = fields;
 	}

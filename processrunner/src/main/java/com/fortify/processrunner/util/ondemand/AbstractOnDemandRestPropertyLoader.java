@@ -32,21 +32,53 @@ import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.IRestConnection;
 
+/**
+ * This abstract {@link IOnDemandPropertyLoader} implementation allows for on-demand loading of data from
+ * a single REST resource, as configured through the constructor. Optionally a data expression can be
+ * configured to be evaluated on the result of the REST call before returning the result.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public abstract class AbstractOnDemandRestPropertyLoader implements IOnDemandPropertyLoader<JSONMap> {
 	private static final long serialVersionUID = 1L;
 	private final String uri;
 	private final String dataExpression;
+	
+	/**
+	 * Constructor for setting the REST uri to be invoked
+	 * @param uri
+	 */
 	public AbstractOnDemandRestPropertyLoader(String uri) {
 		this(uri, null);
 	}
+	
+	/**
+	 * Constructor for setting the REST uri to be invoked, as well as an expression
+	 * to be evaluated on the result of the REST call before returning the result.
+	 * @param uri
+	 * @param dataExpression
+	 */
 	public AbstractOnDemandRestPropertyLoader(String uri, String dataExpression) {
 		this.uri = uri;
 		this.dataExpression = dataExpression;
 	}
+	
+	/**
+	 * Get the value for this on-demand property loader by invoking the configured
+	 * REST uri, and optionally evaluating the configured data expression on the result.
+	 */
 	public JSONMap getValue(Context context, Map<?, ?> targetMap) {
 		IRestConnection conn = getConnection(context);
 		JSONMap jsonMap = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path(uri), JSONMap.class);
 		return dataExpression==null ? jsonMap : ContextSpringExpressionUtil.evaluateExpression(context, jsonMap, dataExpression, JSONMap.class);
 	}
+	
+	/**
+	 * Subclasses must implement this method to return an {@link IRestConnection} instance
+	 * to be used for invoking the REST calls.
+	 * @param context
+	 * @return
+	 */
 	protected abstract IRestConnection getConnection(Context context);
 }

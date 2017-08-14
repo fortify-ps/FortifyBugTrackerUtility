@@ -91,34 +91,64 @@ public class ProcessRunner implements IContextPropertyDefinitionProvider {
 		return result;
 	}
 
+	/**
+	 * Get the {@link IProcessor} instances that will be run for this {@link ProcessRunner}
+	 * @return
+	 */
 	public IProcessor[] getProcessors() {
 		return processors;
 	}
 
+	/**
+	 * Set the {@link IProcessor} instances that will be run for this {@link ProcessRunner}
+	 * @param processors
+	 */
 	public void setProcessors(IProcessor... processors) {
 		this.processors = processors;
 	}
 	
+	/**
+	 * Get the value of the 'enabled' flag which indicates whether this {@link ProcessRunner} is enabled
+	 * @return true if this {@link ProcessRunner} is enabled, false otherwise
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * Set the value of the 'enabled' flag which indicates whether this {@link ProcessRunner} is enabled
+	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 	
+	/**
+	 * Get the value of the 'default' flag which indicates whether this {@link ProcessRunner} is the default {@link ProcessRunner}
+	 * @return true if this is the default {@link ProcessRunner}, false otherwise
+	 */
 	public boolean isDefault() {
 		return _default;
 	}
 
+	/**
+	 * Set the value of the 'default' flag which indicates whether this {@link ProcessRunner} is the default {@link ProcessRunner}
+	 */
 	public void setDefault(boolean _default) {
 		this._default = _default;
 	}
 
+	/**
+	 * Get the description for this {@link ProcessRunner}, describing its functionality/behavior
+	 * @return description for this {@link ProcessRunner}
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 * Set the description for this {@link ProcessRunner}, describing its functionality/behavior
+	 * @param description
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}

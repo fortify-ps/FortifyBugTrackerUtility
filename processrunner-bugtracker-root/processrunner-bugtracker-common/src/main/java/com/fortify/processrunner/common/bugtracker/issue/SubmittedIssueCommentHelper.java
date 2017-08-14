@@ -28,7 +28,7 @@ import java.text.MessageFormat;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This helper class allows for generating and parsing comments with submitted issue information.
+ * This helper class allows for generating and parsing comments with information about submitted issues.
  * 
  * @author Ruud Senden
  */
@@ -38,6 +38,12 @@ public class SubmittedIssueCommentHelper {
 	
 	private SubmittedIssueCommentHelper() {}
 	
+	/**
+	 * Get a comment string that describes the given {@link SubmittedIssue} for the given bug tracker name
+	 * @param bugTrackerName
+	 * @param submittedIssue
+	 * @return
+	 */
 	public static final String getCommentForSubmittedIssue(String bugTrackerName, SubmittedIssue submittedIssue) {
 		StringBuffer sb = new StringBuffer("--- Vulnerability submitted to ").append(bugTrackerName). append(": ");
 		if ( submittedIssue.getId()!=null ) {
@@ -47,6 +53,12 @@ public class SubmittedIssueCommentHelper {
 		return sb.toString();
 	}
 	
+	/**
+	 * Parse a {@link SubmittedIssue} from the given comment string that was previously generated using
+	 * {@link #getCommentForSubmittedIssue(String, SubmittedIssue)}
+	 * @param comment
+	 * @return
+	 */
 	public static final SubmittedIssue getSubmittedIssueFromComment(String comment) {
 		try {
 			Object[] fields = FMT_COMMENT.parse(comment);

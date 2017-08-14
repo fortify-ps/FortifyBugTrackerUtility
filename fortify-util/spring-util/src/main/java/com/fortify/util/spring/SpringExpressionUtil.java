@@ -63,8 +63,14 @@ public class SpringExpressionUtil {
 	private static final List<PropertyAccessor> getPropertyAccessors() {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext("com.fortify.util.spring.propertyaccessor");
 		try {
+			// Initialize list with discovered PropertyAccessors
 			List<PropertyAccessor> result = new ArrayList<PropertyAccessor>(ctx.getBeansOfType(PropertyAccessor.class).values());
+			// Add the standard PropertyAccessors
+			result.addAll(new StandardEvaluationContext().getPropertyAccessors());
+			
+			// Order the accessors
 			result.sort(new OrderComparator());
+			
 			LOG.info("[Process] Loaded PropertyAccessors: "+result);
 			return result;
 		} finally {

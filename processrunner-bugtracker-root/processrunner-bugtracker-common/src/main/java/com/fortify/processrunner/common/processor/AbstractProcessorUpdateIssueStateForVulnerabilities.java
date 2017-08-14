@@ -25,36 +25,41 @@ package com.fortify.processrunner.common.processor;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
- * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted
- * issues, based on possibly updated vulnerability data. Based on our superclass 
- * {@link AbstractProcessorBuildObjectMapFromGroupedObjects}, we first group all previously
- * submitted vulnerabilities by the corresponding external system issue link, and then update one or 
- * more fields for the external issue using the grouped vulnerability data.</p>
+ * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted issues,
+ * based on possibly updated vulnerability data. Based on our superclass {@link AbstractBugTrackerFieldsBasedProcessor}, 
+ * we first group all previously submitted vulnerabilities by the corresponding external system issue link, and then 
+ * update the bug tracker issue based on current vulnerability state.</p>
  * 
- * <p>The fields to be updated can be configured using the {@link #setFieldsToUpdate(String[])} method;
- * the corresponding field content expressions will be taken from the configured 
- * {@link AbstractProcessorSubmitIssueForVulnerabilities} instance.</p>
- * 
- * <p>Subclasses need to implement the {@link #updateIssueFields(Context, SubmittedIssue, LinkedHashMap)}
- * method to actually update previously submitted issues.</p>
+ * Concrete implementations can override the following methods to add support for the corresponding
+ * functionality:
+ * <ul>
+ *  <li>{@link #updateIssueFields(Context, SubmittedIssue, LinkedHashMap)}: Update existing issue fields with updated values</li>
+ *  <li>{@link #openIssue(Context, SubmittedIssue, Object)}: (Re-)open an issue if it is currently closed but corresponding 
+ *      vulnerabilities are still open</li>
+ *  <li>{@link #closeIssue(Context, SubmittedIssue, Object)}: Close an issue if it is currently open but corresponding 
+ *      vulnerabilities have been closed/fixed</li>
+ * </ul>
+ * Note that if a bug tracker uses transitioning schemes for managing issue state, it would be better to subclass
+ * {@link AbstractProcessorTransitionIssueStateForVulnerabilities} instead, as it allows for configurable state
+ * transitions to open and close issues.
  * 
  * @author Ruud Senden
  *
@@ -69,10 +74,18 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	private SimpleExpression isIssueOpenableExpression;
 	private SimpleExpression isIssueCloseableExpression;
 	
+	/**
+	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
+	 */
 	public AbstractProcessorUpdateIssueStateForVulnerabilities() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
 	}
 	
+	/**
+	 * Add the bug tracker name to the current context, and call 
+	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
+	 * to allow subclasses to add additional context property definitions
+	 */
 	@Override
 	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
@@ -81,11 +94,23 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
+	/**
+	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}
+	 * @param contextPropertyDefinitions
+	 * @param context
+	 */
+	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	
+	/**
+	 * Process the current group of vulnerabilities (grouped by bug tracker deep link) to update the corresponding
+	 * previously submitted issue. This includes updating issue fields, re-opening issues if they have been closed
+	 * but there are open vulnerabilities, and closing issues if they are open but no open vulnerabilities are remaining.
+	 */
 	@Override
 	protected boolean processMap(Context context, List<Object> vulnerabilities, LinkedHashMap<String, Object> map) {
 		SubmittedIssue submittedIssue = getSubmittedIssue(vulnerabilities.get(0));
 		String fieldNames = map.keySet().toString();
-		if ( updateIssueFields(context, submittedIssue, map) ) {
+		if ( map != null && !map.isEmpty() && updateIssueFields(context, submittedIssue, map) ) {
 			LOG.info(String.format("[%s] Updated field(s) %s for issue %s", getBugTrackerName(), fieldNames, submittedIssue.getDeepLink()));
 		}
 		if ( hasOpenVulnerabilities(vulnerabilities) ) {
@@ -104,6 +129,11 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return true;
 	}
 	
+	/**
+	 * Get information about the previously submitted issue from the current vulnerability.
+	 * @param vulnerability
+	 * @return
+	 */
 	protected SubmittedIssue getSubmittedIssue(Object vulnerability) {
 		SubmittedIssue result = new SubmittedIssue();
 		result.setId(SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugIdExpression, String.class));
@@ -111,8 +141,14 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return result;
 	}
 	
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
-	
+	/**
+	 * Subclasses can override this method to add support for updating bug tracker issue fields,
+	 * given the field data in the given {@link Map}. 
+	 * @param context
+	 * @param submittedIssue
+	 * @param issueData
+	 * @return
+	 */
 	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
 		return false;
 	}
@@ -149,7 +185,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 		return getIssueStateDetailsRetriever()==null ? null : getIssueStateDetailsRetriever().getIssueStateDetails(context, submittedIssue);
 	}
 	
-	protected IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
+	protected IIssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
 		return null;
 	}
 	

@@ -25,7 +25,28 @@ package com.fortify.processrunner.context;
 
 import java.util.Collection;
 
+/**
+ * This interface provides the {@link #generateContexts(Context)} method for 
+ * generating a collection of {@link Context} instances based on a given 
+ * initial {@link Context}. The {@link #isContextGeneratorEnabled()} method
+ * allows for specifying whether this {@link IContextGenerator} instance is
+ * enabled. Usually only one instance may be enabled at any given time. 
+ * 
+ * @author Ruud Senden
+ *
+ */
 public interface IContextGenerator {
+	/**
+	 * Generate a {@link Collection} of {@link Context} instances, based on the 
+	 * given initialContext
+	 * @param initialContext
+	 * @return
+	 */
 	public Collection<Context> generateContexts(Context initialContext);
+	
+	/**
+	 * Indicate whether this instance is enabled
+	 * @return
+	 */
 	public boolean isContextGeneratorEnabled();
 }

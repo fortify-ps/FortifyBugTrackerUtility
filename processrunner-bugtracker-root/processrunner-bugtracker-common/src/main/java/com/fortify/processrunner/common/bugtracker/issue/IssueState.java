@@ -24,7 +24,7 @@
 package com.fortify.processrunner.common.bugtracker.issue;
 
 /**
- * This enumeration defines possible issue states, either OPEN or CLOSED.
+ * This enumeration defines possible bug tracker issue states, either OPEN or CLOSED.
  * 
  * @author Ruud Senden
  *

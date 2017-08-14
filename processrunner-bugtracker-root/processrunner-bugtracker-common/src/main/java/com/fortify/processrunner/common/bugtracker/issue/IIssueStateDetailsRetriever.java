@@ -25,6 +25,19 @@ package com.fortify.processrunner.common.bugtracker.issue;
 
 import com.fortify.processrunner.context.Context;
 
-public interface IssueStateDetailsRetriever<IssueStateDetailsType> {
+/**
+ * This interface provides a method for retrieving bug tracker issue state details.
+ * 
+ * @author Ruud Senden
+ *
+ * @param <IssueStateDetailsType> Type returned by the {@link #getIssueStateDetails(Context, SubmittedIssue)} method
+ */
+public interface IIssueStateDetailsRetriever<IssueStateDetailsType> {
+	/**
+	 * Get the bug tracker issue state details
+	 * @param context
+	 * @param submittedIssue
+	 * @return
+	 */
 	public IssueStateDetailsType getIssueStateDetails(Context context, SubmittedIssue submittedIssue);
 }

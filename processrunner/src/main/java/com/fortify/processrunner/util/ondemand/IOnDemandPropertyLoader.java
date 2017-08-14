@@ -27,7 +27,27 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.spring.propertyaccessor.ondemand.OnDemandMapPropertyAccessor;
 
+/**
+ * <p>This interface allows for loading properties on demand. When used in conjunction with
+ * {@link OnDemandMapPropertyAccessor}, any {@link Map} values that implement this interface
+ * will be automatically replaced with the value returned by the {@link #getValue(Context, Map)}
+ * method.</p>
+ * 
+ * <p>Note that instances must be {@link Serializable}, since the on-demand property loaders
+ * may need to be stored in persistent caches.</p>
+ *  
+ * @author Ruud Senden
+ *
+ * @param <T>
+ */
 public interface IOnDemandPropertyLoader<T> extends Serializable {
+	/**
+	 * Get the property value, optionally based on the given {@link Context} and target {@link Map}
+	 * @param ctx
+	 * @param targetMap
+	 * @return
+	 */
 	public T getValue(Context ctx, Map<?,?> targetMap);
 }

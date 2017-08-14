@@ -44,12 +44,25 @@ public final class ContextAwareProxyConfigurationFactory {
 	
 	private ContextAwareProxyConfigurationFactory() {}
 	
+	/**
+	 * Add {@link ContextPropertyDefinitions} that describe various proxy-related settings.
+	 * @param contextPropertyDefinitions
+	 * @param context
+	 * @param name
+	 */
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context, String name) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(name+PRP_SFX_USER_NAME));
 	}
 	
+	/**
+	 * Create a new {@link ProxyConfiguration} instance based on {@link Context} properties.
+	 * This method will return null if no proxy URL has been set.
+	 * @param context
+	 * @param name
+	 * @return
+	 */
 	public static final ProxyConfiguration getProxyConfiguration(Context context, String name) {
 		ProxyConfiguration proxy = null;
 		String proxyUrl = (String)context.get(name+PRP_SFX_URL);

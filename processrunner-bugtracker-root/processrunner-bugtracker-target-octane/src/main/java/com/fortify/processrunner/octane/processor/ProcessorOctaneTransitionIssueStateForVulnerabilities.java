@@ -25,7 +25,7 @@ package com.fortify.processrunner.octane.processor;
 
 import java.util.LinkedHashMap;
 
-import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorTransitionIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
@@ -56,8 +56,8 @@ public class ProcessorOctaneTransitionIssueStateForVulnerabilities extends Abstr
 	}
 	
 	@Override
-	protected IssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
-		return new IssueStateDetailsRetriever<JSONMap>() {
+	protected IIssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
+		return new IIssueStateDetailsRetriever<JSONMap>() {
 			public JSONMap getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
 				return OctaneConnectionFactory.getConnection(context).getIssueState(submittedIssue);
 			}

@@ -23,6 +23,19 @@
  ******************************************************************************/
 package com.fortify.processrunner.context;
 
+/**
+ * This interface provides a method for updating a given {@link Context}
+ * instance, using the {@link #updateContext(Context)} method.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public interface IContextUpdater {
+	/**
+	 * Update the given {@link Context} instance. For example, this can be used
+	 * to add, remove or change context properties.
+	 * 
+	 * @param initialContext
+	 */
 	public void updateContext(Context initialContext);
 }

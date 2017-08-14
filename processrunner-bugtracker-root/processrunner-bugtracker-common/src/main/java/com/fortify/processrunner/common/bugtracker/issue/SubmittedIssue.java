@@ -24,9 +24,9 @@
 package com.fortify.processrunner.common.bugtracker.issue;
 
 /**
- * This class holds information about issues that have been
- * submitted to an external system. Bug tracker implementations
- * can optionally use subclasses to hold additional information.
+ * This class holds information, like id and deep link, about issues that have been
+ * submitted to an external system. Bug tracker implementations can optionally use 
+ * subclasses to hold additional information.
  * 
  * @author Ruud Senden
  */

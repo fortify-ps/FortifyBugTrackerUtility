@@ -58,51 +58,76 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForOpeningIssue;
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForClosingIssue;
 	
+	/**
+	 * This constructor sets the default values for {@link #setIsIssueOpenableExpression(SimpleExpression)}
+	 * and {@link #setIsIssueCloseableExpression(SimpleExpression)} to 'true'. Unless overridden through
+	 * configuration, whether an issue is considered openable or closeable will be solely determined
+	 * based on whether a corresponding transition is available.
+	 */
 	public AbstractProcessorTransitionIssueStateForVulnerabilities() {
-		// If expressions are not explicitly overridden through configuration, we want our superclass
-		// to consider all issues as openable/closeable. In that case, whether an issue is openable or
-		// closeable will be determined based on whether a corresponding transition is available.
-		// If expressions are explicitly overridden through configuration, we consider an issue as
-		// openable/closeable if the corresponding expression evaluates to through, and a corresponding
-		// transition is available.
 		setIsIssueOpenableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
 		setIsIssueCloseableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
 	}
 
+	/**
+	 * (Re-)open the given bug tracker issue based on the configured transitions
+	 */
 	@Override
 	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForOpeningIssue());
 		return transition(context, submittedIssue, currentIssueState, transitions);
 	}
 	
+	/**
+	 * Close the given bug tracker issue based on the configured transitions
+	 */
 	@Override
 	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForClosingIssue());
 		return transition(context, submittedIssue, currentIssueState, transitions);
 	}
 	
+	/**
+	 * Indicate whether we can determine whether the given bug tracker issue is closed, based on the current configuration
+	 */
 	@Override
 	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
 		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForClosingIssue();
 		return super.canDetemineIssueIsClosed(context, submittedIssue) && (transitions!=null && transitions.size()>0);
 	}
 	
+	/**
+	 * Indicate whether we can determine whether the given bug tracker issue is open, based on the current configuration
+	 */
 	@Override
 	protected boolean canDetemineIssueIsOpen(Context context, SubmittedIssue submittedIssue) {
 		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForOpeningIssue();
 		return super.canDetemineIssueIsOpen(context, submittedIssue) && (transitions!=null && transitions.size()>0);
 	}
 	
+	/**
+	 * Indicate whether the given bug tracker issue is closeable, based on configured transitions
+	 */
 	@Override
 	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return isIssueTransitionable(currentIssueState, super.isIssueCloseable(context, submittedIssue, currentIssueState), getTransitionsForClosingIssue());
 	}
 	
+	/**
+	 * Indicate whether the given bug tracker issue is openable, based on configured transitions
+	 */
 	@Override
 	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
 		return isIssueTransitionable(currentIssueState, super.isIssueOpenable(context, submittedIssue, currentIssueState), getTransitionsForOpeningIssue());
 	}
 
+	/**
+	 * Indicate whether an issue with the given issue state is transitionable
+	 * @param currentIssueState
+	 * @param defaultValue
+	 * @param transitions
+	 * @return
+	 */
 	protected boolean isIssueTransitionable(IssueStateDetailsType currentIssueState, boolean defaultValue, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions) {
 		if ( defaultValue ) {
 			for ( SimpleExpression expression : transitions.keySet() ) {

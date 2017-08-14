@@ -53,14 +53,44 @@ public class ContextSpringExpressionUtil extends SpringExpressionUtil {
 		return result;
 	}
 	
+	/**
+	 * Evaluate the given expression on the given input Object, allowing access to the current
+	 * {@link Context} using the '#ctx' variable. The expression result will be converted into
+	 * the given returnType if possible.
+	 * @param context
+	 * @param input
+	 * @param expression
+	 * @param returnType
+	 * @return
+	 */
 	public static final <T> T evaluateExpression(Context context, Object input, Expression expression, Class<T> returnType) {
 		return evaluateExpression(createStandardEvaluationContext(context), input, expression, returnType);
 	}
 	
+	/**
+	 * Evaluate the given expression on the given input Object, allowing access to the current
+	 * {@link Context} using the '#ctx' variable. The expression result will be converted into
+	 * the given returnType if possible.
+	 * @param context
+	 * @param input
+	 * @param expression
+	 * @param returnType
+	 * @return
+	 */
 	public static final <T> T evaluateExpression(Context context, Object input, String expression, Class<T> returnType) {
 		return evaluateExpression(createStandardEvaluationContext(context), input, expression, returnType);
 	}
 
+	/**
+	 * Evaluate the given expression on the given input Object, allowing access to the current
+	 * {@link Context} using the '#ctx' variable. The expression result will be converted into
+	 * the given returnType if possible.
+	 * @param context
+	 * @param input
+	 * @param expression
+	 * @param returnType
+	 * @return
+	 */
 	public static final <T> T evaluateTemplateExpression(Context context, Object input, String expression, Class<T> returnType) {
 		return evaluateTemplateExpression(createStandardEvaluationContext(context), input, expression, returnType);
 	}

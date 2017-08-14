@@ -24,6 +24,7 @@
 package com.fortify.processrunner.context;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class holds all configured {@link ContextPropertyDefinition} instances
@@ -35,6 +36,11 @@ import java.util.LinkedHashMap;
 public class ContextPropertyDefinitions extends LinkedHashMap<String, ContextPropertyDefinition> {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Add the viven {@link ContextPropertyDefinition} to the {@link Map} of {@link ContextPropertyDefinition}s
+	 * @param contextPropertyDefinition
+	 * @return
+	 */
 	public ContextPropertyDefinition add(ContextPropertyDefinition contextPropertyDefinition) {
 		put(contextPropertyDefinition.getName(), contextPropertyDefinition);
 		return contextPropertyDefinition;

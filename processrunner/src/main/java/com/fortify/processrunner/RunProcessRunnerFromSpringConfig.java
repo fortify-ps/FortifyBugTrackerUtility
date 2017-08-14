@@ -133,7 +133,6 @@ public class RunProcessRunnerFromSpringConfig {
 	private final ContextPropertyDefinitions getContextPropertyDefinitions(ProcessRunner runner, Context context) {
 		ContextPropertyDefinitions result = new ContextPropertyDefinitions();
 		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
-		addContextPropertyDefinitionsFromContext(result, context);
 		addContextPropertyDefinitionsFromContextGenerator(result, context);
 		return result;
 	}
@@ -224,12 +223,17 @@ public class RunProcessRunnerFromSpringConfig {
 		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
 		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
 			String name = contextPropertyDefinition.getName();
-			if ( contextPropertyDefinition.isRequired(context) && !context.hasValue(name) ) {
+			if ( contextPropertyDefinition.isRequiredAndNotIgnored(context) && !context.hasValue(name) ) {
 				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
 			}
 		}
 	}
 	
+	/**
+	 * Add the default values for any context properties that have not yet been initialized 
+	 * @param runner
+	 * @param context
+	 */
 	protected final void addDefaultValues(ProcessRunner runner, Context context) {
 		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
 		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
@@ -240,14 +244,21 @@ public class RunProcessRunnerFromSpringConfig {
 		}
 	}
 
+	/**
+	 * Add context property definitions from the given {@link ProcessRunner}
+	 * @param runner
+	 * @param contextPropertyDefinitions
+	 * @param context
+	 */
 	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		runner.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	protected final void addContextPropertyDefinitionsFromContext(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		context.addContextPropertyDefinitions(contextPropertyDefinitions);
-	}
-	
+	/**
+	 * Add context property definitions from the configured {@link IContextGenerator} 
+	 * @param contextPropertyDefinitions
+	 * @param context
+	 */
 	protected final void addContextPropertyDefinitionsFromContextGenerator(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		IContextGenerator generator = getEnabledContextGenerator();
 		if ( generator != null && generator instanceof IContextPropertyDefinitionProvider ) {

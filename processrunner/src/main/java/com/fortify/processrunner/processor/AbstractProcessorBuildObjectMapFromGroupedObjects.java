@@ -25,6 +25,7 @@ package com.fortify.processrunner.processor;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -36,11 +37,16 @@ import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterPutValuesFromExpr
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This abstract class allows for building an object map from grouped objects.
+ * <p>This abstract class allows for building an object map from grouped objects.
  * Objects are grouped by our parent {@link AbstractProcessorGroupByExpressions}
  * class. In our {@link #processGroup(Context, List)} method we build an object 
  * map for the current group, and then call {@link #processMap(Context, List, LinkedHashMap)}
- * to allow concrete implementation to further process the object map.
+ * to allow concrete implementation to further process the object map.</p>
+ * 
+ * <p>The {@link Map} will initially be built based on the first object in the group
+ * and the configured key/expression pairs configured via {@link #setFields(LinkedHashMap)}.
+ * Then, for every object in the group, values for fields configured through 
+ * {@link #setAppendedFields(LinkedHashMap)} will be appended to existing map values.</p> 
  * 
  * @author Ruud Senden
  *
@@ -49,6 +55,11 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	private LinkedHashMap<String,TemplateExpression> fields;
 	private LinkedHashMap<String,TemplateExpression> appendedFields;
 	
+	/**
+	 * Build a {@link Map} for the current group, based on the configured {@link #fields} and {@link #appendedFields},
+	 * and then call the {@link #processMap(Context, List, LinkedHashMap)} method to allow the {@link Map} to be
+	 * further processed.
+	 */
 	@Override
 	protected boolean processGroup(Context context, String groupName, List<Object> currentGroup) {
 		StandardEvaluationContext sec = ContextSpringExpressionUtil.createStandardEvaluationContext(context);
@@ -59,20 +70,48 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 		return processMap(context, currentGroup, map);
 	}
 	
+	/**
+	 * Method to be implemented by subclasses to process the generated {@link Map} for the group currently
+	 * being processed.
+	 * @param context
+	 * @param currentGroup
+	 * @param map
+	 * @return
+	 */
 	protected abstract boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map);
 
+	/**
+	 * Get the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values.
+	 * @return
+	 */
 	public LinkedHashMap<String,TemplateExpression> getFields() {
 		return fields;
 	}
 
+	/**
+	 * Set the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values.
+	 * @return
+	 */
 	public void setFields(LinkedHashMap<String,TemplateExpression> fields) {
 		this.fields = fields;
 	}
 
+	/**
+	 * Get the configured field names to be added/updated in the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values to be appended to existing {@link Map} values.
+	 * @return
+	 */
 	public LinkedHashMap<String,TemplateExpression> getAppendedFields() {
 		return appendedFields;
 	}
 
+	/**
+	 * Set the configured field names to be added/updated in the generated {@link Map}, together with {@link TemplateExpression}
+	 * instances used to generate the corresponding {@link Map} values to be appended to existing {@link Map} values.
+	 * @return
+	 */
 	public void setAppendedFields(LinkedHashMap<String,TemplateExpression> appendedFields) {
 		this.appendedFields = appendedFields;
 	}

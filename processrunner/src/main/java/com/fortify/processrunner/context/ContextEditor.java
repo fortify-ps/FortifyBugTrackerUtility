@@ -34,6 +34,11 @@ import java.beans.PropertyEditorSupport;
  *
  */
 public final class ContextEditor extends PropertyEditorSupport {
+	
+	/**
+	 * Create a new {@link Context} instance, parsed from the given String.
+	 * String format should be 'key1=value1,key2=values2,...'
+	 */
 	@Override
 	public void setAsText(String text) throws IllegalArgumentException {
 		Context context = new Context();

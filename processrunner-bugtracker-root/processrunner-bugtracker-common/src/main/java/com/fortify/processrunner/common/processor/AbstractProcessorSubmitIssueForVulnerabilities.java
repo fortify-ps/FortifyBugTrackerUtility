@@ -25,12 +25,13 @@ package com.fortify.processrunner.common.processor;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.bugtracker.issue.IssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
@@ -54,10 +55,18 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
 	private IVulnerabilityUpdater vulnerabilityUpdater;
 	
+	/**
+	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
+	 */
 	public AbstractProcessorSubmitIssueForVulnerabilities() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
 	}
 	
+	/**
+	 * Add the bug tracker name to the current context, and call 
+	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
+	 * to allow subclasses to add additional context property definitions
+	 */
 	@Override
 	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
@@ -66,8 +75,19 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
+	/**
+	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}
+	 * @param contextPropertyDefinitions
+	 * @param context
+	 */
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 	
+	/**
+	 * This method calls {@link #submitIssue(Context, LinkedHashMap)} to actually submit an issue to the 
+	 * bug tracker for the current group of vulnerabilities. If an {@link IVulnerabilityUpdater} instance
+	 * has been configured, it will be called to update vulnerability state in the source system, for example
+	 * to store the bug id or deep link.
+	 */
 	@Override
 	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		SubmittedIssue submittedIssue = submitIssue(context, map); 
@@ -80,17 +100,39 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 		return true;
 	}
 	
+	/**
+	 * Subclasses must implement this method to actually submit a {@link Map} with issue data
+	 * to the bug tracker.
+	 * @param context
+	 * @param issueData
+	 * @return
+	 */
 	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
 	
-	protected IssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() { 
+	/**
+	 * Subclasses may override this method to return an {@link IIssueStateDetailsRetriever} instance that
+	 * can be used to retrieve details about the current state of the issue in the bug tracker.
+	 * @return
+	 */
+	protected IIssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() { 
 		return null;
 	}
 
+	/**
+	 * Set the {@link IVulnerabilityUpdater} instance used to update vulnerabilities in the source system
+	 * based on submitted issue data. This is optional and usually auto-wired by Spring.
+	 * @param vulnerabilityUpdater
+	 */
 	@Autowired(required=false)
 	public void setVulnerabilityUpdater(IVulnerabilityUpdater vulnerabilityUpdater) {
 		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 	
+	/**
+	 * Subclasses can override this method to re-submit any previously submitted issues, for example
+	 * when exporting all vulnerabilities to a file. The default implementation returns true, indicating
+	 * that previously submitted issues should be ignored.
+	 */
 	public boolean isIgnorePreviouslySubmittedIssues() {
 		return true;
 	}
@@ -100,7 +142,7 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 	 * this instance for the initial bug submission.
 	 */
 	@Override
-	protected boolean includeOnlyFieldsToBeUpdated() {
+	protected final boolean includeOnlyFieldsToBeUpdated() {
 		return false;
 	}
 }

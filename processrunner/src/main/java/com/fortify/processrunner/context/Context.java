@@ -59,25 +59,37 @@ public class Context extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 	private final Map<Class, Object> proxies = new HashMap<Class, Object>();
 	
+	/**
+	 * Constructor for new, empty context
+	 */
 	public Context() {}
 	
+	/**
+	 * Constructor for copying an existing {@link Context} instance
+	 * @param context
+	 */
 	public Context(Context context) {
 		super(context);
 	}
 	
-	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions) {
-		for ( Object obj : values() ) {
-			if ( obj instanceof IContextPropertyDefinitionProvider ) {
-				((IContextPropertyDefinitionProvider)obj).addContextPropertyDefinitions(contextPropertyDefinitions, this);
-			}
-		}
-	}
-	
+	/**
+	 * Indicate whether this {@link Context} contains a value for the given key.
+	 * If the {@link Context} contains the given key, but it is a blank string,
+	 * this method will also return 'false'
+	 * @param key
+	 * @return
+	 */
 	public final boolean hasValue(String key) {
 		Object value = get(key);
 		return value!=null && !(value instanceof String && StringUtils.isBlank((String)value)); 
 	}
 	
+	/**
+	 * Make the contents of this {@link Context} instance available through the
+	 * given interface, allowing for type-safe access.
+	 * @param iface
+	 * @return
+	 */
 	public final <T> T as(Class<T> iface) {
 		T result = (T)proxies.get(iface);
 		if ( result == null ) {
