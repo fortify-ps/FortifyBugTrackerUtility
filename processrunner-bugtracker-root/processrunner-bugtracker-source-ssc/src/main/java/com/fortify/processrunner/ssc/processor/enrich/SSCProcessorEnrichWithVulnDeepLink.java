@@ -24,6 +24,7 @@
 package com.fortify.processrunner.ssc.processor.enrich;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -41,7 +42,7 @@ public class SSCProcessorEnrichWithVulnDeepLink extends AbstractSSCProcessorEnri
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		String baseUrl = SSCConnectionFactory.getConnection(context).getBaseUrl();
-		String deepLink = baseUrl + SpringExpressionUtil.evaluateExpression(currentVulnerability, deepLinkUriExpression, String.class);
+		String deepLink = baseUrl + ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, deepLinkUriExpression, String.class);
 		currentVulnerability.put("deepLink", deepLink);
 		return true;
 	}

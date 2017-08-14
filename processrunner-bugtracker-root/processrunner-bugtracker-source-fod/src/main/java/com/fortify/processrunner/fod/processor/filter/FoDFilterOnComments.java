@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.springframework.expression.Expression;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.json.JSONList;
@@ -52,9 +53,9 @@ public class FoDFilterOnComments extends AbstractProcessor {
 	
 	@Override
 	protected boolean process(Context context) {
-		String filterPatternString = SpringExpressionUtil.evaluateExpression(context, getFilterPatternTemplateExpression(), String.class);
+		String filterPatternString = ContextSpringExpressionUtil.evaluateExpression(context, context, getFilterPatternTemplateExpression(), String.class);
 		Pattern filterPattern = Pattern.compile(filterPatternString);
-		JSONList comments = SpringExpressionUtil.evaluateExpression(context, EXPR_COMMENTS, JSONList.class);
+		JSONList comments = ContextSpringExpressionUtil.evaluateExpression(context, context, EXPR_COMMENTS, JSONList.class);
 		if ( comments != null ) {
 			for ( String comment : comments.getValues("comment", String.class) ) {
 				if ( filterPattern.matcher(comment).matches() ) {

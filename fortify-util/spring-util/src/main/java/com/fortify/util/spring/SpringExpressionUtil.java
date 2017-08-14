@@ -23,11 +23,13 @@
  ******************************************************************************/
 package com.fortify.util.spring;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.OrderComparator;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.PropertyAccessor;
@@ -46,7 +48,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  */
 public class SpringExpressionUtil {
 	private static final Log LOG = LogFactory.getLog(SpringContextUtil.class);
-	private static final Collection<PropertyAccessor> PROPERTY_ACCESSORS = getPropertyAccessors();
+	private static final List<PropertyAccessor> PROPERTY_ACCESSORS = getPropertyAccessors();
 	private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
 	private static final StandardEvaluationContext SPEL_CONTEXT = createStandardEvaluationContext();
 	
@@ -58,10 +60,11 @@ public class SpringExpressionUtil {
 	 * com.fortify.util.spring.propertyaccessor (sub-)packages. 
 	 * @return
 	 */
-	private static final Collection<PropertyAccessor> getPropertyAccessors() {
+	private static final List<PropertyAccessor> getPropertyAccessors() {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext("com.fortify.util.spring.propertyaccessor");
 		try {
-			Collection<PropertyAccessor> result = ctx.getBeansOfType(PropertyAccessor.class).values();
+			List<PropertyAccessor> result = new ArrayList<PropertyAccessor>(ctx.getBeansOfType(PropertyAccessor.class).values());
+			result.sort(new OrderComparator());
 			LOG.info("[Process] Loaded PropertyAccessors: "+result);
 			return result;
 		} finally {
@@ -71,9 +74,7 @@ public class SpringExpressionUtil {
 	
 	public static final StandardEvaluationContext createStandardEvaluationContext() {
 		StandardEvaluationContext result = new StandardEvaluationContext();
-		for ( PropertyAccessor propertyAccessor : PROPERTY_ACCESSORS ) {
-			result.addPropertyAccessor(propertyAccessor);
-		}
+		result.setPropertyAccessors(PROPERTY_ACCESSORS);
 		return result;
 	}
 

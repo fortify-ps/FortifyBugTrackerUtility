@@ -36,6 +36,7 @@ import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -172,7 +173,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	
 	protected boolean doesIssueStateMatchExpression(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, SimpleExpression expression) {
 		if ( expression!=null && currentIssueState!=null ) {
-			return SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class);
+			return ContextSpringExpressionUtil.evaluateExpression(context, currentIssueState, expression, Boolean.class);
 		}
 		return false;
 	}

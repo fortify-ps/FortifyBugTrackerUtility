@@ -39,6 +39,7 @@ import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdat
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
@@ -99,10 +100,10 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 		}
 		List<String> issueInstanceIds = new ArrayList<String>();
 		for ( Object issue : currentGroup ) {
-			issueInstanceIds.add(SpringExpressionUtil.evaluateExpression(issue, "issueInstanceId", String.class));
+			issueInstanceIds.add(ContextSpringExpressionUtil.evaluateExpression(context, issue, "issueInstanceId", String.class));
 		}
 		JSONMap result = conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
-		String bugLink = SpringExpressionUtil.evaluateExpression(result, "data?.values?.externalBugDeepLink", String.class);
+		String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, result, "data?.values?.externalBugDeepLink", String.class);
 		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
 		return true;
 	}

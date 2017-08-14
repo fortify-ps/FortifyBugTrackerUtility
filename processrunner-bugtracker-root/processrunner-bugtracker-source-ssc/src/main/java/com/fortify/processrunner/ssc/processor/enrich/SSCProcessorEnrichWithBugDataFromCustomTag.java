@@ -24,11 +24,11 @@
 package com.fortify.processrunner.ssc.processor.enrich;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * Enrich the current vulnerability with the bug link from the configured {@link #customTagName}
@@ -48,7 +48,7 @@ public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProce
 		if ( customTagName != null ) {
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String customTagGuid = conn.getCustomTagGuid(customTagName);
-			String bugLink = SpringExpressionUtil.evaluateExpression(currentVulnerability, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
+			String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
 			currentVulnerability.put("bugURL", bugLink);
 		}
 		return true;

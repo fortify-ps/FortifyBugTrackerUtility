@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
@@ -116,7 +117,7 @@ public abstract class AbstractProcessorTransitionIssueStateForVulnerabilities<Is
 	protected List<TransitionWithComment> getTransitions(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {
 		if ( transitionsMap != null ) {
 			for ( Map.Entry<SimpleExpression, List<TransitionWithComment>> entry : transitionsMap.entrySet() ) {
-				if ( SpringExpressionUtil.evaluateExpression(currentIssueState, entry.getKey(), Boolean.class) ) {
+				if ( ContextSpringExpressionUtil.evaluateExpression(context, currentIssueState, entry.getKey(), Boolean.class) ) {
 					return entry.getValue();
 				}
 			}

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -96,9 +97,9 @@ public class FilterRegEx extends AbstractProcessor {
 	@Override
 	protected boolean process(Context context) {
 		if ( getFilterPatterns() != null ) {
-			Object root = getRootExpression()==null?context:SpringExpressionUtil.evaluateExpression(context, getRootExpression(), Object.class);
+			Object root = getRootExpression()==null?context:ContextSpringExpressionUtil.evaluateExpression(context, context, getRootExpression(), Object.class);
 			for ( Map.Entry<SimpleExpression, Pattern> filterPattern : getFilterPatterns().entrySet() ) {
-				String expressionValue = SpringExpressionUtil.evaluateExpression(root, filterPattern.getKey(), String.class);
+				String expressionValue = ContextSpringExpressionUtil.evaluateExpression(context, root, filterPattern.getKey(), String.class);
 				if ( expressionValue==null ) { expressionValue=""; }
 				if ( !filterPattern.getValue().matcher(expressionValue).matches() ) {
 					return false;

@@ -36,7 +36,7 @@ import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithIssueDetails;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnTopLevelField;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
@@ -76,9 +76,9 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		return new SSCProcessorRetrieveVulnerabilities(
+			new SSCProcessorEnrichWithOnDemandIssueDetails(),
 			createTopLevelFieldFilters(),
 			createAddVulnDeepLinkProcessor(),
-			createAddJSONDataProcessor(),
 			createSubLevelFieldFilters(),
 			getVulnerabilityProcessor()
 		);
@@ -98,14 +98,6 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 	}
 	
 	protected abstract IProcessor getVulnerabilityProcessor();
-
-	protected SSCProcessorEnrichWithIssueDetails createAddJSONDataProcessor() {
-		SSCProcessorEnrichWithIssueDetails result = null;
-		if ( isIncludeIssueDetails() ) {
-			result = new SSCProcessorEnrichWithIssueDetails();
-		}
-		return result;
-	}
 	
 	protected IProcessor createAddVulnDeepLinkProcessor() {
 		return new SSCProcessorEnrichWithVulnDeepLink();

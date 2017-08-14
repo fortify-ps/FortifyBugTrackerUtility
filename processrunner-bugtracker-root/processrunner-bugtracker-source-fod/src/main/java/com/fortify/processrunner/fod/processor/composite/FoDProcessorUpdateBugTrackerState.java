@@ -36,7 +36,7 @@ import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueSt
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
-import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
@@ -74,9 +74,9 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		FoDProcessorRetrieveVulnerabilities result = new FoDProcessorRetrieveVulnerabilities(
+			createAddJSONDataProcessor(),
 			getVulnerabilityUpdater()==null?new CompositeProcessor():getVulnerabilityUpdater().createVulnerabilityAlreadySubmittedFilter(),
 			createAddVulnDeepLinkProcessor(),
-			createAddJSONDataProcessor(),
 			getVulnState(),
 			getUpdateIssueStateProcessor()
 		);
@@ -84,10 +84,8 @@ public class FoDProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		return result;
 	}
 	
-	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
-		FoDProcessorEnrichWithExtraFoDData result = new FoDProcessorEnrichWithExtraFoDData();
-		result.setFields(getExtraFields());
-		return result;
+	protected FoDProcessorEnrichWithOnDemandIssueDetails createAddJSONDataProcessor() {
+		return new FoDProcessorEnrichWithOnDemandIssueDetails();
 	}
 	
 	protected IProcessor createAddVulnDeepLinkProcessor() {

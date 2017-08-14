@@ -40,25 +40,7 @@
 	<context:component-scan base-package="com.fortify.processrunner.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.processrunner.fod.processor.composite.FoDBugTrackerProcessorConfiguration">
-		<!-- Define any extra data that must be loaded from FoD for filtering 
-		     and/or building the issue contents. Note that previous versions
-		     automatically loaded summary data, but this is no longer the case
-		     if useFoDCommentForSubmittedBugs is set to false.
-		     If your customized configuration depends on summary data, you 
-		     will need to enable the summary field here. -->
-		<property name="extraFields"><list>
-<!-- 			<value>summary</value> -->
-<!-- 			<value>details</value> -->
-<!-- 			<value>recommendations</value> -->
-<!-- 			<value>screenshots</value> -->
-<!-- 			<value>history</value> -->
-<!-- 			<value>request-response</value> -->
-<!-- 			<value>headers</value> -->
-<!-- 			<value>parameters</value> -->
-<!-- 			<value>traces</value> -->
-		</list></property>
-		
+	<bean id="fodConfiguration" class="com.fortify.processrunner.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
 		<!-- Define the filters that determine which FoD vulnerabilities will
 		     be submitted to the bug tracker or file.
 		     

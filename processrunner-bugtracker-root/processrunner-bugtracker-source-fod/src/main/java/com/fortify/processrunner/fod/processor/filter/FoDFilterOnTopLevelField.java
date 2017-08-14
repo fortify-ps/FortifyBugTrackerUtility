@@ -34,11 +34,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * <p>This {@link IProcessor} implementation allows for simple equality-based
@@ -100,7 +100,7 @@ public class FoDFilterOnTopLevelField extends AbstractProcessor {
 	// we explicitly filter the results again.
 	protected boolean process(Context context) {
 		JSONMap vuln = (JSONMap) context.as(IContextCurrentVulnerability.class).getCurrentVulnerability();
-		String value = SpringExpressionUtil.evaluateExpression(vuln, getFieldName(), String.class);
+		String value = ContextSpringExpressionUtil.evaluateExpression(context, vuln, getFieldName(), String.class);
 		List<String> allowedValues = Arrays.asList(getFilterValue().split("\\|"));
 		return allowedValues.contains(value);
 	}

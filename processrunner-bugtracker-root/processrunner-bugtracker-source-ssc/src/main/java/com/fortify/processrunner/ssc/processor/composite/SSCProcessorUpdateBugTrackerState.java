@@ -37,7 +37,7 @@ import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithIssueDetails;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnBugURL;
@@ -83,8 +83,8 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
+			new SSCProcessorEnrichWithOnDemandIssueDetails(),
 			createFilters(),
-			new SSCProcessorEnrichWithIssueDetails(),
 			new SSCProcessorEnrichWithVulnDeepLink(),
 			// TODO Move this to SSCVulnerabilityUpdater?
 			new SSCProcessorEnrichWithBugDataFromCustomTag(getBugLinkCustomTagName()),

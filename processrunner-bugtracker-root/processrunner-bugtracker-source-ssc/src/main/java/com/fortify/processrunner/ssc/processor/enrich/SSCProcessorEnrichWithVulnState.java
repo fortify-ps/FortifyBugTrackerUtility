@@ -25,6 +25,7 @@ package com.fortify.processrunner.ssc.processor.enrich;
 
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
@@ -42,7 +43,7 @@ public class SSCProcessorEnrichWithVulnState extends AbstractSSCProcessorEnrich 
 	
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		boolean isOpen = SpringExpressionUtil.evaluateExpression(currentVulnerability, isVulnerabilityOpenExpression, Boolean.class);
+		boolean isOpen = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, isVulnerabilityOpenExpression, Boolean.class);
 		currentVulnerability.put(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
 		return true;
 	}

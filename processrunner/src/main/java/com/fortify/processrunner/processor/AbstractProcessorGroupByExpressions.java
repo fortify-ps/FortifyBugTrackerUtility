@@ -38,7 +38,6 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
@@ -107,7 +106,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 		//totalCount++;
 		SimpleExpression rootExpression = getRootExpression();
 		TemplateExpression groupTemplateExpression = getGroupTemplateExpression();
-		Object rootObject = SpringExpressionUtil.evaluateExpression(context, rootExpression, Object.class);
+		Object rootObject = ContextSpringExpressionUtil.evaluateExpression(context, context, rootExpression, Object.class);
 		
 		if ( LOG.isDebugEnabled() ) {
 			LOG.debug("[Process] Current object: "+rootObject);

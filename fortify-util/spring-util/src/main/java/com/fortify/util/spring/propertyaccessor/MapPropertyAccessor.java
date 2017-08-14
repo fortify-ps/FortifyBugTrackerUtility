@@ -25,6 +25,7 @@ package com.fortify.util.spring.propertyaccessor;
 
 import java.util.Map;
 
+import org.springframework.core.Ordered;
 import org.springframework.expression.AccessException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.PropertyAccessor;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
  * This allows Map keys to be treated as regular object properties.
  */
 @Component
-public class MapPropertyAccessor implements PropertyAccessor {
+public class MapPropertyAccessor implements PropertyAccessor, Ordered {
 	/**
 	 * Return the types that are supported by this {@link PropertyAccessor}
 	 */
@@ -61,7 +62,6 @@ public class MapPropertyAccessor implements PropertyAccessor {
 
 	/**
 	 * Indicate whether the given property name can be written to the given target object.
-	 * As we don't support writes, this method always returns false.
 	 */
 	public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
 		return (target instanceof Map);
@@ -69,11 +69,14 @@ public class MapPropertyAccessor implements PropertyAccessor {
 
 	/**
 	 * Write the given value to the given property name on the given target object.
-	 * As we don't support writes, this method always throws an {@link UnsupportedOperationException}.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
 		((Map)target).put(name, newValue);
+	}
+
+	public int getOrder() {
+		return 10;
 	}
 
 }

@@ -21,29 +21,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.processor.enrich;
+package com.fortify.processrunner.util.ondemand;
+
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.json.JSONMap;
 import com.fortify.util.rest.IRestConnection;
 
-/**
- * This class allows for loading additional issue details from SSC and adding them to the 
- * current SSC vulnerability JSON object.
- * 
- * @author Ruud Senden
- */
-public class SSCProcessorEnrichWithIssueDetails extends AbstractSSCProcessorEnrich {
-
-	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		IRestConnection conn = SSCConnectionFactory.getConnection(context);
-		JSONMap details = conn.executeRequest(HttpMethod.GET,  
-				conn.getBaseResource().path("/api/v1/issueDetails").path(""+currentVulnerability.get("id")), JSONMap.class);
-		currentVulnerability.put("details", details.get("data"));
-		return true;
+public abstract class AbstractOnDemandRestPropertyLoader implements IOnDemandPropertyLoader<JSONMap> {
+	private static final long serialVersionUID = 1L;
+	private final String uri;
+	private final String dataExpression;
+	public AbstractOnDemandRestPropertyLoader(String uri) {
+		this(uri, null);
 	}
+	public AbstractOnDemandRestPropertyLoader(String uri, String dataExpression) {
+		this.uri = uri;
+		this.dataExpression = dataExpression;
+	}
+	public JSONMap getValue(Context context, Map<?, ?> targetMap) {
+		IRestConnection conn = getConnection(context);
+		JSONMap jsonMap = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path(uri), JSONMap.class);
+		return dataExpression==null ? jsonMap : ContextSpringExpressionUtil.evaluateExpression(context, jsonMap, dataExpression, JSONMap.class);
+	}
+	protected abstract IRestConnection getConnection(Context context);
 }

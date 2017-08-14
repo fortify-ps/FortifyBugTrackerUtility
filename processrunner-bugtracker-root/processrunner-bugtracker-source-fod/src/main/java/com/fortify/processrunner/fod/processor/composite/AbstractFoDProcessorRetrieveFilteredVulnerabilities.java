@@ -35,7 +35,7 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.filter.FilterRegEx;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
-import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithExtraFoDData;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.fod.processor.filter.FoDFilterOnTopLevelField;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
@@ -76,9 +76,9 @@ public abstract class AbstractFoDProcessorRetrieveFilteredVulnerabilities extend
 	
 	protected IProcessor createRootVulnerabilityArrayProcessor() {
 		return new FoDProcessorRetrieveVulnerabilities(
+			createAddJSONDataProcessor(),
 			createTopLevelFieldFilters(),
 			createAddVulnDeepLinkProcessor(),
-			createAddJSONDataProcessor(),
 			createSubLevelFieldFilters(),
 			getVulnerabilityProcessor()
 		);
@@ -99,10 +99,8 @@ public abstract class AbstractFoDProcessorRetrieveFilteredVulnerabilities extend
 	
 	protected abstract IProcessor getVulnerabilityProcessor();
 
-	protected FoDProcessorEnrichWithExtraFoDData createAddJSONDataProcessor() {
-		FoDProcessorEnrichWithExtraFoDData result = new FoDProcessorEnrichWithExtraFoDData();
-		result.setFields(getExtraFields());
-		return result;
+	protected FoDProcessorEnrichWithOnDemandIssueDetails createAddJSONDataProcessor() {
+		return new FoDProcessorEnrichWithOnDemandIssueDetails();
 	}
 	
 	protected IProcessor createAddVulnDeepLinkProcessor() {
