@@ -23,9 +23,6 @@
  ******************************************************************************/
 package com.fortify.fod.connection;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.ws.rs.core.Form;
 
 import com.fortify.util.rest.AbstractRestConnectionRetriever;

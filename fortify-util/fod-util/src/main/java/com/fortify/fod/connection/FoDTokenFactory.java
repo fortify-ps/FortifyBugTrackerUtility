@@ -24,7 +24,6 @@
 package com.fortify.fod.connection;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
