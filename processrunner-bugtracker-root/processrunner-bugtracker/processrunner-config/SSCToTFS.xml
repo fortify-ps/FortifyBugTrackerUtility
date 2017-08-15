@@ -145,7 +145,7 @@
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
 			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(friority)}"/>
-			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${issueName} at ${fullFileName}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issue states ---\n\n&lt;br/&gt;Category: ${issueName} at ${fullFileName}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
@@ -155,6 +155,7 @@
 		     us to re-use the same issue field configuration for grouped issues.
 		-->
 		<property name="appendedFields"><map>
+			<!-- TODO For some reason TFS encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
 			<entry key="System.Description"><value><![CDATA[
 				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
 			]]></value></entry>
