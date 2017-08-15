@@ -64,7 +64,4 @@ public interface IContextFoD {
 	
 	public void setFoDReleases(String releases);
 	public String getFoDReleases();
-	
-	public void setFoDTopLevelFilterParamValue(String topLevelFilterParamValue);
-	public String getFoDTopLevelFilterParamValue();
 }

@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * This {@link IProcessor} implementation allows a list of 
  * individual {@link IProcessor} instances to be configured
- * using the constructor or {@link #setProcessors(IProcessor...)}
+ * using the constructor or {@link #addProcessors(IProcessor...)}
  * method. Based on functionality provided by 
  * {@link AbstractCompositeProcessor}, each of the configured
  * processors will be invoked. 
@@ -38,12 +38,12 @@ import java.util.List;
  * @author Ruud Senden
  */
 public class CompositeProcessor extends AbstractCompositeProcessor {
-	private List<IProcessor> processors = new ArrayList<IProcessor>();
+	private final List<IProcessor> processors = new ArrayList<IProcessor>();
 	
 	/**
 	 * Default constructor, allowing manual configuration
 	 * of the list of {@link IProcessor} instances to be 
-	 * configured via the {@link #setProcessors(IProcessor...)}
+	 * configured via the {@link #addProcessors(IProcessor...)}
 	 * method. 
 	 */
 	public CompositeProcessor() {}
@@ -55,7 +55,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * @param processors
 	 */
 	public CompositeProcessor(IProcessor... processors) {
-		setProcessors(processors);
+		addProcessors(processors);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * that make up this composite processor.
 	 */
 	@Override
-	public List<IProcessor> getProcessors() {
+	protected List<IProcessor> getProcessors() {
 		return processors;
 	}
 	
@@ -72,17 +72,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * that make up this composite processor.
 	 * @param processors
 	 */
-	public void setProcessors(List<IProcessor> processors) {
-		this.processors = processors;
-	}
-	
-	/**
-	 * Configure the list of {@link IProcessor} instances
-	 * that make up this composite processor.
-	 * @param processors
-	 */
-	public void setProcessors(IProcessor... processors) {
-		// We need to wrap this in an ArrayList to allow for later modification
-		this.processors = new ArrayList<IProcessor>(Arrays.asList(processors));
+	public void addProcessors(IProcessor... processors) {
+		this.processors.addAll(Arrays.asList(processors));
 	}
 }

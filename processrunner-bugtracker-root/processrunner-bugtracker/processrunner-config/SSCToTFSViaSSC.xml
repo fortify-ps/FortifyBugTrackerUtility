@@ -32,7 +32,40 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<import resource="components/input/SSCInputConfig.xml"/>
+	<!--==================================================================================-->
+	<!-- SSC CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- Auto-configure various components -->
+	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	
+	<!-- SSC configuration properties -->
+	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
+		     the external system. Please see the Syntax Guide for the SSC search box for
+		     information about the syntax for this filter. You can use the same SSC search
+		     box to test your filter strings. -->
+		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
+			analysis:exploitable
+		</value></property>
+		
+		<!-- Set additional filters for vulnerabilities to be submitted to the external
+		     system, if you require any filtering that cannot be performed by SSC directly. -->
+		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
+			<!-- In this specific case, we want to include only vulnerabilities that have not been
+			     previously submitted through the native SSC bug tracker. -->
+			<entry key="bugURL" value="^$"/>
+		</map></property>
+		
+		<!-- This property defines the expression for evaluating whether an SSC 
+		     vulnerability should be considered open or closed. This expression
+		     can use any SSC vulnerability attribute. Commonly used attributes
+		     for this expression include removed and suppressed. -->
+		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
+			removed==false && suppressed==false
+		]]></value></property>
+	</bean>
+	
 	
 	<!--==================================================================================-->
 	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->

@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fortify.processrunner.ProcessRunner;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker;
-import com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateBugTrackerState;
+import com.fortify.processrunner.fod.processor.composite.FoDProcessorSubmitVulnerabilities;
+import com.fortify.processrunner.fod.processor.composite.FoDProcessorUpdateState;
 import com.fortify.processrunner.processor.IProcessor;
 
 public class FoDBugTrackerProcessRunner extends ProcessRunner {
@@ -48,8 +48,8 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 		this.type = type;
 	}
 	
-	private FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker submitVulnerabilitiesProcessor;
-	private FoDProcessorUpdateBugTrackerState updateBugTrackerStateProcessor;
+	private FoDProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor;
+	private FoDProcessorUpdateState updateBugTrackerStateProcessor;
 	
 	@PostConstruct
 	public void postConstruct() {
@@ -77,7 +77,7 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 	
 
 	@Autowired
-	public final void setProcessors(FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker submitVulnerabilitiesProcessor, FoDProcessorUpdateBugTrackerState updateBugTrackerStateProcessor) {
+	public final void setProcessors(FoDProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor, FoDProcessorUpdateState updateBugTrackerStateProcessor) {
 		this.submitVulnerabilitiesProcessor = submitVulnerabilitiesProcessor;
 		this.updateBugTrackerStateProcessor = updateBugTrackerStateProcessor;
 		
@@ -95,11 +95,11 @@ public class FoDBugTrackerProcessRunner extends ProcessRunner {
 		super.setDescription(description);
 	}
 	
-	protected final FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker getSubmitVulnerabilitiesProcessor() {
+	protected final FoDProcessorSubmitVulnerabilities getSubmitVulnerabilitiesProcessor() {
 		return submitVulnerabilitiesProcessor;
 	}
 	
-	protected final FoDProcessorUpdateBugTrackerState getUpdateBugTrackerStateProcessor() {
+	protected final FoDProcessorUpdateState getUpdateBugTrackerStateProcessor() {
 		return updateBugTrackerStateProcessor;
 	}
 	

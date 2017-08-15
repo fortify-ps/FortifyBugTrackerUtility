@@ -21,38 +21,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.processor.composite;
+package com.fortify.processrunner.ssc.processor.composite;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
-import com.fortify.processrunner.fod.vulnerability.FoDVulnerabilityUpdater;
-import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
 /**
  * TODO Update class comment
  */
 @Component
-public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends AbstractFoDProcessorRetrieveFilteredVulnerabilities {
-	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState(); 
+public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor {
 	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
-	private FoDVulnerabilityUpdater vulnerabilityUpdater;
 	
 	@Override
-	protected CompositeProcessor createTopLevelFieldFilters() {
-		CompositeProcessor result = super.createTopLevelFieldFilters();
-		if ( submitIssueProcessor.isIgnorePreviouslySubmittedIssues() && getVulnerabilityUpdater()!=null ) {
-			result.getProcessors().add(getVulnerabilityUpdater().createVulnerabilityNotYetSubmittedFilter());
-		}
+	protected IProcessor createSSCProcessorRetrieveAndProcessVulnerabilities() {
+		IProcessorSubmitIssueForVulnerabilities submitIssueProcessor = getSubmitIssueProcessor();
+		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
+			getConfiguration().getEnrichersForVulnerabilitiesToBeSubmitted(),
+			getConfiguration().getFiltersForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()),
+			submitIssueProcessor
+		);
+		result.getIssueSearchOptions().setIncludeHidden(false);
+		result.getIssueSearchOptions().setIncludeRemoved(false);
+		result.getIssueSearchOptions().setIncludeSuppressed(false);
+		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
 		return result;
-	}
-	
-	@Override
-	protected IProcessor getVulnerabilityProcessor() {
-		return new CompositeProcessor(getVulnState(), getSubmitIssueProcessor());
 	}
 
 	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
@@ -64,27 +61,5 @@ public class FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		this.submitIssueProcessor = submitIssueProcessor;
 	}
 	
-	public FoDProcessorEnrichWithVulnState getVulnState() {
-		return enrichWithVulnStateProcessor;
-	}
-	
-	@Autowired(required=false)
-	public void setConfiguration(FoDBugTrackerProcessorConfiguration config) {
-		setAllFieldRegExFilters(config.getAllFieldRegExFilters());
-		setExtraFields(config.getExtraFields());
-		setTopLevelFieldRegExFilters(config.getTopLevelFieldRegExFilters());
-		setTopLevelFieldSimpleFilters(config.getTopLevelFieldSimpleFilters());
-		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
-	}
-
-	public FoDVulnerabilityUpdater getVulnerabilityUpdater() {
-		return vulnerabilityUpdater;
-	}
-
-	@Autowired(required=false)
-	public void setVulnerabilityUpdater(FoDVulnerabilityUpdater vulnerabilityUpdater) {
-		this.vulnerabilityUpdater = vulnerabilityUpdater;
-	}
-
 	
 }

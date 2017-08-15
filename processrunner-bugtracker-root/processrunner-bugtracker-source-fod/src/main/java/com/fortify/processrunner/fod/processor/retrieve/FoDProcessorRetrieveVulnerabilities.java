@@ -56,12 +56,6 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * to process the current vulnerability. The current vulnerability
  * can be accessed by the vulnerability processor using the
  * 'CurrentVulnerability' {@link Context} property.</p>
- * 
- * <p>If the 'FoDTopLevelFilterParamValue' {@link Context} property 
- * has been set (usually by adding filters via 
- * {@link FoDFilterOnTopLevelFields}), this filter parameter value 
- * will be passed on to FoD to allow FoD to filter the vulnerabilities 
- * being returned.</p>
  */
 public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
@@ -69,6 +63,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("items");
 	private boolean includeRemoved;
 	private IProcessor vulnerabilityProcessor;
+	private String searchString;
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
@@ -93,7 +88,6 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		IRestConnection conn = FoDConnectionFactory.getConnection(context);
-		String filterParamValue = contextFoD.getFoDTopLevelFilterParamValue();
 		LOG.info("[FoD] Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+conn.getBaseUrl());
 		int start=0;
 		int count=50;
@@ -105,8 +99,8 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 					.queryParam("limit", "50")
 					.queryParam("offset", start)
 					.resolveTemplate("FoDReleaseId", contextFoD.getFoDReleaseId());
-			if ( StringUtils.isNotBlank(filterParamValue) ) {
-				resource = resource.queryParam("filters", filterParamValue);
+			if ( StringUtils.isNotBlank(getSearchString()) ) {
+				resource = resource.queryParam("filters", getSearchString());
 			}
 			if ( isIncludeRemoved() ) {
 				resource = resource.queryParam("includeFixed", "true").queryParam("includeSuppressed", "true");
@@ -152,6 +146,16 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	public void setIncludeRemoved(boolean includeRemoved) {
 		this.includeRemoved = includeRemoved;
 	}
+
+	public String getSearchString() {
+		return searchString;
+	}
+
+	public void setSearchString(String searchString) {
+		this.searchString = searchString;
+	}
+	
+	
 	
 	
 }

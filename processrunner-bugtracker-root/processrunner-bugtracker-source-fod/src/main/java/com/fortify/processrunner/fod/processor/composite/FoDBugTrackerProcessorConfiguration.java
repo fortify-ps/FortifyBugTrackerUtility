@@ -23,12 +23,30 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.composite;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
+import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.filter.FilterRegEx;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import com.fortify.processrunner.fod.context.IContextFoD;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithOnDemandBugLinkFromComment;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithOnDemandIssueDetails;
+import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
+import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugLink;
+import com.fortify.processrunner.processor.CompositeOrderedProcessor;
+import com.fortify.processrunner.processor.CompositeProcessor;
+import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
@@ -40,41 +58,144 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * @author Ruud Senden
  *
  */
-public class FoDBugTrackerProcessorConfiguration {
-	private Set<String> extraFields = new HashSet<String>();
-	private Map<String,String> topLevelFieldSimpleFilters;
-	private Map<String,Pattern> topLevelFieldRegExFilters;
-	private Map<String,Pattern> allFieldRegExFilters;
-	private SimpleExpression isVulnerabilityOpenExpression = FoDProcessorEnrichWithVulnState.DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
+public class FoDBugTrackerProcessorConfiguration implements IVulnerabilityUpdater {
+	private String filterStringForVulnerabilitiesToBeSubmitted = null;
+	private Map<SimpleExpression,Pattern> regExFiltersForVulnerabilitiesToBeSubmitted = null;
+	private boolean addBugDataAsComment = false;
+	private boolean addNativeBugLink = false;
+	private final FoDProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new FoDProcessorEnrichWithVulnState();
 	
-	public Set<String> getExtraFields() {
-		return extraFields;
+	/**
+	 * For now, this method simply returns true
+	 * @param context
+	 * @return
+	 */
+	public boolean checkContext(Context context) {
+		return true;
 	}
-	public void setExtraFields(Set<String> extraFields) {
-		this.extraFields = extraFields;
+	
+	/**
+	 * Get the full FoD filter string for vulnerabilities that need to be submitted to the bug tracker
+	 * @return
+	 */
+	public String getFullFoDFilterStringForVulnerabilitiesToBeSubmitted(boolean ignorePreviouslySubmittedIssues) {
+		String result = getFilterStringForVulnerabilitiesToBeSubmitted();
+		if ( ignorePreviouslySubmittedIssues && isAddNativeBugLink() ) {
+			result = appendFilterString(result, "bugSubmitted:false");
+		}
+		return result;
 	}
-	public Map<String, String> getTopLevelFieldSimpleFilters() {
-		return topLevelFieldSimpleFilters;
+	
+	/**
+	 * Get the full FoD filter string for vulnerabilities that have been previously submitted
+	 * @return
+	 */
+	public String getFullFoDFilterStringForVulnerabilitiesAlreadySubmitted() {
+		String result = "";
+		if ( isAddNativeBugLink() ) {
+			result = appendFilterString(result, "bugSubmitted:true");
+		}
+		if ( isAddBugDataAsComment() ) {
+			result = appendFilterString(result, "hasComments:true");
+		}
+		return result;
 	}
-	public void setTopLevelFieldSimpleFilters(Map<String, String> topLevelFieldSimpleFilters) {
-		this.topLevelFieldSimpleFilters = topLevelFieldSimpleFilters;
+	
+	private String appendFilterString(String originalFilter, String filterToAppend) {
+		return (StringUtils.isBlank(originalFilter) ? "" : (originalFilter+"+"))+filterToAppend;
 	}
-	public Map<String, Pattern> getTopLevelFieldRegExFilters() {
-		return topLevelFieldRegExFilters;
+	
+	/**
+	 * Get filters to include only vulnerabilities that need to be submitted to the bug tracker
+	 */
+	public IProcessor getFiltersForVulnerabilitiesToBeSubmitted(boolean ignorePreviouslySubmittedIssues) {
+		CompositeOrderedProcessor result = new CompositeOrderedProcessor();
+		if ( ignorePreviouslySubmittedIssues ) {
+			result.addProcessors(new FoDFilterOnBugLink(true));
+		}
+		if ( getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
+			result.addProcessors(FilterRegEx.createFromMap("CurrentVulnerability", getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
+		}
+		return result;
 	}
-	public void setTopLevelFieldRegExFilters(Map<String, Pattern> topLevelFieldRegExFilters) {
-		this.topLevelFieldRegExFilters = topLevelFieldRegExFilters;
+	
+	/**
+	 * Get filters to include only vulnerabilities that have been previously submitted
+	 */
+	public IProcessor getFiltersForVulnerabilitiesAlreadySubmitted() {
+		CompositeOrderedProcessor result = new CompositeOrderedProcessor();
+		result.addProcessors(new FoDFilterOnBugLink(false));
+		return result;
 	}
-	public Map<String, Pattern> getAllFieldRegExFilters() {
-		return allFieldRegExFilters;
+	
+	public IProcessor getEnrichersForVulnerabilitiesToBeSubmitted() {
+		return getDefaultEnrichers();
 	}
-	public void setAllFieldRegExFilters(Map<String, Pattern> allFieldRegExFilters) {
-		this.allFieldRegExFilters = allFieldRegExFilters;
+	
+	public IProcessor getEnrichersForVulnerabilitiesAlreadySubmitted() {
+		return getDefaultEnrichers();
 	}
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
+	
+	public IProcessor getDefaultEnrichers() {
+		CompositeProcessor result = new CompositeProcessor(
+				new FoDProcessorEnrichWithOnDemandIssueDetails(),
+				new FoDProcessorEnrichWithVulnDeepLink(),
+				getEnrichWithVulnStateProcessor());
+		if ( isAddBugDataAsComment() ) {
+			result.addProcessors(new FoDProcessorEnrichWithOnDemandBugLinkFromComment());
+		}
+		return result;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		IContextFoD ctx = context.as(IContextFoD.class);
+		FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
+		String releaseId = ctx.getFoDReleaseId();
+		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
+		if ( isAddBugDataAsComment() ) {
+			String comment = SubmittedIssueCommentHelper.getCommentForSubmittedIssue(bugTrackerName, submittedIssue);
+			conn.addCommentToVulnerabilities(releaseId, comment, vulnIds);
+		} else if ( isAddNativeBugLink() ) {
+			conn.addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
+		}
+	}
+
+	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		
+	}
+	
+	
 	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
+		this.enrichWithVulnStateProcessor.setIsVulnerabilityOpenExpression(isVulnerabilityOpenExpression);
+	}
+	
+	public String getFilterStringForVulnerabilitiesToBeSubmitted() {
+		return filterStringForVulnerabilitiesToBeSubmitted;
+	}
+	public void setFilterStringForVulnerabilitiesToBeSubmitted(String filterStringForVulnerabilitiesToBeSubmitted) {
+		this.filterStringForVulnerabilitiesToBeSubmitted = filterStringForVulnerabilitiesToBeSubmitted;
+	}
+	public Map<SimpleExpression, Pattern> getRegExFiltersForVulnerabilitiesToBeSubmitted() {
+		return regExFiltersForVulnerabilitiesToBeSubmitted;
+	}
+	public void setRegExFiltersForVulnerabilitiesToBeSubmitted(
+			Map<SimpleExpression, Pattern> regExFiltersForVulnerabilitiesToBeSubmitted) {
+		this.regExFiltersForVulnerabilitiesToBeSubmitted = regExFiltersForVulnerabilitiesToBeSubmitted;
+	}
+	public boolean isAddBugDataAsComment() {
+		return addBugDataAsComment;
+	}
+	public void setAddBugDataAsComment(boolean addBugDataAsComment) {
+		this.addBugDataAsComment = addBugDataAsComment;
+	}
+	public boolean isAddNativeBugLink() {
+		return addNativeBugLink;
+	}
+	public void setAddNativeBugLink(boolean addNativeBugLink) {
+		this.addNativeBugLink = addNativeBugLink;
+	}
+	public FoDProcessorEnrichWithVulnState getEnrichWithVulnStateProcessor() {
+		return enrichWithVulnStateProcessor;
 	}
 }

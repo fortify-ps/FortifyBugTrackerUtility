@@ -124,6 +124,6 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 * that make up this composite processor. 
 	 * @return
 	 */
-	public abstract List<IProcessor> getProcessors();
+	protected abstract List<IProcessor> getProcessors();
 
 }

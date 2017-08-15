@@ -21,18 +21,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.context;
+package com.fortify.processrunner.fod.processor.enrich;
 
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
+import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
+import com.fortify.util.json.JSONMap;
 
-/**
- * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to the context rpoperties provided by {@link IContextSSCCommon}, as
- * well as the SSC top level filter parameter value.
- * 
- * @author Ruud Senden
- */
-public interface IContextSSCSource extends IContextSSCCommon {	
-	public void setSSCTopLevelFilterParamValue(String topLevelFilterParamValue);
-	public String getSSCTopLevelFilterParamValue();
+public class FoDProcessorEnrichWithOnDemandBugLinkFromComment extends AbstractFoDProcessorEnrich {
+	@Override
+	protected boolean enrich(Context context, JSONMap vuln) {
+		vuln.put("bugLink", new IOnDemandPropertyLoader<String>() {
+			private static final long serialVersionUID = 1L;
+			public String getValue(Context ctx, Map<?, ?> targetMap) {
+				String matchExpression = ContextSpringExpressionUtil.evaluateTemplateExpression(ctx, ctx, "--- Vulnerability submitted to ${BugTrackerName}.*", String.class);
+				String spel = "CurrentVulnerability.summary.comments.$[comment matches '"+matchExpression+"']?.comment";
+				String bugComment = ContextSpringExpressionUtil.evaluateExpression(ctx, ctx, spel, String.class);
+				if ( StringUtils.isNotBlank(bugComment) ) {
+					return SubmittedIssueCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();
+				} else {
+					return null;
+				}
+			}
+		});
+		return true;
+	}
+
 }

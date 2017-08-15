@@ -23,26 +23,14 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.composite;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.processor.AbstractCompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
-import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
-import com.fortify.processrunner.ssc.vulnerability.SSCVulnerabilityUpdater;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -56,76 +44,25 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  */
 @Component
-public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcessor {
-	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState(); 
-	private SSCVulnerabilityUpdater vulnerabilityUpdater;
-	
+public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor {
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
-	/**
-	 * This method calls {@link SSCVulnerabilityUpdater#checkContext(Context)} to check the
-	 * current application version configuration
-	 */
 	@Override
-	protected boolean preProcess(Context context) {
-		return (vulnerabilityUpdater==null || vulnerabilityUpdater.checkContext(context)) && super.preProcess(context);
-	}
-	
-	@Override
-	protected void addCompositeContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-	}
-	
-	@Override
-	public List<IProcessor> getProcessors() {
-		return Arrays.asList(createRootVulnerabilityArrayProcessor());
-	}
-	
-	protected IProcessor createRootVulnerabilityArrayProcessor() {
+	protected IProcessor createSSCProcessorRetrieveAndProcessVulnerabilities() {
 		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
-			new SSCProcessorEnrichWithOnDemandIssueDetails(),
-			createFilters(),
-			new SSCProcessorEnrichWithVulnDeepLink(),
-			// TODO Move this to SSCVulnerabilityUpdater?
-			new SSCProcessorEnrichWithBugDataFromCustomTag(getBugLinkCustomTagName()),
-			getVulnState(),
+			getConfiguration().getEnrichersForVulnerabilitiesAlreadySubmitted(),
+			getConfiguration().getFiltersForVulnerabilitiesAlreadySubmitted(),
 			getUpdateIssueStateProcessor()
 		);
 		result.getIssueSearchOptions().setIncludeHidden(false);
 		result.getIssueSearchOptions().setIncludeRemoved(true);
 		result.getIssueSearchOptions().setIncludeSuppressed(true);
+		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesAlreadySubmitted());
 		return result;
-	}
-
-	private IProcessor createFilters() {
-		IProcessor result;
-		if ( getVulnerabilityUpdater()!=null ) {
-			result = getVulnerabilityUpdater().createVulnerabilityAlreadySubmittedFilter();
-		} else {
-			result = new SSCFilterOnBugURL(true);
-		}
-		return result;
-	}
-	
-	public SSCProcessorEnrichWithVulnState getVulnState() {
-		return enrichWithVulnStateProcessor;
 	}
 
 	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getUpdateIssueStateProcessor() {
 		return updateIssueStateProcessor;
-	}
-	
-	public SSCVulnerabilityUpdater getVulnerabilityUpdater() {
-		return vulnerabilityUpdater;
-	}
-
-	@Autowired(required=false)
-	public void setVulnerabilityUpdater(SSCVulnerabilityUpdater vulnerabilityUpdater) {
-		this.vulnerabilityUpdater = vulnerabilityUpdater;
-	}
-	
-	private String getBugLinkCustomTagName() {
-		return getVulnerabilityUpdater().getBugLinkCustomTagName();
 	}
 
 	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
@@ -134,10 +71,5 @@ public class SSCProcessorUpdateBugTrackerState extends AbstractCompositeProcesso
 		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(SSCProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
 		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugURL"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
-	}
-	
-	@Autowired(required=false)
-	public void setConfiguration(SSCBugTrackerProcessorConfiguration config) {
-		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
 	}
 }

@@ -126,6 +126,8 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	}
 	
 	public void addComment(SubmittedIssue submittedIssue, String comment) {
+		// TODO The code below for some reason results in a Forbidden error, so for now we just don't submit any comments
+		/**
 		OctaneIssueId octaneIssueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
 		
 		JSONMap data = new JSONMap();
@@ -142,6 +144,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getWorkspaceId())
 				.path("/comments"),
 				Entity.entity(request, "application/json"), JSONMap.class);
+		*/
 	}
 	
 	public Integer getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {

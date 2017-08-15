@@ -34,8 +34,8 @@ import com.fortify.processrunner.ProcessRunner;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker;
-import com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateBugTrackerState;
+import com.fortify.processrunner.ssc.processor.composite.SSCProcessorSubmitVulnerabilities;
+import com.fortify.processrunner.ssc.processor.composite.SSCProcessorUpdateState;
 
 /**
  * Depending on the configured {@link ProcessRunnerType}, this {@link ProcessRunner} implementation 
@@ -55,8 +55,8 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 		this.type = type;
 	}
 	
-	private SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker submitVulnerabilitiesProcessor;
-	private SSCProcessorUpdateBugTrackerState updateBugTrackerStateProcessor;
+	private SSCProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor;
+	private SSCProcessorUpdateState updateBugTrackerStateProcessor;
 	
 	@PostConstruct
 	public void postConstruct() {
@@ -84,7 +84,7 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 	
 
 	@Autowired
-	public final void setProcessors(SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker submitVulnerabilitiesProcessor, SSCProcessorUpdateBugTrackerState updateBugTrackerStateProcessor) {
+	public final void setProcessors(SSCProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor, SSCProcessorUpdateState updateBugTrackerStateProcessor) {
 		this.submitVulnerabilitiesProcessor = submitVulnerabilitiesProcessor;
 		this.updateBugTrackerStateProcessor = updateBugTrackerStateProcessor;
 		
@@ -102,11 +102,11 @@ public class SSCBugTrackerProcessRunner extends ProcessRunner {
 		super.setDescription(description);
 	}
 	
-	protected final SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker getSubmitVulnerabilitiesProcessor() {
+	protected final SSCProcessorSubmitVulnerabilities getSubmitVulnerabilitiesProcessor() {
 		return submitVulnerabilitiesProcessor;
 	}
 	
-	protected final SSCProcessorUpdateBugTrackerState getUpdateBugTrackerStateProcessor() {
+	protected final SSCProcessorUpdateState getUpdateBugTrackerStateProcessor() {
 		return updateBugTrackerStateProcessor;
 	}
 	

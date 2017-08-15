@@ -21,22 +21,51 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.processor.filter;
+package com.fortify.processrunner.processor;
 
-import com.fortify.processrunner.processor.IProcessor;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 
 /**
- * This {@link IProcessor} implementation will perform filtering based on the
- * FoD bugSubmitted field. Only if the bugSubmitted field matches the configured
- * filterValue ("true" or "false"), the vulnerability will be processed.
+ * This {@link CompositeProcessor} implementation will dynamically re-order
+ * the list of {@link IProcessor} instances based on the current value of
+ * the {@link Ordered#getOrder()} method for each {@link IProcessor}, whenever
+ * the {@link #getProcessors()} method is called.
+ * 
+ * Note that this could cause the different {@link IProcessor} instances to
+ * be called in different orders for the different processing phases.
+ * 
+ * @author Ruud Senden
+ *
  */
-public class FoDFilterOnBugSubmittedField extends FoDFilterOnTopLevelField {
-	private static final String FIELD_NAME = "bugSubmitted"; 
-	public FoDFilterOnBugSubmittedField() {
-		super(FIELD_NAME);
+public class CompositeOrderedProcessor extends CompositeProcessor {
+
+	/**
+	 * Default constructor
+	 */
+	public CompositeOrderedProcessor() {
+		super();
+	}
+
+	/**
+	 * Constructor for setting a set of processors
+	 */
+	public CompositeOrderedProcessor(IProcessor... processors) {
+		super(processors);
 	}
 	
-	public FoDFilterOnBugSubmittedField(String filterValue) {
-		super(FIELD_NAME, filterValue);
+	/**
+	 * This method retrieves the currently configured {@link IProcessor} instances
+	 * from our superclass, and returns them in a sorted order.
+	 */
+	@Override
+	protected List<IProcessor> getProcessors() {
+		List<IProcessor> result = new ArrayList<IProcessor>(super.getProcessors());
+		result.sort(new OrderComparator());
+		return result;
 	}
+	
 }

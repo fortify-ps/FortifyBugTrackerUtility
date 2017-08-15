@@ -23,121 +23,88 @@
  ******************************************************************************/
 package com.fortify.processrunner.filter;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
- * <p>This {@link IProcessor} implementation provides filtering functionality
- * based on regular expressions. Given a mapping between field expressions
- * and patterns, this processor will retrieve the value for the given field
- * expression from the context, and then match this value against the
- * corresponding pattern. If a root expression has been configured, the 
- * given field expressions will be evaluated relative to this root expression
- * instead of relative to the context.</p>
+ * <p>This {@link IProcessor} implementation can be configured with a field expression and
+ * corresponding regular expression pattern. The configured field expression will be
+ * evaluated on the current root object, and matched against the configured pattern.</p>
  * 
- * <p>If a current value doesn't match the corresponding pattern, the 
- * {@link #process(Context)} method will return false to indicate that 
- * the current entry should not be further processed. If all current
- * values match the corresponding pattern, then true is returned to 
- * indicate that the current entry can be processed further.</p>
+ * <p>If you want to match multiple fields against multiple patterns, you can use the 
+ * {@link #createFromMap(String, Map, boolean)} method to generate multiple instances of
+ * this class based on a {@link Map} of field expressions and corresponding {@link Pattern}
+ * instances.</p> 
  * 
  * @author Ruud Senden
  */
-public class FilterRegEx extends AbstractProcessor {
-	private SimpleExpression rootExpression;
-	private Map<SimpleExpression, Pattern> filterPatterns;
-	
-	/**
-	 * Default constructor for manual configuration of this
-	 * {@link IProcessor} via setter methods.
-	 */
-	public FilterRegEx() {}
-	
-	/**
-	 * Constructor that allows configuration of the root
-	 * expression and map of filter patterns.
-	 * @param rootExpression
-	 * @param filterPatterns
-	 */
-	public FilterRegEx(String rootExpression, Map<String, Pattern> filterPatterns) {
-		this.rootExpression = SpringExpressionUtil.parseSimpleExpression(rootExpression);
-		this.filterPatterns = getFilterPatterns(filterPatterns);
-	}
-	
-	/**
-	 * Convert the {@link String} keys in the given map to {@link SimpleExpression}
-	 * instances. 
-	 * @param map
-	 * @return
-	 */
-	private static final Map<SimpleExpression, Pattern> getFilterPatterns(Map<String, Pattern> map) {
-		Map<SimpleExpression, Pattern> result = new HashMap<SimpleExpression, Pattern>(map.size());
-		for ( Map.Entry<String, Pattern> entry : map.entrySet() ) {
-			result.put(SpringExpressionUtil.parseSimpleExpression(entry.getKey()), entry.getValue());
-		}
-		return result;
-	}
+public class FilterRegEx extends AbstractFilteringProcessor {
+	private final SimpleExpression fieldExpression;
+	private final Pattern matchPattern;
 
 	/**
-	 * Process the current {@link Context}. This will retrieve the current
-	 * context property value for each filter pattern mapping, and match
-	 * this value against the configured regular expression. If any of the
-	 * values do not match the corresponding regular expression, this method
-	 * will return false to indicate that the current context should not be
-	 * processed any further. Otherwise, true is returned.
+	 * Constructor for configuring all relevant properties
+	 * @param rootExpression
+	 * @param fieldExpression
+	 * @param matchPattern
+	 * @param excludeMatched
+	 */
+	public FilterRegEx(String rootExpression, String fieldExpression, Pattern matchPattern, boolean excludeMatched) {
+		this(rootExpression, SpringExpressionUtil.parseSimpleExpression(fieldExpression), matchPattern, excludeMatched);
+	}
+	
+	/**
+	 * Constructor for configuring all relevant properties
+	 * @param rootExpression
+	 * @param fieldExpression
+	 * @param matchPattern
+	 * @param excludeMatched
+	 */
+	public FilterRegEx(String rootExpression, SimpleExpression fieldExpression, Pattern matchPattern, boolean excludeMatched) {
+		super(SpringExpressionUtil.parseSimpleExpression(rootExpression), excludeMatched);
+		this.fieldExpression = fieldExpression;
+		this.matchPattern = matchPattern;
+	}
+	
+	/**
+	 * Evaluate the configured field expression on the given root object, and match the resulting value against
+	 * the configured regular expression {@link Pattern}.
 	 */
 	@Override
-	protected boolean process(Context context) {
-		if ( getFilterPatterns() != null ) {
-			Object root = getRootExpression()==null?context:ContextSpringExpressionUtil.evaluateExpression(context, context, getRootExpression(), Object.class);
-			for ( Map.Entry<SimpleExpression, Pattern> filterPattern : getFilterPatterns().entrySet() ) {
-				String expressionValue = ContextSpringExpressionUtil.evaluateExpression(context, root, filterPattern.getKey(), String.class);
-				if ( expressionValue==null ) { expressionValue=""; }
-				if ( !filterPattern.getValue().matcher(expressionValue).matches() ) {
-					return false;
-				}
-			}
-		}
-		return true;
+	protected boolean isMatching(Context context, Object rootObject) {
+		String expressionValue = ContextSpringExpressionUtil.evaluateExpression(context, rootObject, getFieldExpression(), String.class);
+		if ( expressionValue==null ) { expressionValue=""; }
+		return getMatchPattern().matcher(expressionValue).matches();
 	}
 
-	/**
-	 * Get the configured root expression. May be null.
-	 * @return
-	 */
-	public SimpleExpression getRootExpression() {
-		return rootExpression;
+	public SimpleExpression getFieldExpression() {
+		return fieldExpression;
 	}
 
+	public Pattern getMatchPattern() {
+		return matchPattern;
+	}
+	
 	/**
-	 * Configure the optional root expression.
+	 * Create multiple {@link FilterRegEx} instances from a {@link Map} containing field expressions
+	 * and corresponding {@link Pattern} instances.
 	 * @param rootExpression
-	 */
-	public void setRootExpression(SimpleExpression rootExpression) {
-		this.rootExpression = rootExpression;
-	}
-
-	/**
-	 * Get the configured map of filter patterns.
+	 * @param patternMap
+	 * @param excludeMatched
 	 * @return
 	 */
-	public Map<SimpleExpression, Pattern> getFilterPatterns() {
-		return filterPatterns;
-	}
-
-	/**
-	 * Configure the map of filter patterns.
-	 * @param filterPatterns
-	 */
-	public void setFilterPatterns(Map<SimpleExpression, Pattern> filterPatterns) {
-		this.filterPatterns = filterPatterns;
+	public static final FilterRegEx[] createFromMap(String rootExpression, Map<SimpleExpression, Pattern> patternMap, boolean excludeMatched) {
+		ArrayList<FilterRegEx> result = new ArrayList<FilterRegEx>(patternMap.size());
+		for ( Map.Entry<SimpleExpression, Pattern> entry : patternMap.entrySet() ) {
+			result.add(new FilterRegEx(rootExpression, entry.getKey(), entry.getValue(), excludeMatched));
+		}
+		return result.toArray(new FilterRegEx[]{});
 	}
 }

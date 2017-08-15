@@ -23,21 +23,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.filter;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
 
-//TODO Check whether SSC allows to filter on whether a bug has been submitted via a native integration
 public class SSCFilterOnBugURL extends FilterRegEx {
 	public SSCFilterOnBugURL(boolean excludeVulnerabilitiesWithBugURL) {
-		super("CurrentVulnerability", getBugURLFilterMap(excludeVulnerabilitiesWithBugURL));
-	}
-
-	private static final Map<String, Pattern> getBugURLFilterMap(boolean excludeVulnerabilitiesWithBugURL) {
-		Map<String, Pattern> filters = new HashMap<String, Pattern>(1);
-		filters.put("bugURL", Pattern.compile(excludeVulnerabilitiesWithBugURL?"^$":"^\\S+$"));
-		return filters;
+		super("CurrentVulnerability", "bugURL", Pattern.compile("^\\S+$"), excludeVulnerabilitiesWithBugURL);
 	}
 }

@@ -32,7 +32,49 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/input/SSCInputConfig.xml"/>
+	<!--==================================================================================-->
+	<!-- SSC CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- Auto-configure various components -->
+	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	
+	<!-- SSC configuration properties -->
+	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
+		     the external system. Please see the Syntax Guide for the SSC search box for
+		     information about the syntax for this filter. You can use the same SSC search
+		     box to test your filter strings. -->
+		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
+			analysis:exploitable
+		</value></property>
+		
+		<!-- Set additional filters for vulnerabilities to be submitted to the external
+		     system, if you require any filtering that cannot be performed by SSC directly. -->
+		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
+			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
+		</map></property>
+		
+		<!-- Specify whether, and how information about the submitted vulnerabilities
+		     should be added to SSC. If all of these are disabled, no information
+		     about the submitted vulnerability will be stored in SSC, resulting in
+		     all vulnerabilities being submitted again on a next invocation, and
+		     disabling bug state management. You should enable at most one of these
+		     options. Bug data can either be stored in a custom tag, or submitted
+		     through the SSC 'Add Existing Bugs' custom bug tracker integration, to
+		     be stored as a native SSC bug tracker link. -->
+		<!-- <property name="bugLinkCustomTagName" value="FileLocation"/> -->
+		<!-- <property name="addNativeBugLink" value="true"/> -->
+		
+		<!-- This property defines the expression for evaluating whether an SSC 
+		     vulnerability should be considered open or closed. This expression
+		     can use any SSC vulnerability attribute. Commonly used attributes
+		     for this expression include removed and suppressed. -->
+		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
+			removed==false && suppressed==false
+		]]></value></property>
+	</bean>
+	
 	
 	<!--==================================================================================-->
 	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->

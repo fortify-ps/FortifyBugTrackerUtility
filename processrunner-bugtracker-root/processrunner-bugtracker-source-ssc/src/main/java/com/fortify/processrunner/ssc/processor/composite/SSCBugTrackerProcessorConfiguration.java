@@ -23,49 +23,276 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.composite;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueAndIssueStateDetailsRetriever;
+import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
+import com.fortify.processrunner.filter.FilterRegEx;
+import com.fortify.processrunner.processor.CompositeOrderedProcessor;
+import com.fortify.processrunner.processor.CompositeProcessor;
+import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
+import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFilter;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
+import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnBugURL;
+import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This class holds all configuration properties for 
- * {@link SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker} and
- * {@link SSCProcessorUpdateBugTrackerState} to allow for
+ * {@link SSCProcessorSubmitVulnerabilities} and
+ * {@link SSCProcessorUpdateState} to allow for
  * easy Spring-based configuration.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCBugTrackerProcessorConfiguration {
-	private Map<String,String> topLevelFieldSimpleFilters;
-	private Map<String,Pattern> topLevelFieldRegExFilters;
-	private Map<String,Pattern> allFieldRegExFilters;
-	private SimpleExpression isVulnerabilityOpenExpression = SSCProcessorEnrichWithVulnState.DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
+public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdater, ISSCApplicationVersionFilterFactory {
+	private static final Log LOG = LogFactory.getLog(SSCBugTrackerProcessorConfiguration.class);
+	private String filterStringForVulnerabilitiesToBeSubmitted = null;
+	private Map<SimpleExpression,Pattern> regExFiltersForVulnerabilitiesToBeSubmitted = null;
+	private String bugLinkCustomTagName = null;
+	private boolean addNativeBugLink = false;
+	private Map<String,TemplateExpression> extraCustomTags = null;
+	private final SSCProcessorEnrichWithVulnState enrichWithVulnStateProcessor = new SSCProcessorEnrichWithVulnState();
 	
-	public Map<String, String> getTopLevelFieldSimpleFilters() {
-		return topLevelFieldSimpleFilters;
+	/**
+	 * Check whether current application version has the correct configuration
+	 * for updating vulnerability state based on our configuration.
+	 * @param context
+	 * @return
+	 */
+	public boolean checkContext(Context context) {
+		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
+			List<String> customTagNames = conn.getApplicationVersionCustomTagNames(applicationVersionId);
+			if ( customTagNames==null || !customTagNames.contains(getBugLinkCustomTagName()) ) {
+				throw new IllegalStateException("Configured custom tag "+getBugLinkCustomTagName()+" is not available for application version "+applicationVersionId);
+			}
+		} else if ( isAddNativeBugLink() ) {
+			String bugTrackerName = conn.getApplicationVersionBugTrackerShortName(applicationVersionId);
+			if ( !"Add Existing Bugs".equals(bugTrackerName) ) {
+				throw new IllegalStateException("Either custom tag name or the 'Add Existing Bugs' SSC bug tracker needs to be configured");
+			}
+		}
+		return true;
 	}
-	public void setTopLevelFieldSimpleFilters(Map<String, String> topLevelFieldSimpleFilters) {
-		this.topLevelFieldSimpleFilters = topLevelFieldSimpleFilters;
+	
+	/**
+	 * Generate SSC application version filter based on either {@link #bugLinkCustomTagName}
+	 * or availability of the 'Add Existing Bugs' bug tracker integration, if either is configured.
+	 */
+	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
+		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
+			SSCApplicationVersionCustomTagFilter filter = new SSCApplicationVersionCustomTagFilter();
+			filter.setCustomTagNames(new HashSet<String>(Arrays.asList(getBugLinkCustomTagName())));
+			return Arrays.asList((ISSCApplicationVersionFilter)filter);
+		} else if ( isAddNativeBugLink() ) {
+			SSCApplicationVersionBugTrackerNameFilter filter = new SSCApplicationVersionBugTrackerNameFilter();
+			filter.setBugTrackerPluginNames(new HashSet<String>(Arrays.asList("Add Existing Bugs")));
+			return Arrays.asList((ISSCApplicationVersionFilter)filter);
+		} else {
+			return null;
+		}
 	}
-	public Map<String, Pattern> getTopLevelFieldRegExFilters() {
-		return topLevelFieldRegExFilters;
+	
+	/**
+	 * Get the full SSC filter string for vulnerabilities that need to be submitted to the bug tracker
+	 * @return
+	 */
+	public String getFullSSCFilterStringForVulnerabilitiesToBeSubmitted(boolean ignorePreviouslySubmittedIssues) {
+		String result = getFilterStringForVulnerabilitiesToBeSubmitted();
+		if ( ignorePreviouslySubmittedIssues && StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
+			result = StringUtils.isBlank(result) ? "" : (result+" ");
+			result += getBugLinkCustomTagName()+":<none>";
+		}
+		// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
+		return result;
 	}
-	public void setTopLevelFieldRegExFilters(Map<String, Pattern> topLevelFieldRegExFilters) {
-		this.topLevelFieldRegExFilters = topLevelFieldRegExFilters;
+	
+	/**
+	 * Get the full SSC filter string for vulnerabilities that have been previously submitted
+	 * @return
+	 */
+	public String getFullSSCFilterStringForVulnerabilitiesAlreadySubmitted() {
+		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
+			return getBugLinkCustomTagName()+":!<none>";
+		} else {
+			return null;
+		}
+		// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesAlreadySubmitted
 	}
-	public Map<String, Pattern> getAllFieldRegExFilters() {
-		return allFieldRegExFilters;
+	
+	/**
+	 * Get filters to include only vulnerabilities that need to be submitted to the bug tracker
+	 */
+	public IProcessor getFiltersForVulnerabilitiesToBeSubmitted(boolean ignorePreviouslySubmittedIssues) {
+		CompositeOrderedProcessor result = new CompositeOrderedProcessor();
+		if ( ignorePreviouslySubmittedIssues && isAddNativeBugLink() ) {
+			result.addProcessors(new SSCFilterOnBugURL(true));
+		}
+		if ( getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
+			result.addProcessors(FilterRegEx.createFromMap("CurrentVulnerability", getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
+		}
+		return result;
 	}
-	public void setAllFieldRegExFilters(Map<String, Pattern> allFieldRegExFilters) {
-		this.allFieldRegExFilters = allFieldRegExFilters;
+	
+	/**
+	 * Get filters to include only vulnerabilities that have been previously submitted
+	 */
+	public IProcessor getFiltersForVulnerabilitiesAlreadySubmitted() {
+		CompositeOrderedProcessor result = new CompositeOrderedProcessor();
+		if ( isAddNativeBugLink() ) {
+			result.addProcessors(new SSCFilterOnBugURL(false));
+		}
+		return result;
 	}
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
+	
+	public IProcessor getEnrichersForVulnerabilitiesToBeSubmitted() {
+		return getDefaultEnrichers();
 	}
+	
+	public IProcessor getEnrichersForVulnerabilitiesAlreadySubmitted() {
+		CompositeProcessor result = new CompositeProcessor(getDefaultEnrichers());
+		result.addProcessors(new SSCProcessorEnrichWithBugDataFromCustomTag(getBugLinkCustomTagName()));
+		return result;
+	}
+	
+	public IProcessor getDefaultEnrichers() {
+		return new CompositeProcessor(
+				new SSCProcessorEnrichWithOnDemandIssueDetails(),
+				new SSCProcessorEnrichWithVulnDeepLink(),
+				getEnrichWithVulnStateProcessor());
+	}
+
+	@SuppressWarnings("unchecked")
+	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever);
+		
+		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
+			customTagValues.put(getBugLinkCustomTagName(), submittedIssue.getDeepLink());
+		} 
+		if ( !customTagValues.isEmpty() ) {
+			conn.setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
+		}
+		if ( isAddNativeBugLink() ) {
+			Map<String, Object> issueDetails = new HashMap<String, Object>();
+			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
+			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
+			conn.fileBug(applicationVersionId, issueDetails, issueInstanceIds);
+			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
+		}
+	}
+
+	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever);
+		if ( !customTagValues.isEmpty() ) {
+			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+			String applicationVersionId = ctx.getSSCApplicationVersionId();
+			conn.setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" }) // TODO Can we refactor such that we don't need to suppress these warnings?
+	private Map<String,String> getExtraCustomTagValues(Context context, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever) {
+		Map<String,String> result = new HashMap<String,String>();
+		if ( getExtraCustomTags()!=null ) {
+			List<String> availableCustomTagNames = getCustomTagNames(context);
+			SubmittedIssueAndIssueStateDetailsRetriever<?> data = new SubmittedIssueAndIssueStateDetailsRetriever(context, submittedIssue, issueStateDetailsRetriever);
+			for ( Map.Entry<String, TemplateExpression> entry : getExtraCustomTags().entrySet() ) {
+				if ( availableCustomTagNames.contains(entry.getKey()) ) {
+					result.put(entry.getKey(), ContextSpringExpressionUtil.evaluateExpression(context, data, entry.getValue(), String.class));
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<String> getCustomTagNames(Context context) {
+		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		return conn.getApplicationVersionCustomTagNames(applicationVersionId);
+	}
+	
+	
 	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
+		this.enrichWithVulnStateProcessor.setIsVulnerabilityOpenExpression(isVulnerabilityOpenExpression);
 	}
+
+	public String getFilterStringForVulnerabilitiesToBeSubmitted() {
+		return filterStringForVulnerabilitiesToBeSubmitted;
+	}
+
+	public void setFilterStringForVulnerabilitiesToBeSubmitted(String sscFilterStringForVulnerabilitiesToBeSubmitted) {
+		this.filterStringForVulnerabilitiesToBeSubmitted = sscFilterStringForVulnerabilitiesToBeSubmitted;
+	}
+
+	public Map<SimpleExpression, Pattern> getRegExFiltersForVulnerabilitiesToBeSubmitted() {
+		return regExFiltersForVulnerabilitiesToBeSubmitted;
+	}
+
+	public void setRegExFiltersForVulnerabilitiesToBeSubmitted(Map<SimpleExpression, Pattern> regExFiltersForVulnerabilitiesToBeSubmitted) {
+		this.regExFiltersForVulnerabilitiesToBeSubmitted = regExFiltersForVulnerabilitiesToBeSubmitted;
+	}
+
+	public String getBugLinkCustomTagName() {
+		return bugLinkCustomTagName;
+	}
+
+	public void setBugLinkCustomTagName(String bugLinkCustomTagName) {
+		this.bugLinkCustomTagName = bugLinkCustomTagName;
+	}
+
+	public boolean isAddNativeBugLink() {
+		return addNativeBugLink;
+	}
+
+	public void setAddNativeBugLink(boolean addNativeBugLink) {
+		this.addNativeBugLink = addNativeBugLink;
+	}
+
+	public Map<String, TemplateExpression> getExtraCustomTags() {
+		return extraCustomTags;
+	}
+
+	public void setExtraCustomTags(Map<String, TemplateExpression> extraCustomTags) {
+		this.extraCustomTags = extraCustomTags;
+	}
+
+	public SSCProcessorEnrichWithVulnState getEnrichWithVulnStateProcessor() {
+		return enrichWithVulnStateProcessor;
+	}
+	
+	
 }

@@ -124,35 +124,24 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>xml-maven-plugin</artifactId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
 				<executions>
 					<execution>
-						<id>mergeConfigFiles</id>
+						<id>copy-config-files</id>
+						<!-- here the phase you need -->
 						<phase>package</phase>
 						<goals>
-							<goal>transform</goal>
+							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<transformationSets>
-								<transformationSet>
-									<dir>${basedir}/processrunner-config</dir>
-									<outputDir>${basedir}/target</outputDir>
-									<includes>
-										<include>*.xml</include>
-									</includes>
-									<stylesheet>${basedir}/processrunner-config/xslt/replaceIncludes.xsl</stylesheet>
-									<parameters>
-										<parameter>
-											<name>processrunnerConfigLocation</name>
-											<!-- TODO Preferably we should use ${basedir}/processrunner-config/ 
-												But apparently the XSLT processor doesn't like mixed path separators (Windows 
-												backslashes in ${basedir}, forward slashes in config files -->
-											<value>../</value>
-										</parameter>
-									</parameters>
-								</transformationSet>
-							</transformationSets>
+							<outputDirectory>${basedir}/target</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/processrunner-config</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>

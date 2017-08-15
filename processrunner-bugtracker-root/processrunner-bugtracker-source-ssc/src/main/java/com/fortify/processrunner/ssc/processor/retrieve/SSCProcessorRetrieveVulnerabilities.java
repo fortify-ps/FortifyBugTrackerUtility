@@ -41,7 +41,6 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
-import com.fortify.processrunner.ssc.context.IContextSSCSource;
 import com.fortify.ssc.connection.IssueSearchOptions;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONMap;
@@ -60,12 +59,6 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * can be accessed by the vulnerability processor using the
  * 'CurrentVulnerability' {@link Context} property.</p>
  * 
- * <p>If the 'SSCTopLevelFilterParamValue' {@link Context} property 
- * has been set (usually by adding filters via 
- * {@link SSCFilterOnTopLevelFields}), this filter parameter value 
- * will be passed on to SSC to allow SSC to filter the vulnerabilities 
- * being returned.</p>
- * 
  * @author Ruud Senden
  */
 public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
@@ -74,6 +67,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("data");
 	private final IssueSearchOptions issueSearchOptions = new IssueSearchOptions();
 	private IProcessor vulnerabilityProcessor;
+	private String searchString;
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
@@ -95,10 +89,9 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	public boolean process(Context context) {
 		IProcessor processor = getVulnerabilityProcessor();
 		processor.process(Phase.PRE_PROCESS, context);
-		IContextSSCSource contextSSC = context.as(IContextSSCSource.class);
+		IContextSSCCommon contextSSC = context.as(IContextSSCCommon.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String filterParamValue = contextSSC.getSSCTopLevelFilterParamValue();
 		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
 		conn.updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
@@ -111,9 +104,8 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 					.queryParam("limit", "50")
 					.queryParam("start", start)
 					.resolveTemplate("SSCApplicationVersionId", contextSSC.getSSCApplicationVersionId());
-			if ( StringUtils.isNotBlank(filterParamValue) ) {
-				// Any better way to add query parameter without encoding the value?
-				resource = conn.getResource(resource.getUri().toString()+"&q="+filterParamValue);
+			if ( StringUtils.isNotBlank(getSearchString()) ) {
+				resource = resource.queryParam("q", getSearchString());
 			}
 			LOG.debug("[SSC] Retrieving vulnerabilities from "+resource);
 			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);
@@ -133,7 +125,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		}
 		return processor.process(Phase.POST_PROCESS, context);
 	}
-	
+
 	public SimpleExpression getRootExpression() {
 		return rootExpression;
 	}
@@ -154,5 +146,11 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		return issueSearchOptions;
 	}
 
-	
+	public String getSearchString() {
+		return searchString;
+	}
+
+	public void setSearchString(String searchString) {
+		this.searchString = searchString;
+	}
 }

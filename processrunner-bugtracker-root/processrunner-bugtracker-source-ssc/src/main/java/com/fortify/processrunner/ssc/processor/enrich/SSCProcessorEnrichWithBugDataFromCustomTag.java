@@ -23,6 +23,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.enrich;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
@@ -45,7 +47,7 @@ public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProce
 	
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		if ( customTagName != null ) {
+		if ( StringUtils.isNotBlank(customTagName) ) {
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String customTagGuid = conn.getCustomTagGuid(customTagName);
 			String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);

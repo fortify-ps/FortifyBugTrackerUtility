@@ -32,27 +32,53 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<import resource="components/input/SSCInputConfig.xml"/>
-	
 	<!--==================================================================================-->
-	<!-- SSC VULNERABILITY UPDATER CONFIGURATION -->
+	<!-- SSC CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- This bean is responsible for updating SSC vulnerabilities with information
-	     about submitted bug tracker issues. -->
-	<bean class="com.fortify.processrunner.ssc.vulnerability.SSCVulnerabilityUpdater">
-		<!-- Define the SSC custom tag name used to store the bug link. Note that
-		     this custom field must be assigned to the application version for
-		     which you are submitting issues to the bug tracker. If not defined 
-		     (commented out), you must install and configure the SSC 
-		     AddExistingBugLinkBugTracker for your application versions. -->
+	<!-- Auto-configure various components -->
+	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	
+	<!-- SSC configuration properties -->
+	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
+		     the external system. Please see the Syntax Guide for the SSC search box for
+		     information about the syntax for this filter. You can use the same SSC search
+		     box to test your filter strings. -->
+		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
+			analysis:exploitable
+		</value></property>
+		
+		<!-- Set additional filters for vulnerabilities to be submitted to the external
+		     system, if you require any filtering that cannot be performed by SSC directly. -->
+		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
+			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
+		</map></property>
+		
+		<!-- Specify whether, and how information about the submitted vulnerabilities
+		     should be added to SSC. If all of these are disabled, no information
+		     about the submitted vulnerability will be stored in SSC, resulting in
+		     all vulnerabilities being submitted again on a next invocation, and
+		     disabling bug state management. You should enable at most one of these
+		     options. Bug data can either be stored in a custom tag, or submitted
+		     through the SSC 'Add Existing Bugs' custom bug tracker integration, to
+		     be stored as a native SSC bug tracker link. -->
 		<property name="bugLinkCustomTagName" value="OctaneBugLink"/>
+		<!-- <property name="addNativeBugLink" value="true"/> -->
 		
 		<!-- Allow the user to see ALM Octane issue phase name in SSC. Any custom tags that 
 		     do not exist or are not assigned to the application version will be ignored. -->
 		<property name="extraCustomTags"><map>
 			<entry key="OctaneIssueState" value="${issueStateDetails.phase.name}"/>
 		</map></property>
+		
+		<!-- This property defines the expression for evaluating whether an SSC 
+		     vulnerability should be considered open or closed. This expression
+		     can use any SSC vulnerability attribute. Commonly used attributes
+		     for this expression include removed and suppressed. -->
+		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
+			removed==false && suppressed==false
+		]]></value></property>
 	</bean>
 	
 	<!--==================================================================================-->
@@ -166,6 +192,49 @@
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	</bean>
 	
-	<import resource="components/issueState/OctaneIssueState.xml"/>
+	<!-- This bean defines the processor configuration for updating Octane issue state
+	     based on vulnerability state. This processor can update issue fields, 
+	     automatically re-open issues, and automatically close issues. Each of these
+	     actions is optional; if a property is not defined, the corresponding action
+	     will not be performed.
+	-->
+	<bean id="octaneIssueUpdater" class="com.fortify.processrunner.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
+		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
+		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
+		     considered openable/closeable if a valid transition exists. -->
+		<!--
+		<property name="isIssueOpenableExpression"><value><![CDATA[
+			phase.name matches 'something|something else'
+		]]></value></property>
+		<property name="isIssueCloseableExpression"><value><![CDATA[
+			
+		]]></value></property>
+		-->
+		
+		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
+		     that defines when to use a specific transition; this is usually based on issue phase.name.
+		     The map value defines one or more names of transitions that need to be performed in order to 
+		     re-open or close an issue. For each transition, you can specify an optional comment between
+		     brackets. If your Octane instance uses non-standard workflows, you may need to update these
+		     mappings.-->
+		<property name="transitionsForOpeningIssue"><map>
+			<!-- Octane default workflow -->
+			<entry key="phase.name matches 'Fixed'" value="Opened[Issue re-opened by FoDBugTrackerUtility]"/>
+		</map></property>
+		<property name="transitionsForClosingIssue"><map>
+			<!-- Octane default workflow -->
+			<entry key="phase.name matches 'New|Deferred'"><list>
+				<value>Opened[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>Fixed[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>Closed[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
+			<entry key="phase.name matches 'Opened'"><list>
+				<value>Fixed[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>Closed[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
+			<entry key="phase.name matches 'Fixed'" value="Closed[Issue closed by FoDBugTrackerUtility]"/>
+		</map></property>
+	</bean>
+
 	
 </beans>
