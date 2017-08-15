@@ -44,7 +44,7 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
 /**
  * <p>This composite {@link IProcessor} implementation combines various
  * {@link IProcessor} implementations for retrieving and filtering
- * FoD vulnerabilities, and processing each vulnerability using the 
+ * SSC vulnerabilities, and processing each vulnerability using the 
  * {@link IProcessor} implementation returned by the 
  * {@link #createVulnerabilityProcessor()} that needs to be implemented
  * by subclasses.</p> 
@@ -62,7 +62,6 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 	private Map<String,String> topLevelFieldSimpleFilters;
 	private Map<String,Pattern> topLevelFieldRegExFilters;
 	private Map<String,Pattern> allFieldRegExFilters;
-	private boolean includeIssueDetails;
 	
 	@Override
 	protected void addCompositeContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
@@ -141,13 +140,5 @@ public abstract class AbstractSSCProcessorRetrieveFilteredVulnerabilities extend
 
 	public void setAllFieldRegExFilters(Map<String, Pattern> allFieldRegExFilters) {
 		this.allFieldRegExFilters = allFieldRegExFilters;
-	}
-
-	public boolean isIncludeIssueDetails() {
-		return includeIssueDetails;
-	}
-
-	public void setIncludeIssueDetails(boolean includeIssueDetails) {
-		this.includeIssueDetails = includeIssueDetails;
 	}
 }

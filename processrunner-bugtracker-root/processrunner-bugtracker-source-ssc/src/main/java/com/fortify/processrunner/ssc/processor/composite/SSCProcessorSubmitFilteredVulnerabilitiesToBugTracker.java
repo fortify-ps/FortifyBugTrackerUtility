@@ -67,7 +67,7 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 	
 	@Override
 	protected IProcessor getVulnerabilityProcessor() {
-		return new CompositeProcessor(getVulnState(), getSubmitIssueProcessor());
+		return new CompositeProcessor(getEnrichWithVulnStateProcessor(), getSubmitIssueProcessor());
 	}
 
 	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
@@ -88,16 +88,15 @@ public class SSCProcessorSubmitFilteredVulnerabilitiesToBugTracker extends Abstr
 		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 	
-	public SSCProcessorEnrichWithVulnState getVulnState() {
+	public SSCProcessorEnrichWithVulnState getEnrichWithVulnStateProcessor() {
 		return enrichWithVulnStateProcessor;
 	}
 
 	@Autowired(required=false)
 	public void setConfiguration(SSCBugTrackerProcessorConfiguration config) {
 		setAllFieldRegExFilters(config.getAllFieldRegExFilters());
-		setIncludeIssueDetails(config.isIncludeIssueDetails());
 		setTopLevelFieldRegExFilters(config.getTopLevelFieldRegExFilters());
 		setTopLevelFieldSimpleFilters(config.getTopLevelFieldSimpleFilters());
-		getVulnState().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
+		getEnrichWithVulnStateProcessor().setIsVulnerabilityOpenExpression(config.getIsVulnerabilityOpenExpression());
 	}
 }

@@ -77,7 +77,7 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 					return getApplicationVersionEntities(projectVersionId, "customTags");
 				}
 			});
-	/** Cache for project version custom tags */
+	/** Cache for project version application attributes */
 	private final LoadingCache<String, JSONList> avAttributesCache = CacheBuilder.newBuilder().maximumSize(10)
 			.build(new CacheLoader<String, JSONList>() {
 				@Override

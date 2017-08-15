@@ -70,13 +70,6 @@
 		<property name="allFieldRegExFilters"><map>
 		</map></property>
 		
-		<!-- Indicate whether additional issue details should be loaded from SSC. 
-		     If set to false, only data returned by 
-		     /api/v1/projectVersions/${SSCApplicationVersionId}/issues
-		     will be available. If set to true, data returned by
-		     /api/v1/issueDetails will also be available. -->
-		<property name="includeIssueDetails" value="true"/>
-		
 		<!-- This property defines the expression for evaluating whether an SSC 
 		     vulnerability should be considered open or closed. This expression
 		     can use any SSC vulnerability attribute. Commonly used attributes
