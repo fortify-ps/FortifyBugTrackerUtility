@@ -25,6 +25,8 @@ package com.fortify.processrunner.octane.processor;
 
 import java.util.LinkedHashMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
@@ -57,6 +59,7 @@ public class ProcessorOctaneSubmitIssueForVulnerabilities extends AbstractProces
 	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextOctane contextOctane = context.as(IContextOctane.class);
 		OctaneAuthenticatingRestConnection conn = OctaneConnectionFactory.getConnection(context);
+		issueData.put("name", StringUtils.abbreviate((String)issueData.get("name"), 254));
 		return conn.submitIssue(new OctaneSharedSpaceAndWorkspaceId(contextOctane.getOctaneSharedSpaceUid(), contextOctane.getOctaneWorkspaceId()), issueData);
 	}
 	
