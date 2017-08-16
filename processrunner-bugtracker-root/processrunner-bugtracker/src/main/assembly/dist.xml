@@ -1,0 +1,31 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+	<id>dist</id>
+	<baseDirectory>/</baseDirectory>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${project.build.directory}</directory>
+			<includes>
+				<include>*.xml</include>
+				<include>FortifyBugTrackerUtility-${project.version}-dependency-sources.zip</include>
+				<include>FortifyBugTrackerUtility-${project.version}.jar</include>
+			</includes>
+			<excludes>
+				<exclude>dependency-reduced-pom.xml</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${project.build.directory}/../../..</directory>
+			<includes>
+				<include>README.md</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>

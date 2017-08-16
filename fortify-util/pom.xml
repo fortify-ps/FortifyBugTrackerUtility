@@ -26,7 +26,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.util</groupId>
 	<artifactId>fortify-util</artifactId>
-	<version>2.0</version>
+	<version>3.0</version>
 	<packaging>pom</packaging>
 	<organization>
 		<name>HPE Security Fortify</name>
@@ -58,25 +58,25 @@
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>spring-util</artifactId>
-				<version>2.0</version>
+				<version>3.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>rest-util</artifactId>
-				<version>2.0</version>
+				<version>3.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>fod-util</artifactId>
-				<version>2.0</version>
+				<version>3.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>ssc-util</artifactId>
-				<version>2.0</version>
+				<version>3.0</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
