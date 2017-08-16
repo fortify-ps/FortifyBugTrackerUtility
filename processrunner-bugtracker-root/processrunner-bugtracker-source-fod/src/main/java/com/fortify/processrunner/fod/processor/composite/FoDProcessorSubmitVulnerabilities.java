@@ -31,7 +31,21 @@ import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVuln
 import com.fortify.processrunner.processor.IProcessor;
 
 /**
- * TODO Update class comment
+ * <p>This {@link IProcessor} implementation combines and configures 
+ * {@link FoDProcessorRetrieveVulnerabilities}, {@link FoDBugTrackerProcessorConfiguration} 
+ * and {@link IProcessorSubmitIssueForVulnerabilities} (provided by the bug tracker 
+ * implementation) to allow for submitting FoD vulnerabilities to bug trackers or
+ * other external systems.</p> 
+ * 
+ * <p>This combined configuration will retrieve all open FoD vulnerabilities based on
+ * configured search/filtering criteria, optionally group the vulnerabilities based on
+ * a configurable grouping expression (if supported by the bug tracker implementation),
+ * and then submit the grouped vulnerabilities to the bug tracker or other external system.
+ * Optionally, the bug tracker issue link can be stored in FoD for each submitted 
+ * vulnerability, for state management purposes (see {@link FoDProcessorUpdateState}) and
+ * to allow the user to navigate back and forth between FoD and bug tracker.</p> 
+ * 
+ * @author Ruud Senden
  */
 @Component
 public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor {
@@ -45,7 +59,8 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 			getConfiguration().getFiltersForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()),
 			submitIssueProcessor
 		);
-		result.setIncludeRemoved(false);
+		result.setIncludeFixed(false);
+		result.setIncludeSuppressed(false);
 		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
 		return result;
 	}

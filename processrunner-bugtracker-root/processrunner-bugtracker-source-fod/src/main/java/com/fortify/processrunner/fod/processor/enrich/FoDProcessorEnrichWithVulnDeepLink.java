@@ -23,25 +23,30 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.enrich;
 
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
-import com.fortify.util.json.JSONMap;
+import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This class determines the FoD browser-viewable deep link for the current vulnerability,
- * and adds this link as the 'deepLink' property to the current vulnerability JSON object.
+ * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink} provides an FoD-specific 
+ * deep link URI expression.
+ * 
+ * @author Ruud Senden
  */
-public class FoDProcessorEnrichWithVulnDeepLink extends AbstractFoDProcessorEnrich {
-	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("redirect/Issues/${vulnId}");
-
+public class FoDProcessorEnrichWithVulnDeepLink extends AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink {
+	private static final TemplateExpression DEEP_LINK_URI_EXPRESSION = SpringExpressionUtil.parseTemplateExpression("redirect/Issues/${vulnId}");
+	
 	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		String baseUrl = FoDConnectionFactory.getConnection(context).getBaseUrl();
-		String deepLink = baseUrl + ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, deepLinkUriExpression, String.class);
-		currentVulnerability.put("deepLink", deepLink);
-		return true;
+	protected TemplateExpression getDeepLinkUriExpression() {
+		return DEEP_LINK_URI_EXPRESSION;
 	}
+	
+	@Override
+	protected IRestConnection getConnection(Context context) {
+		return FoDConnectionFactory.getConnection(context);
+	}
+	
 }

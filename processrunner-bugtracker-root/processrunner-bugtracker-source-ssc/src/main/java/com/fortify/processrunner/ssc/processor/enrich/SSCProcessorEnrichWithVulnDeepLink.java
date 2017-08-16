@@ -23,27 +23,30 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.enrich;
 
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.util.json.JSONMap;
+import com.fortify.util.rest.IRestConnection;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This class determines the SSC browser-viewable deep link for the current vulnerability,
- * and adds this link as the 'deepLink' property to the current vulnerability JSON object.
+ * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink} provides an FoD-specific 
+ * deep link URI expression.
  * 
  * @author Ruud Senden
  */
-public class SSCProcessorEnrichWithVulnDeepLink extends AbstractSSCProcessorEnrich {
-	private TemplateExpression deepLinkUriExpression = SpringExpressionUtil.parseTemplateExpression("/html/ssc/index.jsp#!/version/${projectVersionId}/fix/${id}/");
-
+public class SSCProcessorEnrichWithVulnDeepLink extends AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink {
+	private static final TemplateExpression DEEP_LINK_URI_EXPRESSION = SpringExpressionUtil.parseTemplateExpression("/html/ssc/index.jsp#!/version/${projectVersionId}/fix/${id}/");
+	
 	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		String baseUrl = SSCConnectionFactory.getConnection(context).getBaseUrl();
-		String deepLink = baseUrl + ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, deepLinkUriExpression, String.class);
-		currentVulnerability.put("deepLink", deepLink);
-		return true;
+	protected TemplateExpression getDeepLinkUriExpression() {
+		return DEEP_LINK_URI_EXPRESSION;
 	}
+	
+	@Override
+	protected IRestConnection getConnection(Context context) {
+		return SSCConnectionFactory.getConnection(context);
+	}
+	
 }

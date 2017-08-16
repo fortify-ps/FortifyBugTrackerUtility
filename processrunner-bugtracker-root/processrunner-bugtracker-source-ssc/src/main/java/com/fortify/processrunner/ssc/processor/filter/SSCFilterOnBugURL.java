@@ -27,6 +27,13 @@ import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
 
+/**
+ * This class allows for including or excluding SSC vulnerabilities based on whether 
+ * the vulnerability bugURL field contains any value or not.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class SSCFilterOnBugURL extends FilterRegEx {
 	public SSCFilterOnBugURL(boolean excludeVulnerabilitiesWithBugURL) {
 		super("CurrentVulnerability", "bugURL", Pattern.compile("^\\S+$"), excludeVulnerabilitiesWithBugURL);

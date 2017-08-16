@@ -23,35 +23,46 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.enrich;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 
 /**
- * Enrich the current vulnerability with the bug link from the configured {@link #customTagName}
- * custom tag.
+ * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds an on-demand 
+ * (see {@link IOnDemandPropertyLoader}) bugURL property to the current vulnerability that 
+ * retrieves the bug URL from a configurable custom tag. We use {@link IOnDemandPropertyLoader} 
+ * because the custom tag values are loaded on-demand as well as part of the vulnerability 
+ * details (see {@link SSCProcessorEnrichWithOnDemandIssueDetails}.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCProcessorEnrichWithBugDataFromCustomTag extends AbstractSSCProcessorEnrich {
+public class SSCProcessorEnrichWithOnDemandBugURLFromCustomTag extends AbstractProcessorEnrichCurrentVulnerability {
 	private final String customTagName;
-	public SSCProcessorEnrichWithBugDataFromCustomTag(String customTagName) {
+	public SSCProcessorEnrichWithOnDemandBugURLFromCustomTag(String customTagName) {
 		this.customTagName = customTagName;
 	}
 	
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {
 		if ( StringUtils.isNotBlank(customTagName) ) {
-			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-			String customTagGuid = conn.getCustomTagGuid(customTagName);
-			String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
-			currentVulnerability.put("bugURL", bugLink);
+			currentVulnerability.put("bugURL", new IOnDemandPropertyLoader<String>() {
+				private static final long serialVersionUID = 1L;
+				public String getValue(Context ctx, Map<?, ?> targetMap) {
+					SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(ctx);
+					String customTagGuid = conn.getCustomTagGuid(customTagName);
+					return ContextSpringExpressionUtil.evaluateExpression(ctx, targetMap, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
+				}
+			});
 		}
 		return true;
 	}

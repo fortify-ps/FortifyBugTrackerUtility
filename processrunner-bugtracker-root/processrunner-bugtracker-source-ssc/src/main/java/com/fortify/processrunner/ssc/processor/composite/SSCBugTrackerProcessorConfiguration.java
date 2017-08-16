@@ -51,7 +51,7 @@ import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerN
 import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithBugDataFromCustomTag;
+import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandBugURLFromCustomTag;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
@@ -61,10 +61,11 @@ import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This class holds all configuration properties for 
- * {@link SSCProcessorSubmitVulnerabilities} and
- * {@link SSCProcessorUpdateState} to allow for
- * easy Spring-based configuration.
+ * This class holds all SSC-related configuration properties used to submit vulnerabilities
+ * to a bug tracker or other external system, and performing issue state management.
+ * Based on these configuration properties, this class provides various functionalities
+ * like checking the current {@link Context}, generating filters and vulnerability enrichers,
+ * and updating SSC vulnerabilities with information about submitted bug tracker issues. 
  * 
  * @author Ruud Senden
  *
@@ -178,7 +179,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 	
 	public IProcessor getEnrichersForVulnerabilitiesAlreadySubmitted() {
 		CompositeProcessor result = new CompositeProcessor(getDefaultEnrichers());
-		result.addProcessors(new SSCProcessorEnrichWithBugDataFromCustomTag(getBugLinkCustomTagName()));
+		result.addProcessors(new SSCProcessorEnrichWithOnDemandBugURLFromCustomTag(getBugLinkCustomTagName()));
 		return result;
 	}
 	

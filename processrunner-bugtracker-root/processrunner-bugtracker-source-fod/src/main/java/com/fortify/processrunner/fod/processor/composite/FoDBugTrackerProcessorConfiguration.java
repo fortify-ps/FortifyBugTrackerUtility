@@ -50,10 +50,11 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
- * This class holds all configuration properties for 
- * {@link FoDProcessorSubmitFilteredVulnerabilitiesToBugTracker} and
- * {@link FoDProcessorUpdateBugTrackerState} to allow for
- * easy Spring-based configuration.
+ * This class holds all FoD-related configuration properties used to submit vulnerabilities
+ * to a bug tracker or other external system, and performing issue state management.
+ * Based on these configuration properties, this class provides various functionalities
+ * like checking the current {@link Context}, generating filters and vulnerability enrichers,
+ * and updating FoD vulnerabilities with information about submitted bug tracker issues. 
  * 
  * @author Ruud Senden
  *

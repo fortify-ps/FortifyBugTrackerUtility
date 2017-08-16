@@ -23,36 +23,19 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.enrich;
 
-import com.fortify.processrunner.common.bugtracker.issue.IssueState;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.util.json.JSONMap;
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithVulnState;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
-public class FoDProcessorEnrichWithVulnState extends AbstractFoDProcessorEnrich {
-	public static final String NAME_VULN_STATE = "vulnState";
-	public static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");;
-	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
-	
+/**
+ * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithVulnState} provides an FoD-specific 
+ * default expression for determining whether a vulnerability is considered open or closed.
+ * 
+ * @author Ruud Senden
+ */
+public class FoDProcessorEnrichWithVulnState extends AbstractProcessorEnrichCurrentVulnerabilityWithVulnState {
 	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		boolean isOpen = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, isVulnerabilityOpenExpression, Boolean.class);
-		currentVulnerability.put(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
-		return true;
-	}
-
-	/**
-	 * @return the isVulnerabilityOpenExpression
-	 */
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
-	}
-
-	/**
-	 * @param isVulnerabilityOpenExpression the isVulnerabilityOpenExpression to set
-	 */
-	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
+	protected SimpleExpression getDefaultIsVulnerabilityOpenExpression() {
+		return SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	}
 }

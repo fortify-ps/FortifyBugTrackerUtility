@@ -34,12 +34,19 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This {@link IProcessor} implementation allows for updating tracker state
- * based on SSC vulnerability state. It will retrieve all SSC vulnerabilities
- * (both open and closed) that have been previously submitted to the bug tracker,
- * group them by external bug link/id, and determine whether all vulnerabilities
- * in each group can be considered 'closed' and thus the corresponding bug
- * can be closed as well. 
+ * <p>This {@link IProcessor} implementation combines and configures 
+ * {@link FoDProcessorRetrieveVulnerabilities}, {@link FoDBugTrackerProcessorConfiguration} 
+ * and {@link AbstractProcessorUpdateIssueStateForVulnerabilities} (provided by the bug 
+ * tracker implementation) to allow for updating bug tracker issue state based on FoD 
+ * vulnerability state, and vice versa.</p> 
+ * 
+ * <p>This combined configuration will retrieve all FoD vulnerabilities (both open and closed) 
+ * that have been previously submitted to the bug tracker, group them by external bug link/id, 
+ * and then allow the bug tracker implementation to update the bug tracker issue with updated 
+ * vulnerability state, like updating issue fields and automatically re-opening or closing the 
+ * bug tracker issue based on corresponding vulnerability states. Generic functionality for 
+ * updating FoD vulnerability state based on bug tracker issue state is provided by 
+ * {@link FoDBugTrackerProcessorConfiguration}, but has not yet been implemented for FoD. 
  * 
  * @author Ruud Senden
  */
@@ -54,7 +61,8 @@ public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor {
 			getConfiguration().getFiltersForVulnerabilitiesAlreadySubmitted(),
 			getUpdateIssueStateProcessor()
 		);
-		result.setIncludeRemoved(true);
+		result.setIncludeFixed(true);
+		result.setIncludeSuppressed(true);
 		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesAlreadySubmitted());
 		return result;
 	}

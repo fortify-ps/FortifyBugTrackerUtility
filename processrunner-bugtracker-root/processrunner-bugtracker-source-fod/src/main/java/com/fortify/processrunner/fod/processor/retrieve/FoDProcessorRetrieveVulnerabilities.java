@@ -61,7 +61,8 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private static final Log LOG = LogFactory.getLog(FoDProcessorRetrieveVulnerabilities.class);
 	private static final SimpleExpression EXPR_COUNT = SpringExpressionUtil.parseSimpleExpression("totalCount");
 	private SimpleExpression rootExpression = SpringExpressionUtil.parseSimpleExpression("items");
-	private boolean includeRemoved;
+	private boolean includeFixed = false;
+	private boolean includeSuppressed = false;
 	private IProcessor vulnerabilityProcessor;
 	private String searchString;
 	
@@ -102,8 +103,11 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 			if ( StringUtils.isNotBlank(getSearchString()) ) {
 				resource = resource.queryParam("filters", getSearchString());
 			}
-			if ( isIncludeRemoved() ) {
-				resource = resource.queryParam("includeFixed", "true").queryParam("includeSuppressed", "true");
+			if ( isIncludeFixed() ) {
+				resource = resource.queryParam("includeFixed", "true");
+			}
+			if ( isIncludeSuppressed() ) {
+				resource = resource.queryParam("includeSuppressed", "true");
 			}
 			LOG.debug("[FoD] Retrieving vulnerabilities from "+resource);
 			JSONMap data = conn.executeRequest(HttpMethod.GET, resource, JSONMap.class);
@@ -139,12 +143,20 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
-	public boolean isIncludeRemoved() {
-		return includeRemoved;
+	public boolean isIncludeFixed() {
+		return includeFixed;
 	}
 
-	public void setIncludeRemoved(boolean includeRemoved) {
-		this.includeRemoved = includeRemoved;
+	public void setIncludeFixed(boolean includeFixed) {
+		this.includeFixed = includeFixed;
+	}
+
+	public boolean isIncludeSuppressed() {
+		return includeSuppressed;
+	}
+
+	public void setIncludeSuppressed(boolean includeSuppressed) {
+		this.includeSuppressed = includeSuppressed;
 	}
 
 	public String getSearchString() {

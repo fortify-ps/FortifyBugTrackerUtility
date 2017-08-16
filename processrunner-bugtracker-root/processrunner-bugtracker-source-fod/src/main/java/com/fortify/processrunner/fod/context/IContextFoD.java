@@ -28,8 +28,9 @@ import com.fortify.util.json.JSONMap;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to FoD data like FoD connection properties, FoD REST connection, release 
- * id and top level filter parameter values.
+ * access to FoD data like FoD connection properties and FoD release names/id's.
+ * 
+ * @author Ruud Senden
  */
 public interface IContextFoD {
 	public static final String PRP_BASE_URL = "FoDBaseUrl";

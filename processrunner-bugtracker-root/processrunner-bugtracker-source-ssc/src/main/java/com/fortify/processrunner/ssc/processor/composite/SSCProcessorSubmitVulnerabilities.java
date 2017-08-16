@@ -31,7 +31,23 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
 /**
- * TODO Update class comment
+ * <p>This {@link IProcessor} implementation combines and configures 
+ * {@link SSCProcessorRetrieveVulnerabilities}, {@link SSCBugTrackerProcessorConfiguration} 
+ * and {@link IProcessorSubmitIssueForVulnerabilities} (provided by the bug tracker 
+ * implementation) to allow for submitting SSC vulnerabilities to bug trackers or
+ * other external systems.</p> 
+ * 
+ * <p>This combined configuration will retrieve all open SSC vulnerabilities based on
+ * configured search/filtering criteria, optionally group the vulnerabilities based on
+ * a configurable grouping expression (if supported by the bug tracker implementation),
+ * and then submit the grouped vulnerabilities to the bug tracker or other external system.
+ * Optionally, the bug tracker issue link can be stored in SSC for each submitted 
+ * vulnerability, for state management purposes (see {@link SSCProcessorUpdateState}) and
+ * to allow the user to navigate back and forth between SSC and bug tracker. Additional
+ * custom tags to hold information about the submitted bug tracker issue can be 
+ * configured as well.</p> 
+ * 
+ * @author Ruud Senden
  */
 @Component
 public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor {

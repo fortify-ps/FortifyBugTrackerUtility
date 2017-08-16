@@ -34,6 +34,13 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 
+/**
+ * This class allows for instantiating and caching {@link FoDAuthenticatingRestConnection}
+ * instances based on {@link Context} properties.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public final class FoDConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {

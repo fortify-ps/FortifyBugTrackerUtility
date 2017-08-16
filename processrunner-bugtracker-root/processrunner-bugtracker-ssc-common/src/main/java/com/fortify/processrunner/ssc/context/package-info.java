@@ -21,25 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.processor.enrich;
-
-import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.processor.AbstractProcessor;
-import com.fortify.util.json.JSONMap;
-
+package com.fortify.processrunner.ssc.context;
 /**
- * Abstract base class for enriching SSC vulnerability data with additional details
+ * This package contains a single interface for use with {@link com.fortify.processrunner.context.Context}
+ * for managing SSC-specific context properties. 
  * 
- * @author Ruud Senden
- *
  */
-public abstract class AbstractSSCProcessorEnrich extends AbstractProcessor {
-	@Override
-	protected boolean process(Context context) {
-		JSONMap currentVulnerability = (JSONMap) context.as(IContextCurrentVulnerability.class).getCurrentVulnerability();
-		return enrich(context, currentVulnerability);
-	}
-
-	protected abstract boolean enrich(Context context, JSONMap currentVulnerability);
-}

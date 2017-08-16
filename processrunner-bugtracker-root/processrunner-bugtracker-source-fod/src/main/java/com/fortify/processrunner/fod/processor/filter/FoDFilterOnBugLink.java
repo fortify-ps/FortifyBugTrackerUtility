@@ -27,6 +27,13 @@ import java.util.regex.Pattern;
 
 import com.fortify.processrunner.filter.FilterRegEx;
 
+/**
+ * This class allows for including or excluding FoD vulnerabilities based on whether 
+ * the vulnerability bugLink field contains any value or not.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class FoDFilterOnBugLink extends FilterRegEx {
 	public FoDFilterOnBugLink(boolean excludeVulnerabilitiesWithBugURL) {
 		super("CurrentVulnerability", "bugLink", Pattern.compile("^\\S+$"), excludeVulnerabilitiesWithBugURL);

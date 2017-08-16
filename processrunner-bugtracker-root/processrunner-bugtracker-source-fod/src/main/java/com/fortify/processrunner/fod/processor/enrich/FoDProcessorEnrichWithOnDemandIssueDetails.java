@@ -25,9 +25,9 @@ package com.fortify.processrunner.fod.processor.enrich;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.util.ondemand.AbstractOnDemandRestPropertyLoader;
@@ -36,9 +36,9 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
- * This class allows for loading additional vulnerability details from FoD and adding them to the 
- * current FoD vulnerability JSON object. The following additional vulnerability details are
- * supported by this class:
+ * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds the following 
+ * on-demand properties to the current vulnerability, allowing this extra vulnerability data
+ * to be automatically loaded from FoD whenever these properties are being accessed:
  * <ul>
  *  <li>summary</li>
  *  <li>details</li>
@@ -50,11 +50,10 @@ import com.fortify.util.spring.expression.TemplateExpression;
  *  <li>parameters</li>
  *  <li>traces</li>
  * </ul>
- * The extra data from the list above to be added to the current vulnerability can be specified either 
- * via the constructor or the {@link #setFields(Set)} methods. The data will be added as a JSON object
- * to the current vulnerability under the corresponding property name.
+ * 
+ * @author Ruud Senden
  */
-public class FoDProcessorEnrichWithOnDemandIssueDetails extends AbstractFoDProcessorEnrich {
+public class FoDProcessorEnrichWithOnDemandIssueDetails extends AbstractProcessorEnrichCurrentVulnerability {
 	private static final Map<String, TemplateExpression> FIELD_TO_URI_EXPRESSION_MAP = getUriExpressionMap();
 
 	@Override

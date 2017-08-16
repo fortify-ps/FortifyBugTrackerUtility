@@ -23,19 +23,23 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.enrich;
 
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.util.ondemand.AbstractOnDemandRestPropertyLoader;
+import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
 import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONMap;
 
 /**
- * This class allows for loading additional issue details from SSC and adding them to the 
- * current SSC vulnerability JSON object.
+ * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds the
+ * vulnerability details as an on-demand object (see {@link IOnDemandPropertyLoader})
+ * to the current vulnerability.
  * 
  * @author Ruud Senden
+ *
  */
-public class SSCProcessorEnrichWithOnDemandIssueDetails extends AbstractSSCProcessorEnrich {
+public class SSCProcessorEnrichWithOnDemandIssueDetails extends AbstractProcessorEnrichCurrentVulnerability {
 
 	@Override
 	protected boolean enrich(Context context, JSONMap currentVulnerability) {

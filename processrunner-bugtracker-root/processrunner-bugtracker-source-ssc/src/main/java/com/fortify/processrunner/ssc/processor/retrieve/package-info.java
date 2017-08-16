@@ -23,6 +23,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.retrieve;
 /**
- * This package contains the main functionality for retrieving vulnerabilities from SSC.  
+ * This package contains a single {@link com.fortify.processrunner.processor.IProcessor} implementation
+ * that allows for retrieving SSC vulnerabilities and process them using another, configured 
+ * {@link com.fortify.processrunner.processor.IProcessor} implementation.
  * 
  */

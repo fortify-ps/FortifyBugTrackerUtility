@@ -36,8 +36,8 @@ import com.fortify.ssc.connection.SSCConnectionRetrieverUserCredentials;
 import com.fortify.util.rest.ProxyConfiguration;
 
 /**
- * This utility class creates and caches an {@link SSCAuthenticatingRestConnection} instance
- * based on {@link Context} properties. The created connection will be cached in the {@link Context}.
+ * This class allows for instantiating and caching {@link SSCAuthenticatingRestConnection}
+ * instances based on {@link Context} properties.
  * 
  * @author Ruud Senden
  *

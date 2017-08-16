@@ -28,7 +28,7 @@ import com.fortify.util.json.JSONMap;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to SSC data like connection properties and application version id.
+ * access to SSC data like connection properties and application version names/id's.
  * 
  * @author Ruud Senden
  */

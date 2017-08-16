@@ -34,12 +34,19 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This {@link IProcessor} implementation allows for updating tracker state
- * based on SSC vulnerability state. It will retrieve all SSC vulnerabilities
- * (both open and closed) that have been previously submitted to the bug tracker,
- * group them by external bug link/id, and determine whether all vulnerabilities
- * in each group can be considered 'closed' and thus the corresponding bug
- * can be closed as well. 
+ * <p>This {@link IProcessor} implementation combines and configures 
+ * {@link SSCProcessorRetrieveVulnerabilities}, {@link SSCBugTrackerProcessorConfiguration} 
+ * and {@link AbstractProcessorUpdateIssueStateForVulnerabilities} (provided by the bug 
+ * tracker implementation) to allow for updating bug tracker issue state based on SSC 
+ * vulnerability state, and vice versa.</p> 
+ * 
+ * <p>This combined configuration will retrieve all SSC vulnerabilities (both open and closed) 
+ * that have been previously submitted to the bug tracker, group them by external bug link/id, 
+ * and then allow the bug tracker implementation to update the bug tracker issue with updated 
+ * vulnerability state, like updating issue fields and automatically re-opening or closing the 
+ * bug tracker issue based on corresponding vulnerability states. Based on bug tracker issue 
+ * state, SSC vulnerability state may be updated as well, for example by setting custom tags 
+ * showing current bug tracker issue state. 
  * 
  * @author Ruud Senden
  */

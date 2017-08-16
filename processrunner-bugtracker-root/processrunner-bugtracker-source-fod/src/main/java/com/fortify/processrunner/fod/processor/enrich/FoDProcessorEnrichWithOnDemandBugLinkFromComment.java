@@ -28,12 +28,23 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
+import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
 import com.fortify.util.json.JSONMap;
 
-public class FoDProcessorEnrichWithOnDemandBugLinkFromComment extends AbstractFoDProcessorEnrich {
+/**
+ * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds an on-demand 
+ * (see {@link IOnDemandPropertyLoader}) bugLink property to the current vulnerability that 
+ * retrieves the bug link from the vulnerability comments (if available). We use 
+ * {@link IOnDemandPropertyLoader} because the actual comments are loaded on-demand as well
+ * as part of the vulnerability summary data (see {@link FoDProcessorEnrichWithOnDemandIssueDetails}.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class FoDProcessorEnrichWithOnDemandBugLinkFromComment extends AbstractProcessorEnrichCurrentVulnerability {
 	@Override
 	protected boolean enrich(Context context, JSONMap vuln) {
 		vuln.put("bugLink", new IOnDemandPropertyLoader<String>() {
