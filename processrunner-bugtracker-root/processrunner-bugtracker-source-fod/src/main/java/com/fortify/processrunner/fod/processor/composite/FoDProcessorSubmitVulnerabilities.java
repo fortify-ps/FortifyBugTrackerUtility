@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 
@@ -48,7 +49,7 @@ import com.fortify.processrunner.processor.IProcessor;
  * @author Ruud Senden
  */
 @Component
-public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor {
+public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor implements IProcessorSubmitVulnerabilities {
 	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
 	
 	@Override
@@ -72,6 +73,14 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 	@Autowired
 	public void setSubmitIssueProcessor(IProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
 		this.submitIssueProcessor = submitIssueProcessor;
+	}
+
+	public boolean isEnabled() {
+		return getSubmitIssueProcessor() != null;
+	}
+
+	public String getBugTrackerName() {
+		return getSubmitIssueProcessor() == null ? null : getSubmitIssueProcessor().getBugTrackerName();
 	}
 	
 	

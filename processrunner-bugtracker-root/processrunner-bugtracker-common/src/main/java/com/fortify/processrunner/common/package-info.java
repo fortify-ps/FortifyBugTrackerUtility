@@ -21,36 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.processrunner;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import com.fortify.processrunner.ProcessRunner;
-import com.fortify.processrunner.ssc.processrunner.SSCBugTrackerProcessRunner.ProcessRunnerType;
-
+package com.fortify.processrunner.common;
 /**
- * This class generated the {@link ProcessRunner} Spring beans
- * for submitting or updating external issues based on SSC vulnerabilities,
- * or both.
+ * This package contains {@link com.fortify.processrunner.common.BugTrackerProcessRunner}
+ * for running {@link com.fortify.processrunner.common.processor.ISubmitVulnerabilitiesProcessor}
+ * and {@link com.fortify.processrunner.common.processor.IUpdateStateProcessor}, and 
+ * {@link com.fortify.processrunner.fod.processrunner.FoDBugTrackerProcessRunnerConfiguration}
+ * to configure these process runners in a Spring application context.
  * 
- * @author Ruud Senden
- *
  */
-@Configuration
-public class SSCBugTrackerProcessRunnerConfiguration {
-	@Bean
-	public SSCBugTrackerProcessRunner submitVulnerabilities() {
-		return new SSCBugTrackerProcessRunner(ProcessRunnerType.SUBMIT);
-	}
-	
-	@Bean
-	public SSCBugTrackerProcessRunner submitVulnerabilitiesAndUpdateIssueState() {
-		return new SSCBugTrackerProcessRunner(ProcessRunnerType.SUBMIT_AND_UPDATE);
-	}
-	
-	@Bean
-	public SSCBugTrackerProcessRunner updateIssueState() {
-		return new SSCBugTrackerProcessRunner(ProcessRunnerType.UPDATE);
-	}
-}

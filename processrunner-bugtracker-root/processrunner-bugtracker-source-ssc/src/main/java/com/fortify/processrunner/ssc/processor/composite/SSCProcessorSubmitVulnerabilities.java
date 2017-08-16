@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
@@ -50,7 +51,7 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
  * @author Ruud Senden
  */
 @Component
-public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor {
+public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor implements IProcessorSubmitVulnerabilities {
 	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
 	
 	@Override
@@ -77,5 +78,12 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 		this.submitIssueProcessor = submitIssueProcessor;
 	}
 	
+	public boolean isEnabled() {
+		return getSubmitIssueProcessor() != null;
+	}
+
+	public String getBugTrackerName() {
+		return getSubmitIssueProcessor() == null ? null : getSubmitIssueProcessor().getBugTrackerName();
+	}
 	
 }

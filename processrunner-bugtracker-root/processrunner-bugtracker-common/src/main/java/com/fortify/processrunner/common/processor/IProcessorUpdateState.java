@@ -21,28 +21,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.processrunner;
+package com.fortify.processrunner.common.processor;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.fortify.processrunner.processor.IProcessor;
 
-import com.fortify.processrunner.fod.processrunner.FoDBugTrackerProcessRunner.ProcessRunnerType;
-
-
-@Configuration
-public class FoDBugTrackerProcessRunnerConfiguration {
-	@Bean
-	public FoDBugTrackerProcessRunner submitVulnerabilities() {
-		return new FoDBugTrackerProcessRunner(ProcessRunnerType.SUBMIT);
-	}
+/**
+ * This interface is to be implemented by the main processor implementation
+ * that updates issue state for issues previously submitted by a corresponding
+ * {@link IProcessorSubmitVulnerabilities}.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public interface IProcessorUpdateState extends IProcessor {
+	/**
+	 * @return boolean indicating whether this processor is enabled
+	 */
+	public boolean isEnabled();
 	
-	@Bean
-	public FoDBugTrackerProcessRunner submitVulnerabilitiesAndUpdateIssueState() {
-		return new FoDBugTrackerProcessRunner(ProcessRunnerType.SUBMIT_AND_UPDATE);
-	}
-	
-	@Bean
-	public FoDBugTrackerProcessRunner updateIssueState() {
-		return new FoDBugTrackerProcessRunner(ProcessRunnerType.UPDATE);
-	}
+	/**
+	 * @return bug tracker name for which this processor is currently configured
+	 */
+	public String getBugTrackerName();
 }

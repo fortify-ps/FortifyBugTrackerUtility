@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
@@ -51,7 +52,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  */
 @Component
-public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor {
+public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor implements IProcessorUpdateState {
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
@@ -78,5 +79,13 @@ public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor {
 		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(SSCProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
 		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugURL"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
+	}
+	
+	public boolean isEnabled() {
+		return getUpdateIssueStateProcessor() != null;
+	}
+
+	public String getBugTrackerName() {
+		return getUpdateIssueStateProcessor() == null ? null : getUpdateIssueStateProcessor().getBugTrackerName();
 	}
 }

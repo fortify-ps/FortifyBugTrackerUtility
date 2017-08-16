@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
+import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
@@ -51,7 +52,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  */
 @Component
-public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor {
+public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor implements IProcessorUpdateState {
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
 	
 	@Override
@@ -78,5 +79,13 @@ public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor {
 		updateIssueStateProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
 		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
 		this.updateIssueStateProcessor = updateIssueStateProcessor;
+	}
+	
+	public boolean isEnabled() {
+		return getUpdateIssueStateProcessor() != null;
+	}
+
+	public String getBugTrackerName() {
+		return getUpdateIssueStateProcessor() == null ? null : getUpdateIssueStateProcessor().getBugTrackerName();
 	}
 }
