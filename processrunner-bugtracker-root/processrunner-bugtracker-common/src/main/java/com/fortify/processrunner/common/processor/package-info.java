@@ -21,14 +21,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.bugtracker.issue;
-
+package com.fortify.processrunner.common.processor;
 /**
- * This enumeration defines possible vulnerability states, either OPEN or CLOSED.
+ * This package contains various utility and base classes for implementing an
+ * integration with a bug tracker or other external system. These classes allow
+ * for submitting data to these external systems, and for corresponding state
+ * management.
  * 
- * @author Ruud Senden
- *
  */
-public enum IssueState {
-	OPEN, CLOSED
-}
