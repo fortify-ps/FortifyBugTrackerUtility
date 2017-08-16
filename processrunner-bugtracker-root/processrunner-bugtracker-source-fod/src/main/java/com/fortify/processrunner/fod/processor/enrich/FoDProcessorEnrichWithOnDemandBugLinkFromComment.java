@@ -51,7 +51,7 @@ public class FoDProcessorEnrichWithOnDemandBugLinkFromComment extends AbstractPr
 			private static final long serialVersionUID = 1L;
 			public String getValue(Context ctx, Map<?, ?> targetMap) {
 				String matchExpression = ContextSpringExpressionUtil.evaluateTemplateExpression(ctx, ctx, "--- Vulnerability submitted to ${BugTrackerName}.*", String.class);
-				String spel = "CurrentVulnerability.summary.comments.$[comment matches '"+matchExpression+"']?.comment";
+				String spel = "CurrentVulnerability.summary?.comments?.$[comment matches '"+matchExpression+"']?.comment";
 				String bugComment = ContextSpringExpressionUtil.evaluateExpression(ctx, ctx, spel, String.class);
 				if ( StringUtils.isNotBlank(bugComment) ) {
 					return SubmittedIssueCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();

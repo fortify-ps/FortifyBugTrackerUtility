@@ -68,6 +68,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private final IssueSearchOptions issueSearchOptions = new IssueSearchOptions();
 	private IProcessor vulnerabilityProcessor;
 	private String searchString;
+	private String purpose;
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
@@ -92,7 +93,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextSSCCommon contextSSC = context.as(IContextSSCCommon.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		LOG.info("[SSC] Retrieving vulnerabilities for application version id "+contextSSC.getSSCApplicationVersionId()+" from "+conn.getBaseUrl());
+		LOG.info("[SSC] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from application version id "+contextSSC.getSSCApplicationVersionId()+" at "+conn.getBaseUrl());
 		conn.updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
@@ -153,4 +154,14 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	public void setSearchString(String searchString) {
 		this.searchString = searchString;
 	}
+
+	public String getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
+	
+	
 }

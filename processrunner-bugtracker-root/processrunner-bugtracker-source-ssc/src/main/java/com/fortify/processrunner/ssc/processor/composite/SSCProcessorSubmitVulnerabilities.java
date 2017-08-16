@@ -66,6 +66,7 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 		result.getIssueSearchOptions().setIncludeRemoved(false);
 		result.getIssueSearchOptions().setIncludeSuppressed(false);
 		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
+		result.setPurpose("submitting new vulnerabilities");
 		return result;
 	}
 

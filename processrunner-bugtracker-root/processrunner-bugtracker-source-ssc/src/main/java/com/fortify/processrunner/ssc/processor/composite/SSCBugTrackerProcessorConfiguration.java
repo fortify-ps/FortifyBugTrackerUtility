@@ -220,7 +220,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
 			conn.setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
-			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
+			LOG.info("[SSC] Updated custom tag values for "+vulnerabilities.size()+" SSC vulnerabilities");
 		}
 	}
 	
@@ -244,12 +244,11 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 	}
 	
 	private boolean needCustomTagUpdate(Context context, String customTagName, String newCustomTagValue, Collection<Object> vulnerabilities) {
-		String customTagGuid = SSCConnectionFactory.getConnection(context).getCustomTagGuid(customTagName);
 		return ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, 
 				"#this.?[" // Filter list of vulnerabilities 
-				+"details.customTagValues.?[customTagGuid=='"+customTagGuid+"'].size()==0" // Where custom tag is not yet set
+				+"details.customTagValues.?[customTagName=='"+customTagName+"'].size()==0" // Where custom tag is not yet set
 				+" || " // Or
-				+"details.customTagValues.?[customTagGuid=='"+customTagGuid+"' && textValue!='"+newCustomTagValue+"'].size()>0" // Where current value is different than new value
+				+"details.customTagValues.?[customTagName=='"+customTagName+"' && textValue!='"+newCustomTagValue+"'].size()>0" // Where current value is different than new value
 				+"].size()>0" // Return true if there are any such vulnerabilities, false if there are none
 				, Boolean.class);
 	}

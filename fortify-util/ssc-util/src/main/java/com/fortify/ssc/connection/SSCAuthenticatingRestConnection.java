@@ -351,6 +351,15 @@ public class SSCAuthenticatingRestConnection extends SSCBasicRestConnection {
 	}
 	
 	/**
+	 * Get the custom tag name for the given custom tag GUID
+	 * @param customTagGUID
+	 * @return
+	 */
+	public String getCustomTagName(String customTagGUID) {
+		return getCachedCustomTags().mapValue("guid", customTagGUID, "name", String.class);
+	}
+	
+	/**
 	 * Get the bug tracker plugin id's for the given bug tracker names in unspecified order
 	 * @param bugTrackerPluginNames
 	 * @return

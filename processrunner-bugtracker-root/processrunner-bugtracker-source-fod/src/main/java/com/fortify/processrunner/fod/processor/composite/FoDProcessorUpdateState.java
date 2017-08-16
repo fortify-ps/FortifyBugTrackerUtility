@@ -65,6 +65,7 @@ public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor i
 		result.setIncludeFixed(true);
 		result.setIncludeSuppressed(true);
 		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesAlreadySubmitted());
+		result.setPurpose("updating state");
 		return result;
 	}
 

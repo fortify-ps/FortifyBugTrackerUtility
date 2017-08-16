@@ -66,6 +66,7 @@ public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor i
 		result.getIssueSearchOptions().setIncludeRemoved(true);
 		result.getIssueSearchOptions().setIncludeSuppressed(true);
 		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesAlreadySubmitted());
+		result.setPurpose("updating state");
 		return result;
 	}
 

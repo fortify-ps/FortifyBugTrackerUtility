@@ -63,6 +63,7 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 		result.setIncludeFixed(false);
 		result.setIncludeSuppressed(false);
 		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
+		result.setPurpose("submitting new vulnerabilities");
 		return result;
 	}
 

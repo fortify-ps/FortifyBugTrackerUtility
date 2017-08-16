@@ -71,9 +71,19 @@ public abstract class AbstractOnDemandRestPropertyLoader implements IOnDemandPro
 	public JSONMap getValue(Context context, Map<?, ?> targetMap) {
 		IRestConnection conn = getConnection(context);
 		JSONMap jsonMap = conn.executeRequest(HttpMethod.GET, conn.getBaseResource().path(uri), JSONMap.class);
-		return dataExpression==null ? jsonMap : ContextSpringExpressionUtil.evaluateExpression(context, jsonMap, dataExpression, JSONMap.class);
+		JSONMap result = dataExpression==null ? jsonMap : ContextSpringExpressionUtil.evaluateExpression(context, jsonMap, dataExpression, JSONMap.class);
+		return updateData(context, result);
 	}
 	
+	/**
+	 * Subclasses can override this method to further update the data returned by the REST call
+	 * @param data
+	 * @return
+	 */
+	protected JSONMap updateData(Context context, JSONMap data) {
+		return data;
+	}
+
 	/**
 	 * Subclasses must implement this method to return an {@link IRestConnection} instance
 	 * to be used for invoking the REST calls.

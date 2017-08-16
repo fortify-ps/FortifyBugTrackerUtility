@@ -92,10 +92,10 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		SubmittedIssue submittedIssue = submitIssue(context, map); 
 		if ( submittedIssue != null ) {
+			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getBugTrackerName(), currentGroup.size(), submittedIssue.getDeepLink()));
 			if ( vulnerabilityUpdater != null ) {
 				vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getBugTrackerName(), submittedIssue, getIssueStateDetailsRetriever(), currentGroup);
 			}
-			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getBugTrackerName(), currentGroup.size(), submittedIssue.getDeepLink()));
 		}
 		return true;
 	}

@@ -65,6 +65,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	private boolean includeSuppressed = false;
 	private IProcessor vulnerabilityProcessor;
 	private String searchString;
+	private String purpose;
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
@@ -89,7 +90,7 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		IRestConnection conn = FoDConnectionFactory.getConnection(context);
-		LOG.info("[FoD] Retrieving vulnerabilities for release "+contextFoD.getFoDReleaseId()+" from "+conn.getBaseUrl());
+		LOG.info("[FoD] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from release "+contextFoD.getFoDReleaseId()+" at "+conn.getBaseUrl());
 		int start=0;
 		int count=50;
 		while ( start < count ) {
@@ -166,8 +167,13 @@ public class FoDProcessorRetrieveVulnerabilities extends AbstractProcessor {
 	public void setSearchString(String searchString) {
 		this.searchString = searchString;
 	}
-	
-	
-	
+
+	public String getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
 	
 }

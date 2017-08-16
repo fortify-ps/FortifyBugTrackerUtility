@@ -30,9 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.util.json.JSONList;
 import com.fortify.util.json.JSONMap;
 
@@ -58,9 +56,7 @@ public class SSCProcessorEnrichWithOnDemandBugURLFromCustomTag extends AbstractP
 			currentVulnerability.put("bugURL", new IOnDemandPropertyLoader<String>() {
 				private static final long serialVersionUID = 1L;
 				public String getValue(Context ctx, Map<?, ?> targetMap) {
-					SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(ctx);
-					String customTagGuid = conn.getCustomTagGuid(customTagName);
-					return ContextSpringExpressionUtil.evaluateExpression(ctx, targetMap, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
+					return ContextSpringExpressionUtil.evaluateExpression(ctx, targetMap, "details.customTagValues", JSONList.class).mapValue("customTagName", customTagName, "textValue", String.class);
 				}
 			});
 		}
