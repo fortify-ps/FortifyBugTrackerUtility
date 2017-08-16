@@ -195,7 +195,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
-		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever);
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
 		
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
 			customTagValues.put(getBugLinkCustomTagName(), submittedIssue.getDeepLink());
@@ -214,7 +214,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 	}
 
 	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
-		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever);
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
 		if ( !customTagValues.isEmpty() ) {
 			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
@@ -225,18 +225,33 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" }) // TODO Can we refactor such that we don't need to suppress these warnings?
-	private Map<String,String> getExtraCustomTagValues(Context context, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever) {
+	private Map<String,String> getExtraCustomTagValues(Context context, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
 		Map<String,String> result = new HashMap<String,String>();
 		if ( getExtraCustomTags()!=null ) {
 			List<String> availableCustomTagNames = getCustomTagNames(context);
 			SubmittedIssueAndIssueStateDetailsRetriever<?> data = new SubmittedIssueAndIssueStateDetailsRetriever(context, submittedIssue, issueStateDetailsRetriever);
 			for ( Map.Entry<String, TemplateExpression> entry : getExtraCustomTags().entrySet() ) {
 				if ( availableCustomTagNames.contains(entry.getKey()) ) {
-					result.put(entry.getKey(), ContextSpringExpressionUtil.evaluateExpression(context, data, entry.getValue(), String.class));
+					String customTagName = entry.getKey();
+					String newCustomTagValue = ContextSpringExpressionUtil.evaluateExpression(context, data, entry.getValue(), String.class);
+					if ( needCustomTagUpdate(context, customTagName, newCustomTagValue, vulnerabilities) ) {
+						result.put(entry.getKey(), newCustomTagValue);
+					}
 				}
 			}
 		}
 		return result;
+	}
+	
+	private boolean needCustomTagUpdate(Context context, String customTagName, String newCustomTagValue, Collection<Object> vulnerabilities) {
+		String customTagGuid = SSCConnectionFactory.getConnection(context).getCustomTagGuid(customTagName);
+		return ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, 
+				"#this.?[" // Filter list of vulnerabilities 
+				+"details.customTagValues.?[customTagGuid=='"+customTagGuid+"'].size()==0" // Where custom tag is not yet set
+				+" || " // Or
+				+"details.customTagValues.?[customTagGuid=='"+customTagGuid+"' && textValue!='"+newCustomTagValue+"'].size()>0" // Where current value is different than new value
+				+"].size()>0" // Return true if there are any such vulnerabilities, false if there are none
+				, Boolean.class);
 	}
 
 	private List<String> getCustomTagNames(Context context) {
