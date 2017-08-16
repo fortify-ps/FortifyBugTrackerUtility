@@ -24,8 +24,8 @@
 package com.fortify.processrunner.common;
 /**
  * This package contains {@link com.fortify.processrunner.common.BugTrackerProcessRunner}
- * for running {@link com.fortify.processrunner.common.processor.ISubmitVulnerabilitiesProcessor}
- * and {@link com.fortify.processrunner.common.processor.IUpdateStateProcessor}, and the abstract 
+ * for running {@link com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities}
+ * and {@link com.fortify.processrunner.common.processor.IProcessorUpdateState}, and the abstract 
  * {@link com.fortify.processrunner.common.AbstractBugTrackerProcessRunnerConfiguration}
  * for configuring these process runners in a Spring application context.
  */
