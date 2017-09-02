@@ -122,7 +122,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 	
 	private interface IContextSSCBugTracker {
 		public static final String PRP_USER_NAME = "SSCBugTrackerUserName";
-		public static final String PRP_PASSWORD = "SSCBugTrackerUserName";
+		public static final String PRP_PASSWORD = "SSCBugTrackerPassword";
 		
 		public void setSSCBugTrackerUserName(String userName);
 		public String getSSCBugTrackerUserName();
