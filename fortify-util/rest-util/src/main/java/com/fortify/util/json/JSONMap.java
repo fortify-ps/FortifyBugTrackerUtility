@@ -100,11 +100,4 @@ public class JSONMap extends LinkedHashMap<String, Object> {
 			intermediate.putPath(path.subList(1, path.size()), value);
 		}
 	}
-	
-	public static void main(String[] args) {
-		JSONMap t = new JSONMap();
-		t.putPath("update.comment[].add.body", "comment1");
-		t.putPath("update.comment[].add.body", "comment2");
-		System.out.println(t);
-	}
 }
