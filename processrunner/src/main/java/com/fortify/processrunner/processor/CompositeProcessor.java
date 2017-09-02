@@ -72,7 +72,7 @@ public class CompositeProcessor extends AbstractCompositeProcessor {
 	 * that make up this composite processor.
 	 * @param processors
 	 */
-	public void addProcessors(IProcessor... processors) {
+	public final void addProcessors(IProcessor... processors) {
 		this.processors.addAll(Arrays.asList(processors));
 	}
 }
