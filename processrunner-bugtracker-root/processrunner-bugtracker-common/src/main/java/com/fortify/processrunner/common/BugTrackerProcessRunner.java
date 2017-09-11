@@ -47,6 +47,7 @@ import com.fortify.processrunner.common.processor.IProcessorUpdateState;
  *
  */
 public class BugTrackerProcessRunner extends ProcessRunner {
+	private final String sourceSystemName;
 	private final ProcessRunnerType type;
 	protected IProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor;
 	protected IProcessorUpdateState updateStateProcessor;
@@ -55,7 +56,8 @@ public class BugTrackerProcessRunner extends ProcessRunner {
 		SUBMIT, UPDATE, SUBMIT_AND_UPDATE
 	}
 
-	public BugTrackerProcessRunner(ProcessRunnerType type) {
+	public BugTrackerProcessRunner(String sourceSystemName, ProcessRunnerType type) {
+		this.sourceSystemName = sourceSystemName;
 		this.type = type;
 	}
 
@@ -65,19 +67,19 @@ public class BugTrackerProcessRunner extends ProcessRunner {
 		case SUBMIT:
 			this.setProcessors(getSubmitVulnerabilitiesProcessor());
 			this.setEnabled(isSubmitVulnerabilitiesProcessorEnabled());
-			this.setDescription("Submit SSC vulnerabilities to "+getBugTrackerName());
+			this.setDescription("Submit "+sourceSystemName+" vulnerabilities to "+getBugTrackerName());
 			this.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && !isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case SUBMIT_AND_UPDATE:
 			this.setProcessors(getUpdateStateProcessor(), getSubmitVulnerabilitiesProcessor());
 			this.setEnabled(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
-			this.setDescription("Submit SSC vulnerabilities to "+getBugTrackerName()+" and update issue state");
+			this.setDescription("Submit "+sourceSystemName+" vulnerabilities to "+getBugTrackerName()+" and update issue state");
 			this.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		case UPDATE:
 			this.setProcessors(getUpdateStateProcessor());
 			this.setEnabled(isUpdateBugTrackerStateProcessorEnabled());
-			this.setDescription("Update "+getBugTrackerName()+" issue state based on SSC vulnerability state");
+			this.setDescription("Update "+getBugTrackerName()+" issue state based on "+sourceSystemName+" vulnerability state");
 			this.setDefault(!isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
 			break;
 		}

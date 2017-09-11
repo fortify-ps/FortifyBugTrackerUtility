@@ -100,14 +100,6 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Get the list of enabled {@link ProcessRunner} names
-	 * @return
-	 */
-	public Collection<String> getEnabledProcessRunnerNames() {
-		return getEnabledProcessRunners().keySet();
-	}
-	
-	/**
 	 * Get the {@link ProcessRunner} for the given name
 	 * @param processRunnerName
 	 * @return
@@ -143,7 +135,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param processRunnerName
 	 * @return
 	 */
-	private String getProcessRunnerNameOrDefault(String processRunnerName) {
+	public String getProcessRunnerNameOrDefault(String processRunnerName) {
 		if ( processRunnerName==null ) {
 			processRunnerName = getDefaultProcessRunnerName();
 		}
@@ -285,7 +277,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * Get all enabled {@link ProcessRunner} instances that are available through Spring configuration
 	 * @return
 	 */
-	private Map<String, ProcessRunner> getEnabledProcessRunners() {
+	public Map<String, ProcessRunner> getEnabledProcessRunners() {
 		Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);
 		processRunnersMap.values().removeIf(new Predicate<ProcessRunner>() {
 			public boolean test(ProcessRunner processRunner) {

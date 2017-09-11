@@ -36,5 +36,8 @@ import com.fortify.processrunner.common.AbstractBugTrackerProcessRunnerConfigura
  */
 @Configuration
 public class FoDBugTrackerProcessRunnerConfiguration extends AbstractBugTrackerProcessRunnerConfiguration {
-
+	@Override
+	protected String getSourceSystemName() {
+		return "FoD";
+	}
 }

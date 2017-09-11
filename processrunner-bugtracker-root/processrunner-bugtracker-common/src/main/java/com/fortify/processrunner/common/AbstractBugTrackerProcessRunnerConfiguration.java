@@ -41,19 +41,21 @@ import com.fortify.processrunner.common.BugTrackerProcessRunner.ProcessRunnerTyp
  * @author Ruud Senden
  *
  */
-public class AbstractBugTrackerProcessRunnerConfiguration {
+public abstract class AbstractBugTrackerProcessRunnerConfiguration {
 	@Bean
 	public BugTrackerProcessRunner submitVulnerabilities() {
-		return new BugTrackerProcessRunner(ProcessRunnerType.SUBMIT);
+		return new BugTrackerProcessRunner(getSourceSystemName(), ProcessRunnerType.SUBMIT);
 	}
 	
 	@Bean
 	public BugTrackerProcessRunner submitVulnerabilitiesAndUpdateIssueState() {
-		return new BugTrackerProcessRunner(ProcessRunnerType.SUBMIT_AND_UPDATE);
+		return new BugTrackerProcessRunner(getSourceSystemName(), ProcessRunnerType.SUBMIT_AND_UPDATE);
 	}
 	
 	@Bean
 	public BugTrackerProcessRunner updateIssueState() {
-		return new BugTrackerProcessRunner(ProcessRunnerType.UPDATE);
+		return new BugTrackerProcessRunner(getSourceSystemName(), ProcessRunnerType.UPDATE);
 	}
+	
+	protected abstract String getSourceSystemName();
 }

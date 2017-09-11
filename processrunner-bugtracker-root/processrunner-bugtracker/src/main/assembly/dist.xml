@@ -27,5 +27,9 @@
 				<include>README.md</include>
 			</includes>
 		</fileSet>
+		<fileSet>
+			<outputDirectory>/documentation</outputDirectory>
+			<directory>${project.build.directory}/../../processrunner-bugtracker-doc/target/site</directory>
+		</fileSet>
 	</fileSets>
 </assembly>

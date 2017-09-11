@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="FortifyBugTrackerUtility">
+  <bannerLeft>
+    <name>FortifyBugTrackerUtility</name>
+    <href>https://github.com/fod-dev/FoDBugTrackerUtility</href>
+  </bannerLeft>
+  <body>
+    <menu name="FortifyBugTrackerUtility">
+      <item name="Introduction" href="index.html"/>
+      <item name="Use Cases" href="usecases.html"/>
+      <item name="Usage" href="usage.html"/>
+      <item name="Configuration" href="config.html">
+        <item name="Default option values" href="config-cli-default-values.html"/>
+      	<item name="FoD" href="config-fod.html"/>
+      	<item name="SSC" href="config-ssc.html"/>
+      	
+      </item>
+      <item name="Troubleshooting" href="troubleshooting.html"/>
+    </menu>
+  </body>
+</project>

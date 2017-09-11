@@ -24,8 +24,8 @@
 package com.fortify.processrunner;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -101,13 +101,12 @@ public class RunProcessRunnerFromCLI {
 
 		String configFile = getConfigFileName(cl);
 		if ( configFile == null ) {
-			handleErrorAndExit(null, null, "No configuration file specified", 1);
+			handleErrorAndExit(null, null, null, "No configuration file specified", 1);
 		}
 		RunProcessRunnerFromSpringConfig springRunner = new RunProcessRunnerFromSpringConfig(configFile);
 		List<String> remainingArgs = cl.getArgList();
 		String processRunnerName = getProcessRunnerNameFromArgs(remainingArgs);
-		Context cliContext = getContextFromArgs(springRunner.getContextPropertyDefinitions(processRunnerName),
-				remainingArgs);
+		Context cliContext = getContextFromArgs(springRunner, processRunnerName, remainingArgs);
 
 		springRunner.run(cliContext, processRunnerName);
 	}
@@ -122,7 +121,7 @@ public class RunProcessRunnerFromCLI {
 		try {
 			return new DefaultParser().parse(OPTIONS, argsArray, true);
 		} catch (ParseException e) {
-			handleErrorAndExit(null, null, "ERROR: Cannot parse command line: " + e.getMessage(), 6);
+			handleErrorAndExit(null, null, null, "ERROR: Cannot parse command line: " + e.getMessage(), 6);
 			return null;
 		}
 	}
@@ -155,21 +154,24 @@ public class RunProcessRunnerFromCLI {
 
 	/**
 	 * Generate initial context based on command line options
+	 * @param args 
+	 * @param processRunnerName 
+	 * @param springRunner 
 	 * 
 	 * @param contextPropertyDefinitions
 	 * @param args
 	 * @return
 	 */
-	protected final Context getContextFromArgs(ContextPropertyDefinitions contextPropertyDefinitions,
-			List<String> args) {
+	protected final Context getContextFromArgs(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, List<String> args) {
+		ContextPropertyDefinitions contextPropertyDefinitions = springRunner.getContextPropertyDefinitions(processRunnerName);
 		Context context = new Context();
 		while (args.size() > 0) {
 			String opt = args.remove(0);
 			if (!opt.startsWith("-")) {
-				handleErrorAndExit(null, contextPropertyDefinitions, "ERROR: Invalid option " + opt, 3);
+				handleErrorAndExit(springRunner, processRunnerName, contextPropertyDefinitions, "ERROR: Invalid option " + opt, 3);
 			}
 			if ("--help".equals(opt)) {
-				printUsage(null, contextPropertyDefinitions, 0);
+				printUsage(springRunner, processRunnerName, contextPropertyDefinitions, 0);
 			}
 			// Allow options to start with either - or --, to work around JDK
 			// bug if multiple options starting with -J are given
@@ -210,57 +212,63 @@ public class RunProcessRunnerFromCLI {
 	/**
 	 * Handle the given error by printing the relevant information on standard
 	 * out, and exit the application afterwards.
+	 * @param processRunnerName 
 	 * 
 	 * @param context
 	 * @param errorMessage
 	 * @param errorCode
 	 */
-	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner,
-			ContextPropertyDefinitions contextProperties, String errorMessage, int errorCode) {
+	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, ContextPropertyDefinitions contextProperties, String errorMessage, int errorCode) {
 		LOG.error("[Process] " + errorMessage);
-		printUsage(springRunner, contextProperties, errorCode);
+		printUsage(springRunner, processRunnerName, contextProperties, errorCode);
 	}
 
 	/**
 	 * Print the usage information for this command.
+	 * @param processRunnerName 
 	 * 
 	 * @param context
 	 */
-	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner,
-			ContextPropertyDefinitions contextPropertyDefinitions, int returnCode) {
+	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, ContextPropertyDefinitions contextPropertyDefinitions, int returnCode) {
 		LOG.info("Usage: " + getBaseCommand()
-				+ " --configFile <configFile> [--logFile <logFile>] [--logLevel <logLevel>] [processorRunnerId] [--help] [options]");
+				+ " --configFile <configFile> [--logFile <logFile>] [--logLevel <logLevel>] [action] [--help] [options]");
 		LOG.info("");
 		LOG.info("  --configFile <configFile> specifies the configuration file to use.");
 		LOG.info("  --logFile <logFile> specifies the log file to use. Default is " + getDefaultLogFileName());
 		LOG.info(
 				"  --logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
 		LOG.info("");
-		LOG.info("    By default no logging is performed unless at least either --logFile or --logLevel is specified.");
-		LOG.info("    Note that log levels debug or trace may generate big log files that contain sensitive information.");
+		LOG.info("By default no logging is performed unless at least either --logFile or --logLevel is specified.");
+		LOG.info("Note that log levels debug or trace may generate big log files that contain sensitive information.\n");
 
-		if (springRunner != null) {
-			Collection<String> processRunners = springRunner.getEnabledProcessRunnerNames();
-			if (processRunners != null && processRunners.size() > 0) {
-				LOG.info("");
-				LOG.info("  Available process runners: " + processRunners);
-				// TODO Add back process runner descriptions
-			}
-		}
-		if (contextPropertyDefinitions != null && contextPropertyDefinitions.size() > 0) {
-			LOG.info("");
-			LOG.info("  [options] for the current process runner:");
-			for (ContextPropertyDefinition cp : contextPropertyDefinitions.values()) {
-				LOG.info("  -" + cp.getName() + " <value> " + (cp.isRequired() ? "(required)" : "(optional)"));
-				LOG.info("    " + cp.getDescription());
-				if (StringUtils.isNotBlank(cp.getDefaultValueDescription())) {
-					LOG.info("    Default value: " + cp.getDefaultValueDescription());
-				}
-				LOG.info("");
-			}
+		
+		if (springRunner == null ) {
+			LOG.info("Available actions will be shown when a valid configuration file has been specified.");
 		} else {
-			LOG.info("\n  Available [options] will be shown when a valid process runner has been specified.");
-		}
+			Map<String, ProcessRunner> processRunners = springRunner.getEnabledProcessRunners();
+			LOG.info("Available actions: ");
+			for ( Map.Entry<String, ProcessRunner> processRunnerEntry : processRunners.entrySet() ) {
+				String id = processRunnerEntry.getKey();
+				ProcessRunner processRunner = processRunnerEntry.getValue();
+				LOG.info("  "+id+(processRunner.isDefault()?" (default)":""));
+				LOG.info("  "+processRunner.getDescription());
+				LOG.info("");
+			}
+			
+			if (contextPropertyDefinitions == null || contextPropertyDefinitions.size() == 0) {
+				LOG.info("Available options will be shown when a valid action has been specified.");
+			} else {
+				LOG.info("Available options for the current action ("+springRunner.getProcessRunnerNameOrDefault(processRunnerName)+"):");
+				for (ContextPropertyDefinition cp : contextPropertyDefinitions.values()) {
+					LOG.info("  -" + cp.getName() + " <value> " + (cp.isRequired() ? "(required)" : "(optional)"));
+					LOG.info("   " + cp.getDescription());
+					if (StringUtils.isNotBlank(cp.getDefaultValueDescription())) {
+						LOG.info("   Default value: " + cp.getDefaultValueDescription());
+					}
+					LOG.info("");
+				}
+			}
+		} 
 		System.exit(returnCode);
 	}
 
