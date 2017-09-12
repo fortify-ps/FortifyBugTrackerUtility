@@ -18,7 +18,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.processrunner</groupId>
 	<artifactId>processrunner</artifactId>
-	<version>3.0</version>
+	<version>3.1</version>
 	<organization>
 		<name>HPE Security Fortify</name>
 		<url>http://www8.hp.com/us/en/software-solutions/application-security/</url>
@@ -49,13 +49,13 @@
 			<dependency>
 				<groupId>com.fortify.processrunner</groupId>
 				<artifactId>processrunner</artifactId>
-				<version>3.0</version>
+				<version>3.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.util</groupId>
 				<artifactId>fortify-util</artifactId>
-				<version>3.0</version>
+				<version>3.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
