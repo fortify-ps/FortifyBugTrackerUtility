@@ -13,7 +13,7 @@
         <item name="Default option values" href="config-cli-default-values.html"/>
       	<item name="FoD" href="config-fod.html"/>
       	<item name="SSC" href="config-ssc.html"/>
-      	
+      	<item name="Target systems" href="config-target.html"/>
       </item>
       <item name="Troubleshooting" href="troubleshooting.html"/>
     </menu>
