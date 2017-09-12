@@ -14,6 +14,22 @@ The FoD-related configuration in each configuration file consists of the followi
   
 The following sections describe these configuration options in more detail.
 
+## Vulnerability Data
+Both the FoD-related configuration and the configuration related to the target system, are based on various expressions
+that reference FoD vulnerability details. These expressions can reference the following FoD vulnerability data:
+
+- All vulnerability properties returned by the FoD `/api/v3/Releases/{ReleaseId}/vulnerabilities` endpoint
+- `vulnState`  
+  The current state of the vulnerability, based on `isVulnerabilityOpenExpression` (see 'Vulnerability open/closed expression' below)
+- `deepLink`  
+  The browser-viewable deep link for the current vulnerability
+- `bugLink`  
+  Either the native bug link stored in FoD, or the bug link as stored in a vulnerability comment
+- `summary`, `details`, `recommendations`, `screenshots`, `history`, `request-response`, `headers`, `parameters` and `traces`  
+  Each of these properties contain all data returned by the corresponding FoD `/api/v3/releases/{ReleaseId}/vulnerabilities/{vulnId}/{name}` endpoint. This data is loaded on-demand; the 
+  data will only be loaded from FoD if the corresponding property is being referenced in any expressions. 
+  
+
 ## Vulnerability selection criteria
 Vulnerabilities to be exported can be filtered either by FoD directly, or by FortifyBugTrackerUtility itself. Having the filtering 
 performed by FoD directly provides the best performance, as this reduces the amount of data returned by FoD. However, in some
@@ -103,7 +119,5 @@ the configuration file, or you can configure a mapping based on application vers
   with a specific name. For example, you could define a static filter `.*:Current` to only process releases named
   'Current' for every application.
   
-
-
 
 

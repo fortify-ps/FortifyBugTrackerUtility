@@ -15,6 +15,21 @@ The SSC-related configuration in each configuration file consists of the followi
   
 The following sections describe these configuration options in more detail.
 
+## Vulnerability Data
+Both the SSC-related configuration and the configuration related to the target system, are based on various expressions
+that reference SSC vulnerability details. These expressions can reference the following SSC vulnerability data:
+
+- All vulnerability properties returned by the SSC `/api/v1/projectVersions/{SSCApplicationVersionId}/issues` endpoint
+- `vulnState`  
+  The current state of the vulnerability, based on `isVulnerabilityOpenExpression` (see 'Vulnerability open/closed expression' below)
+- `deepLink`  
+  The browser-viewable deep link for the current vulnerability
+- `bugURL`  
+  Either the native bug URL stored in SSC, or the bug URL as stored in a vulnerability custom tag
+- `details`  
+  Contain all data returned by the SSC `/api/v1/issueDetails/{vulnId}` endpoint. This data is loaded on-demand; the 
+  issue details will only be loaded from SSC if the `details` property is being referenced in any expressions. 
+
 ## Vulnerability selection criteria
 Vulnerabilities to be exported can be filtered either by SSC directly, or by FortifyBugTrackerUtility itself. Having the filtering 
 performed by SSC directly provides the best performance, as this reduces the amount of data returned by SSC. However, in some
