@@ -79,8 +79,8 @@ link. Both can be configured through properties on the `com.fortify.processrunne
 - `addNativeBugLink`  
   This property can be set to 'true' if you want to store the issue link as a native SSC bug link, allowing users to click
   the 'bug' icon in SSC to navigate to the corresponding issue in the external system. This option requires to have the
-  'Add Existing Bugs' native SSC bug tracker integration to be installed, and configured on all application versions for which
-  you want to use FortifyBugTrackerUtility.
+  'Add Existing Bugs' native SSC bug tracker integration to be installed in SSC (included in the distribution bundle), and 
+  having the 'Add Existing Bugs' bug tracker configured on all application versions for which you want to use FortifyBugTrackerUtility.
   
 Note that SSC only allows one native bug tracker integration for each application version. When using the 'addNativeBugLink'
 approach, you will not be able to use any other native SSC bug tracker integration. If you want users to be able to also

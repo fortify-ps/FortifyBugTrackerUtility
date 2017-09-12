@@ -27,4 +27,4 @@ lists the currently supported functionalities.
 | Microsoft TFS  | Yes     | Yes      | Yes      | Yes              | Additional state transitions may need to be configured |
 | SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC TFS bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
 
-For more information about downloading the release, building from source, configuring and running the utility, please see the Wiki: https://github.com/HPFOD/FoDBugTrackerUtility/wiki
+For more information about configuring and running the utility, please see the documentation included with the binary distribution.

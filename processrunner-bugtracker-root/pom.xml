@@ -50,6 +50,7 @@
 	<modules>
 		<module>../fortify-util</module>
 		<module>../processrunner</module>
+		<module>../ssc-bugtracker-add-existing-bug</module>
 		<module>processrunner-bugtracker-common</module>
 		<module>processrunner-bugtracker-source-fod</module>
 		<module>processrunner-bugtracker-ssc-common</module>

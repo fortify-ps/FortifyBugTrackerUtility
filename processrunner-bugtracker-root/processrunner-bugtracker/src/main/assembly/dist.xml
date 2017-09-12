@@ -31,5 +31,12 @@
 			<outputDirectory>/documentation</outputDirectory>
 			<directory>${project.build.directory}/../../processrunner-bugtracker-doc/target/site</directory>
 		</fileSet>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${project.build.directory}/../../../ssc-bugtracker-add-existing-bug/target</directory>
+			<includes>
+				<include>ssc-bugtracker-add-existing-bug-?.?.jar</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 </assembly>
