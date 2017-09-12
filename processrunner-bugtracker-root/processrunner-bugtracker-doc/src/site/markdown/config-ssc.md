@@ -10,7 +10,7 @@ The SSC-related configuration in each configuration file consists of the followi
     - Criteria for considering a vulnerability either open or closed
     - How to store the submitted issue link in SSC
     - Additional custom tags to be set, based on the current state of the submitted issue
-- One or more optional bean definitions for defining the application versions to be automatically processed, and how to generate
+- One or more bean definitions for defining the application versions to be automatically processed, and how to generate
   additional action-specific command line options (context properties) for each application version being processed.
   
 The following sections describe these configuration options in more detail.
@@ -69,7 +69,7 @@ link. Both can be configured through properties on the `com.fortify.processrunne
   
 Note that SSC only allows one native bug tracker integration for each application version. When using the 'addNativeBugLink'
 approach, you will not be able to use any other native SSC bug tracker integration. If you want users to be able to also
-manually submit issues to a bug tracker through the native SSC integration, or if you want to submit issues to multiple 
+manually submit issues to a bug tracker through a native SSC integration, or if you want to submit issues to multiple 
 external systems, you should use the custom tag based approach.   
 
 ## Bi-directional sync
@@ -103,7 +103,7 @@ the configuration file, or you can configure a mapping based on application vers
   option to be set based on the value of this application version attribute.   
   For example, you could have an application version attribute named 'Jira Project Key' that is automatically mapped to the
   'JiraProjectKey' command line option. If you run FortifyBugTrackerUtility for a specific SSC application version, it will
-  automatically add the JiraProjectKey option based on the corresponding application version attribute. If you run 
+  automatically add the '-JiraProjectKey' command line option based on the corresponding application version attribute. If you run 
   FortifyBugTrackerUtility without specifying any SSC application version, it will automatically process all application versions
   for which all application version attributes specified through `requiredAttributeMappings` have a non-empty value.
   
