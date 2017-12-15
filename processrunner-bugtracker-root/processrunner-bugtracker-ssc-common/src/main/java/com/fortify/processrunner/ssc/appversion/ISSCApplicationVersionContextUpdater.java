@@ -23,8 +23,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.appversion;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This interface allows for updating {@link Context} instances based on

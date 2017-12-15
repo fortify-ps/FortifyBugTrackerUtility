@@ -31,8 +31,8 @@
 		<version>3.1</version>
 	</parent>
 	<organization>
-		<name>HPE Security Fortify</name>
-		<url>http://www8.hp.com/us/en/software-solutions/application-security/</url>
+		<name>Micro Focus Fortify</name>
+		<url>https://software.microfocus.com/en-us/software/application-security</url>
 	</organization>
 	<licenses>
 		<license>
@@ -45,23 +45,11 @@
 		<developer>
 			<id>rsenden</id>
 			<name>Ruud Senden</name>
-			<organization>HPE Security Fortify</organization>
+			<organization>Micro Focus Fortify</organization>
 		</developer>
 	</developers>
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
-		<dependency>
-			<groupId>com.fortify.util</groupId>
-			<artifactId>spring-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fortify.util</groupId>
-			<artifactId>rest-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fortify.util</groupId>
-			<artifactId>ssc-util</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner.bugtracker</groupId>
 			<artifactId>processrunner-bugtracker-ssc-common</artifactId>

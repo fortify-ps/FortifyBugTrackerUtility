@@ -26,14 +26,14 @@ package com.fortify.processrunner.fod.processor.enrich;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.util.ondemand.AbstractOnDemandRestPropertyLoader;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds the following 

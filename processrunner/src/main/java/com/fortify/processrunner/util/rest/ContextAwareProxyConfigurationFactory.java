@@ -25,13 +25,13 @@ package com.fortify.processrunner.util.rest;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.util.rest.ProxyConfiguration;
 
 /**
- * This class allows for generating {@link ProxyConfiguration} instances
+ * This class allows for generating {@link ProxyConfig} instances
  * based on {@link Context} property values.
  * 
  * @author Ruud Senden
@@ -57,17 +57,17 @@ public final class ContextAwareProxyConfigurationFactory {
 	}
 	
 	/**
-	 * Create a new {@link ProxyConfiguration} instance based on {@link Context} properties.
+	 * Create a new {@link ProxyConfig} instance based on {@link Context} properties.
 	 * This method will return null if no proxy URL has been set.
 	 * @param context
 	 * @param name
 	 * @return
 	 */
-	public static final ProxyConfiguration getProxyConfiguration(Context context, String name) {
-		ProxyConfiguration proxy = null;
+	public static final ProxyConfig getProxyConfiguration(Context context, String name) {
+		ProxyConfig proxy = null;
 		String proxyUrl = (String)context.get(name+PRP_SFX_URL);
 		if ( StringUtils.isNotBlank(proxyUrl) ) {
-			proxy = new ProxyConfiguration();
+			proxy = new ProxyConfig();
 			proxy.setUriString(proxyUrl);
 			String userName = (String)context.get(name+PRP_SFX_USER_NAME);
 			if ( StringUtils.isNotBlank(userName) ) {

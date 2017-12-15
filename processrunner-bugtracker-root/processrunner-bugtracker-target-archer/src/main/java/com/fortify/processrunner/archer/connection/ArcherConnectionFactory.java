@@ -23,12 +23,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.archer.connection;
 
+import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.archer.context.IContextArcher;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
-import com.fortify.util.rest.ProxyConfiguration;
 
 public final class ArcherConnectionFactory 
 {
@@ -65,7 +65,7 @@ public final class ArcherConnectionFactory
 		auth.setPassword(ctx.getArcherPassword());
 		
 		
-		ProxyConfiguration proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Archer");
+		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Archer");
 		return new ArcherAuthenticatingRestConnection(baseUrl, auth, applicationName, proxy);
 	}
 	

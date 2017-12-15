@@ -32,20 +32,19 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.auth.Credentials;
 
+import com.fortify.api.util.rest.connection.AbstractRestConnection;
+import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
+import com.fortify.api.util.rest.connection.RestConnectionConfig;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.ProxyConfiguration;
-import com.fortify.util.rest.RestConnection;
 
-public final class JiraRestConnection extends RestConnection {
+public final class JiraRestConnection extends AbstractRestConnection {
 	private static final Log LOG = LogFactory.getLog(JiraRestConnection.class);
 	
-	public JiraRestConnection(String baseUrl, Credentials credentials, ProxyConfiguration proxy) {
-		super(baseUrl, credentials);
-		setProxy(proxy);
+	public JiraRestConnection(JiraRestConnectionConfig<?> config) {
+		super(config);
 	}
 	
 	@Override
@@ -133,6 +132,29 @@ public final class JiraRestConnection extends RestConnection {
 			id = deepLink.substring(deepLink.lastIndexOf('/'));
 		}
 		return id;
+	}
+	
+	/**
+	 * This method returns an {@link JiraRestConnectionBuilder} instance
+	 * that allows for building {@link JiraRestConnection} instances.
+	 * @return
+	 */
+	public static final JiraRestConnectionBuilder builder() {
+		return new JiraRestConnectionBuilder();
+	}
+	
+	/**
+	 * This class provides a builder pattern for configuring an {@link JiraRestConnection} instance.
+	 * It re-uses builder functionality from {@link RestConnectionConfig}, and adds a
+	 * {@link #build()} method to build an {@link JiraRestConnection} instance.
+	 * 
+	 * @author Ruud Senden
+	 */
+	public static final class JiraRestConnectionBuilder extends JiraRestConnectionConfig<JiraRestConnectionBuilder> implements IRestConnectionBuilder<JiraRestConnection> {
+		@Override
+		public JiraRestConnection build() {
+			return new JiraRestConnection(this);
+		}
 	}
 	
 }

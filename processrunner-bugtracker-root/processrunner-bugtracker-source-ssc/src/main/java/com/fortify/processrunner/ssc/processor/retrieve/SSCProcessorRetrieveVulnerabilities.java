@@ -32,6 +32,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.ssc.connection.api.IssueSearchOptions;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -41,11 +46,6 @@ import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
-import com.fortify.ssc.connection.IssueSearchOptions;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * <p>This {@link IProcessor} implementation retrieves a list of
@@ -94,7 +94,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		LOG.info("[SSC] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from application version id "+contextSSC.getSSCApplicationVersionId()+" at "+conn.getBaseUrl());
-		conn.updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
+		conn.api().updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
 		while ( start < count ) {

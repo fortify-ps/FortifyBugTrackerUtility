@@ -40,11 +40,11 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
+import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.ProxyConfiguration;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -70,7 +70,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				}
 			});
 	
-	public OctaneAuthenticatingRestConnection(String baseUrl, IOctaneCredentials credentials, ProxyConfiguration proxyConfig) {
+	public OctaneAuthenticatingRestConnection(String baseUrl, IOctaneCredentials credentials, ProxyConfig proxyConfig) {
 		super(baseUrl, proxyConfig);
 		this.credentials = credentials;
 	}

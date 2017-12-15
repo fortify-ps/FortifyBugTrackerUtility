@@ -29,7 +29,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
@@ -46,8 +48,6 @@ import com.fortify.processrunner.fod.processor.filter.FoDFilterOnBugLink;
 import com.fortify.processrunner.processor.CompositeOrderedProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This class holds all FoD-related configuration properties used to submit vulnerabilities
@@ -156,9 +156,9 @@ public class FoDBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
 		if ( isAddBugDataAsComment() ) {
 			String comment = SubmittedIssueCommentHelper.getCommentForSubmittedIssue(bugTrackerName, submittedIssue);
-			conn.addCommentToVulnerabilities(releaseId, comment, vulnIds);
+			conn.api().vulnerability().addCommentToVulnerabilities(releaseId, comment, vulnIds);
 		} else if ( isAddNativeBugLink() ) {
-			conn.addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
+			conn.api().bugTracker().addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
 		}
 	}
 

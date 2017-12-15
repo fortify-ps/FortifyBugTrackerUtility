@@ -25,8 +25,8 @@ package com.fortify.processrunner.ssc.appversion;
 
 import org.springframework.core.Ordered;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This interface allows for filtering SSC application versions by implementing the

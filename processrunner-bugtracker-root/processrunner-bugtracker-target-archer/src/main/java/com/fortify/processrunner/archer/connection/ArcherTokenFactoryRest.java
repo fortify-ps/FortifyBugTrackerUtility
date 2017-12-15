@@ -29,9 +29,9 @@ import javax.ws.rs.client.Entity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.ProxyConfiguration;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 
 /**
  * This class is used to generate Archer tokens for accessing the
@@ -44,7 +44,7 @@ public final class ArcherTokenFactoryRest {
 	private final ArcherBasicRestConnection conn;
 	private final ArcherAuthData authData;
 	private TokenData tokenData = null;
-	public ArcherTokenFactoryRest(String baseUrl, ArcherAuthData authData, ProxyConfiguration proxyConfig) {
+	public ArcherTokenFactoryRest(String baseUrl, ArcherAuthData authData, ProxyConfig proxyConfig) {
 		conn = new ArcherBasicRestConnection(baseUrl, proxyConfig);
 		this.authData = authData;
 	}

@@ -25,8 +25,8 @@ package com.fortify.processrunner.fod.releases;
 
 import org.springframework.core.Ordered;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This interface allows for filtering FoD releases by implementing the

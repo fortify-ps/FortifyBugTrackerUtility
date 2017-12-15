@@ -25,15 +25,15 @@ package com.fortify.processrunner.ssc.processor.enrich;
 
 import java.util.List;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.util.ondemand.AbstractOnDemandRestPropertyLoader;
 import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds the
@@ -67,7 +67,7 @@ public class SSCProcessorEnrichWithOnDemandIssueDetails extends AbstractProcesso
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			List<JSONMap> customTags = ContextSpringExpressionUtil.evaluateExpression(context, data, "customTagValues", JSONList.class).asValueType(JSONMap.class);
 			for ( JSONMap customTag : customTags ) {
-				customTag.put("customTagName", conn.getCustomTagName(customTag.get("customTagGuid", String.class)));
+				customTag.put("customTagName", conn.api().customTag().getCustomTagName(customTag.get("customTagGuid", String.class)));
 			}
 			return super.updateData(context, data);
 		}

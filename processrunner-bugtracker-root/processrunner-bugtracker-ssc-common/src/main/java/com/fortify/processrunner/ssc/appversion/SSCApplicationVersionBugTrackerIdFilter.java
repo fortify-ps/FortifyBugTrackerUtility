@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.json.JSONMap;
 
 /**
  * Filter SSC application versions based on the SSC bug tracker plugin id configured

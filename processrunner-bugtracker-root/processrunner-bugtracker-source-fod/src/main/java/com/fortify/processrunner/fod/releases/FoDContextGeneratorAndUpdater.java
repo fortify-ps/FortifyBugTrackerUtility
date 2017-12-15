@@ -35,7 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Component;
 
-import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.processor.AbstractJSONMapProcessor;
 import com.fortify.processrunner.context.AbstractContextGeneratorAndUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -43,8 +45,6 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
-import com.fortify.util.json.IJSONMapProcessor;
-import com.fortify.util.json.JSONMap;
 
 @Component
 public final class FoDContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater implements IContextPropertyDefinitionProvider {
@@ -102,7 +102,7 @@ public final class FoDContextGeneratorAndUpdater extends AbstractContextGenerato
 	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesFromFilters(final Context context, final List<IFoDReleaseFilter> filtersForContext) {
 		final Map<Object, Context> result = new HashMap<Object, Context>();
 		LOG.info("[FoD] Loading releases");
-		FoDConnectionFactory.getConnection(context).processReleases(new IJSONMapProcessor() {	
+		FoDConnectionFactory.getConnection(context).processReleases(new AbstractJSONMapProcessor() {	
 			public void process(JSONMap applicationVersion) {
 				if ( isReleaseIncluded(context, filtersForContext, applicationVersion) ) {
 					putDefaultValuesWithMappedContextProperties(result, context, applicationVersion);

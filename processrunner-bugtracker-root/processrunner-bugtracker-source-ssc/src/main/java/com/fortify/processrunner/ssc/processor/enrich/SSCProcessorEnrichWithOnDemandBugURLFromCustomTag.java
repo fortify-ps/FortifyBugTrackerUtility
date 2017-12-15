@@ -27,12 +27,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds an on-demand 

@@ -35,6 +35,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.util.spring.expression.SimpleExpression;
+import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueAndIssueStateDetailsRetriever;
@@ -56,9 +59,6 @@ import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDe
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
 import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnBugURL;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.spring.expression.SimpleExpression;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This class holds all SSC-related configuration properties used to submit vulnerabilities
@@ -90,12 +90,12 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
-			List<String> customTagNames = conn.getApplicationVersionCustomTagNames(applicationVersionId);
+			List<String> customTagNames = conn.api().customTag().getApplicationVersionCustomTagNames(applicationVersionId);
 			if ( customTagNames==null || !customTagNames.contains(getBugLinkCustomTagName()) ) {
 				throw new IllegalStateException("Configured custom tag "+getBugLinkCustomTagName()+" is not available for application version "+applicationVersionId);
 			}
 		} else if ( isAddNativeBugLink() ) {
-			String bugTrackerName = conn.getApplicationVersionBugTrackerShortName(applicationVersionId);
+			String bugTrackerName = conn.api().bugTracker().getApplicationVersionBugTrackerShortName(applicationVersionId);
 			if ( !"Add Existing Bugs".equals(bugTrackerName) ) {
 				throw new IllegalStateException("Either custom tag name or the 'Add Existing Bugs' SSC bug tracker needs to be configured");
 			}
@@ -201,14 +201,14 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 			customTagValues.put(getBugLinkCustomTagName(), submittedIssue.getDeepLink());
 		} 
 		if ( !customTagValues.isEmpty() ) {
-			conn.setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
 			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
 		}
 		if ( isAddNativeBugLink() ) {
 			Map<String, Object> issueDetails = new HashMap<String, Object>();
 			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
 			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
-			conn.fileBug(applicationVersionId, issueDetails, issueInstanceIds);
+			conn.api().bugTracker().fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
 		}
 	}
@@ -219,7 +219,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
-			conn.setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
 			LOG.info("[SSC] Updated custom tag values for "+vulnerabilities.size()+" SSC vulnerabilities");
 		}
 	}
@@ -257,7 +257,7 @@ public class SSCBugTrackerProcessorConfiguration implements IVulnerabilityUpdate
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
-		return conn.getApplicationVersionCustomTagNames(applicationVersionId);
+		return conn.api().customTag().getApplicationVersionCustomTagNames(applicationVersionId);
 	}
 	
 	

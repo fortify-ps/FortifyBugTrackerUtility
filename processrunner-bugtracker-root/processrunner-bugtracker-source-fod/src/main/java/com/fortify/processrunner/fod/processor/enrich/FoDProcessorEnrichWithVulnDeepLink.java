@@ -23,12 +23,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.enrich;
 
+import com.fortify.api.util.rest.connection.IRestConnection;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
-import com.fortify.util.rest.IRestConnection;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink} provides an FoD-specific 

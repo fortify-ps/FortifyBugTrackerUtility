@@ -21,13 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.common.processor.enrich;
+package com.fortify.processrunner.common.json.preprocessor;
 
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This abstract implementation of {@link AbstractProcessorEnrichCurrentVulnerability} will evaluate a 
@@ -36,35 +36,17 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * Concrete implementations must implement the {@link #getDefaultIsVulnerabilityOpenExpression()} method
  * to provide a default value for the configurable expression.
  */
-public abstract class AbstractProcessorEnrichCurrentVulnerabilityWithVulnState extends AbstractProcessorEnrichCurrentVulnerability {
+public abstract class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich {
 	public static final String NAME_VULN_STATE = "vulnState";
-	private SimpleExpression isVulnerabilityOpenExpression = getDefaultIsVulnerabilityOpenExpression();
-
-	/**
-	 * Add the vulnState property to the current vulnerability by evaluating
-	 * the configured {@link #isVulnerabilityOpenExpression}.
-	 */
-	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
-		boolean isOpen = ContextSpringExpressionUtil.evaluateExpression(context, currentVulnerability, isVulnerabilityOpenExpression, Boolean.class);
-		currentVulnerability.put(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
-		return true;
-	}
-
-	/**
-	 * @return the isVulnerabilityOpenExpression
-	 */
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
-	}
-
-	/**
-	 * @param isVulnerabilityOpenExpression the isVulnerabilityOpenExpression to set
-	 */
-	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
+	private final SimpleExpression isVulnerabilityOpenExpression;
+	
+	public JSONMapEnrichWithVulnState(SimpleExpression isVulnerabilityOpenExpression) {
 		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
 	}
-
-	protected abstract SimpleExpression getDefaultIsVulnerabilityOpenExpression();
-
+	
+	@Override
+	protected void enrich(JSONMap json) {
+		boolean isOpen = SpringExpressionUtil.evaluateExpression(json, isVulnerabilityOpenExpression, Boolean.class);
+		json.put(NAME_VULN_STATE, isOpen?IssueState.OPEN.name():IssueState.CLOSED.name());
+	}
 }

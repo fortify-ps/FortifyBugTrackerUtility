@@ -25,15 +25,15 @@ package com.fortify.processrunner.ssc.connection;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.ssc.connection.SSCConnectionRetrieverTokenCredentials;
+import com.fortify.api.ssc.connection.SSCConnectionRetrieverUserCredentials;
+import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.ssc.connection.SSCConnectionRetrieverTokenCredentials;
-import com.fortify.ssc.connection.SSCConnectionRetrieverUserCredentials;
-import com.fortify.util.rest.ProxyConfiguration;
 
 /**
  * This class allows for instantiating and caching {@link SSCAuthenticatingRestConnection}
@@ -66,7 +66,7 @@ public final class SSCConnectionFactory
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		
 		String baseUrl = ctx.getSSCBaseUrl();
-		ProxyConfiguration proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "SSC");
+		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "SSC");
 		if ( StringUtils.isNotBlank(ctx.getSSCAuthToken()) ) {
 			SSCConnectionRetrieverTokenCredentials tokenCreds = new SSCConnectionRetrieverTokenCredentials();
 			tokenCreds.setBaseUrl(baseUrl);

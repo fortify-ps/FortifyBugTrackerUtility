@@ -27,11 +27,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * <p>This {@link IProcessor} implementation can be configured with a field expression and
@@ -42,6 +43,8 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * {@link #createFromMap(String, Map, boolean)} method to generate multiple instances of
  * this class based on a {@link Map} of field expressions and corresponding {@link Pattern}
  * instances.</p> 
+ * 
+ * TODO Replace with {@link JSONMapFilterRegEx}?
  * 
  * @author Ruud Senden
  */

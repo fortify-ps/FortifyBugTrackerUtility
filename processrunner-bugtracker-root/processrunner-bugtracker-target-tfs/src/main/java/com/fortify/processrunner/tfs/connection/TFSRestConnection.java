@@ -36,22 +36,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
-import org.apache.http.auth.Credentials;
 import org.apache.http.client.utils.URLEncodedUtils;
 
+import com.fortify.api.util.rest.connection.AbstractRestConnection;
+import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
+import com.fortify.api.util.rest.connection.RestConnectionConfig;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.ProxyConfiguration;
-import com.fortify.util.rest.RestConnection;
-import com.fortify.util.spring.SpringExpressionUtil;
 
-public final class TFSRestConnection extends RestConnection {
+public final class TFSRestConnection extends AbstractRestConnection {
 	private static final Log LOG = LogFactory.getLog(TFSRestConnection.class);
 	
-	public TFSRestConnection(String baseUrl, Credentials credentials, ProxyConfiguration proxy) {
-		super(baseUrl, credentials);
-		setProxy(proxy);
+	public TFSRestConnection(TFSRestConnectionConfig<?> config) {
+		super(config);
 	}
 	
 	@Override
@@ -169,6 +168,29 @@ public final class TFSRestConnection extends RestConnection {
 		
 		public String getReason() {
 			return reason;
+		}
+	}
+	
+	/**
+	 * This method returns an {@link TFSRestConnectionBuilder} instance
+	 * that allows for building {@link TFSRestConnection} instances.
+	 * @return
+	 */
+	public static final TFSRestConnectionBuilder builder() {
+		return new TFSRestConnectionBuilder();
+	}
+	
+	/**
+	 * This class provides a builder pattern for configuring an {@link TFSRestConnection} instance.
+	 * It re-uses builder functionality from {@link RestConnectionConfig}, and adds a
+	 * {@link #build()} method to build an {@link TFSRestConnection} instance.
+	 * 
+	 * @author Ruud Senden
+	 */
+	public static final class TFSRestConnectionBuilder extends TFSRestConnectionConfig<TFSRestConnectionBuilder> implements IRestConnectionBuilder<TFSRestConnection> {
+		@Override
+		public TFSRestConnection build() {
+			return new TFSRestConnection(this);
 		}
 	}
 	

@@ -29,9 +29,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
-import com.fortify.util.json.JSONMap;
 
 /**
  * Filter FoD releases based on application attributes, and map application 

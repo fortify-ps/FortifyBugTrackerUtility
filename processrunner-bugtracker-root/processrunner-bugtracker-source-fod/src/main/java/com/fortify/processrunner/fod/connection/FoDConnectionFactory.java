@@ -25,9 +25,9 @@ package com.fortify.processrunner.fod.connection;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.fod.connection.FoDConnectionRetrieverClientCredentials;
-import com.fortify.fod.connection.FoDConnectionRetrieverUserCredentials;
+import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.fod.connection.FoDConnectionRetrieverClientCredentials;
+import com.fortify.api.fod.connection.FoDConnectionRetrieverUserCredentials;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;

@@ -35,6 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Component;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.processor.AbstractJSONMapProcessor;
 import com.fortify.processrunner.context.AbstractContextGeneratorAndUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -42,9 +45,6 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.IJSONMapProcessor;
-import com.fortify.util.json.JSONMap;
 
 @Component
 public final class SSCContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater implements IContextPropertyDefinitionProvider {
@@ -81,15 +81,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 		Map<Object, Context> result = new HashMap<Object, Context>();
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		for ( String appVersion : appVersions ) {
-			JSONMap applicationVersion;
-			String[] appVersionElements = appVersion.split(":");
-			if ( appVersionElements.length == 1 ) {
-				applicationVersion = conn.getApplicationVersion(appVersionElements[0]);
-			} else if ( appVersionElements.length == 2 ) {
-				applicationVersion = conn.getApplicationVersion(appVersionElements[0], appVersionElements[1]);
-			} else {
-				throw new IllegalArgumentException("Applications or versions containing a ':' can only be specified by id");
-			}
+			JSONMap applicationVersion = conn.api().applicationVersion().getApplicationVersionByNameOrId(appVersion, ":");
 			if ( applicationVersion == null ) {
 				LOG.warn("[SSC] Application version "+appVersion+" not found");
 			} else {
@@ -102,7 +94,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 	private Map<Object, Context> getDefaultValuesWithMappedContextPropertiesFromFilters(final Context context, final List<ISSCApplicationVersionFilter> filtersForContext) {
 		final Map<Object, Context> result = new HashMap<Object, Context>();
 		LOG.info("[SSC] Loading application versions");
-		SSCConnectionFactory.getConnection(context).processApplicationVersions(new IJSONMapProcessor() {	
+		SSCConnectionFactory.getConnection(context).api().applicationVersion().queryApplicationVersions().build().processAll(new AbstractJSONMapProcessor() {	
 			public void process(JSONMap applicationVersion) {
 				if ( isApplicationVersionIncluded(context, filtersForContext, applicationVersion) ) {
 					putDefaultValuesWithMappedContextProperties(result, context, applicationVersion);
@@ -120,7 +112,7 @@ public final class SSCContextGeneratorAndUpdater extends AbstractContextGenerato
 	
 	@Override
 	protected void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		JSONMap applicationVersion = SSCConnectionFactory.getConnection(context).getApplicationVersion((String)contextPropertyValue);
+		JSONMap applicationVersion = SSCConnectionFactory.getConnection(context).api().applicationVersion().getApplicationVersionById((String)contextPropertyValue);
 		addMappedContextProperties(context, applicationVersion);
 		
 	}

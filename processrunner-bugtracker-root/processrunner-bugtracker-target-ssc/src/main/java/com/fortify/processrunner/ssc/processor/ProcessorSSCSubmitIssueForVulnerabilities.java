@@ -32,6 +32,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.AbstractBugTrackerFieldsBasedProcessor;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
@@ -46,9 +49,6 @@ import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFact
 import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
-import com.fortify.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
@@ -95,14 +95,14 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
-		if ( conn.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
-			conn.authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
+		if ( conn.api().bugTracker().isBugTrackerAuthenticationRequired(applicationVersionId) ) {
+			conn.api().bugTracker().authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
 		}
 		List<String> issueInstanceIds = new ArrayList<String>();
 		for ( Object issue : currentGroup ) {
 			issueInstanceIds.add(ContextSpringExpressionUtil.evaluateExpression(context, issue, "issueInstanceId", String.class));
 		}
-		JSONMap result = conn.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
+		JSONMap result = conn.api().bugTracker().fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
 		String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, result, "data?.values?.externalBugDeepLink", String.class);
 		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
 		return true;

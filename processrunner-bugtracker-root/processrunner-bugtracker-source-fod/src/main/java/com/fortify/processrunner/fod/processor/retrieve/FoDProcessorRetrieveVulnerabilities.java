@@ -30,6 +30,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.api.util.rest.connection.IRestConnection;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -39,11 +44,6 @@ import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.IRestConnection;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * <p>This {@link IProcessor} implementation retrieves a list of

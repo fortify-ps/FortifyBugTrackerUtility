@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
@@ -41,8 +43,6 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link IProcessor} implementation allows for writing data from the 

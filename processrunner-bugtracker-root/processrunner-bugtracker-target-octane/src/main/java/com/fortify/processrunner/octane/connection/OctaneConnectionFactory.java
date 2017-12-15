@@ -25,6 +25,7 @@ package com.fortify.processrunner.octane.connection;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -32,7 +33,6 @@ import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConne
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneUserCredentials;
 import com.fortify.processrunner.octane.context.IContextOctane;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
-import com.fortify.util.rest.ProxyConfiguration;
 
 public final class OctaneConnectionFactory 
 {
@@ -59,7 +59,7 @@ public final class OctaneConnectionFactory
 		IContextOctane ctx = context.as(IContextOctane.class);
 		
 		String baseUrl = ctx.getOctaneBaseUrl();
-		ProxyConfiguration proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Octane");
+		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Octane");
 		if ( StringUtils.isNotBlank(ctx.getOctaneUserName()) ) {
 			OctaneUserCredentials userCreds = new OctaneUserCredentials();
 			userCreds.setUserName(ctx.getOctaneUserName());

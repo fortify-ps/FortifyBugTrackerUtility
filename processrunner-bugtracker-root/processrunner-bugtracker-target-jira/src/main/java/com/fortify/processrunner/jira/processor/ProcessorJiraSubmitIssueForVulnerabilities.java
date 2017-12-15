@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
@@ -36,7 +37,6 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.jira.connection.JiraConnectionFactory;
 import com.fortify.processrunner.jira.connection.JiraRestConnection;
 import com.fortify.processrunner.jira.context.IContextJira;
-import com.fortify.util.json.JSONMap;
 
 /**
  * This {@link AbstractProcessorSubmitIssueForVulnerabilities} implementation

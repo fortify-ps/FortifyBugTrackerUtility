@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 
 /**
  * This class allows for building a {@link Map} based on configured

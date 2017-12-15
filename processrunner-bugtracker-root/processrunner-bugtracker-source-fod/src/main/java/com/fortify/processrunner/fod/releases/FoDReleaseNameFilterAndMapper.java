@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.context.Context;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * Filter FoD releases based on application and release name,

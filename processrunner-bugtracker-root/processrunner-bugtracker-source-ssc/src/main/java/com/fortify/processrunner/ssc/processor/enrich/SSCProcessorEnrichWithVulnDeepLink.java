@@ -23,12 +23,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.enrich;
 
+import com.fortify.api.util.rest.connection.IRestConnection;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
-import com.fortify.util.rest.IRestConnection;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink} provides an FoD-specific 

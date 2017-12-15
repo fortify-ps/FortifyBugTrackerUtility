@@ -27,7 +27,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 
 /**
  * This class extends {@link SpringExpressionUtil} with methods

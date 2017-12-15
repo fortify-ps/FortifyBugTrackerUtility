@@ -25,13 +25,13 @@ package com.fortify.processrunner.filter;
 
 import org.springframework.core.Ordered;
 
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.CompositeOrderedProcessor;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * Abstract filtering {@link IProcessor} implementation. Concrete implementations need to implement the
@@ -42,6 +42,8 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * execution time, allowing faster filters to be evaluated before slower filters. This can for
  * example be useful if filters access on-demand data (see {@link IOnDemandPropertyLoader}). For 
  * optimal ordering, all filter implementations should be managed by a single {@link CompositeOrderedProcessor}.
+ * 
+ * TODO: Replace with {@link AbstractJSONMapFilter}?
  * 
  * @author Ruud Senden
  *

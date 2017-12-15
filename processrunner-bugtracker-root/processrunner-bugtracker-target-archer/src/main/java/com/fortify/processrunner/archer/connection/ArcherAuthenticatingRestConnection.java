@@ -40,11 +40,11 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
+import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.api.util.rest.json.JSONList;
+import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.util.json.JSONList;
-import com.fortify.util.json.JSONMap;
-import com.fortify.util.rest.ProxyConfiguration;
-import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class provides a token-authenticated REST connection
@@ -57,7 +57,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	private long levelId;
 	private final Map<String,FieldContentAdder> fieldNamesToFieldContentAdderMap = new HashMap<String,FieldContentAdder>();
 	
-	public ArcherAuthenticatingRestConnection(String baseUrl, ArcherAuthData authData, String applicationName, ProxyConfiguration proxyConfig) {
+	public ArcherAuthenticatingRestConnection(String baseUrl, ArcherAuthData authData, String applicationName, ProxyConfig proxyConfig) {
 		super(baseUrl, proxyConfig);
 		this.tokenProviderRest = new ArcherTokenFactoryRest(baseUrl, authData, proxyConfig);
 		this.applicationName = applicationName;

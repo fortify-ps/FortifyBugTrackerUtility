@@ -23,9 +23,9 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.enrich;
 
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithVulnState;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithVulnState} provides an FoD-specific 
