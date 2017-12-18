@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.api.util.rest.connection.AbstractRestConnection;
 import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
-import com.fortify.api.util.rest.connection.RestConnectionConfig;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
@@ -145,7 +145,7 @@ public final class JiraRestConnection extends AbstractRestConnection {
 	
 	/**
 	 * This class provides a builder pattern for configuring an {@link JiraRestConnection} instance.
-	 * It re-uses builder functionality from {@link RestConnectionConfig}, and adds a
+	 * It re-uses builder functionality from {@link AbstractRestConnectionConfig}, and adds a
 	 * {@link #build()} method to build an {@link JiraRestConnection} instance.
 	 * 
 	 * @author Ruud Senden

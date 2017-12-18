@@ -33,7 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.ssc.connection.api.IssueSearchOptions;
+import com.fortify.api.ssc.connection.api.SSCIssueAPI.IssueSearchOptions;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.api.util.spring.expression.SimpleExpression;
@@ -58,6 +58,8 @@ import com.fortify.processrunner.ssc.context.IContextSSCCommon;
  * to process the current vulnerability. The current vulnerability
  * can be accessed by the vulnerability processor using the
  * 'CurrentVulnerability' {@link Context} property.</p>
+ * 
+ * TODO refactor to use SSC Issue Query API
  * 
  * @author Ruud Senden
  */
@@ -94,7 +96,7 @@ public class SSCProcessorRetrieveVulnerabilities extends AbstractProcessor {
 		IContextCurrentVulnerability contextCurrentVulnerability = context.as(IContextCurrentVulnerability.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		LOG.info("[SSC] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from application version id "+contextSSC.getSSCApplicationVersionId()+" at "+conn.getBaseUrl());
-		conn.api().updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
+		conn.api().issue().updateApplicationVersionIssueSearchOptions(contextSSC.getSSCApplicationVersionId(), getIssueSearchOptions());
 		int start=0;
 		int count=50;
 		while ( start < count ) {

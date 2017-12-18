@@ -23,8 +23,6 @@
  ******************************************************************************/
 package com.fortify.processrunner.jira.connection;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
-
 import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -54,11 +52,13 @@ public final class JiraConnectionFactory
 	private static final JiraRestConnection createConnection(Context context) {
 		IContextJira ctx = context.as(IContextJira.class);
 		
-		String baseUrl = ctx.getJiraBaseUrl();
-		String userName = ctx.getJiraUserName();
-		String password = ctx.getJiraPassword();
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Jira");
-		return new JiraRestConnection(baseUrl, new UsernamePasswordCredentials(userName, password), proxy);
+		return JiraRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getJiraBaseUrl())
+			.userName(ctx.getJiraUserName())
+			.password(ctx.getJiraPassword())
+			.build();
 	}
 	
 	private interface IContextJiraConnection {

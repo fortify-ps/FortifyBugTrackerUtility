@@ -68,7 +68,7 @@ public final class ContextAwareProxyConfigurationFactory {
 		String proxyUrl = (String)context.get(name+PRP_SFX_URL);
 		if ( StringUtils.isNotBlank(proxyUrl) ) {
 			proxy = new ProxyConfig();
-			proxy.setUriString(proxyUrl);
+			proxy.setUrl(proxyUrl);
 			String userName = (String)context.get(name+PRP_SFX_USER_NAME);
 			if ( StringUtils.isNotBlank(userName) ) {
 				proxy.setUserName(userName);

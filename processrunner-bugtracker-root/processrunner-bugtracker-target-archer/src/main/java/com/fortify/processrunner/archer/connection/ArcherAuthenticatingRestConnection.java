@@ -40,7 +40,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.spring.SpringExpressionUtil;
@@ -57,10 +58,10 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	private long levelId;
 	private final Map<String,FieldContentAdder> fieldNamesToFieldContentAdderMap = new HashMap<String,FieldContentAdder>();
 	
-	public ArcherAuthenticatingRestConnection(String baseUrl, ArcherAuthData authData, String applicationName, ProxyConfig proxyConfig) {
-		super(baseUrl, proxyConfig);
-		this.tokenProviderRest = new ArcherTokenFactoryRest(baseUrl, authData, proxyConfig);
-		this.applicationName = applicationName;
+	public ArcherAuthenticatingRestConnection(ArcherRestConnectionConfig<?> config) {
+		super(config);
+		this.tokenProviderRest = new ArcherTokenFactoryRest(config);
+		this.applicationName = config.getApplicationName();
 		cacheFieldData();
 	}
 	
@@ -252,6 +253,29 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 				}
 				return result;
 			}
+		}
+	}
+	
+	/**
+	 * This method returns an {@link ArcherRestConnectionBuilder} instance
+	 * that allows for building {@link ArcherAuthenticatingRestConnection} instances.
+	 * @return
+	 */
+	public static final ArcherRestConnectionBuilder builder() {
+		return new ArcherRestConnectionBuilder();
+	}
+	
+	/**
+	 * This class provides a builder pattern for configuring an {@link ArcherAuthenticatingRestConnection} instance.
+	 * It re-uses builder functionality from {@link AbstractRestConnectionConfig}, and adds a
+	 * {@link #build()} method to build an {@link ArcherAuthenticatingRestConnection} instance.
+	 * 
+	 * @author Ruud Senden
+	 */
+	public static final class ArcherRestConnectionBuilder extends ArcherRestConnectionConfig<ArcherRestConnectionBuilder> implements IRestConnectionBuilder<ArcherAuthenticatingRestConnection> {
+		@Override
+		public ArcherAuthenticatingRestConnection build() {
+			return new ArcherAuthenticatingRestConnection(this);
 		}
 	}
 }

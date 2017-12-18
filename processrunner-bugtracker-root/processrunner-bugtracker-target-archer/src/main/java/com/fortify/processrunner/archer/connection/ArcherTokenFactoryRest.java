@@ -29,7 +29,6 @@ import javax.ws.rs.client.Entity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 
@@ -44,9 +43,9 @@ public final class ArcherTokenFactoryRest {
 	private final ArcherBasicRestConnection conn;
 	private final ArcherAuthData authData;
 	private TokenData tokenData = null;
-	public ArcherTokenFactoryRest(String baseUrl, ArcherAuthData authData, ProxyConfig proxyConfig) {
-		conn = new ArcherBasicRestConnection(baseUrl, proxyConfig);
-		this.authData = authData;
+	public ArcherTokenFactoryRest(ArcherRestConnectionConfig<?> config) {
+		conn = new ArcherBasicRestConnection(config);
+		this.authData = new ArcherAuthData(config);
 	}
 	
 	public String getToken() {

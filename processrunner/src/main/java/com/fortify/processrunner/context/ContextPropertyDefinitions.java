@@ -37,7 +37,7 @@ public class ContextPropertyDefinitions extends LinkedHashMap<String, ContextPro
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Add the viven {@link ContextPropertyDefinition} to the {@link Map} of {@link ContextPropertyDefinition}s
+	 * Add the given {@link ContextPropertyDefinition} to the {@link Map} of {@link ContextPropertyDefinition}s
 	 * @param contextPropertyDefinition
 	 * @return
 	 */

@@ -54,11 +54,11 @@ import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerN
 import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFilter;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCFilterOnBugURL;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandBugURLFromCustomTag;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithOnDemandIssueDetails;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnDeepLink;
 import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
-import com.fortify.processrunner.ssc.processor.filter.SSCFilterOnBugURL;
 
 /**
  * This class holds all SSC-related configuration properties used to submit vulnerabilities

@@ -21,10 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.processor.filter;
+package com.fortify.processrunner.ssc.json.preprocessor;
 /**
- * This package contains various {@link com.fortify.processrunner.processor.IProcessor} implementations
- * for filtering SSC vulnerability data, allowing specific vulnerabilities to be included or excluded
- * from further processing based on filter criteria.  
+ * TODO 
  * 
  */

@@ -23,14 +23,10 @@
  ******************************************************************************/
 package com.fortify.processrunner.octane.connection;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneClientCredentials;
-import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneUserCredentials;
 import com.fortify.processrunner.octane.context.IContextOctane;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
 
@@ -58,21 +54,15 @@ public final class OctaneConnectionFactory
 	private static final OctaneAuthenticatingRestConnection createConnection(Context context) {
 		IContextOctane ctx = context.as(IContextOctane.class);
 		
-		String baseUrl = ctx.getOctaneBaseUrl();
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Octane");
-		if ( StringUtils.isNotBlank(ctx.getOctaneUserName()) ) {
-			OctaneUserCredentials userCreds = new OctaneUserCredentials();
-			userCreds.setUserName(ctx.getOctaneUserName());
-			userCreds.setPassword(ctx.getOctanePassword());
-			return new OctaneAuthenticatingRestConnection(baseUrl, userCreds, proxy);
-		} else if ( StringUtils.isNotBlank(ctx.getOctaneClientId()) ) {
-			OctaneClientCredentials clientCreds = new OctaneClientCredentials();
-			clientCreds.setClientId(ctx.getOctaneClientId());
-			clientCreds.setClientSecret(ctx.getOctaneClientSecret());
-			return new OctaneAuthenticatingRestConnection(baseUrl, clientCreds, proxy);
-		} else {
-			throw new IllegalStateException("Either Octane user name and password, or client id and secret must be specified");
-		}
+		return OctaneAuthenticatingRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getOctaneBaseUrl())
+			.clientId(ctx.getOctaneClientId())
+			.clientSecret(ctx.getOctaneClientSecret())
+			.userName(ctx.getOctaneUserName())
+			.password(ctx.getOctanePassword())
+			.build();
 	}
 	
 	private interface IContextOctaneConnection {

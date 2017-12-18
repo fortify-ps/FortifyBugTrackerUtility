@@ -40,7 +40,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 
 import com.fortify.api.util.rest.connection.AbstractRestConnection;
 import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
-import com.fortify.api.util.rest.connection.RestConnectionConfig;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.spring.SpringExpressionUtil;
@@ -182,7 +182,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	
 	/**
 	 * This class provides a builder pattern for configuring an {@link TFSRestConnection} instance.
-	 * It re-uses builder functionality from {@link RestConnectionConfig}, and adds a
+	 * It re-uses builder functionality from {@link AbstractRestConnectionConfig}, and adds a
 	 * {@link #build()} method to build an {@link TFSRestConnection} instance.
 	 * 
 	 * @author Ruud Senden

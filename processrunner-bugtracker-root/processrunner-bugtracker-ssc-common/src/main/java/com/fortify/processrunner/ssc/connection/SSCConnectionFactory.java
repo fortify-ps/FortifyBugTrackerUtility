@@ -23,11 +23,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.connection;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.ssc.connection.SSCConnectionRetrieverTokenCredentials;
-import com.fortify.api.ssc.connection.SSCConnectionRetrieverUserCredentials;
 import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -65,24 +61,14 @@ public final class SSCConnectionFactory
 	private static final SSCAuthenticatingRestConnection createConnection(Context context) {
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		
-		String baseUrl = ctx.getSSCBaseUrl();
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "SSC");
-		if ( StringUtils.isNotBlank(ctx.getSSCAuthToken()) ) {
-			SSCConnectionRetrieverTokenCredentials tokenCreds = new SSCConnectionRetrieverTokenCredentials();
-			tokenCreds.setBaseUrl(baseUrl);
-			tokenCreds.setProxy(proxy);
-			tokenCreds.setAuthToken(ctx.getSSCAuthToken());
-			return tokenCreds.getConnection();
-		} else if ( StringUtils.isNotBlank(ctx.getSSCUserName() )) {
-			SSCConnectionRetrieverUserCredentials userCreds = new SSCConnectionRetrieverUserCredentials();
-			userCreds.setBaseUrl(baseUrl);
-			userCreds.setProxy(proxy);
-			userCreds.setUserName(ctx.getSSCUserName());
-			userCreds.setPassword(ctx.getSSCPassword());
-			return userCreds.getConnection();
-		} else {
-			throw new IllegalStateException("Either SSC user name and password, or authentication token must be specified");
-		}
+		return SSCAuthenticatingRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getSSCBaseUrl())
+			.authToken(ctx.getSSCAuthToken())
+			.userName(ctx.getSSCUserName())
+			.password(ctx.getSSCPassword())
+			.build();
 	}
 	
 	private interface IContextSSCConnection {

@@ -46,8 +46,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.glassfish.jersey.client.ClientConfig;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.api.util.rest.connection.AbstractRestConnection;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
 
 /**
  * This class provides a basic, non-authenticating REST and SOAP
@@ -57,9 +57,8 @@ import com.fortify.api.util.rest.connection.AbstractRestConnection;
  * and a SoapProvider to handle SOAP requests and responses. 
  */
 public class ArcherBasicRestConnection extends AbstractRestConnection {
-	public ArcherBasicRestConnection(String baseUrl, ProxyConfig proxy) {
-		super(baseUrl);
-		setProxy(proxy);
+	public ArcherBasicRestConnection(AbstractRestConnectionConfig<?> config) {
+		super(config);
 	}
 	
 	/**

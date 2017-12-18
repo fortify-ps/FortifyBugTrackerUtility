@@ -35,72 +35,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArcherAuthData {
 	@XmlElement(name="InstanceName")
-	private String instanceName;
+	private final String instanceName;
 	
 	@XmlElement(name="UserName")
-	private String userName;
+	private final String userName;
 	
 	@XmlElement(name="UserDomain")
-	private String userDomain;
+	private final String userDomain;
 	
 	@XmlElement(name="Password")
-	private String password;
+	private final String password;
 
-	/**
-	 * @return the instanceName
-	 */
-	public String getInstanceName() {
-		return instanceName;
+	public ArcherAuthData(ArcherRestConnectionConfig<?> config) {
+		this.instanceName = config.getInstanceName();
+		this.userName = config.getUserName();
+		this.userDomain = config.getUserDomain();
+		this.password = config.getPassword();
 	}
-
-	/**
-	 * @param instanceName the instanceName to set
-	 */
-	public void setInstanceName(String instanceName) {
-		this.instanceName = instanceName;
-	}
-
-	/**
-	 * @return the userName
-	 */
-	public String getUserName() {
-		return userName;
-	}
-
-	/**
-	 * @param userName the userName to set
-	 */
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	/**
-	 * @return the userDomain
-	 */
-	public String getUserDomain() {
-		return userDomain;
-	}
-
-	/**
-	 * @param userDomain the userDomain to set
-	 */
-	public void setUserDomain(String userDomain) {
-		this.userDomain = userDomain;
-	}
-
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * @param password the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
-	
 }

@@ -23,11 +23,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.connection;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.api.fod.connection.FoDConnectionRetrieverClientCredentials;
-import com.fortify.api.fod.connection.FoDConnectionRetrieverUserCredentials;
+import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -66,24 +63,16 @@ public final class FoDConnectionFactory
 	private static final FoDAuthenticatingRestConnection createConnection(Context context) {
 		IContextFoD ctx = context.as(IContextFoD.class);
 		
-		if ( StringUtils.isNotBlank(ctx.getFoDUserName()) ) {
-			FoDConnectionRetrieverUserCredentials userCreds = new FoDConnectionRetrieverUserCredentials();
-			userCreds.setBaseUrl(ctx.getFoDBaseUrl());
-			userCreds.setProxy(ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD"));
-			userCreds.setTenant(ctx.getFoDTenant());
-			userCreds.setUserName(ctx.getFoDUserName());
-			userCreds.setPassword(ctx.getFoDPassword());
-			return userCreds.getConnection();
-		} else if ( StringUtils.isNotBlank(ctx.getFoDClientId()) ) {
-			FoDConnectionRetrieverClientCredentials clientCreds = new FoDConnectionRetrieverClientCredentials();
-			clientCreds.setBaseUrl(ctx.getFoDBaseUrl());
-			clientCreds.setProxy(ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD"));
-			clientCreds.setClientId(ctx.getFoDClientId());
-			clientCreds.setClientSecret(ctx.getFoDClientSecret());
-			return clientCreds.getConnection();
-		} else {
-			throw new IllegalStateException("Either FoD username and password, or client id and client secret must be specified");
-		}
+		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD");
+		return FoDAuthenticatingRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getFoDBaseUrl())
+			.clientId(ctx.getFoDClientId())
+			.clientSecret(ctx.getFoDClientSecret())
+			.tenant(ctx.getFoDTenant())
+			.userName(ctx.getFoDUserName())
+			.password(ctx.getFoDPassword())
+			.build();
 	}
 	
 	private interface IContextFoDConnection {

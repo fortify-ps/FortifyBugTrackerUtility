@@ -55,18 +55,16 @@ public final class ArcherConnectionFactory
 	private static final ArcherAuthenticatingRestConnection createConnection(Context context) {
 		IContextArcher ctx = context.as(IContextArcher.class);
 		
-		ArcherAuthData auth = new ArcherAuthData();
-		
-		String baseUrl = ctx.getArcherBaseUrl();
-		String applicationName = ctx.getArcherApplicationName();
-		auth.setInstanceName(ctx.getArcherInstanceName());
-		auth.setUserName(ctx.getArcherUserName());
-		auth.setUserDomain("undefined".equals(ctx.getArcherUserDomain())?null:ctx.getArcherUserDomain());
-		auth.setPassword(ctx.getArcherPassword());
-		
-		
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Archer");
-		return new ArcherAuthenticatingRestConnection(baseUrl, auth, applicationName, proxy);
+		return ArcherAuthenticatingRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getArcherBaseUrl())
+			.applicationName(ctx.getArcherApplicationName())
+			.instanceName(ctx.getArcherInstanceName())
+			.userName(ctx.getArcherUserName())
+			.userDomain(ctx.getArcherUserDomain())
+			.password(ctx.getArcherPassword())
+			.build();
 	}
 	
 	private interface IContextArcherConnection {

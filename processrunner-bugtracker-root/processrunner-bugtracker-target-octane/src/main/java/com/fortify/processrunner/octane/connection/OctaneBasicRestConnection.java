@@ -25,8 +25,8 @@ package com.fortify.processrunner.octane.connection;
 
 import javax.ws.rs.client.Invocation.Builder;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.api.util.rest.connection.AbstractRestConnection;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
 
 /**
  * This class provides a basic, non-authenticating REST connection
@@ -35,9 +35,8 @@ import com.fortify.api.util.rest.connection.AbstractRestConnection;
  * <code>Accept: application/json</code> header.
  */
 public class OctaneBasicRestConnection extends AbstractRestConnection {
-	public OctaneBasicRestConnection(String baseUrl, ProxyConfig proxy) {
-		super(baseUrl);
-		setProxy(proxy);
+	public OctaneBasicRestConnection(AbstractRestConnectionConfig<?> config) {
+		super(config);
 	}
 	
 	/**

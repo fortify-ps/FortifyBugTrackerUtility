@@ -23,6 +23,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.octane.connection;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -40,7 +41,8 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.spring.SpringExpressionUtil;
@@ -70,9 +72,9 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				}
 			});
 	
-	public OctaneAuthenticatingRestConnection(String baseUrl, IOctaneCredentials credentials, ProxyConfig proxyConfig) {
-		super(baseUrl, proxyConfig);
-		this.credentials = credentials;
+	public OctaneAuthenticatingRestConnection(OctaneRestConnectionConfig<?> config) {
+		super(config);
+		this.credentials = config.getCredentials();
 	}
 	
 	
@@ -267,9 +269,9 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId});
 		}
 		
-		public String getDeepLink(String baseUrl) {
+		public String getDeepLink(URI baseUrl) {
 			return FMT_DEEP_LINK.format(new Object[]{
-				baseUrl, sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId
+				baseUrl.toASCIIString(), sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId
 			});
 		}
 		
@@ -304,36 +306,34 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	public interface IOctaneCredentials {}
 	
 	public static final class OctaneUserCredentials implements IOctaneCredentials {
-		public String user;
-		public String password;
+		public final String user;
+		public final String password;
+		
+		public OctaneUserCredentials(String user, String password) {
+			this.user = user;
+			this.password = password;
+		}
 		public String getUserName() {
 			return user;
-		}
-		public void setUserName(String userName) {
-			this.user = userName;
 		}
 		public String getPassword() {
 			return password;
 		}
-		public void setPassword(String password) {
-			this.password = password;
-		}
 	}
 	
 	public static final class OctaneClientCredentials implements IOctaneCredentials {
-		public String client_id;
-		public String client_secret;
+		public final String client_id;
+		public final String client_secret;
+		
+		public OctaneClientCredentials(String clientId, String clientSecret) {
+			this.client_id = clientId;
+			this.client_secret = clientSecret;
+		}
 		public String getClientId() {
 			return client_id;
 		}
-		public void setClientId(String clientId) {
-			this.client_id = clientId;
-		}
 		public String getClientSecret() {
 			return client_secret;
-		}
-		public void setClientSecret(String clientSecret) {
-			this.client_secret = clientSecret;
 		}
 	}
 	
@@ -413,7 +413,28 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		public String asQueryParam() {
 			return toString();
 		}
-		
-		
+	}
+	
+	/**
+	 * This method returns an {@link OctaneRestConnectionBuilder} instance
+	 * that allows for building {@link OctaneAuthenticatingRestConnection} instances.
+	 * @return
+	 */
+	public static final OctaneRestConnectionBuilder builder() {
+		return new OctaneRestConnectionBuilder();
+	}
+	
+	/**
+	 * This class provides a builder pattern for configuring an {@link OctaneAuthenticatingRestConnection} instance.
+	 * It re-uses builder functionality from {@link AbstractRestConnectionConfig}, and adds a
+	 * {@link #build()} method to build an {@link OctaneAuthenticatingRestConnection} instance.
+	 * 
+	 * @author Ruud Senden
+	 */
+	public static final class OctaneRestConnectionBuilder extends OctaneRestConnectionConfig<OctaneRestConnectionBuilder> implements IRestConnectionBuilder<OctaneAuthenticatingRestConnection> {
+		@Override
+		public OctaneAuthenticatingRestConnection build() {
+			return new OctaneAuthenticatingRestConnection(this);
+		}
 	}
 }

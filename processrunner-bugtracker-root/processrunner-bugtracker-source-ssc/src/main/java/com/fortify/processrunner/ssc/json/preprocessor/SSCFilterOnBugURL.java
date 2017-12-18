@@ -21,32 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.processor.enrich;
+package com.fortify.processrunner.ssc.json.preprocessor;
 
-import com.fortify.api.util.rest.connection.IRestConnection;
-import com.fortify.api.util.spring.SpringExpressionUtil;
-import com.fortify.api.util.spring.expression.TemplateExpression;
-import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import java.util.regex.Pattern;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
 
 /**
- * This {@link AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink} provides an FoD-specific 
- * deep link URI expression.
+ * This class allows for including or excluding SSC vulnerabilities based on whether 
+ * the vulnerability bugURL field contains any value or not.
  * 
  * @author Ruud Senden
+ *
  */
-public class FoDProcessorEnrichWithVulnDeepLink extends AbstractProcessorEnrichCurrentVulnerabilityWithDeepLink {
-	private static final TemplateExpression DEEP_LINK_URI_EXPRESSION = SpringExpressionUtil.parseTemplateExpression("redirect/Issues/${vulnId}");
-	
-	@Override
-	protected TemplateExpression getDeepLinkUriExpression() {
-		return DEEP_LINK_URI_EXPRESSION;
+public class SSCFilterOnBugURL extends JSONMapFilterRegEx {
+	public SSCFilterOnBugURL(boolean excludeVulnerabilitiesWithBugURL) {
+		super("bugURL", Pattern.compile("^\\S+$"), !excludeVulnerabilitiesWithBugURL);
 	}
-	
-	@Override
-	protected IRestConnection getConnection(Context context) {
-		return FoDConnectionFactory.getConnection(context);
-	}
-	
 }

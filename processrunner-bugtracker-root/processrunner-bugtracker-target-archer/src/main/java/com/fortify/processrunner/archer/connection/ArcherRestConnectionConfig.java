@@ -22,9 +22,47 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.tfs.connection;
+package com.fortify.processrunner.archer.connection;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
+import com.fortify.api.util.rest.connection.AbstractRestConnectionWithUsernamePasswordConfig;
 
-public class TFSRestConnectionConfig<T extends TFSRestConnectionConfig<T>> extends AbstractRestConnectionWithCredentialsConfig<T> {
+public class ArcherRestConnectionConfig<T extends ArcherRestConnectionConfig<T>> extends AbstractRestConnectionWithUsernamePasswordConfig<T> {
+	private String instanceName;
+	private String userDomain;
+	private String applicationName;
+
+	public T instanceName(String instanceName) {
+		setInstanceName(instanceName); return getThis();
+	}
+	
+	public T userDomain(String userDomain) {
+		setUserDomain(userDomain); return getThis();
+	}
+	
+	public T applicationName(String applicationName) {
+		setApplicationName(applicationName); return getThis();
+	}
+	
+	public String getInstanceName() {
+		return instanceName;
+	}
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+	}
+	public String getUserDomain() {
+		return userDomain;
+	}
+	public void setUserDomain(String userDomain) {
+		this.userDomain = userDomain;
+	}
+	
+	public String getApplicationName() {
+		return applicationName;
+	}
+
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
+	
+	
 }

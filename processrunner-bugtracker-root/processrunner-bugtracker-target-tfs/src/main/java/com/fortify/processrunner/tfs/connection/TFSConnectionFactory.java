@@ -23,8 +23,6 @@
  ******************************************************************************/
 package com.fortify.processrunner.tfs.connection;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
-
 import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -54,11 +52,13 @@ public final class TFSConnectionFactory
 	private static final TFSRestConnection createConnection(Context context) {
 		IContextTFS ctx = context.as(IContextTFS.class);
 		
-		String baseUrl = ctx.getTFSBaseUrl();
-		String userName = ctx.getTFSUserName();
-		String password = ctx.getTFSPassword();
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "TFS");
-		return new TFSRestConnection(baseUrl, new UsernamePasswordCredentials(userName, password), proxy);
+		return TFSRestConnection.builder()
+			.proxy(proxy)
+			.baseUrl(ctx.getTFSBaseUrl())
+			.userName(ctx.getTFSUserName())
+			.password(ctx.getTFSPassword())
+			.build();
 	}
 	
 	private interface IContextTFSConnection {
