@@ -26,11 +26,15 @@ package com.fortify.processrunner.fod.processor.composite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
+import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
+import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
-import com.fortify.processrunner.fod.processor.enrich.FoDProcessorEnrichWithVulnState;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterOnBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 
@@ -53,40 +57,37 @@ import com.fortify.processrunner.processor.IProcessor;
  */
 @Component
 public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor implements IProcessorUpdateState {
-	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
+	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor;
+	
+	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+				.paramIncludeFixed(true)
+				.paramIncludeSuppressed(true)
+				.preProcessor(new FoDJSONMapFilterOnBugLink(false));
+		if ( getConfiguration().isAddNativeBugLink() ) {
+			builder.paramFilterAnd("bugSubmitted","true");
+		}
+		if ( getConfiguration().isAddBugDataAsComment() ) {
+			builder.paramFilterAnd("hasComments","true");
+		}
+		return builder.build();
+	}
 	
 	@Override
-	protected IProcessor createFoDProcessorRetrieveAndProcessVulnerabilities() {
-		FoDProcessorRetrieveVulnerabilities result = new FoDProcessorRetrieveVulnerabilities(
-			getConfiguration().getEnrichersForVulnerabilitiesAlreadySubmitted(),
-			getConfiguration().getFiltersForVulnerabilitiesAlreadySubmitted(),
-			getUpdateIssueStateProcessor()
-		);
-		result.setIncludeFixed(true);
-		result.setIncludeSuppressed(true);
-		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesAlreadySubmitted());
-		result.setPurpose("updating state");
-		return result;
+	protected String getPurpose() {
+		return "updating state";
 	}
 
-	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getUpdateIssueStateProcessor() {
-		return updateIssueStateProcessor;
+	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getVulnerabilityProcessor() {
+		return vulnerabilityProcessor;
 	}
 
 	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
-	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor) {
-		updateIssueStateProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
-		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(FoDProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		updateIssueStateProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
-		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
-		this.updateIssueStateProcessor = updateIssueStateProcessor;
-	}
-	
-	public boolean isEnabled() {
-		return getUpdateIssueStateProcessor() != null;
-	}
-
-	public String getBugTrackerName() {
-		return getUpdateIssueStateProcessor() == null ? null : getUpdateIssueStateProcessor().getBugTrackerName();
+	public void setVulnerabilityProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor) {
+		vulnerabilityProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
+		vulnerabilityProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(JSONMapEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
+		vulnerabilityProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
+		vulnerabilityProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
+		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 }

@@ -38,7 +38,7 @@ import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.AbstractBugTrackerFieldsBasedProcessor;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -74,7 +74,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 		return Arrays.asList((ISSCApplicationVersionFilter)new SSCApplicationVersionBugTrackerNameFilter(getSscBugTrackerName()));
 	}
 
-	public boolean setVulnerabilityUpdater(IVulnerabilityUpdater issueSubmittedListener) {
+	public boolean setVulnerabilityUpdater(IExistingIssueVulnerabilityUpdater issueSubmittedListener) {
 		// We ignore the issueSubmittedListener since we don't need to update SSC state
 		// after submitting a bug through SSC. We return false to indicate that we don't
 		// support an issue submitted listener.

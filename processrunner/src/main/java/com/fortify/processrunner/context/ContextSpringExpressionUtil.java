@@ -35,6 +35,8 @@ import com.fortify.api.util.spring.SpringExpressionUtil;
  * the Spring {@link EvaluationContext}.
  * 
  * @author Ruud Senden
+ * 
+ * TODO Do we still need this, now that (most) on-demand loaders no longer need access to the context?
  *
  */
 public class ContextSpringExpressionUtil extends SpringExpressionUtil {

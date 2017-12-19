@@ -23,15 +23,33 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.composite;
 
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
+import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
+import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
+import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.processrunner.ssc.processor.enrich.SSCProcessorEnrichWithVulnState;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterOnBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
 /**
@@ -52,41 +70,49 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
  * @author Ruud Senden
  */
 @Component
-public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor implements IProcessorUpdateState {
-	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor;
+public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor implements IProcessorUpdateState, IExistingIssueVulnerabilityUpdater {
+	private static final Log LOG = LogFactory.getLog(SSCProcessorSubmitVulnerabilities.class);
+	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor;
+	
+	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		SSCApplicationVersionIssuesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+				.paramQm(QueryMode.issues)
+				.includeHidden(false)
+				.includeRemoved(true)
+				.includeSuppressed(true);
+		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
+			builder.preProcessor(new SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(getConfiguration().getBugLinkCustomTagName()));
+			builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
+		}
+		builder.preProcessor(new SSCJSONMapFilterOnBugURL(false));
+		return builder.build();
+	}
 	
 	@Override
-	protected IProcessor createSSCProcessorRetrieveAndProcessVulnerabilities() {
-		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
-			getConfiguration().getEnrichersForVulnerabilitiesAlreadySubmitted(),
-			getConfiguration().getFiltersForVulnerabilitiesAlreadySubmitted(),
-			getUpdateIssueStateProcessor()
-		);
-		result.getIssueSearchOptions().setIncludeHidden(false);
-		result.getIssueSearchOptions().setIncludeRemoved(true);
-		result.getIssueSearchOptions().setIncludeSuppressed(true);
-		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesAlreadySubmitted());
-		result.setPurpose("updating state");
-		return result;
+	protected String getPurpose() {
+		return "updating state";
 	}
 
-	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getUpdateIssueStateProcessor() {
-		return updateIssueStateProcessor;
+	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getVulnerabilityProcessor() {
+		return vulnerabilityProcessor;
 	}
 
 	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
-	public void setUpdateIssueStateProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> updateIssueStateProcessor) {
-		updateIssueStateProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugURL}"));
-		updateIssueStateProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(SSCProcessorEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		updateIssueStateProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugURL"));
-		this.updateIssueStateProcessor = updateIssueStateProcessor;
-	}
-	
-	public boolean isEnabled() {
-		return getUpdateIssueStateProcessor() != null;
+	public void setVulnerabilityProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor) {
+		vulnerabilityProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugURL}"));
+		vulnerabilityProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(JSONMapEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
+		vulnerabilityProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugURL"));
+		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
-	public String getBugTrackerName() {
-		return getUpdateIssueStateProcessor() == null ? null : getUpdateIssueStateProcessor().getBugTrackerName();
+	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
+		if ( !customTagValues.isEmpty() ) {
+			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+			String applicationVersionId = ctx.getSSCApplicationVersionId();
+			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			LOG.info("[SSC] Updated custom tag values for "+vulnerabilities.size()+" SSC vulnerabilities");
+		}
 	}
 }

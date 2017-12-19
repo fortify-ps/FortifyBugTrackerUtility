@@ -23,24 +23,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.common.processor;
 
-import com.fortify.processrunner.processor.IProcessor;
-
 /**
- * This interface is to be implemented by the main processor implementation
+ * This marker interface is to be implemented by the main processor implementation
  * that loads vulnerabilities from a source system and submits them to 
  * a target system.
  * 
  * @author Ruud Senden
  *
  */
-public interface IProcessorSubmitVulnerabilities extends IProcessor {
-	/**
-	 * @return boolean indicating whether this processor is enabled
-	 */
-	public boolean isEnabled();
-	
-	/**
-	 * @return bug tracker name for which this processor is currently configured
-	 */
-	public String getBugTrackerName();
-}
+public interface IProcessorSubmitVulnerabilities extends IProcessorWithBugTrackerNameAndEnabledFlag {}

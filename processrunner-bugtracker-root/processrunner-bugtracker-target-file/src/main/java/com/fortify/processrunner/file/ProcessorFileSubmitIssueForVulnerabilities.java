@@ -38,7 +38,7 @@ import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
@@ -62,7 +62,7 @@ public class ProcessorFileSubmitIssueForVulnerabilities extends AbstractProcesso
 		return "File";
 	}
 	
-	public boolean setVulnerabilityUpdater(IVulnerabilityUpdater issueSubmittedListener) {
+	public boolean setVulnerabilityUpdater(IExistingIssueVulnerabilityUpdater issueSubmittedListener) {
 		// We ignore the issueSubmittedListener since we want to do a full export each time.
 		// TODO should we make this configurable (full or partial export)?
 		// We return false to indicate that we don't  support an issue submitted listener.

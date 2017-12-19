@@ -23,11 +23,26 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.composite;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.api.util.rest.query.IRestConnectionQuery;
+import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities;
+import com.fortify.processrunner.common.source.vulnerability.INewIssueVulnerabilityUpdater;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import com.fortify.processrunner.fod.context.IContextFoD;
+import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterOnBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 
@@ -49,40 +64,53 @@ import com.fortify.processrunner.processor.IProcessor;
  * @author Ruud Senden
  */
 @Component
-public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor implements IProcessorSubmitVulnerabilities {
-	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
+public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor implements IProcessorSubmitVulnerabilities, INewIssueVulnerabilityUpdater {
+	private IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor;
 	
 	@Override
-	protected IProcessor createFoDProcessorRetrieveAndProcessVulnerabilities() {
-		IProcessorSubmitIssueForVulnerabilities submitIssueProcessor = getSubmitIssueProcessor();
-		FoDProcessorRetrieveVulnerabilities result = new FoDProcessorRetrieveVulnerabilities(
-			getConfiguration().getEnrichersForVulnerabilitiesToBeSubmitted(),
-			getConfiguration().getFiltersForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()),
-			submitIssueProcessor
-		);
-		result.setIncludeFixed(false);
-		result.setIncludeSuppressed(false);
-		result.setSearchString(getConfiguration().getFullFoDFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
-		result.setPurpose("submitting new vulnerabilities");
-		return result;
+	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+				.paramIncludeFixed(false)
+				.paramIncludeSuppressed(false)
+				.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
+		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
+			builder.preProcessor(new FoDJSONMapFilterOnBugLink(true));
+			if ( getConfiguration().isAddNativeBugLink() ) {
+				builder.paramFilterAnd("bugSubmitted", "false");
+			}
+		}
+		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
+			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
+		}
+		return builder.build();
+	}
+	
+	@Override
+	protected String getPurpose() {
+		return "submitting new vulnerabilities";
 	}
 
-	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
-		return submitIssueProcessor;
+	@Override
+	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
+		return vulnerabilityProcessor;
 	}
 
 	@Autowired
-	public void setSubmitIssueProcessor(IProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
-		this.submitIssueProcessor = submitIssueProcessor;
+	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
+		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
-	public boolean isEnabled() {
-		return getSubmitIssueProcessor() != null;
+	@SuppressWarnings("unchecked")
+	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		IContextFoD ctx = context.as(IContextFoD.class);
+		FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
+		String releaseId = ctx.getFoDReleaseId();
+		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
+		if ( getConfiguration().isAddBugDataAsComment() ) {
+			String comment = SubmittedIssueCommentHelper.getCommentForSubmittedIssue(bugTrackerName, submittedIssue);
+			conn.api().vulnerability().addCommentToVulnerabilities(releaseId, comment, vulnIds);
+		} else if ( getConfiguration().isAddNativeBugLink() ) {
+			conn.api().bugTracker().addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
+		}
 	}
-
-	public String getBugTrackerName() {
-		return getSubmitIssueProcessor() == null ? null : getSubmitIssueProcessor().getBugTrackerName();
-	}
-	
-	
 }

@@ -36,7 +36,7 @@ import com.fortify.processrunner.common.bugtracker.issue.IssueState;
  * Concrete implementations must implement the {@link #getDefaultIsVulnerabilityOpenExpression()} method
  * to provide a default value for the configurable expression.
  */
-public abstract class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich {
+public class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich {
 	public static final String NAME_VULN_STATE = "vulnState";
 	private final SimpleExpression isVulnerabilityOpenExpression;
 	

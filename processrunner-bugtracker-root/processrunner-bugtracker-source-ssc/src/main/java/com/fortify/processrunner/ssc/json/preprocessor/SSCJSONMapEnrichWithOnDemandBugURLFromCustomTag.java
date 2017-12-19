@@ -21,46 +21,50 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.processor.enrich;
-
-import java.util.Map;
+package com.fortify.processrunner.ssc.json.preprocessor;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.processrunner.common.processor.enrich.AbstractProcessorEnrichCurrentVulnerability;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.processrunner.util.ondemand.IOnDemandPropertyLoader;
+import com.fortify.api.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.api.util.spring.SpringExpressionUtil;
 
 /**
- * This {@link AbstractProcessorEnrichCurrentVulnerability} implementation adds an on-demand 
- * (see {@link IOnDemandPropertyLoader}) bugURL property to the current vulnerability that 
- * retrieves the bug URL from a configurable custom tag. We use {@link IOnDemandPropertyLoader} 
- * because the custom tag values are loaded on-demand as well as part of the vulnerability 
- * details (see {@link SSCProcessorEnrichWithOnDemandIssueDetails}.
+ * This {@link AbstractJSONMapEnrich} implementation adds an on-demand bugURL property to the
+ * current vulnerability, which retrieves the bug URL from a configurable custom tag. We use 
+ * an on-demand loader because the custom tag values are loaded on-demand as well.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCProcessorEnrichWithOnDemandBugURLFromCustomTag extends AbstractProcessorEnrichCurrentVulnerability {
+public class SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag extends AbstractJSONMapEnrich {
 	private final String customTagName;
-	public SSCProcessorEnrichWithOnDemandBugURLFromCustomTag(String customTagName) {
+	public SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(String customTagName) {
 		this.customTagName = customTagName;
 	}
 	
 	@Override
-	protected boolean enrich(Context context, JSONMap currentVulnerability) {
+	protected void enrich(JSONMap json) {
 		if ( StringUtils.isNotBlank(customTagName) ) {
-			currentVulnerability.put("bugURL", new IOnDemandPropertyLoader<String>() {
-				private static final long serialVersionUID = 1L;
-				public String getValue(Context ctx, Map<?, ?> targetMap) {
-					return ContextSpringExpressionUtil.evaluateExpression(ctx, targetMap, "details.customTagValues", JSONList.class).mapValue("customTagName", customTagName, "textValue", String.class);
-				}
-			});
+			json.put("bugURL", new SSCJSONMapOnDemandLoaderBugURLFromCustomTag(customTagName));
 		}
-		return true;
+	}
+	
+	private static class SSCJSONMapOnDemandLoaderBugURLFromCustomTag extends AbstractJSONMapOnDemandLoader {
+		private static final long serialVersionUID = 1L;
+		private final String customTagName;
+		
+		public SSCJSONMapOnDemandLoaderBugURLFromCustomTag(String customTagName) {
+			super(true);
+			this.customTagName = customTagName;
+		}
+
+		@Override
+		public Object getOnDemand(String propertyName, JSONMap parent) {
+			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("customTagName", customTagName, "textValue", String.class);
+		}
 	}
 
 }

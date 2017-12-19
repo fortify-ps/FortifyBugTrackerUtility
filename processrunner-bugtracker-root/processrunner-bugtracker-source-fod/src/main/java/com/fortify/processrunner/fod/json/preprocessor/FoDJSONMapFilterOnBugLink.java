@@ -21,10 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.processor.filter;
+package com.fortify.processrunner.fod.json.preprocessor;
+
+import java.util.regex.Pattern;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+
 /**
- * This package contains various {@link com.fortify.processrunner.processor.IProcessor} implementations
- * for filtering FoD vulnerability data, allowing specific vulnerabilities to be included or excluded
- * from further processing based on filter criteria.  
+ * This class allows for including or excluding FoD vulnerabilities based on whether 
+ * the vulnerability bugLink field contains any value or not.
  * 
+ * @author Ruud Senden
+ *
  */
+public class FoDJSONMapFilterOnBugLink extends JSONMapFilterRegEx {
+	public FoDJSONMapFilterOnBugLink(boolean excludeVulnerabilitiesWithBugLink) {
+		super("bugLink", Pattern.compile("^\\S+$"), !excludeVulnerabilitiesWithBugLink);
+	}
+}

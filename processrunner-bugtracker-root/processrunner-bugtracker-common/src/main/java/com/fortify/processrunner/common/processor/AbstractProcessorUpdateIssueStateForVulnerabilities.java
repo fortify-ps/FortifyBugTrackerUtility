@@ -36,7 +36,7 @@ import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
@@ -65,9 +65,9 @@ import com.fortify.processrunner.processor.IProcessor;
  *
  * @param <IssueStateDetailsType>
  */
-public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateDetailsType> extends AbstractBugTrackerFieldsBasedProcessor {
+public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueStateDetailsType> extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorWithBugTrackerName {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorUpdateIssueStateForVulnerabilities.class);
-	private IVulnerabilityUpdater vulnerabilityUpdater;
+	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
 	private SimpleExpression isVulnStateOpenExpression;
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
@@ -302,7 +302,7 @@ public abstract class AbstractProcessorUpdateIssueStateForVulnerabilities<IssueS
 	}
 	
 	@Autowired(required=false)
-	public void setVulnerabilityUpdater(IVulnerabilityUpdater vulnerabilityUpdater) {
+	public void setExistingIssueVulnerabilityUpdater(IExistingIssueVulnerabilityUpdater vulnerabilityUpdater) {
 		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 }

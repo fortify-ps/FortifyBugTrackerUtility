@@ -23,8 +23,6 @@
  ******************************************************************************/
 package com.fortify.processrunner.common.processor;
 
-import com.fortify.processrunner.processor.IProcessor;
-
 /**
  * This interface provides the methods necessary for submitting issues for
  * vulnerabilities.
@@ -32,13 +30,7 @@ import com.fortify.processrunner.processor.IProcessor;
  * @author Ruud Senden
  *
  */
-public interface IProcessorSubmitIssueForVulnerabilities extends IProcessor {
-	/**
-	 * Get the bug tracker name for this implementation
-	 * @return
-	 */
-	public String getBugTrackerName();
-	
+public interface IProcessorSubmitIssueForVulnerabilities extends IProcessorWithBugTrackerName {
 	/**
 	 * Indicate whether previously submitted issues should be ignored
 	 * @return

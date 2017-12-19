@@ -23,12 +23,33 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.composite;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.api.util.rest.query.IRestConnectionQuery;
+import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
+import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities;
+import com.fortify.processrunner.common.source.vulnerability.INewIssueVulnerabilityUpdater;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterOnBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
 /**
@@ -51,40 +72,77 @@ import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVuln
  * @author Ruud Senden
  */
 @Component
-public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor implements IProcessorSubmitVulnerabilities {
-	private IProcessorSubmitIssueForVulnerabilities submitIssueProcessor;
+public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor implements IProcessorSubmitVulnerabilities, INewIssueVulnerabilityUpdater {
+	private static final Log LOG = LogFactory.getLog(SSCProcessorSubmitVulnerabilities.class);
+	private IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor;
 	
 	@Override
-	protected IProcessor createSSCProcessorRetrieveAndProcessVulnerabilities() {
-		IProcessorSubmitIssueForVulnerabilities submitIssueProcessor = getSubmitIssueProcessor();
-		SSCProcessorRetrieveVulnerabilities result = new SSCProcessorRetrieveVulnerabilities(
-			getConfiguration().getEnrichersForVulnerabilitiesToBeSubmitted(),
-			getConfiguration().getFiltersForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()),
-			submitIssueProcessor
-		);
-		result.getIssueSearchOptions().setIncludeHidden(false);
-		result.getIssueSearchOptions().setIncludeRemoved(false);
-		result.getIssueSearchOptions().setIncludeSuppressed(false);
-		result.setSearchString(getConfiguration().getFullSSCFilterStringForVulnerabilitiesToBeSubmitted(submitIssueProcessor.isIgnorePreviouslySubmittedIssues()));
-		result.setPurpose("submitting new vulnerabilities");
-		return result;
+	protected String getPurpose() {
+		return "submitting new vulnerabilities";
 	}
 
-	public IProcessorSubmitIssueForVulnerabilities getSubmitIssueProcessor() {
-		return submitIssueProcessor;
+	@Override
+	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
+		return vulnerabilityProcessor;
 	}
 
 	@Autowired
-	public void setSubmitIssueProcessor(IProcessorSubmitIssueForVulnerabilities submitIssueProcessor) {
-		this.submitIssueProcessor = submitIssueProcessor;
+	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
+		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 	
-	public boolean isEnabled() {
-		return getSubmitIssueProcessor() != null;
+	@Override
+	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		SSCApplicationVersionIssuesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+				.paramQm(QueryMode.issues)
+				.includeHidden(false)
+				.includeRemoved(false)
+				.includeSuppressed(false)
+				.paramFilter(getFullSSCFilterString());
+		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
+			builder.preProcessor(new SSCJSONMapFilterOnBugURL(true));
+		}
+		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
+			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
+		}
+		return builder.build();
 	}
 
-	public String getBugTrackerName() {
-		return getSubmitIssueProcessor() == null ? null : getSubmitIssueProcessor().getBugTrackerName();
+	/**
+	 * Get the full SSC filter string for vulnerabilities that need to be submitted to the bug tracker
+	 * @return
+	 */
+	public String getFullSSCFilterString() {
+		String result = getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted();
+		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() && StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
+			result = StringUtils.isBlank(result) ? "" : (result+" ");
+			result += getConfiguration().getBugLinkCustomTagName()+":<none>";
+		}
+		// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
+		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
+		
+		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
+			customTagValues.put(getConfiguration().getBugLinkCustomTagName(), submittedIssue.getDeepLink());
+		} 
+		if ( !customTagValues.isEmpty() ) {
+			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
+		}
+		if ( getConfiguration().isAddNativeBugLink() ) {
+			Map<String, Object> issueDetails = new HashMap<String, Object>();
+			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
+			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
+			conn.api().bugTracker().fileBug(applicationVersionId, issueDetails, issueInstanceIds);
+			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
+		}
 	}
 	
 }

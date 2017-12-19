@@ -35,7 +35,8 @@ import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.source.vulnerability.IVulnerabilityUpdater;
+import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
+import com.fortify.processrunner.common.source.vulnerability.INewIssueVulnerabilityUpdater;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
@@ -53,7 +54,7 @@ import com.fortify.processrunner.processor.IProcessor;
  */
 public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateDetailsType> extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessorSubmitIssueForVulnerabilities.class);
-	private IVulnerabilityUpdater vulnerabilityUpdater;
+	private INewIssueVulnerabilityUpdater vulnerabilityUpdater;
 	
 	/**
 	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
@@ -84,7 +85,7 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 	
 	/**
 	 * This method calls {@link #submitIssue(Context, LinkedHashMap)} to actually submit an issue to the 
-	 * bug tracker for the current group of vulnerabilities. If an {@link IVulnerabilityUpdater} instance
+	 * bug tracker for the current group of vulnerabilities. If an {@link IExistingIssueVulnerabilityUpdater} instance
 	 * has been configured, it will be called to update vulnerability state in the source system, for example
 	 * to store the bug id or deep link.
 	 */
@@ -119,12 +120,12 @@ public abstract class AbstractProcessorSubmitIssueForVulnerabilities<IssueStateD
 	}
 
 	/**
-	 * Set the {@link IVulnerabilityUpdater} instance used to update vulnerabilities in the source system
+	 * Set the {@link INewIssueVulnerabilityUpdater} instance used to update vulnerabilities in the source system
 	 * based on submitted issue data. This is optional and usually auto-wired by Spring.
 	 * @param vulnerabilityUpdater
 	 */
 	@Autowired(required=false)
-	public void setVulnerabilityUpdater(IVulnerabilityUpdater vulnerabilityUpdater) {
+	public void setNewIssueVulnerabilityUpdater(INewIssueVulnerabilityUpdater vulnerabilityUpdater) {
 		this.vulnerabilityUpdater = vulnerabilityUpdater;
 	}
 	
