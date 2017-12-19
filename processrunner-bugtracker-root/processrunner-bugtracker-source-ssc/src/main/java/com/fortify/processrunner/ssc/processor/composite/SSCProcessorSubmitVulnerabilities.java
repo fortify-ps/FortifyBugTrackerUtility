@@ -77,22 +77,8 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 	private IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor;
 	
 	@Override
-	protected String getPurpose() {
-		return "submitting new vulnerabilities";
-	}
-
-	@Override
-	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	@Autowired
-	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
-	}
-	
-	@Override
 	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed
 		SSCApplicationVersionIssuesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
 				.paramQm(QueryMode.issues)
 				.includeHidden(false)
@@ -106,6 +92,21 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
 		}
 		return builder.build();
+	}
+	
+	@Override
+	protected String getPurpose() {
+		return "submitting new vulnerabilities";
+	}
+
+	@Override
+	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
+		return vulnerabilityProcessor;
+	}
+
+	@Autowired
+	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
+		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
 	/**

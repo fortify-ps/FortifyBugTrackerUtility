@@ -69,6 +69,7 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 	
 	@Override
 	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
+		// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
 		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
 				.paramIncludeFixed(false)
 				.paramIncludeSuppressed(false)
