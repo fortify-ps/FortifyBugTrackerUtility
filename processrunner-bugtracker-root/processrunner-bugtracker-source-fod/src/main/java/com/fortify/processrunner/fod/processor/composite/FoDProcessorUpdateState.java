@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
@@ -34,7 +35,7 @@ import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnS
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterOnBugLink;
+import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 
@@ -63,7 +64,7 @@ public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor i
 		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
 				.paramIncludeFixed(true)
 				.paramIncludeSuppressed(true)
-				.preProcessor(new FoDJSONMapFilterOnBugLink(false));
+				.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));
 		if ( getConfiguration().isAddNativeBugLink() ) {
 			builder.paramFilterAnd("bugSubmitted","true");
 		}

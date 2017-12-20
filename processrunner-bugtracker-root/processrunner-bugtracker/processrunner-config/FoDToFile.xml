@@ -88,7 +88,7 @@
 	     
 	     This example configuration will match all application releases, and set the
 	     OutputFile context property based on application and release name. -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
 		</map></property>
@@ -105,7 +105,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Output File" value="OutputFile"/>
 		</map></property>

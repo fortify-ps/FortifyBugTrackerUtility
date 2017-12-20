@@ -43,10 +43,4 @@ public interface IContextGenerator {
 	 * @return
 	 */
 	public Collection<Context> generateContexts(Context initialContext);
-	
-	/**
-	 * Indicate whether this instance is enabled
-	 * @return
-	 */
-	public boolean isContextGeneratorEnabled();
 }

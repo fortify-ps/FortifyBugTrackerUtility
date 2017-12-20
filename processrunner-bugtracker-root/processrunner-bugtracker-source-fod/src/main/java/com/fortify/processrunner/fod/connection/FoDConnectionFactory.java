@@ -66,6 +66,7 @@ public final class FoDConnectionFactory
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD");
 		return FoDAuthenticatingRestConnection.builder()
 			.proxy(proxy)
+			.supportSingleJVMSerialization()
 			.baseUrl(ctx.getFoDBaseUrl())
 			.clientId(ctx.getFoDClientId())
 			.clientSecret(ctx.getFoDClientSecret())

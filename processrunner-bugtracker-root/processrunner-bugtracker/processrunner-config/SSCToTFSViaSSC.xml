@@ -77,7 +77,7 @@
 	     default value, you can uncomment this bean to load the default value from
 	     the 'TFS Team Project' application version attribute. -->
 	<!-- 
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="TFS Team Project" value="TFSTeamProject"/>
 		</map></property>
@@ -100,7 +100,7 @@
 	     The mappings below are just examples; you will need to update these to match your
 	     SSC application and version names. -->
 	<!--
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key="MyApp:MyVersion" value="TFSTeamProject=MyProject"/>
 			<entry key="MyOtherApp:.*" value="TFSTeamProject=MyOtherProject"/>

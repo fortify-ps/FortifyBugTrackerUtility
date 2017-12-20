@@ -21,46 +21,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.appversion;
+package com.fortify.processrunner.fod.releases;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**
- * Filter SSC application versions based on the SSC bug tracker plugin id configured
- * for each application version.
+ * This interface allows for updating an {@link FoDReleaseQueryBuilder} to
+ * automatically select FoD releases to be processed.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionBugTrackerIdFilter extends AbstractSSCApplicationVersionFilter {
-	private Set<String> bugTrackerPluginIds = null;
-	
-	public SSCApplicationVersionBugTrackerIdFilter() {}
-	
-	public SSCApplicationVersionBugTrackerIdFilter(String... bugTrackerPluginIds) {
-		this.bugTrackerPluginIds = bugTrackerPluginIds==null ? null : new HashSet<String>(Arrays.asList(bugTrackerPluginIds));
-	}
-	
-	public int getOrder() {
-		return 0;
-	}
-
-	@Override
-	public boolean isApplicationVersionMatching(Context context, String applicationVersionId, JSONMap applicationVersion) {
-		Set<String> pluginIds = getBugTrackerPluginIds();
-		return pluginIds!=null && pluginIds.contains(applicationVersion.get("bugTrackerPluginId",String.class));
-	}
-
-	public Set<String> getBugTrackerPluginIds() {
-		return bugTrackerPluginIds;
-	}
-
-	public void setBugTrackerPluginIds(Set<String> bugTrackerPluginIds) {
-		this.bugTrackerPluginIds = bugTrackerPluginIds;
-	}
+public interface IFoDReleaseQueryBuilderUpdater {
+	public void updateSSCApplicationVersionFilters(Context context, FoDReleaseQueryBuilder builder);
 }

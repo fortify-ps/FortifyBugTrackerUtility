@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
 import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
@@ -42,7 +43,7 @@ import com.fortify.processrunner.common.source.vulnerability.INewIssueVulnerabil
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
-import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterOnBugLink;
+import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 
@@ -75,13 +76,13 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 				.paramIncludeSuppressed(false)
 				.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
 		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
-			builder.preProcessor(new FoDJSONMapFilterOnBugLink(true));
+			builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
 			if ( getConfiguration().isAddNativeBugLink() ) {
 				builder.paramFilterAnd("bugSubmitted", "false");
 			}
 		}
 		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
-			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), false));
+			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), MatchMode.INCLUDE));
 		}
 		return builder.build();
 	}

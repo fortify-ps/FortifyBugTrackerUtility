@@ -21,19 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.appversion;
+package com.fortify.processrunner.ssc.json.preprocessor;
 
-import java.util.Collection;
-
-import com.fortify.processrunner.context.Context;
+import java.util.regex.Pattern;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
 
 /**
- * This interface allows for dynamically generating zero, one or more 
- * {@link ISSCApplicationVersionFilter} instances.
+ * This class allows for including or excluding SSC vulnerabilities based on whether 
+ * the vulnerability bugURL field contains any value or not.
  * 
  * @author Ruud Senden
  *
  */
-public interface ISSCApplicationVersionFilterFactory {
-	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context);
+public class SSCJSONMapFilterHasBugURL extends JSONMapFilterRegEx {
+	public SSCJSONMapFilterHasBugURL(MatchMode matchMode) {
+		super("bugURL", Pattern.compile("^\\S+$"), matchMode);
+	}
 }

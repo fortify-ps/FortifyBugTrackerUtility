@@ -24,8 +24,6 @@
 package com.fortify.processrunner.ssc.processor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -33,7 +31,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.AbstractBugTrackerFieldsBasedProcessor;
@@ -44,11 +44,10 @@ import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
-import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
-import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 
 /**
  * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
@@ -58,7 +57,7 @@ import com.fortify.processrunner.ssc.context.IContextSSCTarget;
  * @author Ruud Senden
  *
  */
-public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities, ISSCApplicationVersionFilterFactory {
+public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTrackerFieldsBasedProcessor implements IProcessorSubmitIssueForVulnerabilities, ISSCApplicationVersionQueryBuilderUpdater {
 	private static final Log LOG = LogFactory.getLog(ProcessorSSCSubmitIssueForVulnerabilities.class);
 	private String sscBugTrackerName;
 	
@@ -70,8 +69,9 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 		return getSscBugTrackerName()+" through SSC";
 	}
 	
-	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
-		return Arrays.asList((ISSCApplicationVersionFilter)new SSCApplicationVersionBugTrackerNameFilter(getSscBugTrackerName()));
+	@Override
+	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
+		builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, getSscBugTrackerName()));
 	}
 
 	public boolean setVulnerabilityUpdater(IExistingIssueVulnerabilityUpdater issueSubmittedListener) {

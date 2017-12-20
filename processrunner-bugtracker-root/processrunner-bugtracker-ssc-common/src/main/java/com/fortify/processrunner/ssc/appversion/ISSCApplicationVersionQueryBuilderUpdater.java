@@ -21,35 +21,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.releases;
+package com.fortify.processrunner.ssc.appversion;
 
-import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This abstract base class allows for either including or excluding FoD releases
- * based on the configured {@link #includeMatched} property. Concrete implementations need to
- * implement the {@link #isApplicationVersionMatching(Context, String, JSONMap)} method
- * to actually match the FoD release against some implementation-dependent criteria. 
+ * This interface allows for updating an {@link SSCApplicationVersionsQueryBuilder} to
+ * automatically select SSC application versions to be processed.
  * 
  * @author Ruud Senden
  *
  */
-public abstract class AbstractFoDReleaseFilter implements IFoDReleaseFilter {
-	private boolean includeMatched = true;
-	
-	public final boolean isReleaseIncluded(Context context, JSONMap release) {
-		return isReleaseMatching(context, release.get("releaseId", String.class), release) == isIncludeMatched();
-	}
-	
-	public abstract boolean isReleaseMatching(Context context, String releaseId, JSONMap release);
-
-	public boolean isIncludeMatched() {
-		return includeMatched;
-	}
-
-	public void setIncludeMatched(boolean includeMatched) {
-		this.includeMatched = includeMatched;
-	}
-
+public interface ISSCApplicationVersionQueryBuilderUpdater {
+	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder);
 }

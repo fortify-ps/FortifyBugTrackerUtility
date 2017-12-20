@@ -23,22 +23,20 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.composite;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilter;
-import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionFilterFactory;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionBugTrackerNameFilter;
-import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFilter;
+import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 
 /**
  * This class holds all SSC-related configuration properties used to submit vulnerabilities
@@ -47,7 +45,7 @@ import com.fortify.processrunner.ssc.appversion.SSCApplicationVersionCustomTagFi
  * @author Ruud Senden
  *
  */
-public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersionFilterFactory {
+public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
 			SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");
 	
@@ -58,21 +56,13 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	
-	/**
-	 * Generate SSC application version filter based on either {@link #bugLinkCustomTagName}
-	 * or availability of the 'Add Existing Bugs' bug tracker integration, if either is configured.
-	 */
-	public Collection<ISSCApplicationVersionFilter> getSSCApplicationVersionFilters(Context context) {
+	
+	@Override
+	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
-			SSCApplicationVersionCustomTagFilter filter = new SSCApplicationVersionCustomTagFilter();
-			filter.setCustomTagNames(new HashSet<String>(Arrays.asList(getBugLinkCustomTagName())));
-			return Arrays.asList((ISSCApplicationVersionFilter)filter);
+			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasAllCustomTags(MatchMode.INCLUDE, getBugLinkCustomTagName()));
 		} else if ( isAddNativeBugLink() ) {
-			SSCApplicationVersionBugTrackerNameFilter filter = new SSCApplicationVersionBugTrackerNameFilter();
-			filter.setBugTrackerPluginNames(new HashSet<String>(Arrays.asList("Add Existing Bugs")));
-			return Arrays.asList((ISSCApplicationVersionFilter)filter);
-		} else {
-			return null;
+			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, "Add Existing Bugs"));
 		}
 	}
 	

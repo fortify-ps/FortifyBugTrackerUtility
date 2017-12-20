@@ -21,19 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.appversion;
+package com.fortify.processrunner.fod.json.preprocessor;
 
-import java.util.Collection;
-
-import com.fortify.processrunner.context.Context;
+import java.util.regex.Pattern;
+import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
 
 /**
- * This interface allows for dynamically generating zero, one or more 
- * {@link ISSCApplicationVersionContextUpdater} instances.
+ * This class allows for including or excluding FoD vulnerabilities based on whether 
+ * the vulnerability bugLink field contains any value or not.
  * 
  * @author Ruud Senden
  *
  */
-public interface ISSCApplicationVersionContextUpdaterFactory {
-	public Collection<ISSCApplicationVersionContextUpdater> getSSCApplicationVersionContextUpdaters(Context context);
+public class FoDJSONMapFilterHasBugLink extends JSONMapFilterRegEx {
+	public FoDJSONMapFilterHasBugLink(MatchMode matchMode) {
+		super("bugLink", Pattern.compile("^\\S+$"), matchMode);
+	}
 }

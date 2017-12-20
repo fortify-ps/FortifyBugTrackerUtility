@@ -23,14 +23,14 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.appversion;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
 
 /**
  * Filter SSC application versions based on application version attributes,
@@ -39,21 +39,26 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplicationVersionFilter, ISSCApplicationVersionContextUpdater {
+public class SSCApplicationVersionAttributeBasedContextGenerator extends AbstractSSCApplicationVersionContextGenerator {
 	private Map<String, String> optionalAttributeMappings = null;
 	private Map<String, String> requiredAttributeMappings = null;
 	
-	public int getOrder() {
-		return 2;
+	/**
+	 * This implementation adds the attributeValuesByName on-demand property.
+	 */
+	@Override
+	protected void updateApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
+		builder.onDemandAttributeValuesByName("attributeValuesByName");
 	}
 	
-	public boolean isApplicationVersionIncluded(Context context, JSONMap applicationVersion) {
-		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
-		return checkAttributesHaveValues(avAttributes, requiredAttributeMappings.keySet());
+	@Override
+	protected void updateApplicationVersionsQueryBuilderForSearch(Context initialContext, SSCApplicationVersionsQueryBuilder builder) {
+		builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes(MatchMode.INCLUDE, requiredAttributeMappings.keySet()));
 	}
 	
-	public void updateContext(Context context, JSONMap applicationVersion) {
-		Map<String, List<String>> avAttributes = getApplicationVersionAttributeValuesByName(context, applicationVersion);
+	@Override
+	public void updateContextForApplicationVersion(Context context, JSONMap applicationVersion) {
+		JSONMap avAttributes = applicationVersion.get("attributeValuesByName", JSONMap.class);
 		addMappedAttributes(context, avAttributes, optionalAttributeMappings, false);
 		addMappedAttributes(context, avAttributes, requiredAttributeMappings, true);
 	}
@@ -74,12 +79,12 @@ public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplic
 		this.requiredAttributeMappings = requiredAttributeMappings;
 	}
 	
-	private void addMappedAttributes(Context context, Map<String, List<String>> avAttributes, Map<String, String> mappings, boolean required) {
+	private void addMappedAttributes(Context context, JSONMap avAttributes, Map<String, String> mappings, boolean required) {
 		if ( mappings != null ) {
 			for ( Map.Entry<String, String> entry : mappings.entrySet() ) {
 				String attrName = entry.getKey();
 				String ctxKey = entry.getValue();
-				List<String> values = avAttributes.get(attrName);
+				JSONList values = avAttributes.get(attrName, JSONList.class);
 				if ( values!=null && values.size()==1 ) {
 					context.put(ctxKey, values.get(0));
 				} else if ( values!=null && values.size() > 1 ) {
@@ -89,20 +94,5 @@ public class SSCApplicationVersionAttributeFilterAndMapper implements ISSCApplic
 				}
 			}
 		}
-	}
-
-	private Map<String, List<String>> getApplicationVersionAttributeValuesByName(Context context, JSONMap applicationVersion) {
-		return SSCConnectionFactory.getConnection(context).api().attribute().getApplicationVersionAttributeValuesByName(applicationVersion.get("id",String.class));
-	}
-
-	private boolean checkAttributesHaveValues(Map<String, List<String>> avAttributes, Set<String> attributes) {
-		if ( attributes != null ) {
-			Set<String> attributesCopy = new HashSet<String>(attributes);
-			attributesCopy.removeAll(avAttributes.keySet());
-			if ( !attributesCopy.isEmpty() ) {
-				return false;
-			}
-		}
-		return true;
 	}
 }

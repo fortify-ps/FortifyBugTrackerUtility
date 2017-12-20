@@ -91,7 +91,7 @@
 	     version being processed. Optionally you can also have a 'TFS Collection'
 	     application version attribute, which will be mapped to the TFSCollection
 	     context property if the attribute contains a value. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="TFS Project" value="TFSProject"/>
 		</map></property>
@@ -116,7 +116,7 @@
 	     The mappings below are just examples; you will need to update these to match your
 	     SSC application and version names. -->
 	<!--
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key="MyApp:MyVersion" value="TFSProject=MyProject"/>
 			<entry key="MyOtherApp:.*" value="TFSProject=MyOtherProject"/>

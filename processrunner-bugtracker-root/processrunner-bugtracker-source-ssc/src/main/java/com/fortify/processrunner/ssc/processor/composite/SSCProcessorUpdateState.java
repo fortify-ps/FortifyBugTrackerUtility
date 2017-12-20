@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
@@ -48,8 +49,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
-import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag;
-import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterOnBugURL;
+import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 
 /**
@@ -81,10 +81,9 @@ public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor i
 				.includeRemoved(true)
 				.includeSuppressed(true);
 		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-			builder.preProcessor(new SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(getConfiguration().getBugLinkCustomTagName()));
 			builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
 		}
-		builder.preProcessor(new SSCJSONMapFilterOnBugURL(false));
+		builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
 		return builder.build();
 	}
 	

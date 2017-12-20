@@ -57,6 +57,6 @@ public interface IContextSSCCommon {
 	public void setSSCApplicationVersions(String applicationVersionIdsOrNames);
 	public String getSSCApplicationVersions();
 	
-	public void setAppVersion(JSONMap applicationVersion);
-	public JSONMap getAppVersion();
+	public void setApplicationVersion(JSONMap applicationVersion);
+	public JSONMap getApplicationVersion();
 }

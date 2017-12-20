@@ -94,7 +94,7 @@
 	     
 	     This example configuration will match all application releases, and set the
 	     OutputFile context property based on application and version name. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${project.name}-${name}.csv"/>
 		</map></property>
@@ -106,7 +106,7 @@
 	     automatically using that attribute value to generate the OutputFile context 
 	     property for each application version being processed. -->
 	<!-- 
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Output File" value="OutputFile"/>
 		</map></property>

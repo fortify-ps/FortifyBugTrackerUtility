@@ -88,7 +88,7 @@
 	     
 	     The mappings below are just examples; you will need to update these to match your
 	     FoD application and release names. -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key="MyApp:MyRelease" value="TFSProject=MyProject"/>
 			<entry key="MyOtherApp:.*" value="TFSProject=OtherProject"/>
@@ -108,7 +108,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="TFS Project" value="TFSProject"/>
 		</map></property>

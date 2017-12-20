@@ -64,6 +64,7 @@ public final class SSCConnectionFactory
 		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "SSC");
 		return SSCAuthenticatingRestConnection.builder()
 			.proxy(proxy)
+			.supportSingleJVMSerialization()
 			.baseUrl(ctx.getSSCBaseUrl())
 			.authToken(ctx.getSSCAuthToken())
 			.userName(ctx.getSSCUserName())

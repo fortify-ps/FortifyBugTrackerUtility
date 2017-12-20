@@ -23,11 +23,17 @@
  ******************************************************************************/
 package com.fortify.processrunner.context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Required;
+
 /**
- * <p>This implementation of {@link AbstractContextGeneratorAndUpdater} allows for 
+ * <p>This implementation of {@link IContextGenerator} allows for 
  * configuring a static Map of values for a configured context property name with their
  * corresponding dependent context properties.</p>
  * 
@@ -44,32 +50,49 @@ import java.util.Map;
  * If the user specified value 1 for SomeIdProperty, the corresponding values for DependentProperty1
  * and DependentProperty2 will be added to the {@link Context}. If the user didn't generate a value
  * for SomeIdProperty, this class will provide default values 1 and 2 for SomeIdProperty, together
- * with the corresponding context properties, assuming the {@link #useForDefaultValueGeneration}
- * property is set to true.
+ * with the corresponding context properties.
  *  
  * @author Ruud Senden
  *
  */
-public class MapBasedContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater {
+public class MapBasedContextGenerator implements IContextGenerator {
 	private Map<Object, Context> contexts = new HashMap<Object, Context>();
-
-	protected void addMappedContextProperties(Context context, Object contextPropertyValue) {
-		Map<String, Object> mappedContextProperties = getContexts().get(contextPropertyValue);
-		if ( mappedContextProperties!=null ) {
-			context.putAll(mappedContextProperties);
+	private String contextPropertyName;
+	
+	public Collection<Context> generateContexts(Context initialContext) {
+		Object contextPropertyValue = initialContext.get(contextPropertyName);
+		if ( contextPropertyValue==null || (contextPropertyValue instanceof String && StringUtils.isBlank((String)contextPropertyValue)) ) {
+			return mergeContextsWithInitialContext(initialContext, contexts.values());
+		} else {
+			return mergeContextsWithInitialContext(initialContext, Arrays.asList(contexts.get(contextPropertyValue)));
 		}
 	}
-	
-	@Override
-	protected Map<Object, Context> getDefaultValuesWithMappedContextProperties(Context initialContext) {
-		return getContexts();
+
+	private Collection<Context> mergeContextsWithInitialContext(Context initialContext, Collection<Context> contextsToMerge) {
+		Collection<Context> result = new ArrayList<Context>(contexts.size());
+		for ( Context contextToMerge : contextsToMerge ) {
+			Context context = new Context(initialContext);
+			context.putAll(contextToMerge);
+			result.add(context);
+		}
+		return result;
 	}
 
 	public Map<Object, Context> getContexts() {
 		return contexts;
 	}
 
+	@Required
 	public void setContexts(Map<Object, Context> contexts) {
 		this.contexts = contexts;
+	}
+
+	public String getContextPropertyName() {
+		return contextPropertyName;
+	}
+
+	@Required
+	public void setContextPropertyName(String contextPropertyName) {
+		this.contextPropertyName = contextPropertyName;
 	}
 }

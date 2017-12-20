@@ -89,7 +89,7 @@
 	     have a 'Jira Project Key' attribute set, and automatically using that attribute
 	     value to generate the JiraProjectKey context property for each application
 	     version being processed. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
@@ -111,7 +111,7 @@
 	     The mappings below are just examples; you will need to update these to match your
 	     SSC application and version names. -->
 	<!--
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameFilterAndMapper">
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key="MyApp:MyVersion" value="JiraProjectKey=APP"/>
 			<entry key="MyOtherApp:.*" value="JiraProjectKey=OTHER"/>

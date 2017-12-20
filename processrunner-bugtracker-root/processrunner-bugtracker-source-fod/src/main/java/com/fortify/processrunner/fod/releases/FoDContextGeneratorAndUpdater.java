@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.rest.json.processor.AbstractJSONMapProcessor;
-import com.fortify.processrunner.context.AbstractContextGeneratorAndUpdater;
+import com.fortify.processrunner.context.AbstractContextGenerator;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -47,10 +47,10 @@ import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 
 @Component
-public final class FoDContextGeneratorAndUpdater extends AbstractContextGeneratorAndUpdater implements IContextPropertyDefinitionProvider {
+public final class FoDContextGeneratorAndUpdater extends AbstractContextGenerator implements IContextPropertyDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(FoDContextGeneratorAndUpdater.class);
 	private List<IFoDReleaseFilter> filters;
-	private List<IFoDReleaseFilterFactory> filterFactories;
+	private List<IFoDReleaseQueryBuilderUpdater> filterFactories;
 	private List<IFoDReleaseContextUpdater> updaters;
 	private List<IFoDReleaseContextUpdaterFactory> updaterFactories;
 
@@ -134,12 +134,12 @@ public final class FoDContextGeneratorAndUpdater extends AbstractContextGenerato
 
 	private List<IFoDReleaseFilter> getFiltersForContext(Context context) {
 		List<IFoDReleaseFilter> filtersForContext = getFilters();
-		List<IFoDReleaseFilterFactory> filterFactories = getFilterFactories();
+		List<IFoDReleaseQueryBuilderUpdater> filterFactories = getFilterFactories();
 		if ( filtersForContext == null ) {
 			filtersForContext = new ArrayList<IFoDReleaseFilter>();
 		}
 		if ( filterFactories != null ) {
-			for ( IFoDReleaseFilterFactory filterFactory : filterFactories ) {
+			for ( IFoDReleaseQueryBuilderUpdater filterFactory : filterFactories ) {
 				Collection<IFoDReleaseFilter> filtersFromFactory = filterFactory.getFoDReleaseFilters(context);
 				if ( filtersFromFactory!= null ) {
 					filtersForContext.addAll(filtersFromFactory);
@@ -187,12 +187,12 @@ public final class FoDContextGeneratorAndUpdater extends AbstractContextGenerato
 		this.filters = filters;
 	}
 
-	public final List<IFoDReleaseFilterFactory> getFilterFactories() {
+	public final List<IFoDReleaseQueryBuilderUpdater> getFilterFactories() {
 		return filterFactories;
 	}
 
 	@Autowired(required=false)
-	public final void setFilterFactories(List<IFoDReleaseFilterFactory> filterFactories) {
+	public final void setFilterFactories(List<IFoDReleaseQueryBuilderUpdater> filterFactories) {
 		this.filterFactories = filterFactories;
 	}
 

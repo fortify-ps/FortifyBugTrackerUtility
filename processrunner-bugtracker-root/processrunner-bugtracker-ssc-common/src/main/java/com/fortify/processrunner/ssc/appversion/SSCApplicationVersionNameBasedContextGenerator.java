@@ -26,9 +26,13 @@ package com.fortify.processrunner.ssc.appversion;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.context.Context;
 
@@ -39,23 +43,17 @@ import com.fortify.processrunner.context.Context;
  * @author Ruud Senden
  *
  */
-public class SSCApplicationVersionNameFilterAndMapper implements ISSCApplicationVersionFilter, ISSCApplicationVersionContextUpdater {
-	private LinkedHashMap<Pattern, Context> applicationVersionNameMappings = null;
+public class SSCApplicationVersionNameBasedContextGenerator extends AbstractSSCApplicationVersionContextGenerator {
+	private LinkedHashMap<Pattern, Context> applicationVersionNamePatternToContextMap = null;
 	
-	public int getOrder() {
-		return 0;
+	@Override
+	protected void updateApplicationVersionsQueryBuilderForSearch(Context initialContext, SSCApplicationVersionsQueryBuilder builder) {
+		builder.preProcessor(new SSCJSONMapFilterApplicationVersionNamePatterns(MatchMode.INCLUDE, applicationVersionNamePatternToContextMap.keySet()));
 	}
 	
-	public boolean isApplicationVersionIncluded(Context context, JSONMap applicationVersion) {
-		return getApplicationVersionNameNameMapping(applicationVersion)!=null;
-	}
-	
-	public void updateContext(Context context, JSONMap applicationVersion) {
-		addMappedAttributes(context, applicationVersion, getApplicationVersionNameNameMapping(applicationVersion).getValue());
-	}
-
-	public LinkedHashMap<Pattern, Context> getApplicationVersionNameMappings() {
-		return applicationVersionNameMappings;
+	@Override
+	public void updateContextForApplicationVersion(Context context, JSONMap applicationVersion) {
+		addMappedAttributes(context, applicationVersion, getContextForApplicationVersion(applicationVersion));
 	}
 
 	/**
@@ -66,13 +64,13 @@ public class SSCApplicationVersionNameFilterAndMapper implements ISSCApplication
 	 * @param applicationVersionNameMappings
 	 */
 	public void setApplicationVersionNameMappings(LinkedHashMap<Pattern, Context> applicationVersionNameMappings) {
-		this.applicationVersionNameMappings = applicationVersionNameMappings;
+		this.applicationVersionNamePatternToContextMap = applicationVersionNameMappings;
 	}
 	
-	private Map.Entry<Pattern, Context> getApplicationVersionNameNameMapping(JSONMap applicationVersion) {
+	private Context getContextForApplicationVersion(JSONMap applicationVersion) {
 		String name = SpringExpressionUtil.evaluateExpression(applicationVersion, "project.name+':'+name", String.class);
-		for ( Map.Entry<Pattern, Context> entry : getApplicationVersionNameMappings().entrySet() ) {
-			if ( entry.getKey().matcher(name).matches() ) { return entry; }
+		for ( Map.Entry<Pattern, Context> entry : applicationVersionNamePatternToContextMap.entrySet() ) {
+			if ( entry.getKey().matcher(name).matches() ) { return entry.getValue(); }
 		}
 		return null;
 	}
@@ -81,5 +79,23 @@ public class SSCApplicationVersionNameFilterAndMapper implements ISSCApplication
 		for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
 			initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(applicationVersion, (String)entry.getValue(), Object.class));
 		}
+	}
+	
+	private static final class SSCJSONMapFilterApplicationVersionNamePatterns extends AbstractJSONMapFilter {
+		private final Set<Pattern> applicationVersionNamePatterns;
+		public SSCJSONMapFilterApplicationVersionNamePatterns(MatchMode matchMode, Set<Pattern> applicationVersionNamePatterns) {
+			super(matchMode);
+			this.applicationVersionNamePatterns = applicationVersionNamePatterns;
+		}
+		
+		@Override
+		protected boolean isMatching(JSONMap applicationVersion) {
+			String name = SpringExpressionUtil.evaluateExpression(applicationVersion, "project.name+':'+name", String.class);
+			for ( Pattern pattern : applicationVersionNamePatterns ) {
+				if ( pattern.matcher(name).matches() ) { return true; }
+			}
+			return false;
+		}
+		
 	}
 }

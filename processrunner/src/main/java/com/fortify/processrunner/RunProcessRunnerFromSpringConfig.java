@@ -23,11 +23,9 @@
  ******************************************************************************/
 package com.fortify.processrunner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -43,7 +41,6 @@ import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextGenerator;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
-import com.fortify.processrunner.context.IContextUpdater;
 
 /**
  * This class allows for running {@link ProcessRunner} instances based on Spring configuration.
@@ -158,24 +155,11 @@ public class RunProcessRunnerFromSpringConfig {
 	 */
 	protected Collection<Context> getContexts(Context externalContext) {
 		Context context = mergeContexts(getConfigContext(), externalContext);
-		IContextGenerator contextGenerator = getEnabledContextGenerator();
+		IContextGenerator contextGenerator = getContextGenerator();
 		
 		return contextGenerator == null
-			? Arrays.asList(updateContext(context))
+			? Arrays.asList(context)
 			: contextGenerator.generateContexts(context);
-	}
-
-	/**
-	 * Update {@link Context} using the configured {@link IContextUpdater} instances
-	 * @param context
-	 * @return
-	 */
-	private Context updateContext(Context context) {
-		Collection<IContextUpdater> contextUpdaters = getContextUpdaters();
-		for ( IContextUpdater contextUpdater : contextUpdaters ) {
-			contextUpdater.updateContext(context);
-		}
-		return context;
 	}
 
 	/**
@@ -252,7 +236,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param context
 	 */
 	protected final void addContextPropertyDefinitionsFromContextGenerator(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		IContextGenerator generator = getEnabledContextGenerator();
+		IContextGenerator generator = getContextGenerator();
 		if ( generator != null && generator instanceof IContextPropertyDefinitionProvider ) {
 			((IContextPropertyDefinitionProvider)generator).addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		}
@@ -316,39 +300,10 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Get the single configured instance of {@link IContextGenerator} that
-	 * is enabled for generating {@link Context} instances
+	 * Get the configured {@link IContextGenerator} instance
 	 * @return
 	 */
-	protected IContextGenerator getEnabledContextGenerator() {
-		IContextGenerator result = null;
-		List<IContextGenerator> contextGenerators = new ArrayList<IContextGenerator>(getContextGenerators());
-		contextGenerators.removeIf(new Predicate<IContextGenerator>() {
-			public boolean test(IContextGenerator contextPropertyMapper) {
-				return !contextPropertyMapper.isContextGeneratorEnabled();
-			}
-		});
-		if ( contextGenerators.size()==1 ) {
-			result = contextGenerators.get(0);
-		} else if ( contextGenerators.size()>1 ) {
-			throw new IllegalStateException("More than 1 enabled context generator found");
-		}
-		return result;
-	}
-	
-	/**
-	 * Get all configured {@link IContextGenerator} instances
-	 * @return
-	 */
-	protected Collection<IContextGenerator> getContextGenerators() {
-		return appContext.getBeansOfType(IContextGenerator.class).values();
-	}
-	
-	/**
-	 * Get all configured {@link IContextUpdater} instances
-	 * @return
-	 */
-	protected Collection<IContextUpdater> getContextUpdaters() {
-		return appContext.getBeansOfType(IContextUpdater.class).values();
+	protected IContextGenerator getContextGenerator() {
+		return appContext.getBean(IContextGenerator.class);
 	}
 }
