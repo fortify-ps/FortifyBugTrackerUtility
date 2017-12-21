@@ -34,5 +34,5 @@ import com.fortify.processrunner.context.Context;
  *
  */
 public interface IFoDReleaseQueryBuilderUpdater {
-	public void updateSSCApplicationVersionFilters(Context context, FoDReleaseQueryBuilder builder);
+	public void updateFoDReleaseQueryBuilder(Context context, FoDReleaseQueryBuilder builder);
 }

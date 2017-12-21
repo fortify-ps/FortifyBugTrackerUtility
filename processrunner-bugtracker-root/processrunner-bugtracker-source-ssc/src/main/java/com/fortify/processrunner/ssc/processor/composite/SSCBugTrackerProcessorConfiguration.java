@@ -29,14 +29,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.api.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
+import com.fortify.api.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
-import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
-import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 
 /**
  * This class holds all SSC-related configuration properties used to submit vulnerabilities

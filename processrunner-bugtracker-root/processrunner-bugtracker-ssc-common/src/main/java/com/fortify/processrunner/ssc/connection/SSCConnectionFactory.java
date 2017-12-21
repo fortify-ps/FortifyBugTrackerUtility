@@ -42,9 +42,9 @@ public final class SSCConnectionFactory
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BASE_URL, "SSC base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name (leave blank to use auth token)", true).readFromConsole(true).ignoreIfPropertySet(IContextSSCCommon.PRP_SSC_AUTH_TOKEN));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextSSCCommon.PRP_SSC_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_AUTH_TOKEN, "SSC auth token (leave blank to use username/password)", true).readFromConsole(true).isPassword(true).ignoreIfPropertySet(IContextSSCCommon.PRP_SSC_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name (leave blank to use auth token)", true).readFromConsole(true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_AUTH_TOKEN));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCCommon.PRP_SSC_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_AUTH_TOKEN, "SSC auth token (leave blank to use username/password)", true).readFromConsole(true).isPassword(true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_USER_NAME));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "SSC");
 	}
 	

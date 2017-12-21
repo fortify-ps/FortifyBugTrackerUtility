@@ -199,7 +199,7 @@ public class RunProcessRunnerFromSpringConfig {
 		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
 		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
 			String name = contextPropertyDefinition.getName();
-			if ( contextPropertyDefinition.isRequiredAndNotIgnored(context) && !context.hasValue(name) ) {
+			if ( contextPropertyDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
 				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
 			}
 		}
@@ -214,7 +214,7 @@ public class RunProcessRunnerFromSpringConfig {
 		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
 		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
 			String name = contextPropertyDefinition.getName();
-			if ( !context.hasValue(name) ) {
+			if ( !context.hasValueForKey(name) ) {
 				context.put(name, contextPropertyDefinition.getDefaultValue(context));
 			}
 		}

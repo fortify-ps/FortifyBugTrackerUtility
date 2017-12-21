@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.api.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
@@ -47,7 +48,6 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGr
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
-import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 
 /**
  * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
@@ -85,7 +85,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 	@Override
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextSSCBugTracker.PRP_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCBugTracker.PRP_USER_NAME));
 		context.as(IContextBugTracker.class).setBugTrackerName(getBugTrackerName());
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}

@@ -34,8 +34,9 @@ import com.fortify.processrunner.processor.IProcessor;
  * It contains context property name, description, and whether the property is required to be available in
  * the {@link Context}. Optionally, this class also supports reading a context property value from the console
  * ({@link #readFromConsole} as either a normal string or password (hiding the input; {@link #isPassword(boolean)}.
- * The context property definition can optionally be ignored (not required and not read from console) if another
- * context property has been set ({@link #ignoreIfPropertySet}) or has not been set ({@link #getIgnoreIfPropertyNotSet()}. 
+ * The context property definition can optionally be ignored (not required and not read from console) if an
+ * alternative context property has been set ({@link #isAlternativeForProperties(String...)}), or if other 
+ * context properties that the current property depends on have not been set ({@link #dependsOnProperties(String...)}).
  * 
  * @author Ruud Senden
  */
@@ -46,8 +47,8 @@ public class ContextPropertyDefinition {
 	private String defaultValue = null;
 	private boolean readFromConsole = false;
 	private boolean isPassword = false;
-	private String ignoreIfPropertySet = null;
-	private String ignoreIfPropertyNotSet = null;
+	private String[] isAlternativeForProperties = null;
+	private String[] dependsOnProperties = null;
 	
 	
 	/**
@@ -112,8 +113,8 @@ public class ContextPropertyDefinition {
 	 * @return
 	 */
 	public boolean isNotIgnored(Context context) {
-		return ( ignoreIfPropertyNotSet==null || context.hasValue(ignoreIfPropertyNotSet) ) &&
-				( ignoreIfPropertySet==null || !context.hasValue(ignoreIfPropertySet) );
+		return ( dependsOnProperties==null || context.hasValueForAllKeys(dependsOnProperties) ) &&
+				( isAlternativeForProperties==null || !context.hasValueForAnyKey(isAlternativeForProperties) );
 	}
 
 	/**
@@ -189,19 +190,19 @@ public class ContextPropertyDefinition {
 	}
 	
 	/**
-	 * Get the property name that, if set, will cause the current property definition to be ignored
+	 * Get the property names that, if any of them is set, will cause the current property definition to be ignored
 	 * @return
 	 */
-	public String getIgnoreIfPropertySet() {
-		return ignoreIfPropertySet;
+	public String[] getIsAlternativeForProperties() {
+		return isAlternativeForProperties;
 	}
 	
 	/**
 	 * Get the property name that, if not set, will cause the current property definition to be ignored
 	 * @return
 	 */
-	public String getIgnoreIfPropertyNotSet() {
-		return ignoreIfPropertyNotSet;
+	public String[] getDependsOnProperties() {
+		return dependsOnProperties;
 	}
 	
 	/**
@@ -235,22 +236,22 @@ public class ContextPropertyDefinition {
 	}
 
 	/**
-	 * Set the property name that, if set, will cause the current property definition to be ignored
+	 * Set the property names that, if any of them is set, will cause the current property definition to be ignored
 	 * @param property
 	 * @return
 	 */
-	public ContextPropertyDefinition ignoreIfPropertySet(String property) {
-		this.ignoreIfPropertySet = property;
+	public ContextPropertyDefinition isAlternativeForProperties(String... properties) {
+		this.isAlternativeForProperties = properties;
 		return this;
 	}
 
 	/**
-	 * Set the property name that, if not set, will cause the current property definition to be ignored
+	 * Set the property names that, if any of them is not set, will cause the current property definition to be ignored
 	 * @param property
 	 * @return
 	 */
-	public ContextPropertyDefinition ignoreIfPropertyNotSet(String property) {
-		this.ignoreIfPropertyNotSet = property;
+	public ContextPropertyDefinition dependsOnProperties(String... properties) {
+		this.dependsOnProperties = properties;
 		return this;
 	}
 	

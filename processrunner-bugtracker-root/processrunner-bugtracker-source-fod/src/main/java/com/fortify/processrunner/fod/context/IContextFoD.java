@@ -33,14 +33,15 @@ import com.fortify.processrunner.context.Context;
  * @author Ruud Senden
  */
 public interface IContextFoD {
-	public static final String PRP_BASE_URL = "FoDBaseUrl";
-	public static final String PRP_CLIENT_ID = "FoDClientId";
-	public static final String PRP_CLIENT_SECRET = "FoDClientSecret";
-	public static final String PRP_TENANT = "FoDTenant";
-	public static final String PRP_USER_NAME = "FoDUserName";
-	public static final String PRP_PASSWORD = "FoDPassword";
-	public static final String PRP_RELEASE_ID = "FoDReleaseId";
-	public static final String PRP_RELEASES = "FoDReleases";
+	public static final String PRP_FOD_BASE_URL = "FoDBaseUrl";
+	public static final String PRP_FOD_CLIENT_ID = "FoDClientId";
+	public static final String PRP_FOD_CLIENT_SECRET = "FoDClientSecret";
+	public static final String PRP_FOD_TENANT = "FoDTenant";
+	public static final String PRP_FOD_USER_NAME = "FoDUserName";
+	public static final String PRP_FOD_PASSWORD = "FoDPassword";
+	public static final String PRP_FOD_RELEASE_ID = "FoDReleaseId";
+	public static final String PRP_FOD_RELEASES = "FoDReleases";
+	public static final String PRP_FOD_APPLICATIONS = "FoDApplications";
 	
 	public void setFoDBaseUrl(String baseUrl);
 	public String getFoDBaseUrl();

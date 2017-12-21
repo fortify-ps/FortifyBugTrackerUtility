@@ -23,40 +23,53 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.releases;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.OrderByDirection;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 
 /**
- * Filter FoD releases based on application attributes, and map application 
- * attribute values to context properties.
+ * Filter FoD application release based on application attributes,
+ * and map application attribute values to context properties.
  * 
  * @author Ruud Senden
  *
  */
-public class FoDApplicationAttributeFilterAndMapper implements IFoDReleaseFilter, IFoDReleaseContextUpdater {
+public class FoDApplicationAttributeBasedContextGenerator extends AbstractFoDReleaseContextGenerator {
 	private Map<String, String> optionalAttributeMappings = null;
 	private Map<String, String> requiredAttributeMappings = null;
 	
-	public int getOrder() {
-		return 2;
+	/**
+	 * This implementation adds the order by parameter to allow for optimal
+	 * application cache use.
+	 */
+	@Override
+	protected void updateReleaseQueryBuilder(Context context, FoDReleaseQueryBuilder builder) {
+		builder.paramOrderBy("applicationId", OrderByDirection.ASC);
 	}
 	
-	public boolean isReleaseIncluded(Context context, JSONMap release) {
-		Map<String, String> applicationAttributes = getApplicationAttributeValuesByName(context, release);
-		return checkAttributesHaveValues(applicationAttributes, requiredAttributeMappings.keySet());
+	@Override
+	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleaseQueryBuilder builder) {
+		// Nothing to do, we filter afterwards in isReleaseIncludedInSearch()
 	}
 	
-	public void updateContext(Context context, JSONMap release) {
-		Map<String, String> applicationAttributes = getApplicationAttributeValuesByName(context, release);
-		addMappedAttributes(context, applicationAttributes, optionalAttributeMappings, false);
-		addMappedAttributes(context, applicationAttributes, requiredAttributeMappings, true);
+	@SuppressWarnings("unchecked")
+	@Override
+	protected boolean isReleaseIncludedInSearch(Context context, JSONMap release) {
+		JSONMap application = FoDConnectionFactory.getConnection(context).api().application().getApplicationById(release.get("applicationId", String.class));
+		release.put("application", application);
+		return application.get("attributesMap", Map.class).keySet().containsAll(requiredAttributeMappings.keySet());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void updateContextForRelease(Context context, JSONMap release) {
+		Map<String, String> avAttributes = release.getPath("application.attributesMap", Map.class);
+		addMappedAttributes(context, avAttributes, optionalAttributeMappings, false);
+		addMappedAttributes(context, avAttributes, requiredAttributeMappings, true);
 	}
 	
 	public Map<String, String> getOptionalAttributeMappings() {
@@ -75,33 +88,14 @@ public class FoDApplicationAttributeFilterAndMapper implements IFoDReleaseFilter
 		this.requiredAttributeMappings = requiredAttributeMappings;
 	}
 	
-	private void addMappedAttributes(Context context, Map<String, String> applicationAttributes, Map<String, String> mappings, boolean required) {
+	private void addMappedAttributes(Context context, Map<String, String> avAttributes, Map<String, String> mappings, boolean required) {
 		if ( mappings != null ) {
 			for ( Map.Entry<String, String> entry : mappings.entrySet() ) {
 				String attrName = entry.getKey();
 				String ctxKey = entry.getValue();
-				String value = applicationAttributes.get(attrName);
-				if ( StringUtils.isNotBlank(value) ) {
-					context.put(ctxKey, value);
-				} else if ( required && !context.containsKey(ctxKey) ) {
-					throw new IllegalStateException("Required application attribute "+attrName+" has no value");
-				}
+				String value = avAttributes.get(attrName);
+				context.put(ctxKey, value);
 			}
 		}
-	}
-
-	private Map<String, String> getApplicationAttributeValuesByName(Context context, JSONMap release) {
-		return FoDConnectionFactory.getConnection(context).getApplicationAttributeValuesByName(release.get("applicationId",String.class));
-	}
-
-	private boolean checkAttributesHaveValues(Map<String, String> applicationAttributes, Set<String> attributes) {
-		if ( attributes != null ) {
-			Set<String> attributesCopy = new HashSet<String>(attributes);
-			attributesCopy.removeAll(applicationAttributes.keySet());
-			if ( !attributesCopy.isEmpty() ) {
-				return false;
-			}
-		}
-		return true;
 	}
 }

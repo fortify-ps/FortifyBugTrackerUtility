@@ -34,10 +34,10 @@ public final class OctaneConnectionFactory
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_BASE_URL, "Octane base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_USER_NAME, "Octane user name (leave blank to use client credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextOctane.PRP_CLIENT_ID));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_PASSWORD, "Octane password", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextOctane.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_ID, "Octane client id (leave blank to use user credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextOctane.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_SECRET, "Octane client secret", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextOctane.PRP_CLIENT_ID));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_USER_NAME, "Octane user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextOctane.PRP_CLIENT_ID));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_PASSWORD, "Octane password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextOctane.PRP_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_ID, "Octane client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextOctane.PRP_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_SECRET, "Octane client secret", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextOctane.PRP_CLIENT_ID));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Octane");
 	}
 	

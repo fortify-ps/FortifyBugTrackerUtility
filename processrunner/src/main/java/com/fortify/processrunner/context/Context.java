@@ -79,9 +79,23 @@ public class Context extends HashMap<String, Object> {
 	 * @param key
 	 * @return
 	 */
-	public final boolean hasValue(String key) {
+	public final boolean hasValueForKey(String key) {
 		Object value = get(key);
 		return value!=null && !(value instanceof String && StringUtils.isBlank((String)value)); 
+	}
+	
+	public final boolean hasValueForAnyKey(String... keys) {
+		for ( String key : keys ) {
+			if ( hasValueForKey(key) ) { return true; }
+		}
+		return false;
+	}
+	
+	public final boolean hasValueForAllKeys(String... keys) {
+		for ( String key : keys ) {
+			if ( !hasValueForKey(key) ) { return false; }
+		}
+		return true;
 	}
 	
 	/**

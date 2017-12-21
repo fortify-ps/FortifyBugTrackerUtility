@@ -53,7 +53,7 @@ public final class ContextAwareProxyConfigurationFactory {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context, String name) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(name+PRP_SFX_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).dependsOnProperties(name+PRP_SFX_USER_NAME));
 	}
 	
 	/**

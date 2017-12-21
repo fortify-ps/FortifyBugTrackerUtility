@@ -23,16 +23,16 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.releases;
 
-import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.fod.connection.api.query.builder.FoDApplicationQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This interface allows for updating {@link Context} instances based on
- * the provided release {@link JSONMap}.
+ * This interface allows for updating an {@link FoDApplicationQueryBuilder} to
+ * automatically select FoD applications to be processed.
  * 
  * @author Ruud Senden
  *
  */
-public interface IFoDReleaseContextUpdater {
-	public void updateContext(Context context, JSONMap release);
+public interface IFoDApplicationQueryBuilderUpdater {
+	public void updateFoDApplicationQueryBuilder(Context context, FoDApplicationQueryBuilder builder);
 }

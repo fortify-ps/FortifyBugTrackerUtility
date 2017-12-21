@@ -26,57 +26,51 @@ package com.fortify.processrunner.fod.releases;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
 import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter;
+import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.context.Context;
 
 /**
- * Filter FoD releases based on application and release name,
+ * Filter FoD application versions based on application and release name,
  * and add corresponding context properties.
  * 
  * @author Ruud Senden
  *
  */
-public class FoDReleaseNameFilterAndMapper implements IFoDReleaseFilter, IFoDReleaseContextUpdater {
-	private LinkedHashMap<Pattern, Context> releaseNameMappings = null;
+public class FoDReleaseNameBasedContextGenerator extends AbstractFoDReleaseContextGenerator {
+	private LinkedHashMap<Pattern, Context> releaseNamePatternToContextMap = null;
 	
-	public int getOrder() {
-		return 0;
+	@Override
+	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleaseQueryBuilder builder) {
+		builder.preProcessor(new FoDJSONMapFilterReleaseNamePatterns(MatchMode.INCLUDE, releaseNamePatternToContextMap.keySet()));
 	}
 	
-	public boolean isReleaseIncluded(Context context, JSONMap release) {
-		return getReleaseNameMapping(release)!=null;
-	}
-	
-	public void updateContext(Context context, JSONMap release) {
-		Map.Entry<Pattern, Context> releaseNameMapping = getReleaseNameMapping(release);
-		if ( releaseNameMapping != null ) {
-			addMappedAttributes(context, release, releaseNameMapping.getValue());
-		}
-	}
-
-	public LinkedHashMap<Pattern, Context> getReleaseNameMappings() {
-		return releaseNameMappings;
+	@Override
+	public void updateContextForRelease(Context context, JSONMap release) {
+		addMappedAttributes(context, release, getContextForRelease(release));
 	}
 
 	/**
 	 * Configure a mapping between regular expressions that match
-	 * [applicationName]:[releaseName], and corresponding context 
+	 * [applicationName]:[versionName], and corresponding context 
 	 * properties. Context property values may contain Spring Template 
-	 * Expressions referencing the release JSON attributes.
+	 * Expressions referencing the application version JSON attributes.
 	 * @param releaseNameMappings
 	 */
 	public void setReleaseNameMappings(LinkedHashMap<Pattern, Context> releaseNameMappings) {
-		this.releaseNameMappings = releaseNameMappings;
+		this.releaseNamePatternToContextMap = releaseNameMappings;
 	}
 	
-	private Map.Entry<Pattern, Context> getReleaseNameMapping(JSONMap release) {
-		String name = release.get("applicationName", String.class)+":"+release.get("releasName",String.class);
-		LinkedHashMap<Pattern, Context> releaseNameMappings = getReleaseNameMappings();
-		for ( Map.Entry<Pattern, Context> entry : releaseNameMappings.entrySet() ) {
-			if ( entry.getKey().matcher(name).matches() ) { return entry; }
+	private Context getContextForRelease(JSONMap release) {
+		String name = SpringExpressionUtil.evaluateExpression(release, "applicationName+':'+releaseName", String.class);
+		for ( Map.Entry<Pattern, Context> entry : releaseNamePatternToContextMap.entrySet() ) {
+			if ( entry.getKey().matcher(name).matches() ) { return entry.getValue(); }
 		}
 		return null;
 	}
@@ -85,5 +79,23 @@ public class FoDReleaseNameFilterAndMapper implements IFoDReleaseFilter, IFoDRel
 		for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
 			initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(release, (String)entry.getValue(), Object.class));
 		}
+	}
+	
+	private static final class FoDJSONMapFilterReleaseNamePatterns extends AbstractJSONMapFilter {
+		private final Set<Pattern> releaseNamePatterns;
+		public FoDJSONMapFilterReleaseNamePatterns(MatchMode matchMode, Set<Pattern> releaseNamePatterns) {
+			super(matchMode);
+			this.releaseNamePatterns = releaseNamePatterns;
+		}
+		
+		@Override
+		protected boolean isMatching(JSONMap release) {
+			String name = SpringExpressionUtil.evaluateExpression(release, "applicationName+':'+releaseName", String.class);
+			for ( Pattern pattern : releaseNamePatterns ) {
+				if ( pattern.matcher(name).matches() ) { return true; }
+			}
+			return false;
+		}
+		
 	}
 }

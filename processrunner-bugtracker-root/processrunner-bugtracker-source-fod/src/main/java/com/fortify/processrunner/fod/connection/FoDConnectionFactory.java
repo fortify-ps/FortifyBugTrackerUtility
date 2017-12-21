@@ -41,12 +41,12 @@ import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory
 public final class FoDConnectionFactory 
 {
 	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_BASE_URL, "FoD base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_TENANT, "FoD tenant", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_USER_NAME, "FoD user name (leave blank to use client credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextFoD.PRP_CLIENT_ID));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_PASSWORD, "FoD password", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextFoD.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_ID, "FoD client id (leave blank to use user credentials)", true).readFromConsole(true).ignoreIfPropertySet(IContextFoD.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_CLIENT_SECRET, "FoD client secret", true).readFromConsole(true).isPassword(true).ignoreIfPropertyNotSet(IContextFoD.PRP_CLIENT_ID));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_BASE_URL, "FoD base URL", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_TENANT, "FoD tenant", true).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_USER_NAME, "FoD user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextFoD.PRP_FOD_CLIENT_ID));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_PASSWORD, "FoD password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextFoD.PRP_FOD_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_CLIENT_ID, "FoD client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextFoD.PRP_FOD_USER_NAME));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_CLIENT_SECRET, "FoD client secret", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextFoD.PRP_FOD_CLIENT_ID));
 		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "FoD");
 	}
 	

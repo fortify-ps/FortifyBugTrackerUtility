@@ -24,7 +24,6 @@
 package com.fortify.processrunner.ssc.appversion;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -50,11 +49,7 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 	
 	@Override
 	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		// Since we generate the SSCApplicationVersionId property either automatically or from
-		// application versions specified through the SSCApplicationVersions property, we remove
-		// the option for setting a single application version.
-		contextPropertyDefinitions.remove(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_APPLICATION_VERSIONS, "SSC application version names (<project>:<version>) or id's, separated by comma's", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_APPLICATION_VERSIONS, "SSC application version names (<application>:<version>) or id's, separated by comma's", true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID));
 	}
 	
 	private SSCApplicationVersionsQueryBuilder createApplicationVersionsQuery(Context context) {
@@ -93,6 +88,17 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 	 * @param applicationVersion
 	 */
 	protected abstract void updateContextForApplicationVersion(Context context, JSONMap applicationVersion);
+	
+	/**
+	 * This method can be overridden by subclasses to perform additional filtering when searching for 
+	 * matching application versions. This default implementation simply returns true.
+	 * @param context
+	 * @param applicationVersion
+	 * @return
+	 */
+	protected boolean isApplicationVersionIncludedInSearch(Context context, JSONMap applicationVersion) {
+		return true;
+	}
 
 	@Override
 	public Collection<Context> generateContexts(Context initialContext) {
@@ -110,10 +116,12 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 	}
 
 	private Collection<Context> generateContextsForSingleApplicationVersionId(Context initialContext, String applicationVersionId) {
+		Collection<Context> result = new ArrayList<>(1);
 		JSONMap applicationVersion = getApplicationVersionById(initialContext, applicationVersionId);
-		return Arrays.asList(new Context[]{generateContextForApplicationVersion(initialContext, applicationVersion, "id "+applicationVersionId)});
+		addNonNullContextToResult(result, generateContextForApplicationVersion(initialContext, applicationVersion, "id "+applicationVersionId));
+		return result;
 	}
-	
+
 	private Context generateContextForApplicationVersion(Context initialContext, JSONMap applicationVersion, String applicationVersionDescription) {
 		Context result = null;
 		if ( applicationVersion == null ) {
@@ -121,6 +129,7 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 			LOG.warn("[SSC] Application version with "+applicationVersionDescription+" not found, or doesn't match criteria");
 		} else {
 			result = new Context(initialContext);
+			result.put(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID, applicationVersion.get("id", String.class));
 			updateContextForApplicationVersion(result, applicationVersion);
 		}
 		return result;
@@ -130,7 +139,7 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 		Collection<Context> result = new ArrayList<>(applicationVersionNamesOrIdsArray.length);
 		for ( String applicationVersionNameOrId : applicationVersionNamesOrIdsArray ) {
 			JSONMap applicationVersion = getApplicationVersionByNameOrId(initialContext, applicationVersionNameOrId);
-			result.add(generateContextForApplicationVersion(initialContext, applicationVersion, "name or id "+applicationVersionNameOrId));
+			addNonNullContextToResult(result, generateContextForApplicationVersion(initialContext, applicationVersion, "name or id "+applicationVersionNameOrId));
 		}
 		return result;
 	}
@@ -139,11 +148,19 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 		JSONList applicationVersions = getApplicationVersionsBySearchCriteria(initialContext);
 		Collection<Context> result = new ArrayList<>(applicationVersions.size());
 		for ( JSONMap applicationVersion : applicationVersions.asValueType(JSONMap.class) ) {
-			result.add(generateContextForApplicationVersion(initialContext, applicationVersion, null));
+			if ( isApplicationVersionIncludedInSearch(initialContext, applicationVersion) ) {
+				addNonNullContextToResult(result, generateContextForApplicationVersion(initialContext, applicationVersion, null));
+			}
 		}
 		return result;
 	}
 	
+	private void addNonNullContextToResult(Collection<Context> result, Context context) {
+		if ( context != null ) {
+			result.add(context);
+		}
+	}
+
 	private JSONMap getApplicationVersionById(Context initialContext, String applicationVersionId) {
 		return createApplicationVersionsQuery(initialContext).id(applicationVersionId).build().getUnique();
 	}
