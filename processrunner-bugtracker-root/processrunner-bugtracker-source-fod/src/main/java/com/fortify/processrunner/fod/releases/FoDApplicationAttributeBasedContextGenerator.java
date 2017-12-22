@@ -25,8 +25,8 @@ package com.fortify.processrunner.fod.releases;
 
 import java.util.Map;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
-import com.fortify.api.fod.connection.api.query.builder.OrderByDirection;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDOrderByDirection;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
@@ -47,12 +47,12 @@ public class FoDApplicationAttributeBasedContextGenerator extends AbstractFoDRel
 	 * application cache use.
 	 */
 	@Override
-	protected void updateReleaseQueryBuilder(Context context, FoDReleaseQueryBuilder builder) {
-		builder.paramOrderBy("applicationId", OrderByDirection.ASC);
+	protected void updateReleaseQueryBuilder(Context context, FoDReleasesQueryBuilder builder) {
+		builder.paramOrderBy("applicationId", FoDOrderByDirection.ASC);
 	}
 	
 	@Override
-	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleaseQueryBuilder builder) {
+	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleasesQueryBuilder builder) {
 		// Nothing to do, we filter afterwards in isReleaseIncludedInSearch()
 	}
 	

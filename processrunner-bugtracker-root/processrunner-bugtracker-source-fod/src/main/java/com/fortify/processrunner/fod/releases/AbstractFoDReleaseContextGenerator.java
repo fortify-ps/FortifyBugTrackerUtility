@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.api.util.rest.json.JSONList;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
@@ -52,8 +52,8 @@ public abstract class AbstractFoDReleaseContextGenerator implements IContextGene
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_RELEASES, "FoD application release names (<application>:<release>) or id's, separated by comma's", true).isAlternativeForProperties(IContextFoD.PRP_FOD_RELEASE_ID));
 	}
 	
-	private FoDReleaseQueryBuilder createReleaseQuery(Context context) {
-		FoDReleaseQueryBuilder queryBuilder = FoDConnectionFactory.getConnection(context)
+	private FoDReleasesQueryBuilder createReleaseQuery(Context context) {
+		FoDReleasesQueryBuilder queryBuilder = FoDConnectionFactory.getConnection(context)
 				.api().release().queryReleases();
 		updateReleaseQueryBuilder(context, queryBuilder);
 		if ( getQueryBuilderUpdaters()!=null ) {
@@ -65,21 +65,21 @@ public abstract class AbstractFoDReleaseContextGenerator implements IContextGene
 	}
 	
 	/**
-	 * This method can be overridden by subclasses to update the {@link FoDReleaseQueryBuilder}
+	 * This method can be overridden by subclasses to update the {@link FoDReleasesQueryBuilder}
 	 * instance used to retrieve application release JSON objects. This can be used for example 
 	 * to add on-demand objects. This default implementation does nothing.
 	 * @param context
 	 * @param queryBuilder
 	 */
-	protected void updateReleaseQueryBuilder(Context context, FoDReleaseQueryBuilder queryBuilder) {}
+	protected void updateReleaseQueryBuilder(Context context, FoDReleasesQueryBuilder queryBuilder) {}
 	
 	/**
-	 * This method must be implemented by subclasses to update the {@link FoDReleaseQueryBuilder}
+	 * This method must be implemented by subclasses to update the {@link FoDReleasesQueryBuilder}
 	 * to search for application releases that match some search criteria.
 	 * @param initialContext
 	 * @param builder
 	 */
-	protected abstract void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleaseQueryBuilder builder);
+	protected abstract void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleasesQueryBuilder builder);
 	
 	/**
 	 * This method must be implemented by subclasses to add {@link Context} properties for the given 
@@ -170,7 +170,7 @@ public abstract class AbstractFoDReleaseContextGenerator implements IContextGene
 	}
 
 	private JSONList getReleaseBySearchCriteria(Context initialContext) {
-		FoDReleaseQueryBuilder builder = createReleaseQuery(initialContext);
+		FoDReleasesQueryBuilder builder = createReleaseQuery(initialContext);
 		updateReleaseQueryBuilderForSearch(initialContext, builder);
 		return builder.build().getAll();
 	}

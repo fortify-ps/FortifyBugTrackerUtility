@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.rest.query.IRestConnectionQuery;
@@ -71,7 +71,7 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 	@Override
 	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
 		// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
-		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+		FoDReleaseVulnerabilitiesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
 				.paramIncludeFixed(false)
 				.paramIncludeSuppressed(false)
 				.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());

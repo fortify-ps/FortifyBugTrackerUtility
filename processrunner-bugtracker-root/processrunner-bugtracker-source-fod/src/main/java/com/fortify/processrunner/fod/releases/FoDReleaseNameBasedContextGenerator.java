@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
@@ -47,7 +47,7 @@ public class FoDReleaseNameBasedContextGenerator extends AbstractFoDReleaseConte
 	private LinkedHashMap<Pattern, Context> releaseNamePatternToContextMap = null;
 	
 	@Override
-	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleaseQueryBuilder builder) {
+	protected void updateReleaseQueryBuilderForSearch(Context initialContext, FoDReleasesQueryBuilder builder) {
 		builder.preProcessor(new FoDJSONMapFilterReleaseNamePatterns(MatchMode.INCLUDE, releaseNamePatternToContextMap.keySet()));
 	}
 	

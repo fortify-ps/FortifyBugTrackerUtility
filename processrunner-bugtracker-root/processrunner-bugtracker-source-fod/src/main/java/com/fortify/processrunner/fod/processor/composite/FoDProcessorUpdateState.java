@@ -26,7 +26,7 @@ package com.fortify.processrunner.fod.processor.composite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilityQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 import com.fortify.api.util.rest.query.IRestConnectionQuery;
 import com.fortify.api.util.spring.SpringExpressionUtil;
@@ -61,7 +61,7 @@ public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor i
 	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor;
 	
 	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
-		FoDReleaseVulnerabilityQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
+		FoDReleaseVulnerabilitiesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
 				.paramIncludeFixed(true)
 				.paramIncludeSuppressed(true)
 				.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));

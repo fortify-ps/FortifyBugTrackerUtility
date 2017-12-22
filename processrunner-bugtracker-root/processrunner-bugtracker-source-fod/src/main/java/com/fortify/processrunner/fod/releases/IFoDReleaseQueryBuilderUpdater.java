@@ -23,16 +23,16 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.releases;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This interface allows for updating an {@link FoDReleaseQueryBuilder} to
+ * This interface allows for updating an {@link FoDReleasesQueryBuilder} to
  * automatically select FoD releases to be processed.
  * 
  * @author Ruud Senden
  *
  */
 public interface IFoDReleaseQueryBuilderUpdater {
-	public void updateFoDReleaseQueryBuilder(Context context, FoDReleaseQueryBuilder builder);
+	public void updateFoDReleaseQueryBuilder(Context context, FoDReleasesQueryBuilder builder);
 }

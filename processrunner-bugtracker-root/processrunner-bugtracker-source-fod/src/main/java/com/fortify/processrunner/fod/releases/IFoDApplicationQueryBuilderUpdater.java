@@ -23,16 +23,16 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.releases;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDApplicationQueryBuilder;
+import com.fortify.api.fod.connection.api.query.builder.FoDApplicationsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This interface allows for updating an {@link FoDApplicationQueryBuilder} to
+ * This interface allows for updating an {@link FoDApplicationsQueryBuilder} to
  * automatically select FoD applications to be processed.
  * 
  * @author Ruud Senden
  *
  */
 public interface IFoDApplicationQueryBuilderUpdater {
-	public void updateFoDApplicationQueryBuilder(Context context, FoDApplicationQueryBuilder builder);
+	public void updateFoDApplicationQueryBuilder(Context context, FoDApplicationsQueryBuilder builder);
 }
