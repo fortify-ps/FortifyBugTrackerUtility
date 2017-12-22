@@ -90,7 +90,7 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));
 		}
 		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
-			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), MatchMode.INCLUDE));
+			builder.preProcessor(new JSONMapFilterRegEx(MatchMode.INCLUDE, getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()));
 		}
 		return builder.build();
 	}

@@ -35,6 +35,6 @@ import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
  */
 public class FoDJSONMapFilterHasBugLink extends JSONMapFilterRegEx {
 	public FoDJSONMapFilterHasBugLink(MatchMode matchMode) {
-		super("bugLink", Pattern.compile("^\\S+$"), matchMode);
+		super(matchMode, "bugLink", Pattern.compile("^\\S+$"));
 	}
 }

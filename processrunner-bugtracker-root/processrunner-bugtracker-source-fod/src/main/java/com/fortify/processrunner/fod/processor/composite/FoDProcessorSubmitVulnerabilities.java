@@ -82,7 +82,7 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 			}
 		}
 		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
-			builder.preProcessor(new JSONMapFilterRegEx(getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted(), MatchMode.INCLUDE));
+			builder.preProcessor(new JSONMapFilterRegEx(MatchMode.INCLUDE, getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()));
 		}
 		return builder.build();
 	}

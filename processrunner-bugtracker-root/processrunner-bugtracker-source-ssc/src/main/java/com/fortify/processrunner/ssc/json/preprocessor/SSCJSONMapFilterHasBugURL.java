@@ -35,6 +35,6 @@ import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
  */
 public class SSCJSONMapFilterHasBugURL extends JSONMapFilterRegEx {
 	public SSCJSONMapFilterHasBugURL(MatchMode matchMode) {
-		super("bugURL", Pattern.compile("^\\S+$"), matchMode);
+		super(matchMode, "bugURL", Pattern.compile("^\\S+$"));
 	}
 }
