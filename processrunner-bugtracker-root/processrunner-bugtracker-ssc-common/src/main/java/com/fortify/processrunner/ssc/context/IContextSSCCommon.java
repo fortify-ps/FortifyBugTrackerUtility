@@ -24,8 +24,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.context;
 
-import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.json.JSONMap;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method to allow

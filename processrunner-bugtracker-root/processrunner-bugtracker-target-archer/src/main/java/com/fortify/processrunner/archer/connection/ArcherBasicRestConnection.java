@@ -47,8 +47,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.glassfish.jersey.client.ClientConfig;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnection;
-import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.AbstractRestConnection;
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 
 /**
  * This class provides a basic, non-authenticating REST and SOAP

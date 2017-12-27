@@ -29,12 +29,8 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
-import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
+import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
@@ -47,6 +43,10 @@ import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * <p>This {@link IProcessor} implementation combines and configures 

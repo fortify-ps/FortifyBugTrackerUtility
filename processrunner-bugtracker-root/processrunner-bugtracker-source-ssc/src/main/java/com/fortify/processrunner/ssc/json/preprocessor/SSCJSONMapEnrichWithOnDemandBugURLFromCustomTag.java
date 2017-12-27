@@ -26,11 +26,11 @@ package com.fortify.processrunner.ssc.json.preprocessor;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapEnrich;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This {@link AbstractJSONMapEnrich} implementation adds an on-demand bugURL property to the

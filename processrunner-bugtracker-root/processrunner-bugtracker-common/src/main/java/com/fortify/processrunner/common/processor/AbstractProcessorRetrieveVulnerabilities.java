@@ -27,14 +27,14 @@ package com.fortify.processrunner.common.processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.processor.IJSONMapProcessor;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.rest.query.PagingData;
 import com.fortify.processrunner.common.context.IContextCurrentVulnerability;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessor;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.processor.IJSONMapProcessor;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.rest.query.PagingData;
 
 public abstract class AbstractProcessorRetrieveVulnerabilities extends AbstractProcessor {
 

@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.json.preprocessor;
 /**
- * This package contains FoD-specific {@link com.fortify.api.util.rest.json.preprocessor.IJSONMapPreProcessor}
+ * This package contains FoD-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
  * implementations.
  * 
  */

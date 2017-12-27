@@ -25,7 +25,8 @@
 package com.fortify.processrunner.ssc.json.preprocessor;
 
 import java.util.regex.Pattern;
-import com.fortify.api.util.rest.json.preprocessor.JSONMapFilterRegEx;
+
+import com.fortify.util.rest.json.preprocessor.JSONMapFilterRegEx;
 
 /**
  * This class allows for including or excluding SSC vulnerabilities based on whether 

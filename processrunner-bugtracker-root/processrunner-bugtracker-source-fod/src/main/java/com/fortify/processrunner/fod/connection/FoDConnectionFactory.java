@@ -24,13 +24,13 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.connection;
 
-import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
  * This class allows for instantiating and caching {@link FoDAuthenticatingRestConnection}

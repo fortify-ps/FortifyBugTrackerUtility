@@ -24,15 +24,15 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.retrieve;
 
-import com.fortify.api.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.rest.query.PagingData;
+import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.processor.AbstractProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.rest.query.PagingData;
 
 /**
  * TODO Update JavaDoc

@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.appversion;
 
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**

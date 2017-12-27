@@ -30,12 +30,12 @@ import java.util.Map;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.util.map.MapBuilder;
 import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterAppendValuesFromExpressionMap;
 import com.fortify.processrunner.util.map.MapBuilder.MapUpdaterPutValuesFromExpressionMap;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * <p>This abstract class allows for building an object map from grouped objects.

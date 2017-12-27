@@ -24,11 +24,11 @@
  ******************************************************************************/
 package com.fortify.processrunner.common.json.preprocessor;
 
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapEnrich;
-import com.fortify.api.util.spring.SpringExpressionUtil;
-import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This abstract implementation of {@link AbstractProcessorEnrichCurrentVulnerability} will evaluate a 

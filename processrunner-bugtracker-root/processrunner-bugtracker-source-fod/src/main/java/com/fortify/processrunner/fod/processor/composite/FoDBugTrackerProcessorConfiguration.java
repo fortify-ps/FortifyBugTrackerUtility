@@ -27,8 +27,8 @@ package com.fortify.processrunner.fod.processor.composite;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.fortify.api.util.spring.SpringExpressionUtil;
-import com.fortify.api.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This class holds all FoD-related configuration properties used to submit vulnerabilities

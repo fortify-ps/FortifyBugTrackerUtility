@@ -36,12 +36,12 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import com.fortify.api.util.spring.SpringContextUtil;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextGenerator;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
+import com.fortify.util.spring.SpringContextUtil;
 
 /**
  * This class allows for running {@link ProcessRunner} instances based on Spring configuration.

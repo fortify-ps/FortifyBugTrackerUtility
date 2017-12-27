@@ -26,8 +26,8 @@ package com.fortify.processrunner.octane.connection;
 
 import javax.ws.rs.client.Invocation.Builder;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnection;
-import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.AbstractRestConnection;
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 
 /**
  * This class provides a basic, non-authenticating REST connection

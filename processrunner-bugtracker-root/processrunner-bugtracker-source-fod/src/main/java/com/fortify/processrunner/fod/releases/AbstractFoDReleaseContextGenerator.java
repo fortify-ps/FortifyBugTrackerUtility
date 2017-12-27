@@ -33,9 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -43,6 +41,8 @@ import com.fortify.processrunner.context.IContextGenerator;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
 
 public abstract class AbstractFoDReleaseContextGenerator implements IContextGenerator, IContextPropertyDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(AbstractFoDReleaseContextGenerator.class);

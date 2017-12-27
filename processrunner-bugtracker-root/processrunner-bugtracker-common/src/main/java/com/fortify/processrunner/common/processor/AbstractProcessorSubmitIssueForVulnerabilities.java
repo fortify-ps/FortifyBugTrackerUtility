@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.context.IContextBugTracker;
@@ -42,6 +41,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This abstract {@link IProcessor} implementation allows for submitting issues to external systems

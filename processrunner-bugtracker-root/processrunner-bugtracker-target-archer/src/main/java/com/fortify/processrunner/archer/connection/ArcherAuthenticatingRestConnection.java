@@ -41,12 +41,12 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
-import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.IRestConnectionBuilder;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class provides a token-authenticated REST connection

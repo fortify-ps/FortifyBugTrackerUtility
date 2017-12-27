@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.jira.connection;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
+import com.fortify.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
 
 public class JiraRestConnectionConfig<T extends JiraRestConnectionConfig<T>> extends AbstractRestConnectionWithCredentialsConfig<T> {
 }

@@ -42,12 +42,12 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
-import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.spring.SpringExpressionUtil;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.IRestConnectionBuilder;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.spring.SpringExpressionUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

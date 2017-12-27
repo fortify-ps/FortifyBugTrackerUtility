@@ -31,12 +31,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.api.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.AbstractBugTrackerFieldsBasedProcessor;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
@@ -49,6 +46,9 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGr
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class submits a set of vulnerabilities through a native SSC bug tracker integration.

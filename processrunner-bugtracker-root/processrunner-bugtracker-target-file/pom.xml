@@ -62,7 +62,7 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.api.util</groupId>
+			<groupId>com.fortify.util</groupId>
 			<artifactId>spring-util</artifactId>
 		</dependency>
 		<dependency>

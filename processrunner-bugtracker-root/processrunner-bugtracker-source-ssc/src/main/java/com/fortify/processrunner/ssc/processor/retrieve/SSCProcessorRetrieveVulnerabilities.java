@@ -24,15 +24,15 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.processor.retrieve;
 
-import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.rest.query.PagingData;
+import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.common.processor.AbstractProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.rest.query.PagingData;
 
 /**
  * TODO Add JavaDoc

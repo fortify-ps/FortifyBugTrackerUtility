@@ -31,7 +31,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 
-import com.fortify.api.util.spring.SpringContextUtil;
+import com.fortify.util.spring.SpringContextUtil;
 
 /**
  * This class tests whether the available configuration files can be successfully loaded by Spring.

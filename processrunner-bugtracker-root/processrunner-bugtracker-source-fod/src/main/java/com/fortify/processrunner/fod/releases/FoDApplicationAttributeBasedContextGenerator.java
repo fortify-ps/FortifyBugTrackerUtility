@@ -26,11 +26,11 @@ package com.fortify.processrunner.fod.releases;
 
 import java.util.Map;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
-import com.fortify.api.fod.connection.api.query.builder.FoDOrderByDirection;
-import com.fortify.api.util.rest.json.JSONMap;
+import com.fortify.client.fod.api.query.builder.FoDOrderByDirection;
+import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
+import com.fortify.util.rest.json.JSONMap;
 
 /**
  * Filter FoD application release based on application attributes,

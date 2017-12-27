@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
@@ -39,6 +38,7 @@ import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConne
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneSharedSpaceAndWorkspaceId;
 import com.fortify.processrunner.octane.connection.OctaneConnectionFactory;
 import com.fortify.processrunner.octane.context.IContextOctane;
+import com.fortify.util.rest.json.JSONMap;
 
 /**
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation

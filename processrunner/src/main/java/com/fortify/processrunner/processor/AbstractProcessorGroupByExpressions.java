@@ -35,12 +35,12 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 
-import com.fortify.api.util.spring.expression.SimpleExpression;
-import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * <p>This {@link IProcessor} implementation allows for collecting

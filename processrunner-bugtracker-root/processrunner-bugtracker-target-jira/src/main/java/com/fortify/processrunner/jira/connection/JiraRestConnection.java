@@ -34,12 +34,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnection;
-import com.fortify.api.util.rest.connection.IRestConnectionBuilder;
-import com.fortify.api.util.rest.connection.AbstractRestConnectionConfig;
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.util.rest.connection.AbstractRestConnection;
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.IRestConnectionBuilder;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
 
 public final class JiraRestConnection extends AbstractRestConnection {
 	private static final Log LOG = LogFactory.getLog(JiraRestConnection.class);

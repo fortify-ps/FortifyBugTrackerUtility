@@ -28,9 +28,9 @@ import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.api.util.spring.expression.TemplateExpression;
 import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This abstract class allows for configuring bug tracker fields and their contents to be processed.

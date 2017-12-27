@@ -35,11 +35,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.util.spring.SpringExpressionUtil;
-import com.fortify.api.util.spring.expression.SimpleExpression;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * This abstract class extends {@link AbstractProcessorUpdateIssueStateForVulnerabilities} by

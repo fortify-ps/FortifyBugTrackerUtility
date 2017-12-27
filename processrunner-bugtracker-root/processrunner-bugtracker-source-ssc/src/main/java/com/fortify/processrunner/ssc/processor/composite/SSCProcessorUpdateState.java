@@ -33,12 +33,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
+import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
@@ -52,6 +49,9 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.ssc.json.preprocessor.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * <p>This {@link IProcessor} implementation combines and configures 

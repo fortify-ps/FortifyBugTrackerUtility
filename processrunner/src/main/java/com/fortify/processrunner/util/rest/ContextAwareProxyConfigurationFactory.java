@@ -26,10 +26,10 @@ package com.fortify.processrunner.util.rest;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.api.util.rest.connection.ProxyConfig;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
  * This class allows for generating {@link ProxyConfig} instances

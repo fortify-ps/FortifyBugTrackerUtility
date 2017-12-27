@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.tfs.connection;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
+import com.fortify.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
 
 public class TFSRestConnectionConfig<T extends TFSRestConnectionConfig<T>> extends AbstractRestConnectionWithCredentialsConfig<T> {
 }

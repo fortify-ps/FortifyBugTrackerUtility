@@ -26,12 +26,12 @@ package com.fortify.processrunner.ssc.appversion;
 
 import java.util.Map;
 
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.api.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
-import com.fortify.api.util.rest.json.JSONList;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.json.JSONList;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
 
 /**
  * Filter SSC application versions based on application version attributes,

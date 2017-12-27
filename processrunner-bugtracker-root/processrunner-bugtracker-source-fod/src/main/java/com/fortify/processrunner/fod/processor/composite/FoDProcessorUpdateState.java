@@ -27,10 +27,7 @@ package com.fortify.processrunner.fod.processor.composite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.api.util.rest.query.IRestConnectionQuery;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
@@ -39,6 +36,9 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * <p>This {@link IProcessor} implementation combines and configures 

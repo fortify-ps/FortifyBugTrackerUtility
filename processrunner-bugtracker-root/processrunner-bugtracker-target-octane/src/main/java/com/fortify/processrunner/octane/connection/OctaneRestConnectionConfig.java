@@ -26,10 +26,10 @@ package com.fortify.processrunner.octane.connection;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionWithUsernamePasswordConfig;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.IOctaneCredentials;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneClientCredentials;
 import com.fortify.processrunner.octane.connection.OctaneAuthenticatingRestConnection.OctaneUserCredentials;
+import com.fortify.util.rest.connection.AbstractRestConnectionWithUsernamePasswordConfig;
 
 public class OctaneRestConnectionConfig<T extends OctaneRestConnectionConfig<T>> extends AbstractRestConnectionWithUsernamePasswordConfig<T> {
 	private String clientId;

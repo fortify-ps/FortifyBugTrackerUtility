@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.releases;
 
-import com.fortify.api.fod.connection.api.query.builder.FoDReleasesQueryBuilder;
+import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 
 /**

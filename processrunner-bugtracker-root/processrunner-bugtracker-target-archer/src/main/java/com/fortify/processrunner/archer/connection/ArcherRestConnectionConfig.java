@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.archer.connection;
 
-import com.fortify.api.util.rest.connection.AbstractRestConnectionWithUsernamePasswordConfig;
+import com.fortify.util.rest.connection.AbstractRestConnectionWithUsernamePasswordConfig;
 
 public class ArcherRestConnectionConfig<T extends ArcherRestConnectionConfig<T>> extends AbstractRestConnectionWithUsernamePasswordConfig<T> {
 	private String instanceName;

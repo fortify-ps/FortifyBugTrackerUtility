@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.json.preprocessor;
 /**
- * This package contains SSC-specific {@link com.fortify.api.util.rest.json.preprocessor.IJSONMapPreProcessor}
+ * This package contains SSC-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
  * implementations.
  * 
  */

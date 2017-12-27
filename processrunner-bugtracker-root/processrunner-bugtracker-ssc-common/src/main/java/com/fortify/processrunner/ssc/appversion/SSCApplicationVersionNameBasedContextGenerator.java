@@ -30,12 +30,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.fortify.api.ssc.connection.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter;
-import com.fortify.api.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter;
+import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * Filter SSC application versions based on application and version name,

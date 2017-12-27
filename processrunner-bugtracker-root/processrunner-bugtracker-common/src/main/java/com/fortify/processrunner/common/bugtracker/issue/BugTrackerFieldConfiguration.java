@@ -26,7 +26,7 @@ package com.fortify.processrunner.common.bugtracker.issue;
 
 import java.util.LinkedHashMap;
 
-import com.fortify.api.util.spring.expression.TemplateExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /** 
  * This class describes the bug tracker fields and their contents to be submitted

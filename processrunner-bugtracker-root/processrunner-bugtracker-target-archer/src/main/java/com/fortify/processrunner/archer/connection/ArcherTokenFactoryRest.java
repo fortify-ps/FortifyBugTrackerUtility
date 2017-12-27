@@ -30,8 +30,8 @@ import javax.ws.rs.client.Entity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.api.util.rest.json.JSONMap;
-import com.fortify.api.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
  * This class is used to generate Archer tokens for accessing the

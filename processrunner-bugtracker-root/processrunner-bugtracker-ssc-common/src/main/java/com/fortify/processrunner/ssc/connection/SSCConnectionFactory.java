@@ -24,13 +24,13 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.connection;
 
-import com.fortify.api.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.api.util.rest.connection.ProxyConfig;
+import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
  * This class allows for instantiating and caching {@link SSCAuthenticatingRestConnection}
