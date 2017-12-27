@@ -71,7 +71,7 @@ public abstract class AbstractProcessorRetrieveVulnerabilities extends AbstractP
 			
 
 			@Override
-			public void nextPage(PagingData pagingData) {
+			public void notifyNextPage(PagingData pagingData) {
 				LOG.info(getLogMessageNextPage(context, pagingData));
 			}
 		});
