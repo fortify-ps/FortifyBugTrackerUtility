@@ -82,8 +82,8 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.fortify.api</groupId>
-				<artifactId>master</artifactId>
-				<version>4.0-SNAPSHOT</version>
+				<artifactId>api-master</artifactId>
+				<version>4.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
