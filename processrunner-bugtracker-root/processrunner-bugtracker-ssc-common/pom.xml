@@ -52,8 +52,8 @@
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.client</groupId>
-			<artifactId>ssc-client</artifactId>
+			<groupId>com.fortify.client.api</groupId>
+			<artifactId>ssc-client-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>

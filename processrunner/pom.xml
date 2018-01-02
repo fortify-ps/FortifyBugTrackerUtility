@@ -74,8 +74,8 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.api</groupId>
-				<artifactId>api-master</artifactId>
+				<groupId>com.fortify.client.api</groupId>
+				<artifactId>client-api-master</artifactId>
 				<version>4.0</version>
 				<type>pom</type>
 				<scope>import</scope>
@@ -156,11 +156,11 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.util</groupId>
+			<groupId>com.fortify.client.api.util</groupId>
 			<artifactId>spring-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.fortify.util</groupId>
+			<groupId>com.fortify.client.api.util</groupId>
 			<artifactId>rest-util</artifactId>
 		</dependency>
 		<dependency>
