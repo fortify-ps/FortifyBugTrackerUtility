@@ -49,7 +49,7 @@ public class SSCApplicationVersionAttributeBasedContextGenerator extends Abstrac
 	 */
 	@Override
 	protected void updateApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
-		builder.onDemandAttributeValuesByName("attributeValuesByName");
+		builder.onDemandAttributeValuesByName();
 	}
 	
 	@Override
