@@ -53,9 +53,7 @@
 		<!-- Set additional filters for vulnerabilities to be submitted to the external
 		     system, if you require any filtering that cannot be performed by SSC directly. -->
 		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
-			<!-- In this specific case, we want to include only vulnerabilities that have not been
-			     previously submitted through the native SSC bug tracker. -->
-			<entry key="bugURL" value="^$"/>
+			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
 		</map></property>
 		
 		<!-- This property defines the expression for evaluating whether an SSC 
@@ -72,18 +70,17 @@
 	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
 	<!--==================================================================================-->
 	
-	<!-- The default configuration assumes that you have a default team project configured 
-	     in the SSC TFS/Visual Studio Online bug tracker configuration.
+	<!-- The default configuration assumes that you have a default collection and team project 
+	     configured in the SSC TFS/Visual Studio Online bug tracker configuration.
 	     If you don't have a default value configured in SSC, or want to override the 
-	     default value, you can uncomment this bean to load the default value from
-	     the 'TFS Team Project' application version attribute. -->
-	<!-- 
+	     default value, this bean allows for retrieving the TFS Collection and Team Project
+	     from the corresponding SSC application version attributes. -->
 	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="TFS Collection" value="TFSCollection"/>
 			<entry key="TFS Team Project" value="TFSTeamProject"/>
 		</map></property>
 	</bean>
-	-->
 	
 	<!-- Alternatively, instead of the attribute-based mapping above, you can also define
 	     a static mapping. This allows for maintaining a static mapping between 
@@ -128,12 +125,11 @@
 	-->
 	<bean class="com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
-			<!-- Uncomment this to override the default collection configured in SSC -->
-			<!-- <entry key="Collection" value="DefaultCollection"/> -->
+			<!-- Override the default collection configured in SSC, if defined as a context property -->
+			<entry key="Collection" value="${#ctx.TFSCollection}"/>
 			
-			<!-- Uncomment this to override the default project configured in SSC,
-			     based on the static or attribute-based mappings above. -->
-			<!-- <entry key="System.TeamProject" value="${#ctx.TFSTeamProject}"/> -->
+			<!-- Override the default project configured in SSC, if defined as a context property -->
+			<entry key="System.TeamProject" value="${#ctx.TFSTeamProject}"/>
 			
 			<!-- Override the work item type to use (even if a default value has been 
 			     configured in SSC) -->

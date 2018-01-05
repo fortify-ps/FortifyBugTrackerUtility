@@ -54,7 +54,9 @@ public class SSCApplicationVersionAttributeBasedContextGenerator extends Abstrac
 	
 	@Override
 	protected void updateApplicationVersionsQueryBuilderForSearch(Context initialContext, SSCApplicationVersionsQueryBuilder builder) {
-		builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes(MatchMode.INCLUDE, requiredAttributeMappings.keySet()));
+		if ( requiredAttributeMappings != null && !requiredAttributeMappings.isEmpty() ) {
+			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes(MatchMode.INCLUDE, requiredAttributeMappings.keySet()));
+		}
 	}
 	
 	@Override
