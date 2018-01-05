@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.client.fod.api.FoDReleaseAPI;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -55,7 +56,7 @@ public abstract class AbstractFoDReleaseContextGenerator implements IContextGene
 	
 	private FoDReleasesQueryBuilder createReleaseQuery(Context context) {
 		FoDReleasesQueryBuilder queryBuilder = FoDConnectionFactory.getConnection(context)
-				.api().release().queryReleases();
+				.api(FoDReleaseAPI.class).queryReleases();
 		updateReleaseQueryBuilder(context, queryBuilder);
 		if ( getQueryBuilderUpdaters()!=null ) {
 			for ( IFoDReleaseQueryBuilderUpdater updater : getQueryBuilderUpdaters() ) {

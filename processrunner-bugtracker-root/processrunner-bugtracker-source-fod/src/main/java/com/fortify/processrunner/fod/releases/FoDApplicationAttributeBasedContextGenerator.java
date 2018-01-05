@@ -26,6 +26,7 @@ package com.fortify.processrunner.fod.releases;
 
 import java.util.Map;
 
+import com.fortify.client.fod.api.FoDApplicationAPI;
 import com.fortify.client.fod.api.query.builder.FoDOrderByDirection;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
@@ -60,7 +61,7 @@ public class FoDApplicationAttributeBasedContextGenerator extends AbstractFoDRel
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean isReleaseIncludedInSearch(Context context, JSONMap release) {
-		JSONMap application = FoDConnectionFactory.getConnection(context).api().application().getApplicationById(release.get("applicationId", String.class));
+		JSONMap application = FoDConnectionFactory.getConnection(context).api(FoDApplicationAPI.class).getApplicationById(release.get("applicationId", String.class));
 		release.put("application", application);
 		return application.get("attributesMap", Map.class).keySet().containsAll(requiredAttributeMappings.keySet());
 	}

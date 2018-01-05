@@ -35,6 +35,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.client.ssc.api.SSCBugTrackerAPI;
+import com.fortify.client.ssc.api.SSCCustomTagAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
@@ -136,14 +138,14 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 			customTagValues.put(getConfiguration().getBugLinkCustomTagName(), submittedIssue.getDeepLink());
 		} 
 		if ( !customTagValues.isEmpty() ) {
-			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			conn.api(SSCCustomTagAPI.class).setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
 			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
 		}
 		if ( getConfiguration().isAddNativeBugLink() ) {
 			Map<String, Object> issueDetails = new HashMap<String, Object>();
 			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
 			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
-			conn.api().bugTracker().fileBug(applicationVersionId, issueDetails, issueInstanceIds);
+			conn.api(SSCBugTrackerAPI.class).fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
 		}
 	}

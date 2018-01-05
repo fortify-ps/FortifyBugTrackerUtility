@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.client.ssc.api.SSCBugTrackerAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
@@ -96,14 +97,15 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
-		if ( conn.api().bugTracker().isBugTrackerAuthenticationRequired(applicationVersionId) ) {
-			conn.api().bugTracker().authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
+		SSCBugTrackerAPI bugTrackerAPI = conn.api(SSCBugTrackerAPI.class);
+		if ( bugTrackerAPI.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
+			bugTrackerAPI.authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
 		}
 		List<String> issueInstanceIds = new ArrayList<String>();
 		for ( Object issue : currentGroup ) {
 			issueInstanceIds.add(ContextSpringExpressionUtil.evaluateExpression(context, issue, "issueInstanceId", String.class));
 		}
-		JSONMap result = conn.api().bugTracker().fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
+		JSONMap result = bugTrackerAPI.fileBug(ctx.getSSCApplicationVersionId(), map, issueInstanceIds);
 		String bugLink = ContextSpringExpressionUtil.evaluateExpression(context, result, "data?.values?.externalBugDeepLink", String.class);
 		LOG.info(String.format("[SSC] Submitted %d vulnerabilities via SSC to %s", currentGroup.size(), bugLink));
 		return true;

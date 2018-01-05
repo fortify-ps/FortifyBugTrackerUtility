@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.client.ssc.api.SSCCustomTagAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
@@ -111,7 +112,7 @@ public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor i
 			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ctx.getSSCApplicationVersionId();
-			conn.api().customTag().setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			conn.api(SSCCustomTagAPI.class).setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
 			LOG.info("[SSC] Updated custom tag values for "+vulnerabilities.size()+" SSC vulnerabilities");
 		}
 	}

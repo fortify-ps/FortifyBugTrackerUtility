@@ -29,6 +29,8 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fortify.client.fod.api.FoDBugTrackerAPI;
+import com.fortify.client.fod.api.FoDVulnerabilityAPI;
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
@@ -111,9 +113,9 @@ public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityP
 		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
 		if ( getConfiguration().isAddBugDataAsComment() ) {
 			String comment = SubmittedIssueCommentHelper.getCommentForSubmittedIssue(bugTrackerName, submittedIssue);
-			conn.api().vulnerability().addCommentToVulnerabilities(releaseId, comment, vulnIds);
+			conn.api(FoDVulnerabilityAPI.class).addCommentToVulnerabilities(releaseId, comment, vulnIds);
 		} else if ( getConfiguration().isAddNativeBugLink() ) {
-			conn.api().bugTracker().addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
+			conn.api(FoDBugTrackerAPI.class).addBugLinkToVulnerabilities(releaseId, submittedIssue.getDeepLink(), vulnIds);
 		}
 	}
 }

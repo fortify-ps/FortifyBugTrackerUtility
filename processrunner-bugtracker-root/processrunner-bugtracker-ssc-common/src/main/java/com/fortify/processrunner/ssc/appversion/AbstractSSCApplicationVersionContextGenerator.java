@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.client.ssc.api.SSCApplicationVersionAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
@@ -55,7 +56,7 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 	
 	private SSCApplicationVersionsQueryBuilder createApplicationVersionsQuery(Context context) {
 		SSCApplicationVersionsQueryBuilder queryBuilder = SSCConnectionFactory.getConnection(context)
-				.api().applicationVersion().queryApplicationVersions();
+				.api(SSCApplicationVersionAPI.class).queryApplicationVersions();
 		updateApplicationVersionsQueryBuilder(context, queryBuilder);
 		if ( getQueryBuilderUpdaters()!=null ) {
 			for ( ISSCApplicationVersionQueryBuilderUpdater updater : getQueryBuilderUpdaters() ) {
