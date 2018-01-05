@@ -61,7 +61,7 @@ public class FoDApplicationAttributeBasedContextGenerator extends AbstractFoDRel
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean isReleaseIncludedInSearch(Context context, JSONMap release) {
-		JSONMap application = FoDConnectionFactory.getConnection(context).api(FoDApplicationAPI.class).getApplicationById(release.get("applicationId", String.class));
+		JSONMap application = FoDConnectionFactory.getConnection(context).api(FoDApplicationAPI.class).getApplicationById(release.get("applicationId", String.class), true);
 		release.put("application", application);
 		return application.get("attributesMap", Map.class).keySet().containsAll(requiredAttributeMappings.keySet());
 	}
