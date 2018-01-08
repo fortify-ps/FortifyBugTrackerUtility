@@ -150,15 +150,15 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		*/
 	}
 	
-	public Integer getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
+	public String getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
 		return getIdForName(sharedSpaceAndWorkspaceId, "work_items", featureName);
 	}
 
-	public Integer getFeatureId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
+	public String getFeatureId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
 		return getIdForName(sharedSpaceAndWorkspaceId, "features", featureName);
 	}
 	
-	public Integer getPhaseId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String phaseName) {
+	public String getPhaseId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String phaseName) {
 		return getIdForName(sharedSpaceAndWorkspaceId, "phases", phaseName);
 	}
 	
@@ -174,7 +174,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		return getNameForId(sharedSpaceAndWorkspaceId, "phases", phaseId);
 	}
 	
-	private Integer getIdForName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName, String name) {
+	private String getIdForName(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String entityName, String name) {
 		return getIdForName(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), name);
 	}
 	
@@ -182,8 +182,8 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		return getNameForId(entityCache.getUnchecked(sharedSpaceAndWorkspaceId).getUnchecked(entityName), id);
 	}
 	
-	private Integer getIdForName(JSONList array, String name) {
-		return array.mapValue("name", name, "id", Integer.class);
+	private String getIdForName(JSONList array, String name) {
+		return array.mapValue("name", name, "id", String.class);
 	}
 	
 	private String getNameForId(JSONList array, String id) {
@@ -235,7 +235,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 			if ( value instanceof JSONMap ) {
 				JSONMap jsonValue = (JSONMap)value;
 				if ( jsonValue.containsKey("type") && jsonValue.containsKey("name") ) {
-					Integer id = getIdForName(sharedSpaceAndWorkspaceId, jsonValue.get("type", String.class)+"s", jsonValue.get("name", String.class));
+					String id = getIdForName(sharedSpaceAndWorkspaceId, jsonValue.get("type", String.class)+"s", jsonValue.get("name", String.class));
 					jsonValue.put("id", id);
 					jsonValue.remove("name");
 				}
