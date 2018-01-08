@@ -30,11 +30,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
-import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
+import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -61,9 +61,9 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 	@Override
 	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
-			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasAllCustomTags(MatchMode.INCLUDE, getBugLinkCustomTagName()));
+			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags(MatchMode.INCLUDE, getBugLinkCustomTagName()));
 		} else if ( isAddNativeBugLink() ) {
-			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, "Add Existing Bugs"));
+			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, "Add Existing Bugs"));
 		}
 	}
 	

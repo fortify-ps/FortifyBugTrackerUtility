@@ -33,10 +33,10 @@ import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnS
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
+import com.fortify.processrunner.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.query.IRestConnectionQuery;
 import com.fortify.util.spring.SpringExpressionUtil;
 

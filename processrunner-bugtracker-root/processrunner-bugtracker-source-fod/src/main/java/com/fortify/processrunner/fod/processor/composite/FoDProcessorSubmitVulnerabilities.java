@@ -42,11 +42,11 @@ import com.fortify.processrunner.common.source.vulnerability.INewIssueVulnerabil
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;
-import com.fortify.processrunner.fod.json.preprocessor.FoDJSONMapFilterHasBugLink;
+import com.fortify.processrunner.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.rest.json.preprocessor.JSONMapFilterRegEx;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.query.IRestConnectionQuery;
 import com.fortify.util.spring.SpringExpressionUtil;
 

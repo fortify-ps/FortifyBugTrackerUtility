@@ -22,54 +22,49 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.json.preprocessor;
+package com.fortify.processrunner.ssc.json.preprocessor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
+import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This {@link AbstractJSONMapEnrich} implementation adds an on-demand bugLink property
- * to the current vulnerability, which retrieves the bug link from the vulnerability 
- * comments (if available). We use an on-demand loader because the actual comments are 
- * loaded on-demand as well.
+ * This {@link AbstractJSONMapEnrich} implementation adds an on-demand bugURL property to the
+ * current vulnerability, which retrieves the bug URL from a configurable custom tag. We use 
+ * an on-demand loader because the custom tag values are loaded on-demand as well.
  * 
  * @author Ruud Senden
  *
  */
-public class FoDJSONMapEnrichWithOnDemandBugLinkFromComment extends AbstractJSONMapEnrich {
-	private final String bugTrackerName;
-	public FoDJSONMapEnrichWithOnDemandBugLinkFromComment(String bugTrackerName) {
-		this.bugTrackerName = bugTrackerName;
+public class SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag extends AbstractJSONMapEnrich {
+	private final String customTagName;
+	public SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(String customTagName) {
+		this.customTagName = customTagName;
 	}
 	
 	@Override
 	protected void enrich(JSONMap json) {
-		json.put("bugLink", new FoDJSONMapOnDemandLoaderBugLinkFromComment(bugTrackerName));
+		if ( StringUtils.isNotBlank(customTagName) ) {
+			json.put("bugURL", new SSCJSONMapOnDemandLoaderBugURLFromCustomTag(customTagName));
+		}
 	}
 	
-	private static class FoDJSONMapOnDemandLoaderBugLinkFromComment extends AbstractJSONMapOnDemandLoader {
+	private static class SSCJSONMapOnDemandLoaderBugURLFromCustomTag extends AbstractJSONMapOnDemandLoader {
 		private static final long serialVersionUID = 1L;
-		private final String matchExpression;
+		private final String customTagName;
 		
-		public FoDJSONMapOnDemandLoaderBugLinkFromComment(String bugTrackerName) {
+		public SSCJSONMapOnDemandLoaderBugURLFromCustomTag(String customTagName) {
 			super(true);
-			this.matchExpression = "--- Vulnerability submitted to "+bugTrackerName+".*";
+			this.customTagName = customTagName;
 		}
 
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
-			String spel = "summary?.comments?.$[comment matches '"+matchExpression+"']?.comment";
-			String bugComment = SpringExpressionUtil.evaluateExpression(parent, spel, String.class);
-			if ( StringUtils.isNotBlank(bugComment) ) {
-				return SubmittedIssueCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();
-			} else {
-				return null;
-			}
+			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("customTagName", customTagName, "textValue", String.class);
 		}
 	}
 

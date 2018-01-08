@@ -22,21 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.json.preprocessor;
-
-import java.util.regex.Pattern;
-
-import com.fortify.util.rest.json.preprocessor.JSONMapFilterRegEx;
-
+package com.fortify.processrunner.fod.releases.json.preprocessor.filter;
 /**
- * This class allows for including or excluding SSC vulnerabilities based on whether 
- * the vulnerability bugURL field contains any value or not.
+ * This package contains FoD-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
+ * implementations and related classes for filtering FoD {@link com.fortify.util.rest.json.JSONMap} release 
+ * instances.
  * 
- * @author Ruud Senden
- *
  */
-public class SSCJSONMapFilterHasBugURL extends JSONMapFilterRegEx {
-	public SSCJSONMapFilterHasBugURL(MatchMode matchMode) {
-		super(matchMode, "bugURL", Pattern.compile("^\\S+$"));
-	}
-}

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,21 +22,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.fod.json.preprocessor;
+package com.fortify.processrunner.ssc.appversion.json.preprocessor.filter;
 
-import java.util.regex.Pattern;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger;
 
-import com.fortify.util.rest.json.preprocessor.JSONMapFilterRegEx;
+public final class SSCJSONMapFilterListenerLoggerApplicationVersion extends JSONMapFilterListenerLogger {
 
-/**
- * This class allows for including or excluding FoD vulnerabilities based on whether 
- * the vulnerability bugLink field contains any value or not.
- * 
- * @author Ruud Senden
- *
- */
-public class FoDJSONMapFilterHasBugLink extends JSONMapFilterRegEx {
-	public FoDJSONMapFilterHasBugLink(MatchMode matchMode) {
-		super(matchMode, "bugLink", Pattern.compile("^\\S+$"));
+	public SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel logLevel, String reasonExpression) {
+		super(logLevel, getFullExpression(reasonExpression));
 	}
+
+	public SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel logLevel, String reasonExpressionIncluded, String reasonExpressionExcluded) {
+		super(logLevel, getFullExpression(reasonExpressionIncluded), getFullExpression(reasonExpressionExcluded));
+	}
+
+	private static String getFullExpression(String reasonExpression) {
+		return reasonExpression == null ? null :
+			("[SSC] Application version ${json.project.name}:${json.name} ${textObjectIncludedOrExcluded}; "+reasonExpression);
+	}
+
 }

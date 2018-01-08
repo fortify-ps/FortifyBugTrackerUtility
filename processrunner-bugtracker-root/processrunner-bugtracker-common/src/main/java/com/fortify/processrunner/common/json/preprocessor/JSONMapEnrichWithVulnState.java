@@ -26,7 +26,7 @@ package com.fortify.processrunner.common.json.preprocessor;
 
 import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapEnrich;
+import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 

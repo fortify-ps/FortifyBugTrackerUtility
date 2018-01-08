@@ -32,9 +32,11 @@ import java.util.regex.Pattern;
 
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterListenerLoggerApplicationVersion;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -87,6 +89,9 @@ public class SSCApplicationVersionNameBasedContextGenerator extends AbstractSSCA
 		public SSCJSONMapFilterApplicationVersionNamePatterns(MatchMode matchMode, Set<Pattern> applicationVersionNamePatterns) {
 			super(matchMode);
 			this.applicationVersionNamePatterns = applicationVersionNamePatterns;
+			addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO, 
+					null,
+					"name ${textFilterDoesOrDoesnt} match any RegEx "+applicationVersionNamePatterns));
 		}
 		
 		@Override

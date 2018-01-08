@@ -27,11 +27,11 @@ package com.fortify.processrunner.ssc.appversion;
 import java.util.Map;
 
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasValuesForAllAttributes;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 
 /**
  * Filter SSC application versions based on application version attributes,
@@ -55,7 +55,7 @@ public class SSCApplicationVersionAttributeBasedContextGenerator extends Abstrac
 	@Override
 	protected void updateApplicationVersionsQueryBuilderForSearch(Context initialContext, SSCApplicationVersionsQueryBuilder builder) {
 		if ( requiredAttributeMappings != null && !requiredAttributeMappings.isEmpty() ) {
-			builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes(MatchMode.INCLUDE, requiredAttributeMappings.keySet()));
+			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasValuesForAllAttributes(MatchMode.INCLUDE, requiredAttributeMappings.keySet()));
 		}
 	}
 	

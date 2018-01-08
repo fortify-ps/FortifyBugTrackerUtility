@@ -32,9 +32,11 @@ import java.util.regex.Pattern;
 
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.fod.releases.json.preprocessor.filter.FoDJSONMapFilterListenerLoggerRelease;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -87,6 +89,9 @@ public class FoDReleaseNameBasedContextGenerator extends AbstractFoDReleaseConte
 		public FoDJSONMapFilterReleaseNamePatterns(MatchMode matchMode, Set<Pattern> releaseNamePatterns) {
 			super(matchMode);
 			this.releaseNamePatterns = releaseNamePatterns;
+			addFilterListeners(new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO, 
+				null,
+				"name ${textObjectDoesOrDoesnt} match any RegEx "+releaseNamePatterns));
 		}
 		
 		@Override

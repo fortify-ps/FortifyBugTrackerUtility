@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.client.ssc.json.preprocessor.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.processrunner.common.context.IContextBugTracker;
 import com.fortify.processrunner.common.processor.AbstractBugTrackerFieldsBasedProcessor;
 import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
@@ -45,10 +44,11 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
+import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCTarget;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
@@ -73,7 +73,7 @@ public class ProcessorSSCSubmitIssueForVulnerabilities extends AbstractBugTracke
 	
 	@Override
 	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
-		builder.preProcessor(new SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, getSscBugTrackerName()));
+		builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, getSscBugTrackerName()));
 	}
 
 	public boolean setVulnerabilityUpdater(IExistingIssueVulnerabilityUpdater issueSubmittedListener) {

@@ -22,9 +22,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.ssc.json.preprocessor;
+package com.fortify.processrunner.ssc.appversion.json.preprocessor.filter;
+
+import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasBugTrackerId;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
+
 /**
- * This package contains SSC-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
- * implementations.
+ * This extension of {@link SSCJSONMapFilterApplicationVersionHasBugTrackerId} adds
+ * information logging about excluded applications versions.
  * 
+ * @author Ruud Senden
+ *
  */
+public class SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerId extends SSCJSONMapFilterApplicationVersionHasBugTrackerId {
+	public SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerId(MatchMode matchMode, String bugTrackerPluginId) {
+		super(matchMode, bugTrackerPluginId);
+		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} have bug tracker id "+bugTrackerPluginId));
+	}
+}
