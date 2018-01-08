@@ -79,8 +79,10 @@ public class FoDReleaseNameBasedContextGenerator extends AbstractFoDReleaseConte
 	}
 	
 	private void addMappedAttributes(Context initialContext, JSONMap release, Context mappedContext) {
-		for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
-			initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(release, (String)entry.getValue(), Object.class));
+		if ( mappedContext != null ) {
+			for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
+				initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(release, (String)entry.getValue(), Object.class));
+			}
 		}
 	}
 	

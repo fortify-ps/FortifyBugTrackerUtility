@@ -79,8 +79,10 @@ public class SSCApplicationVersionNameBasedContextGenerator extends AbstractSSCA
 	}
 	
 	private void addMappedAttributes(Context initialContext, JSONMap applicationVersion, Context mappedContext) {
-		for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
-			initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(applicationVersion, (String)entry.getValue(), Object.class));
+		if ( mappedContext != null ) {
+			for ( Entry<String, Object> entry : mappedContext.entrySet() ) {
+				initialContext.put(entry.getKey(), SpringExpressionUtil.evaluateTemplateExpression(applicationVersion, (String)entry.getValue(), Object.class));
+			}
 		}
 	}
 	
