@@ -38,8 +38,8 @@
 			<includes>
 				<include>THIRD_PARTY_LICENSES.*</include>
 				<include>THIRD_PARTY_LICENSES/*</include>
+				<include>THIRD_PARTY_SOURCES/*</include>
 				<include>*.xml</include>
-				<include>FortifyBugTrackerUtility-${project.version}-dependency-sources.zip</include>
 				<include>FortifyBugTrackerUtility-${project.version}.jar</include>
 			</includes>
 			<excludes>

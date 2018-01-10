@@ -146,7 +146,7 @@
 						<configuration>
 							<excludeGroupIds>com.fortify.processrunner.bugtracker,com.fortify.processrunner</excludeGroupIds>
 							<excludeTransitive>false</excludeTransitive>
-							<outputDirectory>${basedir}/target/dependency-sources</outputDirectory>
+							<outputDirectory>${basedir}/target/THIRD_PARTY_SOURCES</outputDirectory>
 							<classifier>sources</classifier>
 						</configuration>
 					</execution>
@@ -242,13 +242,12 @@
 				<version>3.0.0</version>
 				<configuration>
 					<descriptors>
-						<descriptor>src/main/assembly/dependency-sources.xml</descriptor>
 						<descriptor>src/main/assembly/dist.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
 					<execution>
-						<id>assembly-dependency-sources</id>
+						<id>assembly-dist</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
