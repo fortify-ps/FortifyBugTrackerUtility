@@ -28,6 +28,11 @@
 	<groupId>com.fortify.pub.bugtracker.plugin.add-existing-bug</groupId>
 	<artifactId>ssc-bugtracker-add-existing-bug</artifactId>
 	<version>1.0</version>
+	<parent>
+		<groupId>com.fortify.processrunner.bugtracker</groupId>
+		<artifactId>processrunner-bugtracker-root</artifactId>
+		<version>3.2-SNAPSHOT</version>
+	</parent>
 	<description><![CDATA[
 	This SSC bug tracker plugin allows for adding existing bug links to vulnerabilities.
 	]]>  

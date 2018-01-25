@@ -27,7 +27,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.processrunner</groupId>
 	<artifactId>processrunner</artifactId>
-	<version>3.2-SNAPSHOT</version>
+	<parent>
+		<groupId>com.fortify.processrunner.bugtracker</groupId>
+		<artifactId>processrunner-bugtracker-root</artifactId>
+		<version>3.2-SNAPSHOT</version>
+	</parent>
 	<organization>
 		<name>Micro Focus Fortify</name>
 		<url>https://software.microfocus.com/en-us/software/application-security</url>
@@ -47,39 +51,9 @@
 		</developer>
 	</developers>
 	<inceptionYear>2016</inceptionYear>
-	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-	</properties>
-	<repositories>
-		<repository>
-			<id>FortifyMavenRepo</id>
-			<url>https://raw.githubusercontent.com/rsenden/FortifyMavenRepo/master</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>classmexer</id>
-			<url>http://www.chibi.ubc.ca/maven2</url>
-		</repository>
-	</repositories>
+	
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.fortify.processrunner</groupId>
-				<artifactId>processrunner</artifactId>
-				<version>${project.version}</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.fortify.client.api</groupId>
-				<artifactId>client-api-master</artifactId>
-				<version>4.1</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
