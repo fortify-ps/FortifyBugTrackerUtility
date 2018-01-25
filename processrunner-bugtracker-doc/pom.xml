@@ -25,7 +25,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>processrunner-bugtracker-target-ssc</artifactId>
+	<artifactId>processrunner-bugtracker-doc</artifactId>
+	<packaging>pom</packaging>
 	<parent>
 		<groupId>com.fortify.processrunner.bugtracker</groupId>
 		<artifactId>processrunner-bugtracker-root</artifactId>
@@ -38,7 +39,7 @@
 	<licenses>
 		<license>
 			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -50,24 +51,41 @@
 		</developer>
 	</developers>
 	<inceptionYear>2016</inceptionYear>
-	<dependencies>
-		<dependency>
-			<groupId>com.fortify.processrunner</groupId>
-			<artifactId>processrunner</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-ssc-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-		</dependency>
-	</dependencies>
-	<description>This module provides functionality for submitting issues to a file.</description>
+	<description>This module provides the documentation for FortifyBugTrackerUtility.</description>
 	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<configuration>
+							<generateProjectInfo>false</generateProjectInfo>
+							<generateReports>false</generateReports>
+							<generateSitemap>false</generateSitemap>
+							<relativizeDecorationLinks>false</relativizeDecorationLinks>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-pdf-plugin</artifactId> 
+				<version>1.3</version> <executions> <execution> <id>pdf</id> <phase>package</phase> 
+				<goals> <goal>pdf</goal> </goals> <configuration> <outputDirectory>${project.reporting.outputDirectory}</outputDirectory> 
+				<includeReports>false</includeReports> </configuration> </execution> </executions> 
+				</plugin> -->
+		</plugins>
+	</build>
 </project>

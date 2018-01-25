@@ -36,7 +36,7 @@
 	<licenses>
 		<license>
 			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -48,7 +48,7 @@
 		</developer>
 	</developers>
 	<scm>
-		<developerConnection>scm:git:https://github.com/fod-dev/FoDBugTrackerUtility</developerConnection>
+		<developerConnection>scm:git:https://github.com/fod-dev/FoDBugTrackerUtility.git</developerConnection>
 		<tag>master</tag>
 	</scm>
 	<inceptionYear>2016</inceptionYear>
@@ -67,8 +67,8 @@
 		</repository>
 	</repositories>
 	<modules>
-		<module>../processrunner</module>
-		<module>../ssc-bugtracker-add-existing-bug</module>
+		<module>processrunner</module>
+		<module>ssc-bugtracker-add-existing-bug</module>
 		<module>processrunner-bugtracker-common</module>
 		<module>processrunner-bugtracker-source-fod</module>
 		<module>processrunner-bugtracker-ssc-common</module>

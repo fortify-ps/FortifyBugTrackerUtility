@@ -25,7 +25,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>processrunner-bugtracker-source-ssc</artifactId>
+	<artifactId>processrunner-bugtracker-target-tfs</artifactId>
 	<parent>
 		<groupId>com.fortify.processrunner.bugtracker</groupId>
 		<artifactId>processrunner-bugtracker-root</artifactId>
@@ -38,7 +38,7 @@
 	<licenses>
 		<license>
 			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -52,8 +52,8 @@
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.processrunner.bugtracker</groupId>
-			<artifactId>processrunner-bugtracker-ssc-common</artifactId>
+			<groupId>com.fortify.client.api.util</groupId>
+			<artifactId>rest-util</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>
@@ -68,6 +68,6 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
-	<description>This module provides SSC-related processrunner functionality. The main functionality is to retrieve vulnerabilities from SSC and filter them prior to further processing. For now, this functionality is mainly used to submit SSC vulnerabilities to bug trackers like JIRA.</description>
+	<description>This module provides functionality for submitting issues to TFS. This includes setting up a connection to TFS, a TFS-specific Context interface, and processors for actually submitting issues to TFS.</description>
 	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>
