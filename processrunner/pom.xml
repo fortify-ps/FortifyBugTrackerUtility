@@ -27,7 +27,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.processrunner</groupId>
 	<artifactId>processrunner</artifactId>
-	<version>3.1</version>
+	<version>3.2-SNAPSHOT</version>
 	<organization>
 		<name>Micro Focus Fortify</name>
 		<url>https://software.microfocus.com/en-us/software/application-security</url>
@@ -70,13 +70,13 @@
 			<dependency>
 				<groupId>com.fortify.processrunner</groupId>
 				<artifactId>processrunner</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>client-api-master</artifactId>
-				<version>4.0</version>
+				<version>4.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

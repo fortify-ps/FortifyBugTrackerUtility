@@ -47,6 +47,10 @@
 			<organization>Micro Focus Fortify</organization>
 		</developer>
 	</developers>
+	<scm>
+		<developerConnection>scm:git:https://github.com/fod-dev/FoDBugTrackerUtility</developerConnection>
+		<tag>master</tag>
+	</scm>
 	<inceptionYear>2016</inceptionYear>
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -83,74 +87,74 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>client-api-master</artifactId>
-				<version>4.0</version>
+				<version>4.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-common</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-source-fod</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-ssc-common</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-source-ssc</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-ssc</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-jira</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-file</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-tfs</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-archer</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner.bugtracker</groupId>
 				<artifactId>processrunner-bugtracker-target-octane</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.processrunner</groupId>
 				<artifactId>processrunner</artifactId>
-				<version>3.1</version>
+				<version>${project.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -162,7 +166,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<description>This module contains several sub-modules that together make up the code for submitting FoD vulnerabilities to bug trackers.
+	<description>This module contains several sub-modules that together make up the code for submitting FoD or SSC vulnerabilities to bug trackers.
 
 This includes the generic processrunner module for running arbitrary processes, the fortify-util module that provides various utility classes used by this integration, and various modules specific for submitting FoD vulnerabilities to bug trackers.</description>
 	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
