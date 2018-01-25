@@ -166,6 +166,26 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<failOnError>false</failOnError>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 	<description>This module contains several sub-modules that together make up the code for submitting FoD or SSC vulnerabilities to bug trackers.
 
 This includes the generic processrunner module for running arbitrary processes, the fortify-util module that provides various utility classes used by this integration, and various modules specific for submitting FoD vulnerabilities to bug trackers.</description>
