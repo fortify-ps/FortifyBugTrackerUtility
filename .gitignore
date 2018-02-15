@@ -55,3 +55,4 @@ processrunner-bugtracker-root/processrunner-bugtracker/dependency-reduced-pom.xm
 .scannerwork/
 sonar-project.properties
 processrunner-bugtracker-root/processrunner-bugtracker-doc/target/
+target/
