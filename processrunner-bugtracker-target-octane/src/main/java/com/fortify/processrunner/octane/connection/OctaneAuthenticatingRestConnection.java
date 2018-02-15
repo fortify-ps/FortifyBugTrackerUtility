@@ -347,7 +347,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	private final class OctaneUnauthorizedRetryStrategy implements ServiceUnavailableRetryStrategy {
 		public boolean retryRequest(HttpResponse response, int executionCount, HttpContext context) {
 			if ( executionCount < 2 && Arrays.asList(401, 403).contains(response.getStatusLine().getStatusCode()) ) {
-				executeRequest(HttpMethod.POST, getBaseResource().path("/authentication/sign_in"), Entity.entity(credentials, "application/json"), null);
+				executeRequest(HttpMethod.POST, getBaseResource().path("/authentication/sign_in"), Entity.entity(credentials, "application/json"), Void.class);
 				return true;
 			}
 			return false;
