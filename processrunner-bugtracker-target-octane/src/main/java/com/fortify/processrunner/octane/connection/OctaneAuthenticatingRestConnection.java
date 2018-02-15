@@ -246,7 +246,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	
 	private static final class OctaneIssueId {
 		private static final MessageFormat FMT_ISSUE_ID = new MessageFormat("{0}/{1}/{2}");
-		private static final MessageFormat FMT_DEEP_LINK = new MessageFormat("{0}ui/entity-navigation?p={1}/{2}&entityType=work_item&id={3}");
+		private static final MessageFormat FMT_DEEP_LINK = new MessageFormat("{0}/ui/entity-navigation?p={1}/{2}&entityType=work_item&id={3}");
 		private final OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId;
 		private final String issueId;
 		
