@@ -41,6 +41,9 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
@@ -53,6 +56,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * for Archer.
  */
 public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnection {
+	private static final Log LOG = LogFactory.getLog(ArcherAuthenticatingRestConnection.class);
 	private final ArcherTokenFactoryRest tokenProviderRest;
 	private final String applicationName;
 	private long applicationId;
@@ -72,6 +76,9 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		List<JSONMap> fields = getFieldsForApplication();
 		// TODO What if application defines multiple levels?
 		this.levelId = SpringExpressionUtil.evaluateExpression(fields, "#this[0].LevelId", Long.class);
+		if ( LOG.isDebugEnabled() ) {
+			LOG.debug("[Archer] Available fields: "+fields);
+		}
 		for ( JSONMap field : fields ) {
 			FieldContentAdder adder = new FieldContentAdder(this, field);
 			fieldNamesToFieldContentAdderMap.put(SpringExpressionUtil.evaluateExpression(field, "Name", String.class), adder);
@@ -85,8 +92,13 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	}
 
 	protected JSONMap getApplication() {
+		LOG.info("[Archer] Loading information from application "+applicationName);
 		JSONList apps = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/application").queryParam("$filter", "Name eq '"+applicationName+"'"), JSONList.class);
-		return apps.find("RequestedObject.Name", applicationName, JSONMap.class);
+		JSONMap result = apps.find("RequestedObject.Name", applicationName, JSONMap.class);
+		if ( LOG.isDebugEnabled() ) {
+			LOG.debug("[Archer] Application data: "+result);
+		}
+		return result;
 	}
 
 	/**
@@ -102,6 +114,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	 * @see com.fortify.processrunner.archer.connection.IArcherRestConnection#addValueToValuesList(com.fortify.util.rest.IRestConnection, java.lang.Long, java.lang.String)
 	 */
 	public Long addValueToValuesList(Long valueListId, String value) {
+		LOG.info("[Archer] Adding value '"+value+"' to value list id "+valueListId);
 		// Adding items to value lists is not supported via REST API, so we need to revert to SOAP API
 		// TODO Simplify this method?
 		// TODO Make this method more fail-safe (like checking for the correct response element)?
@@ -151,7 +164,11 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			FieldContentAdder adder = fieldNamesToFieldContentAdderMap.get(key);
-			adder.addFieldContent(fieldContents, value);
+			if ( adder == null ) {
+				LOG.error("[Archer] Field "+key+" not found in application, skipping");
+			} else {
+				adder.addFieldContent(fieldContents, key, value);
+			}
 		}
 		JSONMap result = executeRequest(HttpMethod.POST, getBaseResource().path("api/core/content"), Entity.entity(data, "application/json"), JSONMap.class);
 		String id = SpringExpressionUtil.evaluateExpression(result, "RequestedObject.Id", String.class);
@@ -180,8 +197,12 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			this.fieldContentValueRetriever = FieldContentValueRetrieverFactory.getFieldContentValueRetriever(field);
 		}
 		
-		public void addFieldContent(JSONMap fieldContents, Object value) {
-			fieldContents.put(fieldId+"", getFieldContent(value));
+		public void addFieldContent(JSONMap fieldContents, String key, Object value) {
+			if ( fieldContentValueRetriever == null ) {
+				LOG.error("[Archer] Field type "+fieldType+" not supported by FortifyBugTrackerUtility, skipping field "+key);
+			} else {
+				fieldContents.put(fieldId+"", getFieldContent(value));
+			}
 		}
 
 		private JSONMap getFieldContent(Object value) {
