@@ -107,7 +107,8 @@ public class RunProcessRunnerFromCLI {
 		RunProcessRunnerFromSpringConfig springRunner = new RunProcessRunnerFromSpringConfig(configFile);
 		List<String> remainingArgs = cl.getArgList();
 		String processRunnerName = getProcessRunnerNameFromArgs(remainingArgs);
-		Context cliContext = getContextFromArgs(springRunner, processRunnerName, remainingArgs);
+		Context configContext = springRunner.getConfigContext();
+		Context cliContext = getContextFromArgs(configContext, springRunner, processRunnerName, remainingArgs);
 
 		springRunner.run(cliContext, processRunnerName);
 	}
@@ -163,9 +164,9 @@ public class RunProcessRunnerFromCLI {
 	 * @param args
 	 * @return
 	 */
-	protected final Context getContextFromArgs(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, List<String> args) {
+	protected final Context getContextFromArgs(Context configContext, RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, List<String> args) {
 		ContextPropertyDefinitions contextPropertyDefinitions = springRunner.getContextPropertyDefinitions(processRunnerName);
-		Context context = new Context();
+		Context context = new Context(configContext);
 		while (args.size() > 0) {
 			String opt = args.remove(0);
 			if (!opt.startsWith("-")) {

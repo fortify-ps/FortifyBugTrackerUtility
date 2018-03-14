@@ -51,6 +51,7 @@ import com.fortify.util.spring.SpringContextUtil;
 public class RunProcessRunnerFromSpringConfig {
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromSpringConfig.class);
 	private static final String DEFAULT_BEAN_NAME = "defaultProcessRunner";
+	private static final String CONTEXT_PROPERTIES_BEAN_NAME = "contextProperties";
 	private final GenericApplicationContext appContext;
 	
 	/**
@@ -72,12 +73,12 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param externalContext
 	 * @param processRunnerName
 	 */
-	public void run(Context externalContext, String processRunnerName) {
+	public void run(Context initialContext, String processRunnerName) {
 		processRunnerName = getProcessRunnerNameOrDefault(processRunnerName);
 		LOG.info("[Process] Using process runner "+processRunnerName);
 		ProcessRunner runner = getProcessRunner(processRunnerName);
-		addDefaultValues(runner, externalContext);
-		Collection<Context> contexts = getContexts(externalContext);
+		addDefaultValues(runner, initialContext);
+		Collection<Context> contexts = getContexts(initialContext);
 		for ( Context context : contexts ) {
 			try {
 				checkContext(runner, context);
@@ -154,42 +155,29 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param externalContext
 	 * @return
 	 */
-	protected Collection<Context> getContexts(Context externalContext) {
-		Context context = mergeContexts(getConfigContext(), externalContext);
+	protected Collection<Context> getContexts(Context initialContext) {
 		IContextGenerator contextGenerator = getContextGenerator();
 		
 		return contextGenerator == null
-			? Arrays.asList(context)
-			: contextGenerator.generateContexts(context);
+			? Arrays.asList(initialContext)
+			: contextGenerator.generateContexts(initialContext);
 	}
 
 	/**
-	 * Get a {@link Context} combining all {@link Context} instances
-	 * defined via the Spring configuration file. This method never 
-	 * returns null, even if no {@link Context} instances have been
-	 * defined in the Spring configuration file.
+	 * Generate an initial {@link Context} from the Spring configuration file. 
+	 * This method never returns null, even if no {@link Context} properties 
+	 * have been defined in the Spring configuration file.
 	 * @return
 	 */
-	private Context getConfigContext() {
-		return mergeContexts(appContext.getBeansOfType(Context.class).values().toArray(new Context[]{}));
-	}
-
-	/**
-	 * Merge the given contexts into a single context. If multiple contexts
-	 * contain the same key, the last one wins.
-	 * @param contexts
-	 * @return
-	 */
-	private Context mergeContexts(Context... contexts) {
+	@SuppressWarnings("unchecked")
+	public Context getConfigContext() {
 		Context result = new Context();
-		if ( contexts != null ) {
-			for ( Context context : contexts ) {
-				result.putAll(context);
-			}
+		if ( appContext.containsBean(CONTEXT_PROPERTIES_BEAN_NAME) ) {
+			result.putAll(appContext.getBean(CONTEXT_PROPERTIES_BEAN_NAME, Map.class));
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Check the given {@link Context} for any missing context property values, based on
 	 * the available {@link ContextPropertyDefinitions}
