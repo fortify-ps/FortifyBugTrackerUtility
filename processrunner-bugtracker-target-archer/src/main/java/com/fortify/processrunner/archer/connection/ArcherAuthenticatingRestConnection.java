@@ -94,6 +94,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	protected JSONMap getApplication() {
 		LOG.info("[Archer] Loading information from application "+applicationName);
 		JSONList apps = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/application").queryParam("$filter", "Name eq '"+applicationName+"'"), JSONList.class);
+		LOG.debug("[Archer] List of applications matching '"+applicationName+"': "+apps);
 		JSONMap result = apps.find("RequestedObject.Name", applicationName, JSONMap.class);
 		if ( LOG.isDebugEnabled() ) {
 			LOG.debug("[Archer] Application data: "+result);
