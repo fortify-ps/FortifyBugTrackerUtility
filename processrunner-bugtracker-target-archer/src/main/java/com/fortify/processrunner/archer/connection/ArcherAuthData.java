@@ -24,33 +24,18 @@
  ******************************************************************************/
 package com.fortify.processrunner.archer.connection;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fortify.util.rest.json.JSONMap;
 
 /**
  * This class holds authentication data for Archer.
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-public class ArcherAuthData {
-	@XmlElement(name="InstanceName")
-	private final String instanceName;
-	
-	@XmlElement(name="UserName")
-	private final String userName;
-	
-	@XmlElement(name="UserDomain")
-	private final String userDomain;
-	
-	@XmlElement(name="Password")
-	private final String password;
+public class ArcherAuthData extends JSONMap {
+	private static final long serialVersionUID = 1L;
 
 	public ArcherAuthData(ArcherRestConnectionConfig<?> config) {
-		this.instanceName = config.getInstanceName();
-		this.userName = config.getUserName();
-		this.userDomain = config.getUserDomain();
-		this.password = config.getPassword();
+		put("InstanceName", config.getInstanceName());
+		put("UserName", config.getUserName());
+		put("UserDomain", config.getUserDomain());
+		put("Password", config.getPassword());
 	}
 }
