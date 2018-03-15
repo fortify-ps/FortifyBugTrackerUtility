@@ -93,7 +93,7 @@ public class SSCApplicationVersionNameBasedContextGenerator extends AbstractSSCA
 			this.applicationVersionNamePatterns = applicationVersionNamePatterns;
 			addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO, 
 					null,
-					"name ${textFilterDoesOrDoesnt} match any RegEx "+applicationVersionNamePatterns));
+					"name ${textObjectDoesOrDoesnt} match any RegEx "+applicationVersionNamePatterns));
 		}
 		
 		@Override
