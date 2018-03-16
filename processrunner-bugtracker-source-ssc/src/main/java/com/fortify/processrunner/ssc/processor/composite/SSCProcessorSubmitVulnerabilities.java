@@ -52,8 +52,8 @@ import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 import com.fortify.util.rest.query.IRestConnectionQuery;
 
 /**
@@ -88,7 +88,7 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 				.includeHidden(false)
 				.includeRemoved(false)
 				.includeSuppressed(false)
-				.paramFilter(getFullSSCFilterString());
+				.paramQ(getFullSSCFilterString());
 		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));
 		}
