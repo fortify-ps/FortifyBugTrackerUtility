@@ -34,6 +34,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
 import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
+import com.fortify.processrunner.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
@@ -56,6 +57,7 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 	private boolean addNativeBugLink = false;
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
+	private boolean enableRevisionWorkAround = false;
 	
 	
 	@Override
@@ -113,6 +115,14 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 	
 	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
 		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
+	}
+
+	public boolean isEnableRevisionWorkAround() {
+		return enableRevisionWorkAround;
+	}
+
+	public void setEnableRevisionWorkAround(boolean enableRevisionWorkAround) {
+		this.enableRevisionWorkAround = enableRevisionWorkAround;
 	}
 	
 }

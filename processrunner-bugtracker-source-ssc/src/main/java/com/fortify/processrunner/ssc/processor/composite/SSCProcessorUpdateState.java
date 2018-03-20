@@ -48,6 +48,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;
 import com.fortify.processrunner.ssc.context.IContextSSCCommon;
+import com.fortify.processrunner.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.processrunner.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
@@ -86,6 +87,9 @@ public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor i
 			builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
 		}
 		builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
+		if ( getConfiguration().isEnableRevisionWorkAround() ) {
+			builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
+		}
 		return builder.build();
 	}
 	
