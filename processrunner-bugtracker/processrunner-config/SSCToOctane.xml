@@ -73,6 +73,16 @@
 			<entry key="OctaneIssueState" value="${issueStateDetails.phase.name}"/>
 		</map></property>
 		
+		<!-- This property enables a work-around where the SSC doesn't return the correct 
+		     vulnerability revision when retrieving the list of vulnerabilities for an
+		     application version, until the metrics for that application version have been
+		     refreshed. This is a known bug in SSC 16.20 and possibly older versions; SSC
+		     17.10 and up should not need this work-around. Please enable this property if
+		      you consistently get an error
+		     'Conflict detected! There is a newer revision of the selected issue on the server.'
+		     when FortifyBugTrackerUtility tries to update custom tags in SSC. -->
+		<!-- <property name="enableRevisionWorkAround" value="true"/> -->
+		
 		<!-- This property defines the expression for evaluating whether an SSC 
 		     vulnerability should be considered open or closed. This expression
 		     can use any SSC vulnerability attribute. Commonly used attributes
