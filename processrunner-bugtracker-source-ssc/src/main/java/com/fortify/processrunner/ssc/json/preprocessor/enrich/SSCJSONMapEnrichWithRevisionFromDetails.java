@@ -24,9 +24,6 @@
  ******************************************************************************/
 package com.fortify.processrunner.ssc.json.preprocessor.enrich;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
