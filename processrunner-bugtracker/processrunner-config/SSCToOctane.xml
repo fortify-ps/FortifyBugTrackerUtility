@@ -66,14 +66,12 @@
 		     (i.e. related to application version, artifacts, scans, ...), you may want to add ';cache=true' to the
 		     endpoint URI to avoid calling the same endpoint for each vulnerability.
 		-->
-		<!-- NOT YET IMPLEMENTED
 		<property name="extraVulnerabilityData"><map>
 			<entry key="comments" value="/api/v1/issues/${id}/comments"/>
 			<entry key="auditHistory" value="/api/v1/issues/${id}/auditHistory"/>
 			<entry key="lastScan" value="/api/v1/scans/${lastScanId};cache=true"/>
 			<entry key="lastArtifact" value="/api/v1/artifacts/${lastScan.artifactId};cache=true"/>
 		</map></property>
-		-->
 	
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
@@ -218,6 +216,8 @@
 					<tr><td>State:</td><td>${vulnState}</td></tr>
 					<tr><td>Line:</td><td>${lineNumber?:'Unknown'}</td></tr>
 					<tr><td>Link:</td><td><a href="${deepLink}">${deepLink}</a></td></tr>
+					<tr><td>Last Scan Date:</td><td>${lastArtifact.lastScanDate}</td></tr>
+					<tr><td>Comments:</td><td>${T(String).join('<br/>', comments.![auditTime+': '+comment])}</td></tr>
 				</table><br/>
 			]]></value></entry> 
 		</map></property>

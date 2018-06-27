@@ -57,6 +57,7 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	private boolean enableRevisionWorkAround = false;
+	private Map<String,String> extraVulnerabilityData = null; // TODO Move this to common superclass for FoD and SSC 
 	
 	
 	@Override
@@ -68,6 +69,14 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 		}
 	}
 	
+	public Map<String, String> getExtraVulnerabilityData() {
+		return extraVulnerabilityData;
+	}
+
+	public void setExtraVulnerabilityData(Map<String, String> extraVulnerabilityData) {
+		this.extraVulnerabilityData = extraVulnerabilityData;
+	}
+
 	public String getFilterStringForVulnerabilitiesToBeSubmitted() {
 		return filterStringForVulnerabilitiesToBeSubmitted;
 	}
