@@ -132,6 +132,7 @@ public abstract class AbstractFoDReleaseContextGenerator implements IContextGene
 		} else {
 			result = new Context(initialContext);
 			result.put(IContextFoD.PRP_FOD_RELEASE_ID, release.get("releaseId", String.class));
+			result.put(IContextFoD.PRP_FOD_RELEASE, release);
 			updateContextForRelease(result, release);
 		}
 		return result;

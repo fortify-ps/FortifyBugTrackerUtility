@@ -43,6 +43,7 @@ public interface IContextFoD {
 	public static final String PRP_FOD_RELEASE_ID = "FoDReleaseId";
 	public static final String PRP_FOD_RELEASES = "FoDReleases";
 	public static final String PRP_FOD_APPLICATIONS = "FoDApplications";
+	public static final String PRP_FOD_RELEASE = "FoDRelease";
 	
 	public void setFoDBaseUrl(String baseUrl);
 	public String getFoDBaseUrl();

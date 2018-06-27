@@ -40,6 +40,7 @@ public interface IContextSSCCommon {
 	public static final String PRP_SSC_PASSWORD = "SSCPassword";
 	public static final String PRP_SSC_APPLICATION_VERSION_ID = "SSCApplicationVersionId";
 	public static final String PRP_SSC_APPLICATION_VERSIONS = "SSCApplicationVersions";
+	public static final String PRP_SSC_APPLICATION_VERSION = "SSCApplicationVersion";
 	
 	public void setSSCBaseUrl(String baseUrl);
 	public String getSSCBaseUrl();

@@ -132,6 +132,7 @@ public abstract class AbstractSSCApplicationVersionContextGenerator implements I
 		} else {
 			result = new Context(initialContext);
 			result.put(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID, applicationVersion.get("id", String.class));
+			result.put(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION, applicationVersion);
 			updateContextForApplicationVersion(result, applicationVersion);
 		}
 		return result;
