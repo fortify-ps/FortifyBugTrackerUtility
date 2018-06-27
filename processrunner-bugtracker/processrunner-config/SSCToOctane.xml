@@ -42,6 +42,39 @@
 	
 	<!-- SSC configuration properties -->
 	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+		<!-- By default, the following fields can be referenced in this configuration file:
+		     * ${fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint
+		     * ${deepLink}
+		       Browser-viewable deep link to SSC vulnerability
+		     * ${bugURL}
+		       Native SSC bug link, or bug link as stored in custom tag (see bugLinkCustomTagName and addNativeBugLink below)
+		     * ${details.fieldName} 
+		       Any field returned by the SSC /api/v1/issueDetails/${id} endpoint
+		     * ${#ctx.SSCApplicationVersion.fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions endpoint
+		     * ${#ctx.SSCApplicationVersion.deepLink}
+		       Browser-viewable deep link to SSC application version
+		       
+		     The extraVulnerabilityData property can be used to retrieve additional data from SSC. Each entry defines
+		     a property name as key, and relative API endpoint URI as value. The URI may contain request parameters
+		     like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName}.
+		     
+		     These endpoints are called on-demand whenever a corresponding property is requested, and will be cached
+		     for individual vulnerabilities. If you define any endpoints that are relevant for multiple vulnerabilities
+		     (i.e. related to application version, artifacts, scans, ...), you may want to add ';cache=true' to the
+		     endpoint URI to avoid calling the same endpoint for each vulnerability.
+		-->
+		<!-- NOT YET IMPLEMENTED
+		<property name="extraVulnerabilityData"><map>
+			<entry key="comments" value="/api/v1/issues/${id}/comments"/>
+			<entry key="auditHistory" value="/api/v1/issues/${id}/auditHistory"/>
+			<entry key="lastScan" value="/api/v1/scans/${lastScanId};cache=true"/>
+			<entry key="lastArtifact" value="/api/v1/artifacts/${lastScan.artifactId};cache=true"/>
+		</map></property>
+		-->
+	
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
