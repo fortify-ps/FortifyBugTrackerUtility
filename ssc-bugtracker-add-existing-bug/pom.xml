@@ -22,11 +22,11 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
   IN THE SOFTWARE.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.pub.bugtracker.plugin.add-existing-bug</groupId>
 	<artifactId>ssc-bugtracker-add-existing-bug</artifactId>
-	<version>1.3-SNAPSHOT</version>
 	<parent>
 		<groupId>com.fortify.processrunner.bugtracker</groupId>
 		<artifactId>processrunner-bugtracker-root</artifactId>
@@ -36,7 +36,7 @@
 	This SSC bug tracker plugin allows for adding existing bug links to vulnerabilities.
 	]]>  
   	</description>
-  	<organization>
+	<organization>
 		<name>Micro Focus Fortify</name>
 		<url>https://software.microfocus.com/en-us/software/application-security</url>
 	</organization>
@@ -93,6 +93,38 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>3.5.1</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<instructions>
+						<Export-Package>com.fortify.pub.bugtracker.plugin.addexistingbug</Export-Package>
+						<Require-Bundle>com.fortify.common.public-api</Require-Bundle>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Version>17.20.0183</Version>
+						<Bundle-Version>17.20.0183</Bundle-Version>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin> 
 		</plugins>
 	</build>
 </project>
