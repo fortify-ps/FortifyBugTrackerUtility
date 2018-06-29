@@ -53,6 +53,7 @@ public class SSCBugTrackerProcessorConfiguration extends AbstractSourceProcessor
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
 	private String bugLinkCustomTagName = null;
 	private boolean addNativeBugLink = false;
+	private String nativeBugLinkBugTrackerName = "Add Existing Bugs";
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private boolean enableRevisionWorkAround = false;
 	
@@ -61,7 +62,7 @@ public class SSCBugTrackerProcessorConfiguration extends AbstractSourceProcessor
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
 			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags(MatchMode.INCLUDE, getBugLinkCustomTagName()));
 		} else if ( isAddNativeBugLink() ) {
-			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, "Add Existing Bugs"));
+			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, getNativeBugLinkBugTrackerName()));
 		}
 	}
 	
@@ -92,6 +93,14 @@ public class SSCBugTrackerProcessorConfiguration extends AbstractSourceProcessor
 
 	public void setAddNativeBugLink(boolean addNativeBugLink) {
 		this.addNativeBugLink = addNativeBugLink;
+	}
+
+	public String getNativeBugLinkBugTrackerName() {
+		return nativeBugLinkBugTrackerName;
+	}
+
+	public void setNativeBugLinkBugTrackerName(String nativeBugLinkBugTrackerName) {
+		this.nativeBugLinkBugTrackerName = nativeBugLinkBugTrackerName;
 	}
 
 	public Map<String, TemplateExpression> getExtraCustomTags() {

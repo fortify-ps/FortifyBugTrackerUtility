@@ -137,7 +137,7 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
 			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
 			conn.api(SSCBugTrackerAPI.class).fileBug(applicationVersionId, issueDetails, issueInstanceIds);
-			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
+			LOG.info("[SSC] Added bug link for SSC vulnerabilities using '"+getConfiguration().getNativeBugLinkBugTrackerName()+"' bug tracker");
 		}
 	}
 
