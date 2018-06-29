@@ -30,7 +30,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.client.ssc.api.SSCCustomTagAPI;
@@ -38,9 +37,7 @@ import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQuery
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
-import com.fortify.processrunner.common.bugtracker.issue.IssueState;
 import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
@@ -52,10 +49,10 @@ import com.fortify.processrunner.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWi
 import com.fortify.processrunner.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.rest.query.IRestConnectionQuery;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
 /**
+ * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
  * {@link SSCProcessorRetrieveVulnerabilities}, {@link SSCBugTrackerProcessorConfiguration} 
  * and {@link AbstractProcessorUpdateIssueStateForVulnerabilities} (provided by the bug 
@@ -75,39 +72,29 @@ import com.fortify.util.spring.SpringExpressionUtil;
 @Component
 public class SSCProcessorUpdateState extends AbstractSSCVulnerabilityProcessor implements IProcessorUpdateState, IExistingIssueVulnerabilityUpdater {
 	private static final Log LOG = LogFactory.getLog(SSCProcessorSubmitVulnerabilities.class);
-	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor;
-	
-	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
-		SSCApplicationVersionIssuesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
-				.paramQm(QueryMode.issues)
-				.includeHidden(false)
-				.includeRemoved(true)
-				.includeSuppressed(true);
-		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-			builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
-		}
-		builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
-		if ( getConfiguration().isEnableRevisionWorkAround() ) {
-			builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
-		}
-		return builder.build();
-	}
 	
 	@Override
-	protected String getPurpose() {
-		return "updating state";
+	protected SourceVulnerabilityProcessorHelper getSourceVulnerabilityProcessorHelper() {
+		return new SSCSourceVulnerabilityProcessorHelperUpdate();
 	}
-
-	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
-	public void setVulnerabilityProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor) {
-		vulnerabilityProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugURL}"));
-		vulnerabilityProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(JSONMapEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		vulnerabilityProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugURL"));
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
+	
+	private class SSCSourceVulnerabilityProcessorHelperUpdate extends SourceVulnerabilityProcessorHelperUpdate {
+		@Override
+		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
+			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
+					.paramQm(QueryMode.issues)
+					.includeHidden(false)
+					.includeRemoved(true)
+					.includeSuppressed(true);
+			if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
+				builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
+			}
+			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
+			if ( getConfiguration().isEnableRevisionWorkAround() ) {
+				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
+			}
+			return builder;
+		}
 	}
 
 	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {

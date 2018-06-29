@@ -24,9 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.composite;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
+import com.fortify.processrunner.common.processor.AbstractSourceProcessorConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
@@ -37,26 +35,23 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * @author Ruud Senden
  *
  */
-public class FoDBugTrackerProcessorConfiguration {
+public class FoDBugTrackerProcessorConfiguration extends AbstractSourceProcessorConfiguration {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
 			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
-	private Map<String,Pattern> regExFiltersForVulnerabilitiesToBeSubmitted = null;
 	private boolean addBugDataAsComment = false;
 	private boolean addNativeBugLink = false;
-	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
+	
+	@Override
+	protected SimpleExpression getDefaultIsVulnerabilityOpenExpression() {
+		return DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
+	}
 	
 	public String getFilterStringForVulnerabilitiesToBeSubmitted() {
 		return filterStringForVulnerabilitiesToBeSubmitted;
 	}
 	public void setFilterStringForVulnerabilitiesToBeSubmitted(String filterStringForVulnerabilitiesToBeSubmitted) {
 		this.filterStringForVulnerabilitiesToBeSubmitted = filterStringForVulnerabilitiesToBeSubmitted;
-	}
-	public Map<String, Pattern> getRegExFiltersForVulnerabilitiesToBeSubmitted() {
-		return regExFiltersForVulnerabilitiesToBeSubmitted;
-	}
-	public void setRegExFiltersForVulnerabilitiesToBeSubmitted(Map<String, Pattern> regExFiltersForVulnerabilitiesToBeSubmitted) {
-		this.regExFiltersForVulnerabilitiesToBeSubmitted = regExFiltersForVulnerabilitiesToBeSubmitted;
 	}
 	public boolean isAddBugDataAsComment() {
 		return addBugDataAsComment;
@@ -69,11 +64,5 @@ public class FoDBugTrackerProcessorConfiguration {
 	}
 	public void setAddNativeBugLink(boolean addNativeBugLink) {
 		this.addNativeBugLink = addNativeBugLink;
-	}
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
-	}
-	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
 	}
 }

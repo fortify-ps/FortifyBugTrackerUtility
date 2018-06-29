@@ -25,11 +25,11 @@
 package com.fortify.processrunner.ssc.processor.composite;
 
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.processrunner.common.processor.AbstractSourceProcessorConfiguration;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
@@ -46,19 +46,15 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * @author Ruud Senden
  *
  */
-public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
-	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
+public class SSCBugTrackerProcessorConfiguration extends AbstractSourceProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
+	static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = 
 			SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");
 	
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
-	private Map<String,Pattern> regExFiltersForVulnerabilitiesToBeSubmitted = null;
 	private String bugLinkCustomTagName = null;
 	private boolean addNativeBugLink = false;
 	private Map<String,TemplateExpression> extraCustomTags = null;
-	private SimpleExpression isVulnerabilityOpenExpression = DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	private boolean enableRevisionWorkAround = false;
-	private Map<String,String> extraVulnerabilityData = null; // TODO Move this to common superclass for FoD and SSC 
-	
 	
 	@Override
 	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
@@ -69,28 +65,17 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 		}
 	}
 	
-	public Map<String, String> getExtraVulnerabilityData() {
-		return extraVulnerabilityData;
+	@Override
+	protected SimpleExpression getDefaultIsVulnerabilityOpenExpression() {
+		return DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION;
 	}
-
-	public void setExtraVulnerabilityData(Map<String, String> extraVulnerabilityData) {
-		this.extraVulnerabilityData = extraVulnerabilityData;
-	}
-
+	
 	public String getFilterStringForVulnerabilitiesToBeSubmitted() {
 		return filterStringForVulnerabilitiesToBeSubmitted;
 	}
 
 	public void setFilterStringForVulnerabilitiesToBeSubmitted(String sscFilterStringForVulnerabilitiesToBeSubmitted) {
 		this.filterStringForVulnerabilitiesToBeSubmitted = sscFilterStringForVulnerabilitiesToBeSubmitted;
-	}
-
-	public Map<String, Pattern> getRegExFiltersForVulnerabilitiesToBeSubmitted() {
-		return regExFiltersForVulnerabilitiesToBeSubmitted;
-	}
-
-	public void setRegExFiltersForVulnerabilitiesToBeSubmitted(Map<String, Pattern> regExFiltersForVulnerabilitiesToBeSubmitted) {
-		this.regExFiltersForVulnerabilitiesToBeSubmitted = regExFiltersForVulnerabilitiesToBeSubmitted;
 	}
 
 	public String getBugLinkCustomTagName() {
@@ -115,14 +100,6 @@ public class SSCBugTrackerProcessorConfiguration implements ISSCApplicationVersi
 
 	public void setExtraCustomTags(Map<String, TemplateExpression> extraCustomTags) {
 		this.extraCustomTags = extraCustomTags;
-	}
-
-	public SimpleExpression getIsVulnerabilityOpenExpression() {
-		return isVulnerabilityOpenExpression;
-	}
-	
-	public void setIsVulnerabilityOpenExpression(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
 	}
 
 	public boolean isEnableRevisionWorkAround() {

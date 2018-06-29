@@ -24,12 +24,9 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.composite;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
-import com.fortify.processrunner.common.bugtracker.issue.IssueState;
-import com.fortify.processrunner.common.json.preprocessor.JSONMapEnrichWithVulnState;
 import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.common.processor.IProcessorUpdateState;
 import com.fortify.processrunner.context.Context;
@@ -37,10 +34,10 @@ import com.fortify.processrunner.fod.json.preprocessor.filter.FoDJSONMapFilterHa
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.rest.query.IRestConnectionQuery;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
 /**
+ * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
  * {@link FoDProcessorRetrieveVulnerabilities}, {@link FoDBugTrackerProcessorConfiguration} 
  * and {@link AbstractProcessorUpdateIssueStateForVulnerabilities} (provided by the bug 
@@ -59,37 +56,26 @@ import com.fortify.util.spring.SpringExpressionUtil;
  */
 @Component
 public class FoDProcessorUpdateState extends AbstractFoDVulnerabilityProcessor implements IProcessorUpdateState {
-	private AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor;
-	
-	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
-		FoDReleaseVulnerabilitiesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
-				.paramIncludeFixed(true)
-				.paramIncludeSuppressed(true)
-				.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));
-		if ( getConfiguration().isAddNativeBugLink() ) {
-			builder.paramFilterAnd("bugSubmitted","true");
-		}
-		if ( getConfiguration().isAddBugDataAsComment() ) {
-			builder.paramFilterAnd("hasComments","true");
-		}
-		return builder.build();
-	}
 	
 	@Override
-	protected String getPurpose() {
-		return "updating state";
+	protected SourceVulnerabilityProcessorHelper getSourceVulnerabilityProcessorHelper() {
+		return new FoDSourceVulnerabilityProcessorHelperUpdate();
 	}
-
-	public AbstractProcessorUpdateIssueStateForVulnerabilities<?> getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	@Autowired(required=false) // non-required to avoid Spring autowiring failures if bug tracker implementation doesn't include bug state management
-	public void setVulnerabilityProcessor(AbstractProcessorUpdateIssueStateForVulnerabilities<?> vulnerabilityProcessor) {
-		vulnerabilityProcessor.setGroupTemplateExpression(SpringExpressionUtil.parseTemplateExpression("${bugLink}"));
-		vulnerabilityProcessor.setIsVulnStateOpenExpression(SpringExpressionUtil.parseSimpleExpression(JSONMapEnrichWithVulnState.NAME_VULN_STATE+"=='"+IssueState.OPEN.name()+"'"));
-		vulnerabilityProcessor.setVulnBugIdExpression(SpringExpressionUtil.parseSimpleExpression("bugId"));
-		vulnerabilityProcessor.setVulnBugLinkExpression(SpringExpressionUtil.parseSimpleExpression("bugLink"));
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
+	
+	private class FoDSourceVulnerabilityProcessorHelperUpdate extends SourceVulnerabilityProcessorHelperUpdate {
+		@Override
+		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
+			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
+					.paramIncludeFixed(true)
+					.paramIncludeSuppressed(true)
+					.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));
+			if ( getConfiguration().isAddNativeBugLink() ) {
+				builder.paramFilterAnd("bugSubmitted","true");
+			}
+			if ( getConfiguration().isAddBugDataAsComment() ) {
+				builder.paramFilterAnd("hasComments","true");
+			}
+			return builder;
+		}
 	}
 }

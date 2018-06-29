@@ -26,7 +26,6 @@ package com.fortify.processrunner.fod.processor.composite;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.client.fod.api.FoDBugTrackerAPI;
@@ -45,12 +44,13 @@ import com.fortify.processrunner.fod.context.IContextFoD;
 import com.fortify.processrunner.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
+ * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
  * {@link FoDProcessorRetrieveVulnerabilities}, {@link FoDBugTrackerProcessorConfiguration} 
  * and {@link IProcessorSubmitIssueForVulnerabilities} (provided by the bug tracker 
@@ -69,40 +69,30 @@ import com.fortify.util.spring.SpringExpressionUtil;
  */
 @Component
 public class FoDProcessorSubmitVulnerabilities extends AbstractFoDVulnerabilityProcessor implements IProcessorSubmitVulnerabilities, INewIssueVulnerabilityUpdater {
-	private IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor;
-	
 	@Override
-	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
-		// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
-		FoDReleaseVulnerabilitiesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
-				.paramIncludeFixed(false)
-				.paramIncludeSuppressed(false)
-				.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
-		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
-			builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
-			if ( getConfiguration().isAddNativeBugLink() ) {
-				builder.paramFilterAnd("bugSubmitted", "false");
+	protected SourceVulnerabilityProcessorHelper getSourceVulnerabilityProcessorHelper() {
+		return new FoDSourceVulnerabilityProcessorHelperSubmit();
+	}
+	
+	private class FoDSourceVulnerabilityProcessorHelperSubmit extends SourceVulnerabilityProcessorHelperSubmit {
+		@Override
+		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
+			// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
+			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
+					.paramIncludeFixed(false)
+					.paramIncludeSuppressed(false)
+					.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
+			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
+				builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
+				if ( getConfiguration().isAddNativeBugLink() ) {
+					builder.paramFilterAnd("bugSubmitted", "false");
+				}
 			}
+			if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
+				builder.preProcessor(new JSONMapFilterRegEx(MatchMode.INCLUDE, getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()));
+			}
+			return builder;
 		}
-		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
-			builder.preProcessor(new JSONMapFilterRegEx(MatchMode.INCLUDE, getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()));
-		}
-		return builder.build();
-	}
-	
-	@Override
-	protected String getPurpose() {
-		return "submitting new vulnerabilities";
-	}
-
-	@Override
-	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	@Autowired
-	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
 	}
 
 	@SuppressWarnings("unchecked")

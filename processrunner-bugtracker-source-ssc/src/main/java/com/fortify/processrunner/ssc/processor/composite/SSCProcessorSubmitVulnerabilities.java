@@ -32,7 +32,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
@@ -54,10 +53,10 @@ import com.fortify.processrunner.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWi
 import com.fortify.processrunner.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.processrunner.ssc.processor.retrieve.SSCProcessorRetrieveVulnerabilities;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
-import com.fortify.util.rest.query.IRestConnectionQuery;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
 /**
+ * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
  * {@link SSCProcessorRetrieveVulnerabilities}, {@link SSCBugTrackerProcessorConfiguration} 
  * and {@link IProcessorSubmitIssueForVulnerabilities} (provided by the bug tracker 
@@ -79,59 +78,47 @@ import com.fortify.util.rest.query.IRestConnectionQuery;
 @Component
 public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityProcessor implements IProcessorSubmitVulnerabilities, INewIssueVulnerabilityUpdater {
 	private static final Log LOG = LogFactory.getLog(SSCProcessorSubmitVulnerabilities.class);
-	private IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor;
 	
 	@Override
-	public IRestConnectionQuery getVulnerabilityQuery(Context context) {
-		// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed
-		SSCApplicationVersionIssuesQueryBuilder builder = createVulnerabilityBaseQueryBuilder(context)
-				.paramQm(QueryMode.issues)
-				.includeHidden(false)
-				.includeRemoved(false)
-				.includeSuppressed(false)
-				.paramQ(getFullSSCFilterString());
-		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
-			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));
-		}
-		if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
-			builder.preProcessor(new JSONMapFilterRegEx(MatchMode.INCLUDE, getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()));
-		}
-		if ( getConfiguration().isEnableRevisionWorkAround() ) {
-			builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
-		}
-		return builder.build();
+	protected SourceVulnerabilityProcessorHelper getSourceVulnerabilityProcessorHelper() {
+		return new SSCSourceVulnerabilityProcessorHelperSubmit();
 	}
 	
-	@Override
-	protected String getPurpose() {
-		return "submitting new vulnerabilities";
-	}
-
-	@Override
-	public IProcessorSubmitIssueForVulnerabilities getVulnerabilityProcessor() {
-		return vulnerabilityProcessor;
-	}
-
-	@Autowired
-	public void setVulnerabilityProcessor(IProcessorSubmitIssueForVulnerabilities vulnerabilityProcessor) {
-		this.vulnerabilityProcessor = vulnerabilityProcessor;
-	}
-
-	/**
-	 * Get the full SSC filter string for vulnerabilities that need to be submitted to the bug tracker
-	 * @return
-	 */
-	public String getFullSSCFilterString() {
-		String result = getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted();
-		if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() && StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-			result = StringUtils.isBlank(result) ? "" : (result+" ");
-			result += getConfiguration().getBugLinkCustomTagName()+":<none>";
+	private class SSCSourceVulnerabilityProcessorHelperSubmit extends SourceVulnerabilityProcessorHelperSubmit {
+		@Override
+		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
+			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
+					.paramQm(QueryMode.issues)
+					.includeHidden(false)
+					.includeRemoved(false)
+					.includeSuppressed(false)
+					.paramQ(getFullSSCFilterString());
+			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
+				builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));
+			}
+			if ( getConfiguration().isEnableRevisionWorkAround() ) {
+				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
+			}
+			return builder;
 		}
-		// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
-		return result;
+		
+		/**
+		 * Get the full SSC filter string for vulnerabilities that need to be submitted to the bug tracker
+		 * @return
+		 */
+		private String getFullSSCFilterString() {
+			String result = getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted();
+			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() && StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
+				result = StringUtils.isBlank(result) ? "" : (result+" ");
+				result += getConfiguration().getBugLinkCustomTagName()+":<none>";
+			}
+			// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
+			return result;
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
@@ -153,5 +140,7 @@ public class SSCProcessorSubmitVulnerabilities extends AbstractSSCVulnerabilityP
 			LOG.info("[SSC] Added bug link for SSC vulnerabilities using 'Add Existing Bugs' bug tracker");
 		}
 	}
+
+	
 	
 }
