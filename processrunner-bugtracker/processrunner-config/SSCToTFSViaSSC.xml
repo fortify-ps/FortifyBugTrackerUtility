@@ -123,7 +123,7 @@
 	     field data submitted to the bug tracker. Any fields not defined here will use the 
 	     default values as configured in the SSC bug tracker configuration. 
 	-->
-	<bean class="com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- Override the default collection configured in SSC, if defined as a context property -->
 			<entry key="Collection" value="${#ctx.TFSCollection}"/>

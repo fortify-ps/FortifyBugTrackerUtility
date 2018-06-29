@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.jira.context;
 
-import com.fortify.processrunner.common.context.IContextBugTracker;
+import com.fortify.processrunner.bugtracker.common.target.context.IContextBugTracker;
 import com.fortify.processrunner.context.Context;
 
 /**

@@ -25,7 +25,7 @@
 package com.fortify.processrunner.ssc.processor.retrieve;
 
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
-import com.fortify.processrunner.common.processor.AbstractProcessorRetrieveVulnerabilities;
+import com.fortify.processrunner.bugtracker.common.source.processor.AbstractProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.ssc.connection.SSCConnectionFactory;

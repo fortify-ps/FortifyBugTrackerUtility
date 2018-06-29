@@ -42,7 +42,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssue;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;

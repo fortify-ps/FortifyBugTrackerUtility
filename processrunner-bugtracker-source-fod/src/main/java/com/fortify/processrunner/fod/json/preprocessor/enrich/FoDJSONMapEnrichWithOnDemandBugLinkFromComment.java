@@ -26,7 +26,7 @@ package com.fortify.processrunner.fod.json.preprocessor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssueCommentHelper;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssueCommentHelper;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;

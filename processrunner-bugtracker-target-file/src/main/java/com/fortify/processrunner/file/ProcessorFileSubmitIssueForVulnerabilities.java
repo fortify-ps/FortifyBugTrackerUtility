@@ -34,10 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration;
-import com.fortify.processrunner.common.context.IContextBugTracker;
-import com.fortify.processrunner.common.processor.IProcessorSubmitIssueForVulnerabilities;
-import com.fortify.processrunner.common.source.vulnerability.IExistingIssueVulnerabilityUpdater;
+import com.fortify.processrunner.bugtracker.common.source.updater.IExistingIssueVulnerabilityUpdater;
+import com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration;
+import com.fortify.processrunner.bugtracker.common.target.context.IContextBugTracker;
+import com.fortify.processrunner.bugtracker.common.target.processor.IProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;

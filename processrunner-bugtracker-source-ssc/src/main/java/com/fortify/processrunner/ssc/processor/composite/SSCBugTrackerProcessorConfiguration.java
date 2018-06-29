@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.processrunner.common.processor.AbstractSourceProcessorConfiguration;
+import com.fortify.processrunner.bugtracker.common.source.config.AbstractSourceProcessorConfiguration;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.processrunner.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;

@@ -26,7 +26,7 @@ package com.fortify.processrunner.ssc;
 
 import org.springframework.context.annotation.Configuration;
 
-import com.fortify.processrunner.common.AbstractBugTrackerProcessRunnerConfiguration;
+import com.fortify.processrunner.bugtracker.common.AbstractBugTrackerProcessRunnerConfiguration;
 
 /**
  * SSC-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunnerConfiguration}

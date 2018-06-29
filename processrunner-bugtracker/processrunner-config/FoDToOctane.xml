@@ -138,7 +138,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.common.bugtracker.issue.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="FoD Detected ${category} at ${primaryLocationFull}"/>

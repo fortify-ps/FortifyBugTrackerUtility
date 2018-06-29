@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssue;
 import com.fortify.util.rest.connection.AbstractRestConnection;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;

@@ -27,8 +27,8 @@ package com.fortify.processrunner.archer.processor;
 import java.util.LinkedHashMap;
 
 import com.fortify.processrunner.archer.connection.ArcherConnectionFactory;
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssue;
+import com.fortify.processrunner.bugtracker.common.target.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 

@@ -25,7 +25,7 @@
 package com.fortify.processrunner.fod.processor.retrieve;
 
 import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
-import com.fortify.processrunner.common.processor.AbstractProcessorRetrieveVulnerabilities;
+import com.fortify.processrunner.bugtracker.common.source.processor.AbstractProcessorRetrieveVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.connection.FoDConnectionFactory;
 import com.fortify.processrunner.fod.context.IContextFoD;

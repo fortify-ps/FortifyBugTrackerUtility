@@ -27,8 +27,8 @@ package com.fortify.processrunner.fod.processor.composite;
 import org.springframework.stereotype.Component;
 
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
-import com.fortify.processrunner.common.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
-import com.fortify.processrunner.common.processor.IProcessorUpdateState;
+import com.fortify.processrunner.bugtracker.common.source.processor.IProcessorUpdateState;
+import com.fortify.processrunner.bugtracker.common.target.processor.AbstractProcessorUpdateIssueStateForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.processrunner.fod.processor.retrieve.FoDProcessorRetrieveVulnerabilities;

@@ -29,9 +29,9 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.processrunner.common.bugtracker.issue.IIssueStateDetailsRetriever;
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
-import com.fortify.processrunner.common.processor.AbstractProcessorSubmitIssueForVulnerabilities;
+import com.fortify.processrunner.bugtracker.common.target.issue.IIssueStateDetailsRetriever;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssue;
+import com.fortify.processrunner.bugtracker.common.target.processor.AbstractProcessorSubmitIssueForVulnerabilities;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;

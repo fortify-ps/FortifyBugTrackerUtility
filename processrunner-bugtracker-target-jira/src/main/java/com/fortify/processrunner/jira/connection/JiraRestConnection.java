@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.common.bugtracker.issue.SubmittedIssue;
+import com.fortify.processrunner.bugtracker.common.target.issue.SubmittedIssue;
 import com.fortify.util.rest.connection.AbstractRestConnection;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;

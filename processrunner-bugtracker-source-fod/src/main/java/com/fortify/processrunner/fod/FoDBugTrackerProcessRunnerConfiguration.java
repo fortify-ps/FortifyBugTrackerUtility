@@ -26,7 +26,7 @@ package com.fortify.processrunner.fod;
 
 import org.springframework.context.annotation.Configuration;
 
-import com.fortify.processrunner.common.AbstractBugTrackerProcessRunnerConfiguration;
+import com.fortify.processrunner.bugtracker.common.AbstractBugTrackerProcessRunnerConfiguration;
 
 /**
  * FoD-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunnerConfiguration}

@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.fod.processor.composite;
 
-import com.fortify.processrunner.common.processor.AbstractSourceProcessorConfiguration;
+import com.fortify.processrunner.bugtracker.common.source.config.AbstractSourceProcessorConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
