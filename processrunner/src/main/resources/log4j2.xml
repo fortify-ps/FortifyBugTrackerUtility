@@ -34,7 +34,7 @@
     </Console>
   </Appenders>
   <Loggers>
-  	<Logger name="com.fortify.processrunner" level="info" additivity="true">
+  	<Logger name="com.fortify" level="info" additivity="true">
   		<AppenderRef ref="Console"/>
   	</Logger>
     <Root level="warn"></Root>

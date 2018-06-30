@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.processrunner.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.source.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.processrunner.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
+	<bean id="fodConfiguration" class="com.fortify.bugtracker.source.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -93,7 +93,7 @@
 	     
 	     The mappings below are just examples; you will need to update these to match your
 	     FoD application and release names. -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.source.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key="MyApp:MyRelease" value="OctaneWorkspaceId=5"/>
 			<entry key="MyOtherApp:.*" value="OctaneWorkspaceId=6"/>
@@ -113,7 +113,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.source.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
 		</map></property>
@@ -138,7 +138,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -184,7 +184,7 @@
 	     to Octane. If necessary, you can change the properties in this bean, for example 
 	     to change the grouping expression. 
 	-->
-	<bean class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.bugtracker.target.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
@@ -196,7 +196,7 @@
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="octaneIssueUpdater" class="com.fortify.processrunner.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
+	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.target.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
 		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
 		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
 		     considered openable/closeable if a valid transition exists. -->

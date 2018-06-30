@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.processrunner.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.source.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.processrunner.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
+	<bean id="fodConfiguration" class="com.fortify.bugtracker.source.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -89,7 +89,7 @@
 	     
 	     The mappings below are just examples; you will need to update these to match your
 	     FoD application and release names. -->
-	<bean class="com.fortify.processrunner.fod.releases.FoDReleaseNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.source.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key="MyApp:MyRelease" value="TFSProject=MyProject"/>
 			<entry key="MyOtherApp:.*" value="TFSProject=OtherProject"/>
@@ -109,7 +109,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.processrunner.fod.releases.FoDApplicationAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.source.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="TFS Project" value="TFSProject"/>
 		</map></property>
@@ -134,7 +134,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -165,7 +165,7 @@
 	     Microsoft.VSTS.TCM.ReproSteps as the default description field, instead of 
 	     the standard System.Description field.
 	-->
-	<bean id="workItemTypeToFieldRenamer" class="com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer">
+	<bean id="workItemTypeToFieldRenamer" class="com.fortify.bugtracker.target.tfs.util.WorkItemTypeToFieldRenamer">
 		<property name="workItemTypeToFieldRenameMap">
 			<map>
 				<entry key="Bug">
@@ -182,7 +182,7 @@
 	<!-- This bean defines the processor configuration for submitting FoD 
 	     vulnerabilities to TFS.  
 	-->
-	<bean class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.bugtracker.target.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
@@ -194,7 +194,7 @@
 	     these actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="tfsIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
+	<bean id="tfsIssueUpdater" class="com.fortify.bugtracker.target.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
 		<!-- Define when a TFS issue is considered re-openable or closeable. These expressions
 		     can utilize the workItemType (corresponding to System.WorkItemType), state
 		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->

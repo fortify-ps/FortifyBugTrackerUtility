@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.source.ssc"/>
 	
 	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+	<bean id="sscConfiguration" class="com.fortify.bugtracker.source.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -100,7 +100,7 @@
 	     have a 'Jira Project Key' attribute set, and automatically using that attribute
 	     value to generate the JiraProjectKey context property for each application
 	     version being processed. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
@@ -122,7 +122,7 @@
 	     The mappings below are just examples; you will need to update these to match your
 	     SSC application and version names. -->
 	<!--
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key="MyApp:MyVersion" value="JiraProjectKey=APP"/>
 			<entry key="MyOtherApp:.*" value="JiraProjectKey=OTHER"/>
@@ -146,7 +146,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -173,7 +173,7 @@
 	     vulnerabilities to JIRA. If necessary, you can change the properties 
 	     in this bean, for example to change the grouping expression. 
 	-->
-	<bean id="sscToJiraIssueSubmitter" class="com.fortify.processrunner.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+	<bean id="sscToJiraIssueSubmitter" class="com.fortify.bugtracker.target.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
@@ -185,7 +185,7 @@
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="jiraIssueUpdater" class="com.fortify.processrunner.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
+	<bean id="jiraIssueUpdater" class="com.fortify.bugtracker.target.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If

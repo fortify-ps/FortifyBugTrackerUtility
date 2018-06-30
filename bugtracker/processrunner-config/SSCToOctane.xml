@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.source.ssc"/>
 	
 	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+	<bean id="sscConfiguration" class="com.fortify.bugtracker.source.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
 		<!-- By default, the following fields can be referenced in this configuration file:
 		     * ${fieldName}
 		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint
@@ -133,7 +133,7 @@
 	     version being processed. Optionally you can also have an 'Octane Shared Space Uid'
 	     application version attribute, which will be mapped to the OctaneSharedSpaceUid
 	     context property if the attribute contains a value. -->
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Octane Workspace Id" value="OctaneWorkspaceId"/>
 		</map></property>
@@ -158,7 +158,7 @@
 	     The mappings below are just examples; you will need to update these to match your
 	     SSC application and version names. -->
 	<!--
-	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key="MyApp:MyVersion" value="OctaneWorkspaceId=5"/>
 			<entry key="MyOtherApp:.*" value="OctaneWorkspaceId=6"/>
@@ -182,7 +182,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -230,7 +230,7 @@
 	     to Octane. If necessary, you can change the properties in this bean, for example 
 	     to change the grouping expression. 
 	-->
-	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.processrunner.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.bugtracker.target.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
@@ -242,7 +242,7 @@
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="octaneIssueUpdater" class="com.fortify.processrunner.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
+	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.target.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
 		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
 		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
 		     considered openable/closeable if a valid transition exists. -->
