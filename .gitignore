@@ -50,9 +50,6 @@ local.properties
 .recommenders/
 *.log
 *.csv
-processrunner-bugtracker-root/target/
-processrunner-bugtracker-root/processrunner-bugtracker/dependency-reduced-pom.xml
 .scannerwork/
 sonar-project.properties
-processrunner-bugtracker-root/processrunner-bugtracker-doc/target/
-target/
+/target/

@@ -28,8 +28,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.bugtracker.common.source.processor.IProcessorSubmitVulnerabilities;
-import com.fortify.bugtracker.common.source.processor.IProcessorUpdateState;
+import com.fortify.bugtracker.common.src.processor.IProcessorSubmitVulnerabilities;
+import com.fortify.bugtracker.common.src.processor.IProcessorUpdateState;
 import com.fortify.processrunner.ProcessRunner;
 
 /**

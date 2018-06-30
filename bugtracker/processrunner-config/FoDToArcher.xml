@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.source.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.source.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
+	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -89,7 +89,7 @@
 	     
 	     The mappings below are just examples; you will need to update these to match your
 	     FoD application and release names. -->
-	<bean class="com.fortify.bugtracker.source.fod.releases.FoDReleaseNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.src.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key="MyApp:MyRelease" value="ArcherApplicationName=MyApp"/>
 			<entry key="MyOtherApp:.*" value="ArcherApplicationName=MyOtherApp"/>
@@ -108,7 +108,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.bugtracker.source.fod.releases.FoDApplicationAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.src.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Archer Application Name" value="ArcherApplicationName"/>
 		</map></property>
@@ -131,7 +131,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<!-- TODO Add additional Archer fields -->
@@ -152,7 +152,7 @@
 	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
 	     to Archer.
 	-->
-	<bean id="fodToArcherIssueSubmitter" class="com.fortify.bugtracker.target.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
+	<bean id="fodToArcherIssueSubmitter" class="com.fortify.bugtracker.trgt.archer.processor.ProcessorArcherSubmitIssueForVulnerabilities">
 	</bean>
 	
 </beans>

@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.source.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
 	
 	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.source.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -123,7 +123,7 @@
 	     field data submitted to the bug tracker. Any fields not defined here will use the 
 	     default values as configured in the SSC bug tracker configuration. 
 	-->
-	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- Override the default collection configured in SSC, if defined as a context property -->
 			<entry key="Collection" value="${#ctx.TFSCollection}"/>
@@ -144,7 +144,7 @@
 	     that this processor will filter application versions based on 
 	     whether they have the TFS/Visual Studio Online bug tracker configured.
 	-->
-	<bean class="com.fortify.bugtracker.target.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.bugtracker.trgt.ssc.processor.ProcessorSSCSubmitIssueForVulnerabilities">
 		<!-- Define the bug tracker name as it is known in SSC -->
 		<property name="sscBugTrackerName" value="TFS/Visual Studio Online"/>
 					

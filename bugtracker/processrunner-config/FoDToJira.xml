@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.source.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.source.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
+	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -89,7 +89,7 @@
 	     
 	     The mappings below are just examples; you will need to update these to match your
 	     FoD application and release names. -->
-	<bean class="com.fortify.bugtracker.source.fod.releases.FoDReleaseNameBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.src.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key="MyApp:MyRelease" value="JiraProjectKey=APP"/>
 			<entry key="MyOtherApp:.*" value="JiraProjectKey=OTHER"/>
@@ -108,7 +108,7 @@
 	     release names.
 	     -->
 	<!-- 
-	<bean class="com.fortify.bugtracker.source.fod.releases.FoDApplicationAttributeBasedContextGenerator">
+	<bean class="com.fortify.bugtracker.src.fod.releases.FoDApplicationAttributeBasedContextGenerator">
 		<property name="requiredAttributeMappings"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
@@ -130,7 +130,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -157,7 +157,7 @@
 	     vulnerabilities to JIRA. If necessary, you can change the properties 
 	     in this bean, for example to change the grouping expression. 
 	-->
-	<bean id="fodToJiraIssueSubmitter" class="com.fortify.bugtracker.target.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
+	<bean id="fodToJiraIssueSubmitter" class="com.fortify.bugtracker.trgt.jira.processor.ProcessorJiraSubmitIssueForVulnerabilities">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
@@ -169,7 +169,7 @@
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="jiraIssueUpdater" class="com.fortify.bugtracker.target.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
+	<bean id="jiraIssueUpdater" class="com.fortify.bugtracker.trgt.jira.processor.ProcessorJiraTransitionIssueStateForVulnerabilities">
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If
