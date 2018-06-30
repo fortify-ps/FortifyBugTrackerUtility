@@ -24,8 +24,8 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.fortify.processrunner.bugtracker</groupId>
-	<artifactId>processrunner-bugtracker-root</artifactId>
+	<groupId>com.fortify.bugtracker</groupId>
+	<artifactId>bugtracker-root</artifactId>
 	<version>3.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<organization>
@@ -68,18 +68,18 @@
 	<modules>
 		<module>processrunner</module>
 		<module>ssc-bugtracker-add-existing-bug</module>
-		<module>processrunner-bugtracker-common</module>
-		<module>processrunner-bugtracker-source-fod</module>
-		<module>processrunner-bugtracker-ssc-common</module>
-		<module>processrunner-bugtracker-source-ssc</module>
-		<module>processrunner-bugtracker-target-ssc</module>
-		<module>processrunner-bugtracker-target-jira</module>
-		<module>processrunner-bugtracker-target-file</module>
-		<module>processrunner-bugtracker-target-tfs</module>
-		<module>processrunner-bugtracker-target-archer</module>
-		<module>processrunner-bugtracker-target-octane</module>
-		<module>processrunner-bugtracker-doc</module>
-		<module>processrunner-bugtracker</module>
+		<module>bugtracker-common</module>
+		<module>bugtracker-source-fod</module>
+		<module>bugtracker-ssc-common</module>
+		<module>bugtracker-source-ssc</module>
+		<module>bugtracker-target-ssc</module>
+		<module>bugtracker-target-jira</module>
+		<module>bugtracker-target-file</module>
+		<module>bugtracker-target-tfs</module>
+		<module>bugtracker-target-archer</module>
+		<module>bugtracker-target-octane</module>
+		<module>bugtracker-doc</module>
+		<module>bugtracker</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -97,62 +97,62 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-common</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-common</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-source-fod</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-source-fod</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-ssc-common</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-ssc-common</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-source-ssc</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-source-ssc</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-ssc</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-ssc</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-jira</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-jira</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-file</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-file</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-tfs</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-tfs</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-archer</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-archer</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fortify.processrunner.bugtracker</groupId>
-				<artifactId>processrunner-bugtracker-target-octane</artifactId>
+				<groupId>com.fortify.bugtracker</groupId>
+				<artifactId>bugtracker-target-octane</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>

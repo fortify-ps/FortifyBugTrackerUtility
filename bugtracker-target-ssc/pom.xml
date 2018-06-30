@@ -1,0 +1,72 @@
+<!--
+  (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
+  
+  Permission is hereby granted, free of charge, to any person obtaining a 
+  copy of this software and associated documentation files (the 
+  "Software"), to deal in the Software without restriction, including without 
+  limitation the rights to use, copy, modify, merge, publish, distribute, 
+  sublicense, and/or sell copies of the Software, and to permit persons to 
+  whom the Software is furnished to do so, subject to the following 
+  conditions:
+  
+  The above copyright notice and this permission notice shall be included 
+  in all copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY 
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+  IN THE SOFTWARE.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>bugtracker-target-ssc</artifactId>
+	<parent>
+		<groupId>com.fortify.bugtracker</groupId>
+		<artifactId>bugtracker-root</artifactId>
+		<version>3.5-SNAPSHOT</version>
+	</parent>
+	<organization>
+		<name>Micro Focus Fortify</name>
+		<url>https://software.microfocus.com/en-us/software/application-security</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>rsenden</id>
+			<name>Ruud Senden</name>
+			<organization>Micro Focus Fortify</organization>
+		</developer>
+	</developers>
+	<inceptionYear>2016</inceptionYear>
+	<dependencies>
+		<dependency>
+			<groupId>com.fortify.processrunner</groupId>
+			<artifactId>processrunner</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.bugtracker</groupId>
+			<artifactId>bugtracker-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fortify.bugtracker</groupId>
+			<artifactId>bugtracker-ssc-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+	</dependencies>
+	<description>This module provides functionality for submitting issues through SSC.</description>
+	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
+</project>

@@ -28,8 +28,8 @@
 	<groupId>com.fortify.pub.bugtracker.plugin.add-existing-bug</groupId>
 	<artifactId>ssc-bugtracker-add-existing-bug</artifactId>
 	<parent>
-		<groupId>com.fortify.processrunner.bugtracker</groupId>
-		<artifactId>processrunner-bugtracker-root</artifactId>
+		<groupId>com.fortify.bugtracker</groupId>
+		<artifactId>bugtracker-root</artifactId>
 		<version>3.5-SNAPSHOT</version>
 	</parent>
 	<description><![CDATA[

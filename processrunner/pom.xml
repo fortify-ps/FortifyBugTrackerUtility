@@ -27,8 +27,8 @@
 	<groupId>com.fortify.processrunner</groupId>
 	<artifactId>processrunner</artifactId>
 	<parent>
-		<groupId>com.fortify.processrunner.bugtracker</groupId>
-		<artifactId>processrunner-bugtracker-root</artifactId>
+		<groupId>com.fortify.bugtracker</groupId>
+		<artifactId>bugtracker-root</artifactId>
 		<version>3.5-SNAPSHOT</version>
 	</parent>
 	<organization>

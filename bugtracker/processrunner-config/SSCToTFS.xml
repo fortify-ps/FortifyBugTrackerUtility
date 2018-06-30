@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
+  
+  Permission is hereby granted, free of charge, to any person obtaining a 
+  copy of this software and associated documentation files (the 
+  "Software"), to deal in the Software without restriction, including without 
+  limitation the rights to use, copy, modify, merge, publish, distribute, 
+  sublicense, and/or sell copies of the Software, and to permit persons to 
+  whom the Software is furnished to do so, subject to the following 
+  conditions:
+  
+  The above copyright notice and this permission notice shall be included 
+  in all copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY 
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+  IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<!--==================================================================================-->
+	<!-- SSC CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- Auto-configure various components -->
+	<context:component-scan base-package="com.fortify.processrunner.ssc"/>
+	
+	<!-- SSC configuration properties -->
+	<bean id="sscConfiguration" class="com.fortify.processrunner.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
+		     the external system. Please see the Syntax Guide for the SSC search box for
+		     information about the syntax for this filter. You can use the same SSC search
+		     box to test your filter strings. -->
+		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
+			analysis:exploitable
+		</value></property>
+		
+		<!-- Set additional filters for vulnerabilities to be submitted to the external
+		     system, if you require any filtering that cannot be performed by SSC directly. -->
+		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
+			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
+		</map></property>
+		
+		<!-- Specify whether, and how information about the submitted vulnerabilities
+		     should be added to SSC. If all of these are disabled, no information
+		     about the submitted vulnerability will be stored in SSC, resulting in
+		     all vulnerabilities being submitted again on a next invocation, and
+		     disabling bug state management. You should enable at most one of these
+		     options. Bug data can either be stored in a custom tag, or submitted
+		     through the SSC 'Add Existing Bugs' custom bug tracker integration, to
+		     be stored as a native SSC bug tracker link. -->
+		<property name="bugLinkCustomTagName" value="TFSBugLink"/>
+		<!-- <property name="addNativeBugLink" value="true"/> -->
+		
+		<!-- Allow the user to see TFS issue phase name in SSC. Any custom tags that 
+		     do not exist or are not assigned to the application version will be ignored. -->
+		<property name="extraCustomTags"><map>
+			<entry key="TFSIssueState" value="${issueStateDetails.state}"/>
+		</map></property>
+		
+		<!-- This property enables a work-around where the SSC doesn't return the correct 
+		     vulnerability revision when retrieving the list of vulnerabilities for an
+		     application version, until the metrics for that application version have been
+		     refreshed. This is a known bug in SSC 16.20 and possibly older versions; SSC
+		     17.10 and up should not need this work-around. Please enable this property if
+		      you consistently get an error
+		     'Conflict detected! There is a newer revision of the selected issue on the server.'
+		     when FortifyBugTrackerUtility tries to update custom tags in SSC. -->
+		<!-- <property name="enableRevisionWorkAround" value="true"/> -->
+		
+		<!-- This property defines the expression for evaluating whether an SSC 
+		     vulnerability should be considered open or closed. This expression
+		     can use any SSC vulnerability attribute. Commonly used attributes
+		     for this expression include removed and suppressed. -->
+		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
+			removed==false && suppressed==false
+		]]></value></property>
+	</bean>
+	
+	<!--==================================================================================-->
+	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean allows for automatically loading all SSC application versions that
+	     have a 'TFS Project' attribute set, and automatically using that attribute
+	     value to generate the TFSProject context property for each application
+	     version being processed. Optionally you can also have a 'TFS Collection'
+	     application version attribute, which will be mapped to the TFSCollection
+	     context property if the attribute contains a value. -->
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="TFS Project" value="TFSProject"/>
+		</map></property>
+		<property name="optionalAttributeMappings"><map>
+			<entry key="TFS Collection" value="TFSCollection"/>
+		</map></property>
+	</bean>
+	
+	<!-- Alternatively, you can comment out the attribute-based mapping above, and uncomment 
+	     the static mapping here. This allows for maintaining a static mapping between 
+	     application version names and corresponding context properties in this configuration
+	     file, instead of configuring the mappings through SSC application version attributes.
+	     
+	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
+	     will automatically process all application releases that match any of the mappings defined 
+	     here. The keys defined here are regular expressions that are being matched against
+	     [applicationName]:[versionName]. The values are one or more context property
+	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
+	     Context property values can use Spring template expressions to reference release
+	     JSON attributes, for example ${project.name} and ${name} (version name). 
+	     
+	     The mappings below are just examples; you will need to update these to match your
+	     SSC application and version names. -->
+	<!--
+	<bean class="com.fortify.processrunner.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
+		<property name="applicationVersionNameMappings"><map>
+			<entry key="MyApp:MyVersion" value="TFSProject=MyProject"/>
+			<entry key="MyOtherApp:.*" value="TFSProject=MyOtherProject"/>
+			<entry key=".*:current" value="TFSProject=${project.name}"/>
+		</map></property>
+	</bean>
+	-->	
+	
+	<!--==================================================================================-->
+	<!-- TFS CONFIGURATION -->
+	<!--==================================================================================-->
+	
+	<!-- This bean defines the context for the SSC to TFS processing. All of these
+	     properties can also be specified on the command line. -->
+	<util:map id="contextProperties">
+		<!-- TODO Add all possible properties -->
+		<entry key="" value=""/>
+	</util:map>
+	
+	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
+	     you can change the properties in this bean, for example to change the fields and 
+	     field data submitted to the bug tracker. 
+	-->
+	<bean class="com.fortify.processrunner.bugtracker.common.target.config.BugTrackerFieldConfiguration">
+		<property name="fields"><map>
+			<!-- TODO Add examples for recommendations etcetera -->
+			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
+			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(friority)}"/>
+			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issue states ---\n\n&lt;br/&gt;Category: ${issueName} at ${fullFileName}"/>
+		</map></property>
+
+		<!-- Define extra data to be appended to one or more of the fields defined
+		     by issue.fields above. For non-grouped vulnerabilities, we could just 
+		     as well have appended these expressions to the corresponding
+		     issue.fields entry above. However, using issue.appendedFields allows 
+		     us to re-use the same issue field configuration for grouped issues.
+		-->
+		<property name="appendedFields"><map>
+			<!-- TODO For some reason TFS encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
+			<entry key="System.Description"><value><![CDATA[
+				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
+			]]></value></entry>
+		</map></property>
+		
+		<!-- Update the TFS description field when updating issue state -->
+		<property name="fieldsToUpdateDuringStateManagement" value="System.Description"/>
+	</bean>
+	
+	<!-- This bean allows for renaming work item fields as defined in the various 
+	     processor configurations for specific work item types. This allows for
+	     re-using a single processor configuration for different work item types. 
+	     For example, in the default TFS configuration, work item type 'Bug' displays
+	     Microsoft.VSTS.TCM.ReproSteps as the default description field, instead of 
+	     the standard System.Description field.
+	-->
+	<bean id="workItemTypeToFieldRenamer" class="com.fortify.processrunner.tfs.util.WorkItemTypeToFieldRenamer">
+		<property name="workItemTypeToFieldRenameMap">
+			<map>
+				<entry key="Bug">
+					<map>
+                        <entry key="System.Description" value="Microsoft.VSTS.TCM.ReproSteps"/>
+					    <entry key="Workitem.Priority" value="Microsoft.VSTS.Common.Priority"/>
+					    <entry key="Workitem.Severity" value="Microsoft.VSTS.Common.Severity"/>
+                    </map>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for submitting SSC 
+	     vulnerabilities to TFS. If necessary, you can change the properties 
+	     in this bean, for example to change the grouping expression. 
+	-->
+	<bean class="com.fortify.processrunner.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+	</bean>
+	
+	<!-- This bean defines the processor configuration for updating TFS work item state
+	     based on vulnerability state. This processor can update work item fields,
+	     automatically re-open work items, and automatically close work items. Each of 
+	     these actions is optional; if a property is not defined, the corresponding action
+	     will not be performed.
+	-->
+	<bean id="tfsIssueUpdater" class="com.fortify.processrunner.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
+		<!-- Define when a TFS issue is considered re-openable or closeable. These expressions
+		     can utilize the workItemType (corresponding to System.WorkItemType), state
+		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->
+		<!--
+		<property name="isIssueOpenableExpression"><value><![CDATA[
+			reason matches 'something|something else'
+		]]></value></property>
+		<property name="isIssueCloseableExpression"><value><![CDATA[
+			reason matches 'something|something else'
+		]]></value></property>
+		-->
+		
+		<!-- Define the transitions for re-opening and closing issues. The map key defines an expression
+		     that defines when to use a specific transition; this is usually based on issue state, and
+		     optionally workItemType and reason.
+		     The map value defines one or more names of transitions that need to be performed in order to 
+		     re-open or close an issue. For each transition, you can specify an optional comment between
+		     brackets. If your TFS instance uses non-standard workflows, you may need to update these
+		     mappings.-->
+		<property name="transitionsForOpeningIssue"><map>
+			<!-- TODO These transitions were taken from the SSC TFS integration, but seem to be incomplete for VSTS Agile workflow  -->
+			<entry key="workItemType=='Task' and state matches 'Done|Removed'" value="To Do[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Bug' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Bug' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Feature' and state=='Done'" value="In Progress[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Feature' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Feedback Request' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Product Backlog Item' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Product Backlog Item' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Shared Parameter' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Shared Steps' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Test Case' and state=='Closed'" value="Ready[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Test Case' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Test Plan' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Test Suite' and state=='Completed'" value="In Planning[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="workItemType=='Issue' and state=='Resolved'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<!-- <entry key="workItemType=='Issue' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" /> -->
+			<!-- Entry that was not in SSC, but is required to re-open bugs in VSTS Agile workflow -->
+			<entry key="workItemType=='Bug' and state matches 'Resolved|Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+		</map></property>
+		<property name="transitionsForClosingIssue"><map>
+			<!-- TODO Add transitions for closing issues -->
+			<!-- Example on performing multiple transitions to reach the target state -->
+			<entry key="state=='My Custom Status'"><list>
+				<value>IntermediateTransition1</value> <!-- Transition without comment -->
+				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
+		</map></property>
+	</bean>
+
+	
+</beans>
