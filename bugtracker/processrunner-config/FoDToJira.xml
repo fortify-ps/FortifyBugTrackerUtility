@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.jira"/>
 	
-	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -126,11 +126,15 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration">
+		<!-- Specify JIRA issue type -->
+		<property name="issueType" value="Task"/>
+	
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -151,25 +155,7 @@
 		
 		<!-- Update the JIRA description field when updating issue state -->
 		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
-	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting
-	     vulnerabilities to JIRA. If necessary, you can change the properties 
-	     in this bean, for example to change the grouping expression. 
-	-->
-	<bean id="fodToJiraIssueSubmitter" class="com.fortify.bugtracker.tgt.jira.processor.JiraTargetProcessorSubmitIssues">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
-	</bean>
-	
-		<!-- This bean defines the processor configuration for updating JIRA issue state
-	     based on vulnerability state. This processor can update issue fields, 
-	     automatically re-open issues, and automatically close issues. Each of these
-	     actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="jiraIssueUpdater" class="com.fortify.bugtracker.tgt.jira.processor.JiraTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If

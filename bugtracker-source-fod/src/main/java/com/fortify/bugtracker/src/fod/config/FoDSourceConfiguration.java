@@ -35,7 +35,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * @author Ruud Senden
  *
  */
-public class FoDSourceProcessorConfiguration extends AbstractSourceProcessorConfiguration {
+public class FoDSourceConfiguration extends AbstractSourceProcessorConfiguration {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
 			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;

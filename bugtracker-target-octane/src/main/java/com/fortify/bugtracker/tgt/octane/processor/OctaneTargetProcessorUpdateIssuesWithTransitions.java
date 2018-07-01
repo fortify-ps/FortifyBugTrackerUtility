@@ -26,6 +26,8 @@ package com.fortify.bugtracker.tgt.octane.processor;
 
 import java.util.LinkedHashMap;
 
+import org.springframework.stereotype.Component;
+
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
@@ -35,6 +37,7 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
+@Component
 public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions<JSONMap> {
 	@Override
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {

@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.octane"/>
 	
-	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
 		<!-- By default, the following fields can be referenced in this configuration file:
 		     * ${fieldName}
 		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint
@@ -178,11 +178,12 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.octane.config.OctaneTargetConfiguration">
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+		
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -224,25 +225,7 @@
 		
 		<!-- Update the Octane description field when updating issue state -->
 		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
-	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
-	     to Octane. If necessary, you can change the properties in this bean, for example 
-	     to change the grouping expression. 
-	-->
-	<bean id="sscToOctaneIssueSubmitter" class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorSubmitIssues">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for updating Octane issue state
-	     based on vulnerability state. This processor can update issue fields, 
-	     automatically re-open issues, and automatically close issues. Each of these
-	     actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
 		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
 		     considered openable/closeable if a valid transition exists. -->

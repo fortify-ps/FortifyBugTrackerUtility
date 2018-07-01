@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.jira"/>
 	
-	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -142,11 +142,15 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration">
+		<!-- Specify JIRA issue type -->
+		<property name="issueType" value="Task"/>
+		
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+	
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="summary" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -167,25 +171,7 @@
 		
 		<!-- Update the JIRA description field when updating issue state -->
 		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
-	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting
-	     vulnerabilities to JIRA. If necessary, you can change the properties 
-	     in this bean, for example to change the grouping expression. 
-	-->
-	<bean id="sscToJiraIssueSubmitter" class="com.fortify.bugtracker.tgt.jira.processor.JiraTargetProcessorSubmitIssues">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
-	</bean>
-	
-		<!-- This bean defines the processor configuration for updating JIRA issue state
-	     based on vulnerability state. This processor can update issue fields, 
-	     automatically re-open issues, and automatically close issues. Each of these
-	     actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="jiraIssueUpdater" class="com.fortify.bugtracker.tgt.jira.processor.JiraTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a JIRA issue is considered re-openable or closeable. These expressions
 		     can utilize all properties in the status and resolution fields returned by the JIRA
 		     REST API, usually you will want to match on status.name and/or resolution.name. If

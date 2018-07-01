@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.archer"/>
 	
-	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -136,11 +136,8 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.archer.config.ArcherTargetConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Archer fields -->
 			<entry key="ID" value="${id}"/>
@@ -153,13 +150,6 @@
 			<entry key="Priority" value="${friority}"/>
 			<entry key="Recommendation" value="${details.recommendation}"/>
 		</map></property>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for submitting SSC vulnerabilities 
-	     to Archer. If necessary, you can change the properties in this bean, for example 
-	     to add a grouping expression. 
-	-->
-	<bean id="sscToArcherIssueSubmitter" class="com.fortify.bugtracker.tgt.archer.processor.ArcherTargetProcessorSubmitIssues">
 	</bean>
 	
 </beans>

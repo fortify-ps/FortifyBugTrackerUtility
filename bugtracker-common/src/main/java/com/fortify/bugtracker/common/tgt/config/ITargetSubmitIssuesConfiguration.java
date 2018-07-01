@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -28,35 +28,8 @@ import java.util.LinkedHashMap;
 
 import com.fortify.util.spring.expression.TemplateExpression;
 
-/** 
- * This class describes the bug tracker fields and their contents to be submitted
- * or updated by FortifyBugTrackerUtility.
- *  
- * @author Ruud Senden
- */
-public class BugTrackerFieldConfiguration {
-	private LinkedHashMap<String,TemplateExpression> fields;
-	private LinkedHashMap<String,TemplateExpression> appendedFields;
-	private String[] fieldsToUpdateDuringStateManagement;
-	
-	public LinkedHashMap<String, TemplateExpression> getFields() {
-		return fields;
-	}
-	public void setFields(LinkedHashMap<String, TemplateExpression> fields) {
-		this.fields = fields;
-	}
-	public LinkedHashMap<String, TemplateExpression> getAppendedFields() {
-		return appendedFields;
-	}
-	public void setAppendedFields(LinkedHashMap<String, TemplateExpression> appendedFields) {
-		this.appendedFields = appendedFields;
-	}
-	public String[] getFieldsToUpdateDuringStateManagement() {
-		return fieldsToUpdateDuringStateManagement;
-	}
-	public void setFieldsToUpdateDuringStateManagement(String[] fieldsToUpdateDuringStateManagement) {
-		this.fieldsToUpdateDuringStateManagement = fieldsToUpdateDuringStateManagement;
-	}
-	
-	
+public interface ITargetSubmitIssuesConfiguration {
+	public TemplateExpression getGroupTemplateExpressionForSubmit();
+	public LinkedHashMap<String, TemplateExpression> getFieldsForSubmit();
+	public LinkedHashMap<String, TemplateExpression> getAppendedFieldsForSubmit();
 }

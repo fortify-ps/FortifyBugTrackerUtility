@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.ssc"/>
 	
-	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -118,12 +118,15 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. Any fields not defined here will use the 
-	     default values as configured in the SSC bug tracker configuration. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.ssc.config.SSCTargetConfiguration">
+		<!-- Define the bug tracker name as it is known in SSC -->
+		<property name="sscBugTrackerName" value="TFS/Visual Studio Online"/>
+					
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
+		
 		<property name="fields"><map>
 			<!-- Override the default collection configured in SSC, if defined as a context property -->
 			<entry key="Collection" value="${#ctx.TFSCollection}"/>
@@ -135,22 +138,6 @@
 			     configured in SSC) -->
 			<entry key="System.WorkItemType" value="Bug"/>
 		</map></property>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for submitting
-	     vulnerabilities via the native SSC TFS/Visual Studio Online
-	     bug tracker plugin. If necessary, you can change the properties 
-	     in this bean, for example to change the grouping expression. Note 
-	     that this processor will filter application versions based on 
-	     whether they have the TFS/Visual Studio Online bug tracker configured.
-	-->
-	<bean class="com.fortify.bugtracker.tgt.ssc.processor.SSCTargetProcessorSubmitIssues">
-		<!-- Define the bug tracker name as it is known in SSC -->
-		<property name="sscBugTrackerName" value="TFS/Visual Studio Online"/>
-					
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	</bean>
 	
 </beans>

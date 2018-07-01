@@ -30,14 +30,16 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
-import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorGenerateIssueFields;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.ssc.config.SSCTargetConfiguration;
 import com.fortify.bugtracker.tgt.ssc.context.IContextSSCTarget;
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
@@ -59,7 +61,8 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  *
  */
-public class SSCTargetProcessorSubmitIssues extends AbstractTargetProcessorGenerateIssueFields implements ITargetProcessorSubmitIssues, ISSCApplicationVersionQueryBuilderUpdater {
+@Component
+public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObjectMapFromGroupedObjects implements ITargetProcessorSubmitIssues, ISSCApplicationVersionQueryBuilderUpdater {
 	private static final Log LOG = LogFactory.getLog(SSCTargetProcessorSubmitIssues.class);
 	private String sscBugTrackerName;
 	
@@ -90,6 +93,18 @@ public class SSCTargetProcessorSubmitIssues extends AbstractTargetProcessorGener
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCBugTracker.PRP_USER_NAME));
 		context.as(IContextBugTracker.class).setBugTrackerName(getTargetName());
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	}
+	
+	/**
+	 * Autowire the configuration from the Spring configuration file.
+	 * @param config
+	 */
+	@Autowired
+	public void setConfiguration(SSCTargetConfiguration config) {
+		super.setGroupTemplateExpression(config.getGroupTemplateExpressionForSubmit());
+		super.setFields(config.getFieldsForSubmit());
+		super.setAppendedFields(config.getAppendedFieldsForSubmit());
+		setSscBugTrackerName(config.getSscBugTrackerName());
 	}
 	
 	@Override
@@ -132,10 +147,5 @@ public class SSCTargetProcessorSubmitIssues extends AbstractTargetProcessorGener
 		public void setSSCBugTrackerPassword(String password);
 		public String getSSCBugTrackerPassword();
 		
-	}
-
-	@Override
-	protected boolean includeOnlyFieldsToBeUpdated() {
-		return false;
 	}
 }

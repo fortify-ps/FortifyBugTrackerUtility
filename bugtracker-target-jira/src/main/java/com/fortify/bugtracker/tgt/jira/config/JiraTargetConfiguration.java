@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,35 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.archer.processor;
+package com.fortify.bugtracker.tgt.jira.config;
 
-import java.util.LinkedHashMap;
+import com.fortify.bugtracker.common.tgt.config.AbstractTargetUpdateIssuesWithTransitionsConfiguration;
 
-import org.springframework.stereotype.Component;
+public class JiraTargetConfiguration extends AbstractTargetUpdateIssuesWithTransitionsConfiguration {
+	private String issueType;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
-import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
-import com.fortify.bugtracker.tgt.archer.connection.ArcherConnectionFactory;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-
-/**
- * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
- * submits issues to Archer.
- */
-@Component
-public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<Object> {
-	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	public String getIssueType() {
+		return issueType;
 	}
-	
-	public String getTargetName() {
-		return "Archer";
-	}
-	
-	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		return ArcherConnectionFactory.getConnection(context).submitIssue(issueData);
+
+	public void setIssueType(String issueType) {
+		this.issueType = issueType;
 	}
 }

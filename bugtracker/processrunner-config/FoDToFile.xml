@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.file"/>
 	
-	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -124,11 +124,10 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">
+		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
+		
 		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="vulnId" value="${vulnId}"/>
@@ -137,14 +136,6 @@
 			<entry key="severity" value="${severityString}"/>
 			<entry key="deepLink" value="${deepLink}"/>
 		</map></property>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for writing FoD vulnerability
-	     data to a file. If necessary, you can change the properties in this bean, for 
-	     example to change the grouping expression.
-	-->
-	<bean id="fodToFileIssueSubmitter" class="com.fortify.bugtracker.tgt.file.FileTargetProcessorSubmitIssues">
-		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 	</bean>
 	
 </beans>

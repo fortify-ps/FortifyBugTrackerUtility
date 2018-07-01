@@ -27,7 +27,7 @@ package com.fortify.bugtracker.tgt.tfs.processor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
@@ -36,14 +36,12 @@ import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
-import com.fortify.bugtracker.tgt.tfs.util.WorkItemTypeToFieldRenamer;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
+@Component
 public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions<TFSIssueState> {
-	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
-	
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -60,13 +58,7 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 		IContextTFS contextTFS = context.as(IContextTFS.class);
 		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
-		String workItemType = conn.getWorkItemType(collection, submittedIssue);
-		if ( workItemType == null ) {
-			return false;
-		} else {
-			fieldRenamer.renameFields(workItemType, issueData);
-			return conn.updateIssueData(collection, submittedIssue, issueData);
-		}
+		return conn.updateIssueData(collection, submittedIssue, issueData);
 	}
 	
 	@Override
@@ -90,14 +82,4 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 		fields.put("System.State", transitionName);
 		return conn.updateIssueData(collection, submittedIssue, fields);
 	}
-
-	public WorkItemTypeToFieldRenamer getFieldRenamer() {
-		return fieldRenamer;
-	}
-
-	@Autowired(required=false)
-	public void setFieldRenamer(WorkItemTypeToFieldRenamer fieldRenamer) {
-		this.fieldRenamer = fieldRenamer;
-	}
-
 }

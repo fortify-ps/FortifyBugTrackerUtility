@@ -34,12 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.bugtracker.common.processor.IProcessorWithTargetName;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
+import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
+import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
@@ -67,7 +69,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
  *
  * @param <IssueStateDetailsType>
  */
-public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType> extends AbstractTargetProcessorGenerateIssueFields implements IProcessorWithTargetName, ITargetProcessorUpdateIssues {
+public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType> extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorWithTargetName, ITargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssues.class);
 	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
 	private SimpleExpression isVulnStateOpenExpression;
@@ -102,6 +104,18 @@ public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType>
 	 * @param context
 	 */
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	
+	/**
+	 * Autowire the configuration from the Spring configuration file.
+	 * @param config
+	 */
+	@Autowired
+	public void setConfiguration(ITargetUpdateIssuesConfiguration config) {
+		super.setFields(config.getFieldsForUpdate());
+		super.setAppendedFields(config.getAppendedFieldsForUpdate());
+		setIsIssueCloseableExpression(config.getIsIssueCloseableExpression());
+		setIsIssueOpenableExpression(config.getIsIssueOpenableExpression());
+	}
 	
 	/**
 	 * Process the current group of vulnerabilities (grouped by bug tracker deep link) to update the corresponding
@@ -297,15 +311,6 @@ public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType>
 	
 	@Override
 	public boolean isForceGrouping() {
-		return true;
-	}
-	
-	/** 
-	 * Indicate that we want only bug tracker fields that need to be updated
-	 * during state management to be configured on this instance.
-	 */
-	@Override
-	protected boolean includeOnlyFieldsToBeUpdated() {
 		return true;
 	}
 	

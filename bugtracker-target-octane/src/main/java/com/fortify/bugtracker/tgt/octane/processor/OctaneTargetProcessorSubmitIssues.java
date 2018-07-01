@@ -27,6 +27,7 @@ package com.fortify.bugtracker.tgt.octane.processor;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
@@ -44,6 +45,7 @@ import com.fortify.util.rest.json.JSONMap;
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
  * submits issues to Octane.
  */
+@Component
 public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<JSONMap> {
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {

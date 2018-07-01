@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
+import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
@@ -53,7 +54,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType> extends AbstractTargetProcessorGenerateIssueFields implements ITargetProcessorSubmitIssues {
+public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType> extends AbstractProcessorBuildObjectMapFromGroupedObjects implements ITargetProcessorSubmitIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorSubmitIssues.class);
 	private INewIssueVulnerabilityUpdater vulnerabilityUpdater;
 	
@@ -83,6 +84,17 @@ public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType>
 	 * @param context
 	 */
 	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	
+	/**
+	 * Autowire the configuration from the Spring configuration file.
+	 * @param config
+	 */
+	@Autowired
+	public void setConfiguration(ITargetSubmitIssuesConfiguration config) {
+		super.setGroupTemplateExpression(config.getGroupTemplateExpressionForSubmit());
+		super.setFields(config.getFieldsForSubmit());
+		super.setAppendedFields(config.getAppendedFieldsForSubmit());
+	}
 	
 	/**
 	 * This method calls {@link #submitIssue(Context, LinkedHashMap)} to actually submit an issue to the 
@@ -137,14 +149,5 @@ public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType>
 	 */
 	public boolean isIgnorePreviouslySubmittedIssues() {
 		return true;
-	}
-	
-	/** 
-	 * Indicate that we want all bug tracker fields to be configured on
-	 * this instance for the initial bug submission.
-	 */
-	@Override
-	protected final boolean includeOnlyFieldsToBeUpdated() {
-		return false;
 	}
 }

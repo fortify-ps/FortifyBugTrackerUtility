@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.tfs"/>
 	
-	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -130,16 +130,19 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration">
+		<!-- Specify TFS work item type -->
+		<property name="workItemType" value="Bug"/>
+		
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+	
 		<property name="fields"><map>
-			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="FoD Detected ${category} at ${primaryLocationFull}"/>
-			<entry key="Workitem.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(severityString)}"/>
-			<entry key="System.Description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
+			<entry key="Microsoft.VSTS.Common.Severity" value="${{'Critical':'1 - Critical','High':'2 - High','Medium':'3 - Medium','Low':'4 - Low'}.get(severityString)}"/>
+			<entry key="Microsoft.VSTS.TCM.ReproSteps" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
 		</map></property>
 
 		<!-- Define extra data to be appended to one or more of the fields defined
@@ -156,45 +159,7 @@
 		
 		<!-- Update the TFS description field when updating issue state -->
 		<property name="fieldsToUpdateDuringStateManagement" value="System.Description"/>
-	</bean>
-	
-	<!-- This bean allows for renaming work item fields as defined in the various 
-	     processor configurations for specific work item types. This allows for
-	     re-using a single processor configuration for different work item types. 
-	     For example, in the default TFS configuration, work item type 'Bug' displays
-	     Microsoft.VSTS.TCM.ReproSteps as the default description field, instead of 
-	     the standard System.Description field.
-	-->
-	<bean id="workItemTypeToFieldRenamer" class="com.fortify.bugtracker.tgt.tfs.util.WorkItemTypeToFieldRenamer">
-		<property name="workItemTypeToFieldRenameMap">
-			<map>
-				<entry key="Bug">
-					<map>
-                        <entry key="System.Description" value="Microsoft.VSTS.TCM.ReproSteps"/>
-					    <entry key="Workitem.Priority" value="Microsoft.VSTS.Common.Priority"/>
-					    <entry key="Workitem.Severity" value="Microsoft.VSTS.Common.Severity"/>
-                    </map>
-				</entry>
-			</map>
-		</property>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for submitting FoD 
-	     vulnerabilities to TFS.  
-	-->
-	<bean class="com.fortify.bugtracker.tgt.tfs.processor.TFSTargetProcessorSubmitIssues">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for updating TFS work item state
-	     based on vulnerability state. This processor can update work item fields,
-	     automatically re-open work items, and automatically close work items. Each of 
-	     these actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="tfsIssueUpdater" class="com.fortify.bugtracker.tgt.tfs.processor.TFSTargetProcessorUpdateIssuesWithTransitions">
+		
 		<!-- Define when a TFS issue is considered re-openable or closeable. These expressions
 		     can utilize the workItemType (corresponding to System.WorkItemType), state
 		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->

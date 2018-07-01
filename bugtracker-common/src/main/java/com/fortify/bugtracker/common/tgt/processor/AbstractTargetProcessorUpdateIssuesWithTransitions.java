@@ -34,7 +34,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesWithTransitionsConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
@@ -58,6 +60,16 @@ public abstract class AbstractTargetProcessorUpdateIssuesWithTransitions<IssueSt
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssuesWithTransitions.class);
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForOpeningIssue;
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForClosingIssue;
+	
+	/**
+	 * Autowire the configuration from the Spring configuration file.
+	 * @param config
+	 */
+	@Autowired
+	public void setConfiguration(ITargetUpdateIssuesWithTransitionsConfiguration config) {
+		setTransitionsForClosingIssue(config.getTransitionsForClosingIssue());
+		setTransitionsForOpeningIssue(config.getTransitionsForOpeningIssue());
+	}
 	
 	/**
 	 * This constructor sets the default values for {@link #setIsIssueOpenableExpression(SimpleExpression)}

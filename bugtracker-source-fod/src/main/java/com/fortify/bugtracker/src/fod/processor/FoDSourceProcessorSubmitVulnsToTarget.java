@@ -34,7 +34,7 @@ import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssueCommentHelper;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
-import com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration;
+import com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.context.IContextFoD;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
@@ -52,7 +52,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
 /**
  * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
- * {@link FoDSourceProcessorRetrieveVulnerabilities}, {@link FoDSourceProcessorConfiguration} 
+ * {@link FoDSourceProcessorRetrieveVulnerabilities}, {@link FoDSourceConfiguration} 
  * and {@link ITargetProcessorSubmitIssues} (provided by the bug tracker 
  * implementation) to allow for submitting FoD vulnerabilities to bug trackers or
  * other external systems.</p> 

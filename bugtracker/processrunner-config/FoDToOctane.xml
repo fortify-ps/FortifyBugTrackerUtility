@@ -38,10 +38,10 @@
 	<!--==================================================================================-->
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.octane"/>
 	
-	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -134,11 +134,12 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.octane.config.OctaneTargetConfiguration">
+		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
+		     can be disabled by setting the DisableGrouping context property to 'true'. -->
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -178,25 +179,7 @@
 		
 		<!-- Update the Octane description field when updating issue state -->
 		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
-	</bean>
 	
-	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to Octane. If necessary, you can change the properties in this bean, for example 
-	     to change the grouping expression. 
-	-->
-	<bean class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorSubmitIssues">
-		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
-		     can be disabled by setting the DisableGrouping context property to 'true'. -->
-		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
-	</bean>
-	
-	<!-- This bean defines the processor configuration for updating Octane issue state
-	     based on vulnerability state. This processor can update issue fields, 
-	     automatically re-open issues, and automatically close issues. Each of these
-	     actions is optional; if a property is not defined, the corresponding action
-	     will not be performed.
-	-->
-	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
 		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
 		     considered openable/closeable if a valid transition exists. -->

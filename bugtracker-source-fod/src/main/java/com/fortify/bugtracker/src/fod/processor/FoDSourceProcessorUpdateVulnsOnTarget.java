@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOnTarget;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssues;
-import com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration;
+import com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.processrunner.context.Context;
@@ -39,7 +39,7 @@ import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 /**
  * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
- * {@link FoDSourceProcessorRetrieveVulnerabilities}, {@link FoDSourceProcessorConfiguration} 
+ * {@link FoDSourceProcessorRetrieveVulnerabilities}, {@link FoDSourceConfiguration} 
  * and {@link AbstractTargetProcessorUpdateIssues} (provided by the bug 
  * tracker implementation) to allow for updating bug tracker issue state based on FoD 
  * vulnerability state, and vice versa.</p> 
@@ -50,7 +50,7 @@ import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
  * vulnerability state, like updating issue fields and automatically re-opening or closing the 
  * bug tracker issue based on corresponding vulnerability states. Generic functionality for 
  * updating FoD vulnerability state based on bug tracker issue state is provided by 
- * {@link FoDSourceProcessorConfiguration}, but has not yet been implemented for FoD. 
+ * {@link FoDSourceConfiguration}, but has not yet been implemented for FoD. 
  * 
  * @author Ruud Senden
  */

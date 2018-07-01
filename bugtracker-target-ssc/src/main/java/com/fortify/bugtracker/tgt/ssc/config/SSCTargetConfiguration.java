@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,38 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.util;
+package com.fortify.bugtracker.tgt.ssc.config;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.fortify.bugtracker.common.tgt.config.AbstractTargetSubmitOnlyConfiguration;
 
-public class WorkItemTypeToFieldRenamer {
-	private Map<String,Map<String,String>> workItemTypeToFieldRenameMap;
-	
-	public final void renameFields(String workItemType, LinkedHashMap<String, Object> map) {
-		if ( workItemTypeToFieldRenameMap != null ) {
-			Map<String, String> renameMap = workItemTypeToFieldRenameMap.get(workItemType);
-			if ( renameMap != null ) {
-				for ( Map.Entry<String, String> renameEntry : renameMap.entrySet() ) {
-					Object value = map.remove(renameEntry.getKey());
-					if ( value != null ) {
-						map.put(renameEntry.getValue(), value);
-					}
-				}
-			}
-		}
+public class SSCTargetConfiguration extends AbstractTargetSubmitOnlyConfiguration {
+	private String sscBugTrackerName;
 
+	public String getSscBugTrackerName() {
+		return sscBugTrackerName;
 	}
 
-	public Map<String,Map<String,String>> getWorkItemTypeToFieldRenameMap() {
-		return workItemTypeToFieldRenameMap;
+	public void setSscBugTrackerName(String sscBugTrackerName) {
+		this.sscBugTrackerName = sscBugTrackerName;
 	}
-
-	public void setWorkItemTypeToFieldRenameMap(Map<String,Map<String,String>> workItemTypeToFieldRenameMap) {
-		this.workItemTypeToFieldRenameMap = workItemTypeToFieldRenameMap;
-	}
-
-	
-	
-	
 }

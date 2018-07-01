@@ -27,10 +27,13 @@ package com.fortify.bugtracker.tgt.jira.processor;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration;
 import com.fortify.bugtracker.tgt.jira.connection.JiraConnectionFactory;
 import com.fortify.bugtracker.tgt.jira.connection.JiraRestConnection;
 import com.fortify.bugtracker.tgt.jira.context.IContextJira;
@@ -43,14 +46,14 @@ import com.fortify.util.rest.json.JSONMap;
  * This {@link AbstractTargetProcessorSubmitIssues} implementation
  * submits issues to Jira.
  */
+@Component
 public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<JSONMap> {
-	private String defaultIssueType = "Task";
+	private String issueType;
 	
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraIssueType", "JIRA issue type", true).defaultValue(getDefaultIssueType()));
 	}
 	
 	public String getTargetName() {
@@ -62,7 +65,7 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 		IContextJira contextJira = context.as(IContextJira.class);
 		JiraRestConnection conn = JiraConnectionFactory.getConnection(context);
 		issueFields.put("project.key", contextJira.getJiraProjectKey());
-		issueFields.put("issuetype.name", getIssueType(contextJira));
+		issueFields.put("issuetype.name", getIssueType());
 		issueFields.put("summary", StringUtils.abbreviate((String)issueFields.get("summary"), 254));
 		return conn.submitIssue(issueFields);
 	}
@@ -75,17 +78,17 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 			}
 		};
 	}
+
+	public String getIssueType() {
+		return issueType;
+	}
+
+	public void setIssueType(String issueType) {
+		this.issueType = issueType;
+	}
 	
-	protected String getIssueType(IContextJira context) {
-		String issueType = context.getJiraIssueType();
-		return issueType!=null?issueType:getDefaultIssueType();
-	}
-
-	public String getDefaultIssueType() {
-		return defaultIssueType;
-	}
-
-	public void setDefaultIssueType(String defaultIssueType) {
-		this.defaultIssueType = defaultIssueType;
+	@Autowired
+	public void setConfiguration(JiraTargetConfiguration config) {
+		setIssueType(config.getIssueType());
 	}
 }

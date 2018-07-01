@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.file;
+package com.fortify.bugtracker.tgt.file.processor;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -31,11 +31,12 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
-import com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration;
+import com.fortify.bugtracker.common.tgt.config.AbstractTargetSubmitOnlyConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.processrunner.context.Context;
@@ -52,6 +53,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * 
  * @author Ruud Senden
  */
+@Component
 public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjectMapsFromGroupedObjects implements ITargetProcessorSubmitIssues {
 	private static final Log LOG = LogFactory.getLog(FileTargetProcessorSubmitIssues.class);
 	
@@ -106,7 +108,7 @@ public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjec
 	 * @param bugTrackerFieldConfiguration
 	 */
 	@Autowired
-	public void setBugTrackerFieldConfiguration(BugTrackerFieldConfiguration bugTrackerFieldConfiguration) {
+	public void setBugTrackerFieldConfiguration(AbstractTargetSubmitOnlyConfiguration bugTrackerFieldConfiguration) {
 		super.setFields(bugTrackerFieldConfiguration.getFields());
 	}
 }

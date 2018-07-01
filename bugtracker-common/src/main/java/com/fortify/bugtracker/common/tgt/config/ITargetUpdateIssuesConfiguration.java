@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,35 +22,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.archer.processor;
+package com.fortify.bugtracker.common.tgt.config;
 
 import java.util.LinkedHashMap;
 
-import org.springframework.stereotype.Component;
+import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
-import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
-import com.fortify.bugtracker.tgt.archer.connection.ArcherConnectionFactory;
-import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-
-/**
- * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
- * submits issues to Archer.
- */
-@Component
-public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<Object> {
-	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-	}
-	
-	public String getTargetName() {
-		return "Archer";
-	}
-	
-	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		return ArcherConnectionFactory.getConnection(context).submitIssue(issueData);
-	}
+public interface ITargetUpdateIssuesConfiguration {
+	public LinkedHashMap<String, TemplateExpression> getFieldsForUpdate();
+	public LinkedHashMap<String, TemplateExpression> getAppendedFieldsForUpdate();
+	public SimpleExpression getIsIssueOpenableExpression();
+	public SimpleExpression getIsIssueCloseableExpression();
 }

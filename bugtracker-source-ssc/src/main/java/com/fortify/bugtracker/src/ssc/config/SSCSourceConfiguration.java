@@ -46,7 +46,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * @author Ruud Senden
  *
  */
-public class SSCSourceProcessorConfiguration extends AbstractSourceProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
+public class SSCSourceConfiguration extends AbstractSourceProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
 	static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = 
 			SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");
 	

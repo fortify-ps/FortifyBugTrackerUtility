@@ -28,15 +28,16 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
-import com.fortify.bugtracker.tgt.tfs.util.WorkItemTypeToFieldRenamer;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
@@ -45,16 +46,15 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
  * This {@link AbstractTargetProcessorSubmitIssues} implementation
  * submits issues to TFS.
  */
+@Component
 public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<TFSIssueState> {
-	private String defaultWorkItemType = "Bug";
-	private WorkItemTypeToFieldRenamer fieldRenamer = new WorkItemTypeToFieldRenamer();
+	private String workItemType;
 	
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", true));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSProject", "TFS project to submit vulnerabilities to", true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSWorkItemType", "TFS work item type", true).defaultValue(getDefaultWorkItemType()));
 	}
 	
 	public String getTargetName() {
@@ -66,9 +66,7 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 		IContextTFS contextTFS = context.as(IContextTFS.class);
 		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
-		String workItemType = getWorkItemType(contextTFS);
-		fieldRenamer.renameFields(workItemType, issueData);
-		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), workItemType, issueData);
+		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), getWorkItemType(), issueData);
 	}
 	
 	@Override
@@ -79,27 +77,18 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 			}
 		};
 	}
+
+	public String getWorkItemType() {
+		return workItemType;
+	}
+
+	public void setWorkItemType(String workItemType) {
+		this.workItemType = workItemType;
+	}
 	
+	@Autowired
+	public void setConfiguration(TFSTargetConfiguration config) {
+		setWorkItemType(config.getWorkItemType());
+	}
 	
-	protected String getWorkItemType(IContextTFS context) {
-		String issueType = context.getTFSWorkItemType();
-		return issueType!=null?issueType:getDefaultWorkItemType();
-	}
-
-	public String getDefaultWorkItemType() {
-		return defaultWorkItemType;
-	}
-
-	public void setDefaultWorkItemType(String defaultWorkItemType) {
-		this.defaultWorkItemType = defaultWorkItemType;
-	}
-
-	public WorkItemTypeToFieldRenamer getFieldRenamer() {
-		return fieldRenamer;
-	}
-
-	@Autowired(required=false)
-	public void setFieldRenamer(WorkItemTypeToFieldRenamer fieldRenamer) {
-		this.fieldRenamer = fieldRenamer;
-	}
 }

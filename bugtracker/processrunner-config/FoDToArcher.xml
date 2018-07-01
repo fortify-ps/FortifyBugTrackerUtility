@@ -34,10 +34,10 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- Auto-configure various components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.archer"/>
 	
-	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
+	<!-- Source configuration properties -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -127,11 +127,8 @@
 		<entry key="" value=""/>
 	</util:map>
 	
-	<!-- This bean defines the bug tracker fields to be submitted or updated. If necessary, 
-	     you can change the properties in this bean, for example to change the fields and 
-	     field data submitted to the bug tracker. 
-	-->
-	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
+	<!-- Target configuration properties -->
+	<bean class="com.fortify.bugtracker.tgt.archer.config.ArcherTargetConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<!-- TODO Add additional Archer fields -->
@@ -148,11 +145,4 @@
 			<!-- <entry key="Recommendation" value="${recommendations.recommendations}"/> -->
 		</map></property>
 	</bean>
-	
-	<!-- This bean defines the processor configuration for submitting FoD vulnerabilities 
-	     to Archer.
-	-->
-	<bean id="fodToArcherIssueSubmitter" class="com.fortify.bugtracker.tgt.archer.processor.ArcherTargetProcessorSubmitIssues">
-	</bean>
-	
 </beans>
