@@ -28,8 +28,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.bugtracker.common.src.processor.IProcessorSubmitVulnerabilities;
-import com.fortify.bugtracker.common.src.processor.IProcessorUpdateState;
+import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsToTarget;
+import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOnTarget;
 import com.fortify.processrunner.ProcessRunner;
 
 /**
@@ -39,9 +39,9 @@ import com.fortify.processrunner.ProcessRunner;
  * this implementation will determine whether the current instance
  * is enabled and whether it should be the default process runner:
  * <ul>
- *  <li>Only {@link IProcessorSubmitVulnerabilities} available: Submit ProcessRunner enabled and default runner, others disabled</li>
- *  <li>Only {@link IProcessorUpdateState} available: Update ProcessRunner enabled and default runner, others disabled</li>
- *  <li>Both {@link IProcessorSubmitVulnerabilities} and {@link IProcessorUpdateState} available: Submit, Update and Submit&Update ProcessRunners enabled, Submit&Update is default ProcessRunner</li>
+ *  <li>Only {@link ISourceProcessorSubmitVulnsToTarget} available: Submit ProcessRunner enabled and default runner, others disabled</li>
+ *  <li>Only {@link ISourceProcessorUpdateVulnsOnTarget} available: Update ProcessRunner enabled and default runner, others disabled</li>
+ *  <li>Both {@link ISourceProcessorSubmitVulnsToTarget} and {@link ISourceProcessorUpdateVulnsOnTarget} available: Submit, Update and Submit&Update ProcessRunners enabled, Submit&Update is default ProcessRunner</li>
  * </ul>
  * 
  * @author Ruud Senden
@@ -50,8 +50,8 @@ import com.fortify.processrunner.ProcessRunner;
 public class BugTrackerProcessRunner extends ProcessRunner {
 	private final String sourceSystemName;
 	private final ProcessRunnerType type;
-	protected IProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor;
-	protected IProcessorUpdateState updateStateProcessor;
+	protected ISourceProcessorSubmitVulnsToTarget submitVulnerabilitiesProcessor;
+	protected ISourceProcessorUpdateVulnsOnTarget updateStateProcessor;
 
 	public enum ProcessRunnerType {
 		SUBMIT, UPDATE, SUBMIT_AND_UPDATE
@@ -94,30 +94,30 @@ public class BugTrackerProcessRunner extends ProcessRunner {
 		return getUpdateStateProcessor()!=null && getUpdateStateProcessor().isEnabled();
 	}
 
-	public IProcessorSubmitVulnerabilities getSubmitVulnerabilitiesProcessor() {
+	public ISourceProcessorSubmitVulnsToTarget getSubmitVulnerabilitiesProcessor() {
 		return submitVulnerabilitiesProcessor;
 	}
 
 	@Autowired(required=false)
-	public void setSubmitVulnerabilitiesProcessor(IProcessorSubmitVulnerabilities submitVulnerabilitiesProcessor) {
+	public void setSubmitVulnerabilitiesProcessor(ISourceProcessorSubmitVulnsToTarget submitVulnerabilitiesProcessor) {
 		this.submitVulnerabilitiesProcessor = submitVulnerabilitiesProcessor;
 	}
 
-	public IProcessorUpdateState getUpdateStateProcessor() {
+	public ISourceProcessorUpdateVulnsOnTarget getUpdateStateProcessor() {
 		return updateStateProcessor;
 	}
 
 	@Autowired(required=false)
-	public void setUpdateStateProcessor(IProcessorUpdateState updateStateProcessor) {
+	public void setUpdateStateProcessor(ISourceProcessorUpdateVulnsOnTarget updateStateProcessor) {
 		this.updateStateProcessor = updateStateProcessor;
 	}
 
 	protected final String getBugTrackerName() {
 		if ( getSubmitVulnerabilitiesProcessor()!=null ) {
-			return getSubmitVulnerabilitiesProcessor().getBugTrackerName();
+			return getSubmitVulnerabilitiesProcessor().getTargetName();
 		}
 		if ( getUpdateStateProcessor()!=null ) {
-			return getUpdateStateProcessor().getBugTrackerName();
+			return getUpdateStateProcessor().getTargetName();
 		}
 		throw new IllegalStateException("Cannot determine bug tracker name");
 	}

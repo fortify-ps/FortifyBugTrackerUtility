@@ -41,7 +41,7 @@
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
 	
 	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -139,7 +139,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<entry key="id" value="${id}"/>
 			<entry key="issueInstanceId" value="${issueInstanceId}"/>
@@ -154,7 +154,7 @@
 	     data to a file. If necessary, you can change the properties in this bean, for 
 	     example to change the grouping expression.
 	-->
-	<bean id="sscToFileIssueSubmitter" class="com.fortify.bugtracker.trgt.file.ProcessorFileSubmitIssueForVulnerabilities">
+	<bean id="sscToFileIssueSubmitter" class="com.fortify.bugtracker.tgt.file.FileTargetProcessorSubmitIssues">
 		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 	</bean>
 	

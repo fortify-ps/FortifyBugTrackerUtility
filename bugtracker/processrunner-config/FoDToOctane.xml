@@ -41,7 +41,7 @@
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod"/>
 	
 	<!-- FoD configuration properties -->
-	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.processor.composite.FoDBugTrackerProcessorConfiguration">	
+	<bean id="fodConfiguration" class="com.fortify.bugtracker.src.fod.config.FoDSourceProcessorConfiguration">	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -138,7 +138,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add additional Octane fields -->
 			<entry key="name" value="FoD Detected ${category} at ${primaryLocationFull}"/>
@@ -184,7 +184,7 @@
 	     to Octane. If necessary, you can change the properties in this bean, for example 
 	     to change the grouping expression. 
 	-->
-	<bean class="com.fortify.bugtracker.trgt.octane.processor.ProcessorOctaneSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorSubmitIssues">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
@@ -196,7 +196,7 @@
 	     actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.trgt.octane.processor.ProcessorOctaneTransitionIssueStateForVulnerabilities">
+	<bean id="octaneIssueUpdater" class="com.fortify.bugtracker.tgt.octane.processor.OctaneTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a Octane issue is considered re-openable or closeable. These expressions
 		     can utilize the phase.name, phase.id and type fields. If not defined, an issue is 
 		     considered openable/closeable if a valid transition exists. -->

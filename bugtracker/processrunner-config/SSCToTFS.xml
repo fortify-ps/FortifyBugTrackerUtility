@@ -41,7 +41,7 @@
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc"/>
 	
 	<!-- SSC configuration properties -->
-	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.processor.composite.SSCBugTrackerProcessorConfiguration">
+	<bean id="sscConfiguration" class="com.fortify.bugtracker.src.ssc.config.SSCSourceProcessorConfiguration">
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -151,7 +151,7 @@
 	     you can change the properties in this bean, for example to change the fields and 
 	     field data submitted to the bug tracker. 
 	-->
-	<bean class="com.fortify.bugtracker.common.trgt.config.BugTrackerFieldConfiguration">
+	<bean class="com.fortify.bugtracker.common.tgt.config.BugTrackerFieldConfiguration">
 		<property name="fields"><map>
 			<!-- TODO Add examples for recommendations etcetera -->
 			<entry key="System.Title" value="SSC Detected ${issueName} at ${fullFileName}"/>
@@ -183,7 +183,7 @@
 	     Microsoft.VSTS.TCM.ReproSteps as the default description field, instead of 
 	     the standard System.Description field.
 	-->
-	<bean id="workItemTypeToFieldRenamer" class="com.fortify.bugtracker.trgt.tfs.util.WorkItemTypeToFieldRenamer">
+	<bean id="workItemTypeToFieldRenamer" class="com.fortify.bugtracker.tgt.tfs.util.WorkItemTypeToFieldRenamer">
 		<property name="workItemTypeToFieldRenameMap">
 			<map>
 				<entry key="Bug">
@@ -201,7 +201,7 @@
 	     vulnerabilities to TFS. If necessary, you can change the properties 
 	     in this bean, for example to change the grouping expression. 
 	-->
-	<bean class="com.fortify.bugtracker.trgt.tfs.processor.ProcessorTFSSubmitIssueForVulnerabilities">
+	<bean class="com.fortify.bugtracker.tgt.tfs.processor.TFSTargetProcessorSubmitIssues">
 		<!-- Expression for grouping vulnerabilities into a single issue. Grouping
 		     can be disabled by setting the DisableGrouping context property to 'true'. -->
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
@@ -213,7 +213,7 @@
 	     these actions is optional; if a property is not defined, the corresponding action
 	     will not be performed.
 	-->
-	<bean id="tfsIssueUpdater" class="com.fortify.bugtracker.trgt.tfs.processor.ProcessorTFSTransitionIssueStateForVulnerabilities">
+	<bean id="tfsIssueUpdater" class="com.fortify.bugtracker.tgt.tfs.processor.TFSTargetProcessorUpdateIssuesWithTransitions">
 		<!-- Define when a TFS issue is considered re-openable or closeable. These expressions
 		     can utilize the workItemType (corresponding to System.WorkItemType), state
 		     (corresponding to System.State) and reason (corresponding to System.Reason) fields -->

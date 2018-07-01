@@ -26,7 +26,7 @@ package com.fortify.bugtracker.src.fod.json.preprocessor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.bugtracker.common.trgt.issue.SubmittedIssueCommentHelper;
+import com.fortify.bugtracker.common.tgt.issue.SubmittedIssueCommentHelper;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
