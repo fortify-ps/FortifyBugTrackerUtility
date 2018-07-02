@@ -33,41 +33,20 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<!-- Auto-configure source and target components -->
+	<!--
+		This configuration file contains a basic configuration for submitting vulnerabilities
+		from FoD to a file, and does not describe all possible configuration options. Please 
+		see FortifyBugTrackerUtility documentation for more information about the various 
+		configuration components and properties. 
+	 -->
+	
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.file"/>
 	
-	<!-- This bean allows for configuring default values for command line options. -->
-	<util:map id="contextProperties">
-		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
-	</util:map>
-	
-	<!--==================================================================================-->
-	<!-- SOURCE CONFIGURATION -->
-	<!--==================================================================================-->
-		
-	<!-- Source configuration properties -->
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
-		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
-		     the external system. Information about the format of this filter string can be
-		     found in the FoD API documentation, and you can use the FoD API Explorer to test
-		     your filter strings. -->
 		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
 			severityString:Critical|High+isSuppressed=false
 		</value></property>
 		
-		<!-- Set additional filters for vulnerabilities to be submitted to the external
-		     system, if you require any filtering that cannot be performed by FoD directly. -->
-		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
-			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
-		</map></property>
-		
-		<!-- Specify whether, and how information about the submitted vulnerabilities
-		     should be added to FoD. If all of these are disabled, no information
-		     about the submitted vulnerability will be stored in FoD, resulting in
-		     all vulnerabilities being submitted again on a next invocation, and
-		     disabling bug state management. You should enable at most one of these
-		     options. Bug data can either be stored as a vulnerability comment, or
-		     as a native FoD bug link. -->
 		<property name="addBugDataAsComment" value="false"/>
 		<property name="addNativeBugLink" value="false"/>
 		
@@ -80,49 +59,12 @@
 		]]></value></property>
 	</bean>
 	
-	<!-- This bean allows for defining a static mapping between application and release name,
-	     and corresponding context properties. This can for example be used to map FoD release 
-	     names to a corresponding output file.
-	     
-	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
-	     will automatically process all application releases that match any of the mappings defined 
-	     here. The keys defined here are regular expressions that are being matched against
-	     [applicationName]:[releaseName]. The values are one or more context property
-	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
-	     Context property values can use Spring template expressions to reference release
-	     JSON attributes, for example ${applicationName}. 
-	     
-	     This example configuration will match all application releases, and set the
-	     OutputFile context property based on application and release name. -->
 	<bean class="com.fortify.bugtracker.src.fod.releases.FoDReleaseNameBasedContextGenerator">
 		<property name="releaseNameMappings"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
 		</map></property>
 	</bean>
 	
-	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
-	     attribute-based mapping here. This bean allows for automatically loading all 
-	     FoD application release for which the corresponding application has a 
-	     'Output File' attribute set, and automatically using that attribute value 
-	     to generate the OutputFile context property for each release being processed. 
-	     
-	     Note that all releases for any matching applications will be processed; if this is not
-	     desired you will need to (also) use the static mapping above to filter on specific
-	     release names.
-	     -->
-	<!-- 
-	<bean class="com.fortify.bugtracker.src.fod.releases.FoDApplicationAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Output File" value="OutputFile"/>
-		</map></property>
-	</bean>
-	-->
-	
-	<!--==================================================================================-->
-	<!-- TARGET CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Target configuration properties -->
 	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">
 		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 		

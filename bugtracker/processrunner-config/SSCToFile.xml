@@ -33,104 +33,25 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<!-- Auto-configure source and target components -->
+	<!--
+		This configuration file contains a basic configuration for submitting vulnerabilities
+		from SSC to a file, and does not describe all possible configuration options. Please 
+		see FortifyBugTrackerUtility documentation for more information about the various 
+		configuration components and properties. 
+	 -->
+	
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, , com.fortify.bugtracker.tgt.file"/>
 	
-	<!-- This bean allows for configuring default values for command line options. -->
-	<util:map id="contextProperties">
-		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
-	</util:map>
-	
-	<!--==================================================================================-->
-	<!-- SOURCE CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Source configuration properties -->
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
-		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
-		     the external system. Please see the Syntax Guide for the SSC search box for
-		     information about the syntax for this filter. You can use the same SSC search
-		     box to test your filter strings. -->
-		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
-			analysis:exploitable
-		</value></property>
-		
-		<!-- Set additional filters for vulnerabilities to be submitted to the external
-		     system, if you require any filtering that cannot be performed by SSC directly. -->
-		<property name="regExFiltersForVulnerabilitiesToBeSubmitted"><map>
-			<!-- <entry key="someField.someSubField" value="Regular Expression"/> -->
-		</map></property>
-		
-		<!-- Specify whether, and how information about the submitted vulnerabilities
-		     should be added to SSC. If all of these are disabled, no information
-		     about the submitted vulnerability will be stored in SSC, resulting in
-		     all vulnerabilities being submitted again on a next invocation, and
-		     disabling bug state management. You should enable at most one of these
-		     options. Bug data can either be stored in a custom tag, or submitted
-		     through the SSC 'Add Existing Bugs' custom bug tracker integration, to
-		     be stored as a native SSC bug tracker link. -->
-		<!-- <property name="bugLinkCustomTagName" value="FileLocation"/> -->
-		<!-- <property name="addNativeBugLink" value="true"/> -->
-		
-		<!-- This property enables a work-around where the SSC doesn't return the correct 
-		     vulnerability revision when retrieving the list of vulnerabilities for an
-		     application version, until the metrics for that application version have been
-		     refreshed. This is a known bug in SSC 16.20 and possibly older versions; SSC
-		     17.10 and up should not need this work-around. Please enable this property if
-		      you consistently get an error
-		     'Conflict detected! There is a newer revision of the selected issue on the server.'
-		     when FortifyBugTrackerUtility tries to update custom tags in SSC. -->
-		<!-- <property name="enableRevisionWorkAround" value="true"/> -->
-		
-		<!-- This property defines the expression for evaluating whether an SSC 
-		     vulnerability should be considered open or closed. This expression
-		     can use any SSC vulnerability attribute. Commonly used attributes
-		     for this expression include removed and suppressed. -->
-		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
-			removed==false && suppressed==false
-		]]></value></property>
+		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
 	</bean>
 	
-	
-	<!-- This bean allows for defining a static mapping between application and version name,
-	     and corresponding context properties. This can for example be used to map SSC application
-	     version names to a corresponding output file.
-	     
-	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
-	     will automatically process all application versions that match any of the mappings defined 
-	     here. The keys defined here are regular expressions that are being matched against
-	     [applicationName]:[versionName]. The values are one or more context property
-	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
-	     Context property values can use Spring template expressions to reference release
-	     JSON attributes, for example ${project.name} and ${name} (version name). 
-	     
-	     This example configuration will match all application releases, and set the
-	     OutputFile context property based on application and version name. -->
 	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
 		<property name="applicationVersionNameMappings"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${project.name}-${name}.csv"/>
 		</map></property>
 	</bean>
 	
-	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
-	     attribute-based mapping here. This bean allows for automatically loading all 
-	     SSC application versions that have the 'Output File' attribute set, and 
-	     automatically using that attribute value to generate the OutputFile context 
-	     property for each application version being processed. -->
-	<!-- 
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Output File" value="OutputFile"/>
-		</map></property>
-	</bean>
-	-->
-	
-	
-	<!--==================================================================================-->
-	<!-- TARGET CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Target configuration properties -->
 	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">
 		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
 		
