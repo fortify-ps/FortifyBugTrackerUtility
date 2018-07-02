@@ -78,7 +78,6 @@
 		<module>bugtracker-target-tfs</module>
 		<module>bugtracker-target-archer</module>
 		<module>bugtracker-target-octane</module>
-		<module>bugtracker-doc</module>
 		<module>bugtracker</module>
 	</modules>
 	<dependencyManagement>

@@ -32,21 +32,40 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
-		
-	<!-- Auto-configure source and target components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.archer"/>
 	
-	<!-- This bean allows for configuring default values for command line options. -->
-	<util:map id="contextProperties">
-		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
-	</util:map>
-	
-	<!--==================================================================================-->
-	<!-- SOURCE CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Source configuration properties -->
+	<!-- START SNIPPET: bean -->
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
+		<!-- By default, the following fields can be referenced in this configuration file:
+		     * ${fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint
+		     * ${deepLink}
+		       Browser-viewable deep link to SSC vulnerability
+		     * ${bugURL}
+		       Native SSC bug link, or bug link as stored in custom tag (see bugLinkCustomTagName and addNativeBugLink below)
+		     * ${details.fieldName} 
+		       Any field returned by the SSC /api/v1/issueDetails/${id} endpoint
+		     * ${#ctx.SSCApplicationVersion.fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions endpoint
+		     * ${#ctx.SSCApplicationVersion.deepLink}
+		       Browser-viewable deep link to SSC application version
+		       
+		     The extraVulnerabilityData property can be used to retrieve additional data from SSC. Each entry defines
+		     a property name as key, and relative API endpoint URI as value. The URI may contain request parameters
+		     like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName}.
+		     
+		     These endpoints are called on-demand whenever a corresponding property is requested, and will be cached
+		     for individual vulnerabilities. If you define any endpoints that are relevant for multiple vulnerabilities
+		     (i.e. related to application version, artifacts, scans, ...), you may want to add ';cache=true' to the
+		     endpoint URI to avoid calling the same endpoint for each vulnerability.
+		-->
+		<property name="extraVulnerabilityData"><map>
+			<entry key="comments" value="/api/v1/issues/${id}/comments"/>
+			<entry key="auditHistory" value="/api/v1/issues/${id}/auditHistory"/>
+			<entry key="lastScan" value="/api/v1/scans/${lastScanId};cache=true"/>
+			<entry key="lastArtifact" value="/api/v1/artifacts/${lastScan.artifactId};cache=true"/>
+		</map></property>
+	
 		<!-- Set the SSC filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
@@ -69,8 +88,14 @@
 		     options. Bug data can either be stored in a custom tag, or submitted
 		     through the SSC 'Add Existing Bugs' custom bug tracker integration, to
 		     be stored as a native SSC bug tracker link. -->
-		<property name="bugLinkCustomTagName" value="ArcherBugLink"/>
+		<property name="bugLinkCustomTagName" value="OctaneBugLink"/>
 		<!-- <property name="addNativeBugLink" value="true"/> -->
+		
+		<!-- Allow the user to see ALM Octane issue phase name in SSC. Any custom tags that 
+		     do not exist or are not assigned to the application version will be ignored. -->
+		<property name="extraCustomTags"><map>
+			<entry key="OctaneIssueState" value="${issueStateDetails.phase.name}"/>
+		</map></property>
 		
 		<!-- This property enables a work-around where the SSC doesn't return the correct 
 		     vulnerability revision when retrieving the list of vulnerabilities for an
@@ -90,60 +115,5 @@
 			removed==false && suppressed==false
 		]]></value></property>
 	</bean>
-	
-	<!-- This bean allows for automatically loading all SSC application versions for which
-	     the 'Archer Application Name' attribute has been set, and 
-	     automatically using that attribute value to generate the ArcherApplicationName context 
-	     property for each release being processed. -->
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Archer Application Name" value="ArcherApplicationName"/>
-		</map></property>
-	</bean>
-	
-	<!-- Alternatively, you can comment out the attribute-based mapping above, and uncomment 
-	     the static mapping here. This allows for maintaining a static mapping between 
-	     application version names and corresponding context properties in this configuration
-	     file, instead of configuring the mappings through SSC application version attributes.
-	     
-	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
-	     will automatically process all application releases that match any of the mappings defined 
-	     here. The keys defined here are regular expressions that are being matched against
-	     [applicationName]:[versionName]. The values are one or more context property
-	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
-	     Context property values can use Spring template expressions to reference release
-	     JSON attributes, for example ${project.name} and ${name} (version name). 
-	     
-	     The mappings below are just examples; you will need to update these to match your
-	     SSC application and version names. -->
-	<!--
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
-		<property name="applicationVersionNameMappings"><map>
-			<entry key="MyApp:MyVersion" value="ArcherApplicationName=MyApp"/>
-			<entry key="MyOtherApp:.*" value="ArcherApplicationName=MyOtherApp"/>
-			<entry key=".*:current" value="ArcherApplicationName=${project.name}"/>
-		</map></property>
-	</bean>
-	-->	
-	
-	<!--==================================================================================-->
-	<!-- TARGET CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Target configuration properties -->
-	<bean class="com.fortify.bugtracker.tgt.archer.config.ArcherTargetConfiguration">
-		<property name="fields"><map>
-			<!-- TODO Add additional Archer fields -->
-			<entry key="ID" value="${id}"/>
-			<entry key="Project Version ID" value="${projectVersionId}"/>
-			<entry key="Issue Type" value="${issueName}"/>
-			<entry key="File Name" value="${fullFileName}"/>
-			<entry key="Line Number" value="${lineNumber}"/>
-			<entry key="Analysis" value="${primaryTag}"/>
-			<entry key="Analyzer" value="${analyzer}"/>
-			<entry key="Priority" value="${friority}"/>
-			<entry key="Recommendation" value="${details.recommendation}"/>
-		</map></property>
-	</bean>
-	
+	<!-- END SNIPPET: bean -->
 </beans>

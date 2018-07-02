@@ -1,0 +1,20 @@
+# component-scan element
+Each configuration file must specify which source and target system to use through the `<context:component-scan>` element. This element has the following format:
+
+`<context:component-scan base-package="com.fortify.bugtracker.src.[sourceSystem], com.fortify.bugtracker.tgt.[targetSystem]"/>`
+
+- `[sourceSystem]` can be one of the following:
+    - ssc
+    - fod
+- `[targetSystem]` can be one of the following:
+    - archer
+    - file
+    - jira
+    - octane
+    - tfs
+    - ssc 
+     
+As an example, the following element would select FoD as the source system, and TFS as the target system: `<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.tfs"/>`
+
+Note that each configuration file may only have one `<context:component-scan>` element that selects one source system and one target system. If you require multiple source/target system combinations, these should all have their own configuration file. 
+

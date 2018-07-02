@@ -31,13 +31,25 @@
   <body>
     <menu name="FortifyBugTrackerUtility">
       <item name="Introduction" href="index.html"/>
-      <item name="Use Cases" href="usecases.html"/>
       <item name="Usage" href="usage.html"/>
       <item name="Configuration" href="config.html">
-        <item name="Default option values" href="config-cli-default-values.html"/>
-      	<item name="FoD" href="config-fod.html"/>
-      	<item name="SSC" href="config-ssc.html"/>
-      	<item name="Target systems" href="config-target.html"/>
+        <item name="Global">
+        	<item name="beans" href="config-beans.html"/>
+        	<item name="component-scan" href="config-component-scan.html"/>
+        	<item name="contextProperties" href="config-contextProperties.html"/>
+        </item>
+        <item name="Source">
+        	<item name="FoD" href="config-SourceConfigurationFoD.html"/>
+      		<item name="SSC" href="config-SourceConfigurationSSC.html"/>
+        </item>
+      	<item name="Target">
+	      	<item name="Archer" href="config-TargetConfigurationArcher.html"/>
+	      	<item name="File" href="config-TargetConfigurationFile.html"/>
+	      	<item name="Jira" href="config-TargetConfigurationJira.html"/>
+	      	<item name="Octane" href="config-TargetConfigurationOctane.html"/>
+	      	<item name="TFS" href="config-TargetConfigurationTFS.html"/>
+	      	<item name="SSC" href="config-TargetConfigurationSSC.html"/>
+      	</item>
       </item>
       <item name="Troubleshooting" href="troubleshooting.html"/>
     </menu>

@@ -27,5 +27,4 @@ action-specific options if the default option values are appropriate.
 
 Before running any actions though, you may want to review the configuration file to verify the various selection and grouping
 criteria, and the fields to be submitted to the external system. Please see the configuration-related sections in this documentation.
-Note that other parts of the documentation and sample configuration files may refer to the 'action-specific options' as 'context properties';
-both terms are equivalent.
+Note that other parts of the documentation and sample configuration files may refer to the 'action-specific options' as 'context properties'; both terms are equivalent.

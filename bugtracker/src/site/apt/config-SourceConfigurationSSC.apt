@@ -1,0 +1,8 @@
+SSC Source Configuration
+
+  When loading vulnerability data from SSC, the configuration file must include a bean
+definition that configures FoD-related functionality. The following example shows a full 
+bean definition, listing all available properties and corresponding description.
+
+%{snippet|id=bean|file=src/site/snippets/SourceConfigurationSSC.xml}
+

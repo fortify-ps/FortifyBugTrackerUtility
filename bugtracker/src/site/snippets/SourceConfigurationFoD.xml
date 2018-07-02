@@ -33,20 +33,42 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<!-- Auto-configure source and target components -->
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.file"/>
-	
-	<!-- This bean allows for configuring default values for command line options. -->
-	<util:map id="contextProperties">
-		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
-	</util:map>
-	
-	<!--==================================================================================-->
-	<!-- SOURCE CONFIGURATION -->
-	<!--==================================================================================-->
-		
-	<!-- Source configuration properties -->
+	<!-- START SNIPPET: bean -->
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
+		<!-- By default, the following fields can be referenced in configuration files when using FoD
+		     as the source system:
+		     * ${fieldName}
+		       Any field returned by the FoD /api/v3/Releases/{ReleaseId}/vulnerabilities endpoint
+		     * ${deepLink}
+		       Browser-viewable deep link to FoD vulnerability
+		     * ${bugLink}
+		       Native FoD bug link, or bug link as stored in comments (see addBugDataAsComment and addNativeBugLink below)
+		     * ${summary.fieldName} 
+		       Any field returned by the FoD /api/v3/releases/{ReleaseId}/vulnerabilities/{vulnId}/summary endpoint
+		     * TODO: Release fields and deeplink
+		       
+		     The extraVulnerabilityData property can be used to retrieve additional data from FoD. Each entry defines
+		     a property name as key, and relative API endpoint URI as value. The URI may contain request parameters
+		     like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName}.
+		     
+		     These endpoints are called on-demand whenever a corresponding property is requested, and will be cached
+		     for individual vulnerabilities. If you define any endpoints that are relevant for multiple vulnerabilities
+		     (i.e. related to application release, scans, ...), you may want to add ';cache=true' to the endpoint URI 
+		     to avoid calling the same endpoint for each vulnerability.
+		-->
+		<property name="extraVulnerabilityData"><map>
+			<entry key="details" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/details"/>
+			<entry key="recommendations" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/recommendations"/>
+			<entry key="screenshots" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/screenshots"/>
+			<entry key="history" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/history"/>
+			<entry key="requestresponse" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/request-response"/>
+			<entry key="headers" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/headers"/>
+			<entry key="parameters" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/parameters"/>
+			<entry key="traces" value="/api/v3/releases/${releaseId}/vulnerabilities/${vulnId}/traces"/>
+			<entry key="scan" value="/api/v3/releases/${releaseId}/scans/${scanId};cache=true"/>
+		</map></property>
+	
 		<!-- Set the FoD filter string to get the list of vulnerabilities to be submitted to
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
@@ -68,7 +90,7 @@
 		     disabling bug state management. You should enable at most one of these
 		     options. Bug data can either be stored as a vulnerability comment, or
 		     as a native FoD bug link. -->
-		<property name="addBugDataAsComment" value="false"/>
+		<property name="addBugDataAsComment" value="true"/>
 		<property name="addNativeBugLink" value="false"/>
 		
 		<!-- This property defines the expression for evaluating whether an FoD 
@@ -79,61 +101,5 @@
 			closedStatus==false && isSuppressed==false
 		]]></value></property>
 	</bean>
-	
-	<!-- This bean allows for defining a static mapping between application and release name,
-	     and corresponding context properties. This can for example be used to map FoD release 
-	     names to a corresponding output file.
-	     
-	     If no application releases have been specified on the command line, FortifyBugTrackerUtility 
-	     will automatically process all application releases that match any of the mappings defined 
-	     here. The keys defined here are regular expressions that are being matched against
-	     [applicationName]:[releaseName]. The values are one or more context property
-	     values in the format [contextProperty1]=[value1],[contextProperty2]=[value2],... 
-	     Context property values can use Spring template expressions to reference release
-	     JSON attributes, for example ${applicationName}. 
-	     
-	     This example configuration will match all application releases, and set the
-	     OutputFile context property based on application and release name. -->
-	<bean class="com.fortify.bugtracker.src.fod.releases.FoDReleaseNameBasedContextGenerator">
-		<property name="releaseNameMappings"><map>
-			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
-		</map></property>
-	</bean>
-	
-	<!-- Alternatively, you can comment out the static mapping above, and uncomment the 
-	     attribute-based mapping here. This bean allows for automatically loading all 
-	     FoD application release for which the corresponding application has a 
-	     'Output File' attribute set, and automatically using that attribute value 
-	     to generate the OutputFile context property for each release being processed. 
-	     
-	     Note that all releases for any matching applications will be processed; if this is not
-	     desired you will need to (also) use the static mapping above to filter on specific
-	     release names.
-	     -->
-	<!-- 
-	<bean class="com.fortify.bugtracker.src.fod.releases.FoDApplicationAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Output File" value="OutputFile"/>
-		</map></property>
-	</bean>
-	-->
-	
-	<!--==================================================================================-->
-	<!-- TARGET CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Target configuration properties -->
-	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">
-		<property name="groupTemplateExpression" value="${#ctx.OutputFile}"/>
-		
-		<property name="fields"><map>
-			<entry key="id" value="${id}"/>
-			<entry key="vulnId" value="${vulnId}"/>
-			<entry key="category" value="${category}"/>
-			<entry key="primaryLocationFull" value="${primaryLocationFull}"/>
-			<entry key="severity" value="${severityString}"/>
-			<entry key="deepLink" value="${deepLink}"/>
-		</map></property>
-	</bean>
-	
+	<!-- END SNIPPET: bean -->
 </beans>

@@ -33,8 +33,17 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 		
-	<!-- Auto-configure various components -->
+	<!-- Auto-configure source and target components -->
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.tfs"/>
+	
+	<!-- This bean allows for configuring default values for command line options. -->
+	<util:map id="contextProperties">
+		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
+	</util:map>
+	
+	<!--==================================================================================-->
+	<!-- SOURCE CONFIGURATION -->
+	<!--==================================================================================-->
 	
 	<!-- Source configuration properties -->
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
@@ -70,10 +79,6 @@
 			closedStatus==false && isSuppressed==false
 		]]></value></property>
 	</bean>
-	
-	<!--==================================================================================-->
-	<!-- FOD RELEASE FILTERS AND CONTEXT MAPPING CONFIGURATION -->
-	<!--==================================================================================-->
 	
 	<!-- This bean allows for defining a static mapping between application and release name,
 	     and corresponding context properties. This can for example be used to map FoD release 
@@ -120,15 +125,8 @@
 	-->
 	
 	<!--==================================================================================-->
-	<!-- TFS CONFIGURATION -->
+	<!-- TARGET CONFIGURATION -->
 	<!--==================================================================================-->
-	
-	<!-- This bean defines the context for the FoD to TFS processing. All of these
-	     properties can also be specified on the command line. -->
-	<util:map id="contextProperties">
-		<!-- TODO Add all possible properties -->
-		<entry key="" value=""/>
-	</util:map>
 	
 	<!-- Target configuration properties -->
 	<bean class="com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration">

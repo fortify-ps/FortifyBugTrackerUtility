@@ -33,12 +33,17 @@
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
-	<!--==================================================================================-->
-	<!-- SSC CONFIGURATION -->
-	<!--==================================================================================-->
-	
-	<!-- Auto-configure various components -->
+	<!-- Auto-configure source and target components -->
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, , com.fortify.bugtracker.tgt.file"/>
+	
+	<!-- This bean allows for configuring default values for command line options. -->
+	<util:map id="contextProperties">
+		<!-- <entry key="commandLineOptionName" value="commandLineOptionDefaultValue"/> -->
+	</util:map>
+	
+	<!--==================================================================================-->
+	<!-- SOURCE CONFIGURATION -->
+	<!--==================================================================================-->
 	
 	<!-- Source configuration properties -->
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
@@ -87,10 +92,6 @@
 	</bean>
 	
 	
-	<!--==================================================================================-->
-	<!-- SSC APPLICATION VERSION FILTERS AND CONTEXT MAPPING CONFIGURATION -->
-	<!--==================================================================================-->
-	
 	<!-- This bean allows for defining a static mapping between application and version name,
 	     and corresponding context properties. This can for example be used to map SSC application
 	     version names to a corresponding output file.
@@ -124,16 +125,10 @@
 	</bean>
 	-->
 	
-	<!--==================================================================================-->
-	<!-- CSV FILE EXPORT CONFIGURATION -->
-	<!--==================================================================================-->
 	
-	<!-- This bean defines the context for the SSC to file export processing. All of these
-	     properties can also be specified on the command line. -->
-	<util:map id="contextProperties">
-		<!-- TODO Add all possible properties -->
-		<entry key="" value=""/>
-	</util:map>
+	<!--==================================================================================-->
+	<!-- TARGET CONFIGURATION -->
+	<!--==================================================================================-->
 	
 	<!-- Target configuration properties -->
 	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">

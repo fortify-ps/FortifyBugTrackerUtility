@@ -56,7 +56,7 @@
 		</fileSet>
 		<fileSet>
 			<outputDirectory>/documentation</outputDirectory>
-			<directory>${project.build.directory}/../../processrunner-bugtracker-doc/target/site</directory>
+			<directory>${project.build.directory}/site</directory>
 		</fileSet>
 		<fileSet>
 			<outputDirectory>/</outputDirectory>

@@ -96,6 +96,32 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<configuration>
+							<generateProjectInfo>false</generateProjectInfo>
+							<generateReports>false</generateReports>
+							<generateSitemap>false</generateSitemap>
+							<relativizeDecorationLinks>false</relativizeDecorationLinks>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.4</version>
 				<executions>
@@ -148,19 +174,6 @@
 							<outputDirectory>${basedir}/target/THIRD_PARTY_SOURCES</outputDirectory>
 							<classifier>sources</classifier>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.4</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>site</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
