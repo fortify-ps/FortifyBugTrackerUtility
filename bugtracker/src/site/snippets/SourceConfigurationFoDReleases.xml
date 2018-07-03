@@ -34,8 +34,17 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- START SNIPPET: bean -->
-	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration">	
-		<!-- TODO -->
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration">
+		<property name="namePatternToContextMap"><map>
+			<!-- This example matches all application releases, and generates an OutputFile context attribute -->
+			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
+			
+			<!-- This example matches all releases named 'master' for all applications, and generates a 
+			     context attribute based on application attribute -->
+			<entry key=".*:master" value="JiraProjectKey=applicationWithAttributesMap.attributesMap['Jira Project Key']"/>
+		</map></property>
+		
+		
 	</bean>
 	<!-- END SNIPPET: bean -->
 </beans>
