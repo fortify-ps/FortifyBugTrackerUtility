@@ -39,8 +39,10 @@
         	<item name="contextProperties" href="config-contextProperties.html"/>
         </item>
         <item name="Source">
-        	<item name="FoD" href="config-SourceConfigurationFoD.html"/>
-      		<item name="SSC" href="config-SourceConfigurationSSC.html"/>
+        	<item name="FoD Releases" href="config-SourceConfigurationFoDReleases.html"/>
+        	<item name="FoD Vulnerabilities" href="config-SourceConfigurationFoDVulnerabilities.html"/>
+        	<item name="SSC Versions" href="config-SourceConfigurationSSCApplicationVersions.html"/>
+      		<item name="SSC Vulnerabilities" href="config-SourceConfigurationSSCVulnerabilities.html"/>
         </item>
       	<item name="Target">
 	      	<item name="Archer" href="config-TargetConfigurationArcher.html"/>

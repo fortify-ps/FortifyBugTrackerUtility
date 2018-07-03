@@ -1,0 +1,6 @@
+FoD Releases Source Configuration
+
+  TODO
+
+%{snippet|id=bean|file=src/site/snippets/SourceConfigurationFoDReleases.xml}
+
