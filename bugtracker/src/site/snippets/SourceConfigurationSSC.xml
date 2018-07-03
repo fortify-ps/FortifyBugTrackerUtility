@@ -34,7 +34,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- START SNIPPET: bean -->
-	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration">
 		<!-- By default, the following fields can be referenced in this configuration file:
 		     * ${fieldName}
 		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint

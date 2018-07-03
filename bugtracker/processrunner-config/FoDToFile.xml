@@ -42,7 +42,13 @@
 	
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.file"/>
 	
-	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration">
+		<property name="namePatternToContextMap"><map>
+			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
+		</map></property>
+	</bean>
+	
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
 		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
 			severityString:Critical|High+isSuppressed=false
 		</value></property>
@@ -57,12 +63,6 @@
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
 			closedStatus==false && isSuppressed==false
 		]]></value></property>
-	</bean>
-	
-	<bean class="com.fortify.bugtracker.src.fod.releases.FoDReleaseNameBasedContextGenerator">
-		<property name="releaseNameMappings"><map>
-			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
-		</map></property>
 	</bean>
 	
 	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">

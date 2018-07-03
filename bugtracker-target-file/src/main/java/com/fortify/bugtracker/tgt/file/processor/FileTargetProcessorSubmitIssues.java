@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
-import com.fortify.bugtracker.common.tgt.config.AbstractTargetSubmitOnlyConfiguration;
+import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.processrunner.context.Context;
@@ -104,11 +104,12 @@ public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjec
 	}
 	
 	/**
-	 * Autowire the bug tracker field configuration from the Spring configuration file.
-	 * @param bugTrackerFieldConfiguration
+	 * Autowire the configuration from the Spring configuration file.
+	 * @param config
 	 */
 	@Autowired
-	public void setBugTrackerFieldConfiguration(AbstractTargetSubmitOnlyConfiguration bugTrackerFieldConfiguration) {
-		super.setFields(bugTrackerFieldConfiguration.getFields());
+	public void setConfiguration(ITargetSubmitIssuesConfiguration config) {
+		super.setGroupTemplateExpression(config.getGroupTemplateExpressionForSubmit());
+		super.setFields(config.getFieldsForSubmit());
 	}
 }

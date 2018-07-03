@@ -42,7 +42,7 @@
 	
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.jira"/>
 	
-	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
 		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
 			severityString:Critical|High+isSuppressed=false
 		</value></property>

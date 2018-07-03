@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import com.fortify.util.spring.expression.SimpleExpression;
 
-public abstract class AbstractSourceProcessorConfiguration {
+public abstract class AbstractSourceVulnerabilitiesConfiguration {
 
 	private Map<String,Pattern> regExFiltersForVulnerabilitiesToBeSubmitted = null;
 	private SimpleExpression isVulnerabilityOpenExpression = getDefaultIsVulnerabilityOpenExpression();

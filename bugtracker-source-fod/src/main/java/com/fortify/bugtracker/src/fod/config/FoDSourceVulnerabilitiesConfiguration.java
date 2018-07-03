@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.config;
 
-import com.fortify.bugtracker.common.src.config.AbstractSourceProcessorConfiguration;
+import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
@@ -35,7 +35,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * @author Ruud Senden
  *
  */
-public class FoDSourceConfiguration extends AbstractSourceProcessorConfiguration {
+public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
 			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;

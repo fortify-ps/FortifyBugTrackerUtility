@@ -42,23 +42,19 @@
 	
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.archer"/>
 	
-	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Archer Application Name" value="ArcherApplicationName"/>
+		</map></property>
+	</bean>
+	
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration">
 		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
 		<property name="bugLinkCustomTagName" value="ArcherBugLink"/>
 		
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
 			removed==false && suppressed==false
 		]]></value></property>
-	</bean>
-	
-	<!-- This bean allows for automatically loading all SSC application versions for which
-	     the 'Archer Application Name' attribute has been set, and 
-	     automatically using that attribute value to generate the ArcherApplicationName context 
-	     property for each release being processed. -->
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Archer Application Name" value="ArcherApplicationName"/>
-		</map></property>
 	</bean>
 	
 	<bean class="com.fortify.bugtracker.tgt.archer.config.ArcherTargetConfiguration">

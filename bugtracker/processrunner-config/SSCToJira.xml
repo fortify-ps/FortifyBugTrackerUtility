@@ -42,18 +42,18 @@
 		
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.jira"/>
 	
-	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
+		<property name="requiredAttributeMappings"><map>
+			<entry key="Jira Project Key" value="JiraProjectKey"/>
+		</map></property>
+	</bean>
+	
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration">
 		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
 		<property name="bugLinkCustomTagName" value="JiraBugLink"/>
 		
 		<property name="extraCustomTags"><map>
 			<entry key="JiraIssueState" value="${issueStateDetails.status.name}"/>
-		</map></property>
-	</bean>
-	
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionAttributeBasedContextGenerator">
-		<property name="requiredAttributeMappings"><map>
-			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
 	</bean>
 	

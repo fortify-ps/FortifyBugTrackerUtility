@@ -74,6 +74,13 @@ public class Context extends HashMap<String, Object> {
 	}
 	
 	/**
+	 * Convenience method for chaining put operations 
+	 */
+	public Context chainedPut(String key, Object value) {
+		put(key, value); return this;
+	}
+	
+	/**
 	 * Indicate whether this {@link Context} contains a value for the given key.
 	 * If the {@link Context} contains the given key, but it is a blank string,
 	 * this method will also return 'false'

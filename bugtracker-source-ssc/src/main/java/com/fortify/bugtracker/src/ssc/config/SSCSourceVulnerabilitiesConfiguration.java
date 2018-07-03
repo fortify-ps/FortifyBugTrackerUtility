@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.bugtracker.common.src.config.AbstractSourceProcessorConfiguration;
+import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.common.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
 import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
@@ -46,7 +46,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * @author Ruud Senden
  *
  */
-public class SSCSourceConfiguration extends AbstractSourceProcessorConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
+public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
 	static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = 
 			SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");
 	

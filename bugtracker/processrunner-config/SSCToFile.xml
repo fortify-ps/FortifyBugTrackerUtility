@@ -42,14 +42,14 @@
 	
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, , com.fortify.bugtracker.tgt.file"/>
 	
-	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">
-		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
-	</bean>
-	
-	<bean class="com.fortify.bugtracker.common.ssc.appversion.SSCApplicationVersionNameBasedContextGenerator">
-		<property name="applicationVersionNameMappings"><map>
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
+		<property name="namePatternToContextMap"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${project.name}-${name}.csv"/>
 		</map></property>
+	</bean>
+	
+	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration">
+		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
 	</bean>
 	
 	<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">

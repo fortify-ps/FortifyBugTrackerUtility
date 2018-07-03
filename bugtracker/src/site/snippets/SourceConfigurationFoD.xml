@@ -34,7 +34,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 	
 	<!-- START SNIPPET: bean -->
-	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">	
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
 		<!-- By default, the following fields can be referenced in configuration files when using FoD
 		     as the source system:
 		     * ${fieldName}

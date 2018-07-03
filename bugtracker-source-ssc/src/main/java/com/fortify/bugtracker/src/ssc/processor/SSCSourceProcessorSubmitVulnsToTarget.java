@@ -41,7 +41,7 @@ import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
-import com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration;
+import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.src.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.bugtracker.src.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
@@ -58,7 +58,7 @@ import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 /**
  * TODO Update JavaDoc?
  * <p>This {@link IProcessor} implementation combines and configures 
- * {@link SSCSourceProcessorRetrieveVulnerabilities}, {@link SSCSourceConfiguration} 
+ * {@link SSCSourceProcessorRetrieveVulnerabilities}, {@link SSCSourceVulnerabilitiesConfiguration} 
  * and {@link ITargetProcessorSubmitIssues} (provided by the bug tracker 
  * implementation) to allow for submitting SSC vulnerabilities to bug trackers or
  * other external systems.</p> 

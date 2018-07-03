@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,18 +22,40 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.releases;
+package com.fortify.bugtracker.common.src.config;
 
-import com.fortify.client.fod.api.query.builder.FoDApplicationsQueryBuilder;
+import java.util.LinkedHashMap;
+
+import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This interface allows for updating an {@link FoDApplicationsQueryBuilder} to
- * automatically select FoD applications to be processed.
+ * Configuration class for {@link AbstractSourceContextGenerator}.
  * 
  * @author Ruud Senden
  *
  */
-public interface IFoDApplicationQueryBuilderUpdater {
-	public void updateFoDApplicationQueryBuilder(Context context, FoDApplicationsQueryBuilder builder);
+public class AbstractSourceContextGeneratorConfiguration implements ISourceContextGeneratorConfiguration {
+	private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
+	private LinkedHashMap<String, Context> expressionToContextMap = new LinkedHashMap<>();
+
+	@Override
+	public LinkedHashMap<String, Context> getExpressionToContextMap() {
+		return expressionToContextMap;
+	}
+
+	public void setExpressionToContextMap(LinkedHashMap<String, Context> expressionToContextMap) {
+		this.expressionToContextMap = expressionToContextMap;
+	}
+
+	@Override
+	public LinkedHashMap<String, String> getExtraData() {
+		return extraData;
+	}
+
+	public void setExtraData(LinkedHashMap<String, String> extraData) {
+		this.extraData = extraData;
+	}
+	
+	
 }
