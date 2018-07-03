@@ -30,6 +30,10 @@
 		<artifactId>bugtracker-root</artifactId>
 		<version>3.5-SNAPSHOT</version>
 	</parent>
+	<properties>
+		<!--  Used by .apt.vm files to correctly resolve snippet files -->
+		<basedir>${basedir}</basedir>
+	</properties>
 	<organization>
 		<name>Micro Focus Fortify</name>
 		<url>https://software.microfocus.com/en-us/software/application-security</url>
@@ -116,6 +120,11 @@
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-markdown</artifactId>
 						<version>1.7</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-apt</artifactId>
+						<version>1.8</version>
 					</dependency>
 				</dependencies>
 			</plugin>

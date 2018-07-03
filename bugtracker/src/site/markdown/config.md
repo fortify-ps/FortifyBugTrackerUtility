@@ -8,9 +8,11 @@ In general, a configuration file contains the following elements (you can click 
 - A [`<beans>`](config-beans.html) element that wraps all other configuration elements.
 - A [`<context:component-scan>`](config-component-scan.html) element for loading source and target implementations.
 - A [`<util:map id="contextProperties">`](config-contextProperties.html) for setting default values for command line options.
-- A bean describing the configuration of the source system:
-    - FoD: [`<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfiguration">`](config-SourceConfigurationFoD.html)
-    - SSC: [`<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfiguration">`](config-SourceConfigurationSSC.html)
+- One or more beans describing the configuration of the source system:
+    - FoD releases: [`<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfigurationReleases">`](config-SourceConfigurationFoDReleases.html)
+    - FoD vulnerabilities: [`<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceConfigurationVulnerabilities">`](config-SourceConfigurationFoDVulnerabilities.html)
+    - SSC application versions: [`<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfigurationApplicationVersions">`](config-SourceConfigurationFoDReleases.html)
+    - SSC vulnerabilities: [`<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceConfigurationVulnerabilities">`](config-SourceConfigurationSSCVulnerabilities.html)
 - A bean describing the configuration of the target system (bug tracker, risk management system, file, ...):
     - RSA Archer: [`<bean class="com.fortify.bugtracker.tgt.archer.config.ArcherTargetConfiguration">`](config-TargetConfigurationArcher.html)
     - CSV File: [`<bean class="com.fortify.bugtracker.tgt.file.config.FileTargetConfiguration">`](config-TargetConfigurationFile.html)

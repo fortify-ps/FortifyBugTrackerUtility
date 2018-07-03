@@ -4,5 +4,5 @@ Native SSC Bug Tracker Configuration
 configuration file must include configures SSC-related functionality. The following example 
 shows a full bean definition, listing all available properties and corresponding description.
 
-%{snippet|id=bean|file=src/site/snippets/TargetConfigurationSSC.xml}
+%{snippet|id=bean|file=$basedir/src/site/snippets/TargetConfigurationSSC.xml}
 

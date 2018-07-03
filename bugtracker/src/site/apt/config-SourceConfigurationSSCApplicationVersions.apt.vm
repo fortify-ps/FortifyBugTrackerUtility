@@ -1,0 +1,6 @@
+SSC Application Versions Source Configuration
+
+  TODO
+
+%{snippet|id=bean|file=$basedir/src/site/snippets/SourceConfigurationSSCApplicationVersions.xml}
+
