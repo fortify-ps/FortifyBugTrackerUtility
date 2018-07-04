@@ -54,7 +54,7 @@
 		<property name="bugLinkCustomTagName" value="TFSBugLink"/>
 		
 		<property name="extraCustomTags"><map>
-			<entry key="TFSIssueState" value="${issueStateDetails.state}"/>
+			<entry key="TFSIssueState" value="${fields['System.State']}"/>
 		</map></property>
 	</bean>
 
@@ -78,9 +78,12 @@
 		<property name="fieldsToUpdateDuringStateManagement" value="Microsoft.VSTS.TCM.ReproSteps"/>
 	
 		<property name="transitionsForOpeningIssue"><map>
-			<entry key="workItemType=='Bug' and state=='Done'" value="Committed[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="workItemType=='Bug' and state=='Removed'" value="New[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="workItemType=='Bug' and state matches 'Resolved|Closed'" value="Active[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields['System.WorkItemType']=='Bug' and fields['System.State']=='Done'" 
+			       value="Committed[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields['System.WorkItemType']=='Bug' and fields['System.State']=='Removed'" 
+			       value="New[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields['System.WorkItemType']=='Bug' and fields['System.State'] matches 'Resolved|Closed'" 
+			       value="Active[Issue re-opened by FortifyBugTrackerUtility" />
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- TODO Add transitions for closing issues -->

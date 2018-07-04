@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.archer.connection.ArcherConnectionFactory;
 import com.fortify.processrunner.context.Context;
@@ -39,7 +39,7 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
  * submits issues to Archer.
  */
 @Component
-public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<Object> {
+public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -50,7 +50,7 @@ public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
+	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		return ArcherConnectionFactory.getConnection(context).submitIssue(issueData);
 	}
 }

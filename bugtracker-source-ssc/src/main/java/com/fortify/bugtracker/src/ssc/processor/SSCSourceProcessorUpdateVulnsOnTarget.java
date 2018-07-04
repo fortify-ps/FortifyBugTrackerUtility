@@ -36,8 +36,7 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOn
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssues;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.src.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
@@ -97,8 +96,8 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 		}
 	}
 
-	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
-		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
+	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, targetIssueLocatorAndFields, vulnerabilities);
 		if ( !customTagValues.isEmpty() ) {
 			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);

@@ -44,7 +44,7 @@ import javax.xml.soap.SOAPPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;
@@ -157,7 +157,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	/* (non-Javadoc)
 	 * @see com.fortify.bugtracker.tgt.archer.connection.IArcherRestConnection#submitIssue(java.util.LinkedHashMap)
 	 */
-	public SubmittedIssue submitIssue(LinkedHashMap<String, Object> issueData) {
+	public TargetIssueLocator submitIssue(LinkedHashMap<String, Object> issueData) {
 		JSONMap data = new JSONMap();
 		JSONMap fieldContents = new JSONMap();
 		data.putPath("Content.LevelId", this.levelId);
@@ -174,7 +174,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		}
 		JSONMap result = executeRequest(HttpMethod.POST, getBaseResource().path("api/core/content"), Entity.entity(data, "application/json"), JSONMap.class);
 		String id = SpringExpressionUtil.evaluateExpression(result, "RequestedObject.Id", String.class);
-		return new SubmittedIssue(id, getDeepLink(id));
+		return new TargetIssueLocator(id, getDeepLink(id));
 	}
 	
 	private String getDeepLink(String id) {

@@ -24,21 +24,16 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.tgt.issue;
 
+import java.util.LinkedHashMap;
+
 import com.fortify.processrunner.context.Context;
 
 /**
- * This interface provides a method for retrieving bug tracker issue state details.
+ * This interface provides a method for updating target issue fields.
  * 
  * @author Ruud Senden
  *
- * @param <IssueStateDetailsType> Type returned by the {@link #getIssueStateDetails(Context, SubmittedIssue)} method
  */
-public interface IIssueStateDetailsRetriever<IssueStateDetailsType> {
-	/**
-	 * Get the bug tracker issue state details
-	 * @param context
-	 * @param submittedIssue
-	 * @return
-	 */
-	public IssueStateDetailsType getIssueStateDetails(Context context, SubmittedIssue submittedIssue);
+public interface ITargetIssueFieldsUpdater {
+	public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields);
 }

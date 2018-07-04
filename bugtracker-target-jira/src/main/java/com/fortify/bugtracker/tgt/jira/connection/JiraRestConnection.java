@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.util.rest.connection.AbstractRestConnection;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
@@ -53,7 +53,7 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		return true;
 	}
 	
-	public SubmittedIssue submitIssue(Map<String, Object> issueFields) {
+	public TargetIssueLocator submitIssue(Map<String, Object> issueFields) {
 		LOG.trace(String.format("[Jira] Submitting issue: %s", issueFields));
 		WebTarget target = getBaseResource().path("/rest/api/latest/issue");
 		JSONMap request = getIssueRequestData(issueFields);
@@ -62,7 +62,7 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		String submittedIssueKey = submitResult.get("key", String.class);
 		String submittedIssueBrowserURL = getBaseResource()
 				.path("/browse/").path(submittedIssueKey).getUri().toString();
-		return new SubmittedIssue(submittedIssueKey, submittedIssueBrowserURL);
+		return new TargetIssueLocator(submittedIssueKey, submittedIssueBrowserURL);
 	}
 
 	private JSONMap getIssueRequestData(Map<String, Object> issueFields) {
@@ -71,9 +71,9 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		return request;
 	}
 	
-	public void updateIssueData(SubmittedIssue submittedIssue, Map<String, Object> issueFields) {
-		LOG.trace(String.format("[Jira] Updating issue data for %s: %s", submittedIssue.getDeepLink(), issueFields)); 
-		String issueId = getIssueId(submittedIssue);
+	public void updateIssueData(TargetIssueLocator targetIssueLocator, Map<String, Object> issueFields) {
+		LOG.trace(String.format("[Jira] Updating issue data for %s: %s", targetIssueLocator.getDeepLink(), issueFields)); 
+		String issueId = getIssueId(targetIssueLocator);
 		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId);
 		executeRequest(HttpMethod.PUT, target, Entity.entity(getIssueRequestData(issueFields), "application/json"), null);
 	}
@@ -90,8 +90,8 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		return transitionId;
 	}
 	
-	public boolean transition(SubmittedIssue submittedIssue, String transitionName, String comment) {
-		String issueId = getIssueId(submittedIssue);
+	public boolean transition(TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
+		String issueId = getIssueId(targetIssueLocator);
 		String transitionId = getTransitionId(issueId, transitionName);
 		if ( transitionId == null ) { return false; }
 		
@@ -110,26 +110,20 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		return true;
 	}
 	
-	public JSONMap getIssueDetails(SubmittedIssue submittedIssue, String... fields) {
-		String issueId = getIssueId(submittedIssue);
+	public JSONMap getIssueDetails(TargetIssueLocator targetIssueLocator, String... fields) {
+		String issueId = getIssueId(targetIssueLocator);
 		WebTarget target = getBaseResource().path("/rest/api/latest/issue").path(issueId);
 		if ( fields!=null ) {
 			target = target.queryParam("fields", StringUtils.join(fields, ","));
 		}
-		return executeRequest(HttpMethod.GET, target, JSONMap.class);
+		return executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONMap("fields");
 	}
 	
-	public JSONMap getIssueState(SubmittedIssue submittedIssue) {
-		JSONMap issueDetails = getIssueDetails(submittedIssue, "status", "resolution");
-		return issueDetails.get("fields", JSONMap.class);
-		// status.name, resolution
-	}
-	
-	private String getIssueId(SubmittedIssue submittedIssue) {
-		String id = submittedIssue.getId();
+	private String getIssueId(TargetIssueLocator targetIssueLocator) {
+		String id = targetIssueLocator.getId();
 		if ( StringUtils.isBlank(id) ) {
 			// TODO (Low) Check whether link indeed looks like a JIRA URL?
-			String deepLink = submittedIssue.getDeepLink();
+			String deepLink = targetIssueLocator.getDeepLink();
 			id = deepLink.substring(deepLink.lastIndexOf('/'));
 		}
 		return id;

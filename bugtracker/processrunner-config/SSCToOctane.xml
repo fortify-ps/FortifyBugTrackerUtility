@@ -54,7 +54,7 @@
 		<property name="bugLinkCustomTagName" value="OctaneBugLink"/>
 		
 		<property name="extraCustomTags"><map>
-			<entry key="OctaneIssueState" value="${issueStateDetails.phase.name}"/>
+			<entry key="OctaneIssueState" value="${fields.phase.name}"/>
 		</map></property>
 	</bean>
 	
@@ -91,20 +91,20 @@
 	
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- Octane default workflow -->
-			<entry key="phase.name matches 'Fixed'" value="Opened[Issue re-opened by FoDBugTrackerUtility]"/>
+			<entry key="fields.phase.name matches 'Fixed'" value="Opened[Issue re-opened by FoDBugTrackerUtility]"/>
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- Octane default workflow -->
-			<entry key="phase.name matches 'New|Deferred'"><list>
+			<entry key="fields.phase.name matches 'New|Deferred'"><list>
 				<value>Opened[Intermediate transition performed by FortifyBugTrackerUtility]</value>
 				<value>Fixed[Intermediate transition performed by FortifyBugTrackerUtility]</value>
 				<value>Closed[Issue closed by FoDBugTrackerUtility]</value>
 			</list></entry>
-			<entry key="phase.name matches 'Opened'"><list>
+			<entry key="fields.phase.name matches 'Opened'"><list>
 				<value>Fixed[Intermediate transition performed by FortifyBugTrackerUtility]</value>
 				<value>Closed[Issue closed by FortifyBugTrackerUtility]</value>
 			</list></entry>
-			<entry key="phase.name matches 'Fixed'" value="Closed[Issue closed by FortifyBugTrackerUtility"/>
+			<entry key="fields.phase.name matches 'Fixed'" value="Closed[Issue closed by FortifyBugTrackerUtility"/>
 		</map></property>
 	</bean>
 

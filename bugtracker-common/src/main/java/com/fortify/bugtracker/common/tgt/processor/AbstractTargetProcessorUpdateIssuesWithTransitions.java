@@ -31,16 +31,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesWithTransitionsConfiguration;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
@@ -48,15 +49,14 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * adding functionality for transitioning previously submitted issues to a new state. To do
  * so, the user can configure possible transitions for opening and closing issues, based on
  * current issue state. Concrete implementations will need to implement the 
- * {@link #transition(Context, SubmittedIssue, String, String)} method to actually transition
+ * {@link #transition(Context, TargetIssueLocator, String, String)} method to actually transition
  * the issue.
  * 
  * @author Ruud Senden
  *
- * @param <IssueStateDetailsType>
  */
-public abstract class AbstractTargetProcessorUpdateIssuesWithTransitions<IssueStateDetailsType>
-		extends AbstractTargetProcessorUpdateIssues<IssueStateDetailsType> {
+public abstract class AbstractTargetProcessorUpdateIssuesWithTransitions
+		extends AbstractTargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssuesWithTransitions.class);
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForOpeningIssue;
 	private LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsForClosingIssue;
@@ -71,91 +71,28 @@ public abstract class AbstractTargetProcessorUpdateIssuesWithTransitions<IssueSt
 		setTransitionsForOpeningIssue(config.getTransitionsForOpeningIssue());
 	}
 	
-	/**
-	 * This constructor sets the default values for {@link #setIsIssueOpenableExpression(SimpleExpression)}
-	 * and {@link #setIsIssueCloseableExpression(SimpleExpression)} to 'true'. Unless overridden through
-	 * configuration, whether an issue is considered openable or closeable will be solely determined
-	 * based on whether a corresponding transition is available.
-	 */
-	public AbstractTargetProcessorUpdateIssuesWithTransitions() {
-		setIsIssueOpenableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
-		setIsIssueCloseableExpression(SpringExpressionUtil.parseSimpleExpression("true"));
-	}
-
-	/**
-	 * (Re-)open the given bug tracker issue based on the configured transitions
-	 */
 	@Override
-	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForOpeningIssue());
-		return transition(context, submittedIssue, currentIssueState, transitions);
+	protected boolean openIssueIfClosed(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
+		List<TransitionWithComment> transitions = getTransitions(context, targetIssueLocatorAndFields, getTransitionsForOpeningIssue());
+		if ( transitions != null ) {
+			return transition(context, targetIssueLocatorAndFields, transitions);
+		}
+		return false;
 	}
 	
-	/**
-	 * Close the given bug tracker issue based on the configured transitions
-	 */
 	@Override
-	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		List<TransitionWithComment> transitions = getTransitions(context, submittedIssue, currentIssueState, getTransitionsForClosingIssue());
-		return transition(context, submittedIssue, currentIssueState, transitions);
-	}
-	
-	/**
-	 * Indicate whether we can determine whether the given bug tracker issue is closed, based on the current configuration
-	 */
-	@Override
-	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
-		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForClosingIssue();
-		return super.canDetemineIssueIsClosed(context, submittedIssue) && (transitions!=null && transitions.size()>0);
-	}
-	
-	/**
-	 * Indicate whether we can determine whether the given bug tracker issue is open, based on the current configuration
-	 */
-	@Override
-	protected boolean canDetemineIssueIsOpen(Context context, SubmittedIssue submittedIssue) {
-		LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions = getTransitionsForOpeningIssue();
-		return super.canDetemineIssueIsOpen(context, submittedIssue) && (transitions!=null && transitions.size()>0);
-	}
-	
-	/**
-	 * Indicate whether the given bug tracker issue is closeable, based on configured transitions
-	 */
-	@Override
-	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return isIssueTransitionable(currentIssueState, super.isIssueCloseable(context, submittedIssue, currentIssueState), getTransitionsForClosingIssue());
-	}
-	
-	/**
-	 * Indicate whether the given bug tracker issue is openable, based on configured transitions
-	 */
-	@Override
-	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return isIssueTransitionable(currentIssueState, super.isIssueOpenable(context, submittedIssue, currentIssueState), getTransitionsForOpeningIssue());
-	}
-
-	/**
-	 * Indicate whether an issue with the given issue state is transitionable
-	 * @param currentIssueState
-	 * @param defaultValue
-	 * @param transitions
-	 * @return
-	 */
-	protected boolean isIssueTransitionable(IssueStateDetailsType currentIssueState, boolean defaultValue, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitions) {
-		if ( defaultValue ) {
-			for ( SimpleExpression expression : transitions.keySet() ) {
-				if ( SpringExpressionUtil.evaluateExpression(currentIssueState, expression, Boolean.class) ) {
-					return true;
-				}
-			}
+	protected boolean closeIssueIfOpen(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
+		List<TransitionWithComment> transitions = getTransitions(context, targetIssueLocatorAndFields, getTransitionsForClosingIssue());
+		if ( transitions != null ) {
+			return transition(context, targetIssueLocatorAndFields, transitions);
 		}
 		return false;
 	}
 
-	protected List<TransitionWithComment> getTransitions(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {
-		if ( transitionsMap != null ) {
+	protected List<TransitionWithComment> getTransitions(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<SimpleExpression, List<TransitionWithComment>> transitionsMap) {
+		if ( MapUtils.isNotEmpty(transitionsMap) && targetIssueLocatorAndFields.canRetrieveFields() ) {
 			for ( Map.Entry<SimpleExpression, List<TransitionWithComment>> entry : transitionsMap.entrySet() ) {
-				if ( ContextSpringExpressionUtil.evaluateExpression(context, currentIssueState, entry.getKey(), Boolean.class) ) {
+				if ( ContextSpringExpressionUtil.evaluateExpression(context, targetIssueLocatorAndFields, entry.getKey(), Boolean.class) ) {
 					return entry.getValue();
 				}
 			}
@@ -163,21 +100,22 @@ public abstract class AbstractTargetProcessorUpdateIssuesWithTransitions<IssueSt
 		return null;
 	}
 	
-	protected boolean transition(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, List<TransitionWithComment> transitions) {
+	protected boolean transition(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, List<TransitionWithComment> transitions) {
+		TargetIssueLocator targetIssueLocator = targetIssueLocatorAndFields.getLocator();
 		if ( transitions==null ) {
-			LOG.debug(String.format("[%s] No transitions found for issue %s with issue state %s", getTargetName(), submittedIssue.getDeepLink(), currentIssueState));
+			LOG.debug(String.format("[%s] No transitions found for issue %s", getTargetName(), targetIssueLocator.getDeepLink()));
 			return false; 
 		}
 		for ( TransitionWithComment transition : transitions ) {
-			if ( !transition(context, submittedIssue, transition.getName(), transition.getComment()) ) {
-				LOG.warn(String.format("[%s] Transition %s for issue %s failed, please update issue status manually", getTargetName(), transition.getName(), submittedIssue.getDeepLink()));
+			if ( !transition(context, targetIssueLocator, transition.getName(), transition.getComment()) ) {
+				LOG.warn(String.format("[%s] Transition %s for issue %s failed, please update issue status manually", getTargetName(), transition.getName(), targetIssueLocator.getDeepLink()));
 				return false;
 			}
 		}
 		return true; 
 	}
 	
-	protected abstract boolean transition(Context context, SubmittedIssue submittedIssue, String transitionName, String comment);
+	protected abstract boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment);
 
 	/**
 	 * @return the transitionsForOpeningIssue

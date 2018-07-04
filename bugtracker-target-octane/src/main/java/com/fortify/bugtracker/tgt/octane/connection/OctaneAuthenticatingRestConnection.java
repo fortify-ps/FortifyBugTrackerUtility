@@ -42,7 +42,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.protocol.HttpContext;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;
@@ -84,51 +84,57 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		return new OctaneUnauthorizedRetryStrategy();
 	}
 	
-	public SubmittedIssue submitIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData) {
+	public TargetIssueLocator submitIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData) {
 		JSONMap result = submitOrUpdateIssue(sharedSpaceAndWorkspaceId, issueData, HttpMethod.POST);
 		String id = SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.id", String.class);
 		if ( id == null ) {
 			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
 		}
 		OctaneIssueId fullId = new OctaneIssueId(sharedSpaceAndWorkspaceId, id);
-		return new SubmittedIssue(fullId.toString(), fullId.getDeepLink(getBaseUrl()));
+		return new TargetIssueLocator(fullId.toString(), fullId.getDeepLink(getBaseUrl()));
 	}
 	
-	public void updateIssue(SubmittedIssue submittedIssue, Map<String, Object> issueData) {
-		OctaneIssueId issueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+	public void updateIssue(TargetIssueLocator targetIssueLocator, Map<String, Object> issueData) {
+		OctaneIssueId issueId = OctaneIssueId.parseFromSubmittedIssue(targetIssueLocator);
 		issueData.put("id", issueId.getIssueId());
 		submitOrUpdateIssue(issueId.getSharedSpaceAndWorkspaceId(), issueData, HttpMethod.PUT);
 	}
 	
-	public JSONMap getIssueState(SubmittedIssue submittedIssue) {
-		OctaneIssueId fullId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+	public JSONMap getIssueDetails(TargetIssueLocator targetIssueLocator) {
+		OctaneIssueId fullId = OctaneIssueId.parseFromSubmittedIssue(targetIssueLocator);
 		OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId = fullId.getSharedSpaceAndWorkspaceId();
 		String issueId = fullId.getIssueId();
-		JSONMap issue = getIssue(sharedSpaceAndWorkspaceId, issueId, "phase");
-		JSONMap result = new JSONMap();
-		String phaseId = SpringExpressionUtil.evaluateExpression(issue, "phase.id", String.class);
-		result.putPath("phase.id", phaseId);
-		result.putPath("phase.name", getPhaseName(sharedSpaceAndWorkspaceId, phaseId));
-		result.putPath("type", SpringExpressionUtil.evaluateExpression(issue, "type", String.class));
-		return result;
+		return getIssueDetails(sharedSpaceAndWorkspaceId, issueId, "phase");
 	}
 	
-	public JSONMap getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
-		return getIssue(sharedSpaceAndWorkspaceId, issueId, new String[]{});
+	private JSONMap getIssueDetails(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
+		WebTarget request = getBaseResource()
+				.path("/api/shared_spaces/")
+				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
+				.path("/workspaces/")
+				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
+				.path("/defects")
+				.path(issueId);
+		if ( fields != null && fields.length > 0 ) {
+			request.queryParam("fields", StringUtils.join(fields, ","));
+		}
+		JSONMap result = executeRequest(HttpMethod.GET, request, JSONMap.class);
+		addEntityNamesForIds(sharedSpaceAndWorkspaceId, result);
+		return result;
 	}
 
-	public boolean transition(SubmittedIssue submittedIssue, String transitionName, String comment) {
+	public boolean transition(TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
 		Map<String, Object> issueData = new HashMap<String, Object>();
 		issueData.put("phase.type", "phase");
 		issueData.put("phase.name", transitionName);
 		// TODO Can we add a comment immediately when updating the work item, or do we need 2 separate REST calls?
-		updateIssue(submittedIssue, issueData);
-		addComment(submittedIssue, comment);
+		updateIssue(targetIssueLocator, issueData);
+		addComment(targetIssueLocator, comment);
 		// TODO Check new state
 		return true;
 	}
 	
-	public void addComment(SubmittedIssue submittedIssue, String comment) {
+	public void addComment(TargetIssueLocator targetIssueLocator, String comment) {
 		// TODO The code below for some reason results in a Forbidden error, so for now we just don't submit any comments
 		/**
 		OctaneIssueId octaneIssueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
@@ -199,20 +205,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(entityName), JSONMap.class).get("data", JSONList.class);
 	}
 	
-	private JSONMap getIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
-		WebTarget request = getBaseResource()
-				.path("/api/shared_spaces/")
-				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
-				.path("/workspaces/")
-				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path("/defects")
-				.path(issueId);
-		if ( fields != null && fields.length > 0 ) {
-			request.queryParam("fields", StringUtils.join(fields, ","));
-		}
-		return executeRequest(HttpMethod.GET, request, JSONMap.class);
-	}
-	
 	private JSONMap submitOrUpdateIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData, String httpMethod) {
 		JSONMap issueEntry = new JSONMap();
 		issueEntry.putPaths(issueData);
@@ -241,7 +233,19 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				}
 			}
 		}
-		
+	}
+	
+	private void addEntityNamesForIds(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, JSONMap issue) {
+		for ( Map.Entry<String, Object> entry : issue.entrySet() ) {
+			Object value = entry.getValue();
+			if ( value instanceof JSONMap ) {
+				JSONMap jsonValue = (JSONMap)value;
+				if ( jsonValue.containsKey("type") && jsonValue.containsKey("id") ) {
+					String name = getNameForId(sharedSpaceAndWorkspaceId, jsonValue.get("type", String.class)+"s", jsonValue.get("id", String.class));
+					jsonValue.put("name", name);
+				}
+			}
+		}
 	}
 	
 	private static final class OctaneIssueId {
@@ -295,10 +299,10 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 			}
 		}
 		
-		public static final OctaneIssueId parseFromSubmittedIssue(SubmittedIssue submittedIssue) {
-			String id = submittedIssue.getId();
+		public static final OctaneIssueId parseFromSubmittedIssue(TargetIssueLocator targetIssueLocator) {
+			String id = targetIssueLocator.getId();
 			return StringUtils.isBlank(id) 
-					? parseFromDeepLink(submittedIssue.getDeepLink()) 
+					? parseFromDeepLink(targetIssueLocator.getDeepLink()) 
 					: parseFromIdString(id);
 		}
 	}

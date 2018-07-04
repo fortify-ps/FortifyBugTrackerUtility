@@ -36,8 +36,7 @@ import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpda
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
@@ -54,7 +53,7 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType> extends AbstractProcessorBuildObjectMapFromGroupedObjects implements ITargetProcessorSubmitIssues {
+public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTargetProcessor implements ITargetProcessorSubmitIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorSubmitIssues.class);
 	private INewIssueVulnerabilityUpdater vulnerabilityUpdater;
 	
@@ -104,11 +103,11 @@ public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType>
 	 */
 	@Override
 	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
-		SubmittedIssue submittedIssue = submitIssue(context, map); 
-		if ( submittedIssue != null ) {
-			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getTargetName(), currentGroup.size(), submittedIssue.getDeepLink()));
+		TargetIssueLocator targetIssueLocator = submitIssue(context, map); 
+		if ( targetIssueLocator != null ) {
+			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getTargetName(), currentGroup.size(), targetIssueLocator.getDeepLink()));
 			if ( vulnerabilityUpdater != null ) {
-				vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getTargetName(), submittedIssue, getIssueStateDetailsRetriever(), currentGroup);
+				vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getTargetName(), getTargetIssueLocatorAndFields(context, targetIssueLocator), currentGroup);
 			}
 		}
 		return true;
@@ -121,17 +120,8 @@ public abstract class AbstractTargetProcessorSubmitIssues<IssueStateDetailsType>
 	 * @param issueData
 	 * @return
 	 */
-	protected abstract SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData);
+	protected abstract TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData);
 	
-	/**
-	 * Subclasses may override this method to return an {@link IIssueStateDetailsRetriever} instance that
-	 * can be used to retrieve details about the current state of the issue in the bug tracker.
-	 * @return
-	 */
-	protected IIssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() { 
-		return null;
-	}
-
 	/**
 	 * Set the {@link INewIssueVulnerabilityUpdater} instance used to update vulnerabilities in the source system
 	 * based on submitted issue data. This is optional and usually auto-wired by Spring.

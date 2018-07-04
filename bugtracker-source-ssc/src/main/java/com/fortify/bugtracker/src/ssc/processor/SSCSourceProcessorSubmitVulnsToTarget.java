@@ -38,8 +38,7 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsTo
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.src.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
@@ -119,14 +118,14 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, SubmittedIssue submittedIssue, IIssueStateDetailsRetriever<?> issueStateDetailsRetriever, Collection<Object> vulnerabilities) {
+	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
 		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
-		Map<String,String> customTagValues = getExtraCustomTagValues(context, submittedIssue, issueStateDetailsRetriever, vulnerabilities);
+		Map<String,String> customTagValues = getExtraCustomTagValues(context, targetIssueLocatorAndFields, vulnerabilities);
 		
 		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-			customTagValues.put(getConfiguration().getBugLinkCustomTagName(), submittedIssue.getDeepLink());
+			customTagValues.put(getConfiguration().getBugLinkCustomTagName(), targetIssueLocatorAndFields.getLocator().getDeepLink());
 		} 
 		if ( !customTagValues.isEmpty() ) {
 			conn.api(SSCCustomTagAPI.class).setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
@@ -134,7 +133,7 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 		}
 		if ( getConfiguration().isAddNativeBugLink() ) {
 			Map<String, Object> issueDetails = new HashMap<String, Object>();
-			issueDetails.put("existingBugLink", submittedIssue.getDeepLink());
+			issueDetails.put("existingBugLink", targetIssueLocatorAndFields.getLocator().getDeepLink());
 			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
 			conn.api(SSCBugTrackerAPI.class).fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			LOG.info("[SSC] Added bug link for SSC vulnerabilities using '"+getConfiguration().getAddNativeBugLinkBugTrackerName()+"' bug tracker");

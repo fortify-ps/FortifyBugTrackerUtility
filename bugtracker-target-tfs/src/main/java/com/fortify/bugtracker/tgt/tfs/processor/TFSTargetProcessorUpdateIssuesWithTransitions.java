@@ -29,19 +29,21 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
-import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection.TFSIssueState;
 import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
+import com.fortify.util.rest.json.JSONMap;
 
 @Component
-public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions<TFSIssueState> {
+public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -54,24 +56,29 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	}
 	
 	@Override
-	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
-		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
-		String collection = contextTFS.getTFSCollection();
-		return conn.updateIssueData(collection, submittedIssue, issueData);
-	}
-	
-	@Override
-	protected IIssueStateDetailsRetriever<TFSIssueState> getIssueStateDetailsRetriever() {
-		return new IIssueStateDetailsRetriever<TFSIssueState>() {
-			public TFSIssueState getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
-				return TFSConnectionFactory.getConnection(context).getIssueState(context.as(IContextTFS.class).getTFSCollection(), submittedIssue);
+	protected ITargetIssueFieldsUpdater getTargetIssueFieldsUpdater() {
+		return new ITargetIssueFieldsUpdater() {
+			@Override
+			public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
+				IContextTFS contextTFS = context.as(IContextTFS.class);
+				TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
+				String collection = contextTFS.getTFSCollection();
+				return conn.updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
 			}
 		};
 	}
 	
 	@Override
-	protected boolean transition(Context context, SubmittedIssue submittedIssue, String transitionName, String comment) {
+	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
+		return new ITargetIssueFieldsRetriever() {
+			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
+				return TFSConnectionFactory.getConnection(context).getWorkItemFields(context.as(IContextTFS.class).getTFSCollection(), targetIssueLocator);
+			}
+		};
+	}
+	
+	@Override
+	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
 		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
@@ -80,6 +87,6 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 			fields.put("System.History", comment);
 		}
 		fields.put("System.State", transitionName);
-		return conn.updateIssueData(collection, submittedIssue, fields);
+		return conn.updateIssueData(collection, targetIssueLocator, fields);
 	}
 }

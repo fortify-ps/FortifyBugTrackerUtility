@@ -25,11 +25,29 @@
 package com.fortify.bugtracker.common.tgt.issue;
 
 /**
- * This enumeration defines possible vulnerability states, either OPEN or CLOSED.
+ * This class holds information for locating target issues, like id and deep link.
  * 
  * @author Ruud Senden
- *
  */
-public enum IssueState {
-	OPEN, CLOSED
+public final class TargetIssueLocator {
+	private final String id;
+	private final String deepLink;
+	
+	public TargetIssueLocator(String id, String deepLink) {
+		this.id = id;
+		this.deepLink = deepLink;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @return the deepLink
+	 */
+	public String getDeepLink() {
+		return deepLink;
+	}
 }

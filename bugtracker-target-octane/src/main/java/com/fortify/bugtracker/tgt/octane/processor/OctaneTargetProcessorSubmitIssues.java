@@ -29,8 +29,8 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneConnectionFactory;
@@ -46,7 +46,7 @@ import com.fortify.util.rest.json.JSONMap;
  * submits issues to Octane.
  */
 @Component
-public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<JSONMap> {
+public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
 	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
@@ -59,7 +59,7 @@ public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
+	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		IContextOctane contextOctane = context.as(IContextOctane.class);
 		OctaneAuthenticatingRestConnection conn = OctaneConnectionFactory.getConnection(context);
 		issueData.put("name", StringUtils.abbreviate((String)issueData.get("name"), 254));
@@ -67,10 +67,10 @@ public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 	}
 	
 	@Override
-	protected IIssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
-		return new IIssueStateDetailsRetriever<JSONMap>() {
-			public JSONMap getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
-				return OctaneConnectionFactory.getConnection(context).getIssueState(submittedIssue);
+	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
+		return new ITargetIssueFieldsRetriever() {
+			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
+				return OctaneConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator);
 			}
 		};
 	}

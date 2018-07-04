@@ -33,39 +33,39 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @author Ruud Senden
  */
-public class SubmittedIssueCommentHelper {
+public class TargetIssueLocatorCommentHelper {
 	private static final String FMT_COMMENT_STR = "--- Vulnerability submitted to {0}:{1} Location {2}";
 	private static final MessageFormat FMT_COMMENT = new MessageFormat(FMT_COMMENT_STR);
 	
-	private SubmittedIssueCommentHelper() {}
+	private TargetIssueLocatorCommentHelper() {}
 	
 	/**
-	 * Get a comment string that describes the given {@link SubmittedIssue} for the given bug tracker name
+	 * Get a comment string that describes the given {@link TargetIssueLocator} for the given bug tracker name
 	 * @param bugTrackerName
-	 * @param submittedIssue
+	 * @param targetIssueLocator
 	 * @return
 	 */
-	public static final String getCommentForSubmittedIssue(String bugTrackerName, SubmittedIssue submittedIssue) {
+	public static final String getCommentForSubmittedIssue(String bugTrackerName, TargetIssueLocator targetIssueLocator) {
 		StringBuffer sb = new StringBuffer("--- Vulnerability submitted to ").append(bugTrackerName). append(": ");
-		if ( submittedIssue.getId()!=null ) {
-			sb.append("ID ").append(submittedIssue.getId()).append(" ");
+		if ( targetIssueLocator.getId()!=null ) {
+			sb.append("ID ").append(targetIssueLocator.getId()).append(" ");
 		}
-		sb.append("Location ").append(submittedIssue.getDeepLink());
+		sb.append("Location ").append(targetIssueLocator.getDeepLink());
 		return sb.toString();
 	}
 	
 	/**
-	 * Parse a {@link SubmittedIssue} from the given comment string that was previously generated using
-	 * {@link #getCommentForSubmittedIssue(String, SubmittedIssue)}
+	 * Parse a {@link TargetIssueLocator} from the given comment string that was previously generated using
+	 * {@link #getCommentForSubmittedIssue(String, TargetIssueLocator)}
 	 * @param comment
 	 * @return
 	 */
-	public static final SubmittedIssue getSubmittedIssueFromComment(String comment) {
+	public static final TargetIssueLocator getSubmittedIssueFromComment(String comment) {
 		try {
 			Object[] fields = FMT_COMMENT.parse(comment);
 			String id = StringUtils.removeStart(StringUtils.trim((String)fields[1]), "ID ");
 			String deepLink = StringUtils.trim((String)fields[2]);
-			return new SubmittedIssue(id, deepLink);
+			return new TargetIssueLocator(id, deepLink);
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing comment "+comment);
 		}

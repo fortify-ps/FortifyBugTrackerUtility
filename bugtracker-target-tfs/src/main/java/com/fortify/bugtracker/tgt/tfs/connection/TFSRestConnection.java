@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.util.rest.connection.AbstractRestConnection;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
@@ -64,7 +64,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 		return super.updateBuilder(builder).accept("application/json; api-version=1.0", "application/json-patch+json; api-version=1.0");
 	}
 	
-	public SubmittedIssue submitIssue(String collection, String project, String workItemType, Map<String, Object> fields) {
+	public TargetIssueLocator submitIssue(String collection, String project, String workItemType, Map<String, Object> fields) {
 		LOG.trace(String.format("[TFS] Submitting issue: %s", fields));
 		WebTarget target = getBaseResource()
 				.path(collection).path(project).path("/_apis/wit/workitems").path("$"+workItemType);
@@ -73,24 +73,15 @@ public final class TFSRestConnection extends AbstractRestConnection {
 		
 		String submittedIssueId = submitResult.get("id", String.class);
 		String submittedIssueBrowserURL = SpringExpressionUtil.evaluateExpression(submitResult, "_links.html.href", String.class);
-		return new SubmittedIssue(submittedIssueId, submittedIssueBrowserURL);
+		return new TargetIssueLocator(submittedIssueId, submittedIssueBrowserURL);
 	}
 	
-	public TFSIssueState getIssueState(String collection, SubmittedIssue submittedIssue) {
-		JSONMap json = getWorkItemDetails(collection, submittedIssue, "System.WorkItemType", "System.State", "System.Reason");
-		return new TFSIssueState(
-				SpringExpressionUtil.evaluateExpression(json, "fields['System.WorkItemType']", String.class),
-				SpringExpressionUtil.evaluateExpression(json, "fields['System.State']", String.class),
-				SpringExpressionUtil.evaluateExpression(json, "fields['System.Reason']", String.class)
-		);
-	}
-	
-	public boolean updateIssueData(String collection, SubmittedIssue submittedIssue, Map<String, Object> fields) {
-		String issueId = getIssueId(submittedIssue);
+	public boolean updateIssueData(String collection, TargetIssueLocator targetIssueLocator, Map<String, Object> fields) {
+		String issueId = getIssueId(targetIssueLocator);
 		if ( issueId == null ) {
 			return false;
 		} else {
-			LOG.trace(String.format("[TFS] Updating issue data for %s: %s", submittedIssue.getDeepLink(), fields)); 
+			LOG.trace(String.format("[TFS] Updating issue data for %s: %s", targetIssueLocator.getDeepLink(), fields)); 
 			WebTarget target = getBaseResource()
 					.path(collection).path("/_apis/wit/workitems").path(issueId);
 			executeRequest("PATCH", target, Entity.entity(getOperations(fields), "application/json-patch+json"), null);
@@ -109,32 +100,27 @@ public final class TFSRestConnection extends AbstractRestConnection {
 		}
 		return result;
 	}
-
-	public String getWorkItemType(String collection, SubmittedIssue submittedIssue) {
-		JSONMap workItemDetails = getWorkItemDetails(collection, submittedIssue, "System.WorkItemType");
-		return workItemDetails==null?null:SpringExpressionUtil.evaluateExpression(workItemDetails, "fields['System.WorkItemType']", String.class);
-	}
 	
-	private JSONMap getWorkItemDetails(String collection, SubmittedIssue submittedIssue, String... fields) {
-		LOG.trace(String.format("[TFS] Retrieving issue data for %s", submittedIssue.getDeepLink())); 
-		String issueId = getIssueId(submittedIssue);
+	public JSONMap getWorkItemFields(String collection, TargetIssueLocator targetIssueLocator, String... fields) {
+		LOG.trace(String.format("[TFS] Retrieving issue data for %s", targetIssueLocator.getDeepLink())); 
+		String issueId = getIssueId(targetIssueLocator);
 		if ( issueId == null ) {
-			LOG.warn(String.format("[TFS] Cannot get work item id from URL %s", submittedIssue.getDeepLink()));
+			LOG.warn(String.format("[TFS] Cannot get work item id from URL %s", targetIssueLocator.getDeepLink()));
 			return null;
 		} else {
-			WebTarget target = getBaseResource()
-					.path(collection).path("/_apis/wit/workitems").path(issueId);
+			WebTarget target = getBaseResource().path(collection).path("/_apis/wit/workitems").path(issueId);
 			if ( fields!=null ) {
 				target = target.queryParam("fields", StringUtils.join(fields, ","));
 			}
-			return executeRequest(HttpMethod.GET, target, JSONMap.class);
+			return executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONMap("fields");
 		}
 	}
 	
-	private String getIssueId(SubmittedIssue submittedIssue) {
-		String id = submittedIssue.getId();
+	private String getIssueId(TargetIssueLocator targetIssueLocator) {
+		String id = targetIssueLocator.getId();
 		if ( StringUtils.isBlank(id) ) {
-			String deepLink = submittedIssue.getDeepLink();
+			String deepLink = targetIssueLocator.getDeepLink();
+			@SuppressWarnings("deprecation")
 			List<NameValuePair> params = URLEncodedUtils.parse(URI.create(deepLink), "UTF-8");
 
 			for (NameValuePair param : params) {
@@ -144,32 +130,6 @@ public final class TFSRestConnection extends AbstractRestConnection {
 			}
 		}
 		return id;
-	}
-	
-	public class TFSIssueState {
-		private final String workItemType;
-		private final String state;
-		private final String reason;
-		
-		public TFSIssueState(String workItemType, String state, String reason) {
-			super();
-			this.workItemType = workItemType;
-			this.state = state;
-			this.reason = reason;
-		}
-		
-		
-		public String getWorkItemType() {
-			return workItemType;
-		}
-		
-		public String getState() {
-			return state;
-		}
-		
-		public String getReason() {
-			return reason;
-		}
 	}
 	
 	/**

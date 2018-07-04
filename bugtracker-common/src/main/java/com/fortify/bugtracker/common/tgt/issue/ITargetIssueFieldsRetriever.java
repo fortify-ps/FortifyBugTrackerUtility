@@ -22,35 +22,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.src.updater;
+package com.fortify.bugtracker.common.tgt.issue;
 
-import java.util.Collection;
-
-import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.json.JSONMap;
 
 /**
- * This interface provides methods for updating source vulnerability state based on
- * newly submitted bug tracker issues. This is used to store the bug tracker id and/or 
- * hyperlink in the source (SSC/FoD) system:
- * <ul>
- *  <li>Allows the user to navigate back and forth between source and target system</li>
- *  <li>Allows FortifyBugTrackerUtility to update bug tracker issue state for already submitted vulnerabilities</li>
- *  <li>Allows FortifyBugTrackerUtility to ignore already submitted vulnerabilities when submitting new vulnerabilities</li>
- * </ul>
+ * This interface provides a method for retrieving bug tracker issue details.
  * 
  * @author Ruud Senden
  *
  */
-public interface INewIssueVulnerabilityUpdater {
+public interface ITargetIssueFieldsRetriever {
 	/**
-	 * Update the state of the given source vulnerabilities with information about a newly submitted
-	 * bug tracker issue.
-	 * 
+	 * Get the issue details from the target
 	 * @param context
-	 * @param bugTrackerName
 	 * @param targetIssueLocator
-	 * @param vulnerabilities
+	 * @return
 	 */
-	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields issueLocatorAndFields, Collection<Object> vulnerabilities);
+	public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator);
 }

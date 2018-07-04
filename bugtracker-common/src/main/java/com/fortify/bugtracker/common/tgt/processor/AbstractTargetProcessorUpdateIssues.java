@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +38,13 @@ import com.fortify.bugtracker.common.processor.IProcessorWithTargetName;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.ContextSpringExpressionUtil;
-import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
@@ -55,10 +57,10 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * Concrete implementations can override the following methods to add support for the corresponding
  * functionality:
  * <ul>
- *  <li>{@link #updateIssueFields(Context, SubmittedIssue, LinkedHashMap)}: Update existing issue fields with updated values</li>
- *  <li>{@link #openIssue(Context, SubmittedIssue, Object)}: (Re-)open an issue if it is currently closed but corresponding 
+ *  <li>{@link #updateIssueFields(Context, TargetIssueLocator, LinkedHashMap)}: Update existing issue fields with updated values</li>
+ *  <li>{@link #openIssue(Context, TargetIssueLocator, Object)}: (Re-)open an issue if it is currently closed but corresponding 
  *      vulnerabilities are still open</li>
- *  <li>{@link #closeIssue(Context, SubmittedIssue, Object)}: Close an issue if it is currently open but corresponding 
+ *  <li>{@link #closeIssue(Context, TargetIssueLocator, Object)}: Close an issue if it is currently open but corresponding 
  *      vulnerabilities have been closed/fixed</li>
  * </ul>
  * Note that if a bug tracker uses transitioning schemes for managing issue state, it would be better to subclass
@@ -67,16 +69,13 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * 
  * @author Ruud Senden
  *
- * @param <IssueStateDetailsType>
  */
-public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType> extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorWithTargetName, ITargetProcessorUpdateIssues {
+public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTargetProcessor implements IProcessorWithTargetName, ITargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssues.class);
 	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
 	private SimpleExpression isVulnStateOpenExpression;
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
-	private SimpleExpression isIssueOpenableExpression;
-	private SimpleExpression isIssueCloseableExpression;
 	
 	/**
 	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
@@ -113,8 +112,6 @@ public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType>
 	public void setConfiguration(ITargetUpdateIssuesConfiguration config) {
 		super.setFields(config.getFieldsForUpdate());
 		super.setAppendedFields(config.getAppendedFieldsForUpdate());
-		setIsIssueCloseableExpression(config.getIsIssueCloseableExpression());
-		setIsIssueOpenableExpression(config.getIsIssueOpenableExpression());
 	}
 	
 	/**
@@ -123,112 +120,139 @@ public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType>
 	 * but there are open vulnerabilities, and closing issues if they are open but no open vulnerabilities are remaining.
 	 */
 	@Override
-	protected boolean processMap(Context context, List<Object> vulnerabilities, LinkedHashMap<String, Object> map) {
-		SubmittedIssue submittedIssue = getSubmittedIssue(vulnerabilities.get(0));
-		String fieldNames = map.keySet().toString();
-		if ( map != null && !map.isEmpty() && updateIssueFields(context, submittedIssue, map) ) {
-			LOG.info(String.format("[%s] Updated field(s) %s for issue %s", getTargetName(), fieldNames, submittedIssue.getDeepLink()));
-		}
+	protected boolean processMap(Context context, List<Object> vulnerabilities, LinkedHashMap<String, Object> issueData) {
+		TargetIssueLocator targetIssueLocator = getTargetIssueLocator(vulnerabilities.get(0));
+		TargetIssueLocatorAndFields targetIssueLocatorAndFields = getTargetIssueLocatorAndFields(context, targetIssueLocator);
+		boolean targetIssueUpdated = false;
+		targetIssueUpdated |= updateIssueFieldsIfNecessary(context, targetIssueLocatorAndFields, issueData);
+		
 		if ( hasOpenVulnerabilities(vulnerabilities) ) {
-			if ( openIssueIfClosed(context, submittedIssue) ) {
-				LOG.info(String.format("[%s] Re-opened issue %s", getTargetName(), submittedIssue.getDeepLink()));
-			}
+			targetIssueUpdated |= openIssueIfNecessary(context, targetIssueLocatorAndFields);
 		} else {
-			if ( closeIssueIfOpen(context, submittedIssue) ) {
-				LOG.info(String.format("[%s] Closed issue %s", getTargetName(), submittedIssue.getDeepLink()));
-			}
+			targetIssueUpdated |= closeIssueIfNecessary(context, targetIssueLocatorAndFields);
 		}
+		
+		if ( !targetIssueUpdated ) {
+			LOG.info(String.format("[%s] No updates needed for issue %s", getTargetName(), targetIssueLocator.getDeepLink()));
+		}
+		
 		if ( vulnerabilityUpdater!=null ) {
-			vulnerabilityUpdater.updateVulnerabilityStateForExistingIssue(context, getTargetName(), submittedIssue, getIssueStateDetailsRetriever(), vulnerabilities);
+			vulnerabilityUpdater.updateVulnerabilityStateForExistingIssue(context, getTargetName(), targetIssueLocatorAndFields, vulnerabilities);
 		}
 		
 		return true;
 	}
+
+	private boolean updateIssueFieldsIfNecessary(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
+		ITargetIssueFieldsUpdater updater = getTargetIssueFieldsUpdater();
+		if ( updater!=null && MapUtils.isNotEmpty(issueFields) ) {
+			if ( targetIssueLocatorAndFields.canRetrieveFields() ) {
+				issueFields = removeUnmodifiedFields(targetIssueLocatorAndFields, issueFields);
+			}
+			if ( MapUtils.isNotEmpty(issueFields) && updater.updateIssueFields(context, targetIssueLocatorAndFields, new LinkedHashMap<String, Object>(issueFields)) ) {
+				LOG.info(String.format("[%s] Updated field(s) %s for issue %s", getTargetName(), issueFields.keySet().toString(), targetIssueLocatorAndFields.getLocator().getDeepLink()));
+				targetIssueLocatorAndFields.resetFields();
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	private LinkedHashMap<String, Object> removeUnmodifiedFields(TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFieldsForUpdate) {
+		LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+		JSONMap currentIssueFields = targetIssueLocatorAndFields.getFields();
+		for ( Map.Entry<String, Object> entry : issueFieldsForUpdate.entrySet() ) {
+			Object currentValue = currentIssueFields.get(entry.getKey());
+			if ( currentValue==null || areFieldValuesDifferent(currentValue, entry.getValue()) ) {
+				result.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Compare the current field value from the target against the new value generated
+	 * based on configuration. If both values are instances of String, this default
+	 * implementation ignores any whitespace and (HTML) tags, and ignores any 
+	 * surrounding text/elements in the current field value from the target.
+	 * @param valueFromTarget
+	 * @param valueFromConfig
+	 * @return true if field values are different, false if they are the same
+	 */
+	protected boolean areFieldValuesDifferent(Object valueFromTarget, Object valueFromConfig) {
+		if ( valueFromTarget.equals(valueFromConfig) ) { 
+			return false; 
+		} else if ( valueFromTarget instanceof String && valueFromConfig instanceof String ) {
+			String valueFromTargetString = (String)valueFromTarget;
+			String valueFromConfigString = (String)valueFromConfig;
+			valueFromTargetString = StringUtils.deleteWhitespace(valueFromTargetString).replaceAll("\\<.*?\\>", "");
+			valueFromConfigString = StringUtils.deleteWhitespace(valueFromConfigString).replaceAll("\\<.*?\\>", "");
+			
+			return !valueFromTargetString.contains(valueFromConfigString);
+		}
+		return true;
+	}
+
+	private boolean openIssueIfNecessary(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
+		if ( openIssueIfClosed(context, targetIssueLocatorAndFields) ) {
+			LOG.info(String.format("[%s] Re-opened issue %s", getTargetName(), targetIssueLocatorAndFields.getLocator().getDeepLink()));
+			targetIssueLocatorAndFields.resetFields();
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean closeIssueIfNecessary(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
+		if ( closeIssueIfOpen(context, targetIssueLocatorAndFields) ) {
+			LOG.info(String.format("[%s] Closed issue %s", getTargetName(), targetIssueLocatorAndFields.getLocator().getDeepLink()));
+			targetIssueLocatorAndFields.resetFields();
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Get information about the previously submitted issue from the current vulnerability.
 	 * @param vulnerability
 	 * @return
 	 */
-	protected SubmittedIssue getSubmittedIssue(Object vulnerability) {
-		SubmittedIssue result = new SubmittedIssue();
-		result.setId(SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugIdExpression, String.class));
-		result.setDeepLink(SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugLinkExpression, String.class));
+	protected TargetIssueLocator getTargetIssueLocator(Object vulnerability) {
+		TargetIssueLocator result = new TargetIssueLocator(
+			SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugIdExpression, String.class),
+			SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugLinkExpression, String.class)
+		);
 		return result;
 	}
 	
 	/**
-	 * Subclasses can override this method to add support for updating bug tracker issue fields,
-	 * given the field data in the given {@link Map}. 
-	 * @param context
-	 * @param submittedIssue
-	 * @param issueData
-	 * @return
+	 * Subclasses can override this method to add support for updating bug tracker issue fields
+	 * @return {@link ITargetIssueFieldsUpdater} instance, or null if updating issue fields is not supported  
 	 */
-	protected boolean updateIssueFields(Context context, SubmittedIssue submittedIssue, LinkedHashMap<String, Object> issueData) {
-		return false;
-	}
-	
-	protected boolean openIssueIfClosed(Context context, SubmittedIssue submittedIssue) {
-		if ( canDetemineIssueIsClosed(context, submittedIssue) ) {
-			IssueStateDetailsType currentIssueState = getCurrentIssueStateDetails(context, submittedIssue);
-			if ( isIssueOpenable(context, submittedIssue, currentIssueState) ) {
-				return openIssue(context, submittedIssue, currentIssueState);
-			}
-		}
-		return false;
-	}
-
-	protected boolean closeIssueIfOpen(Context context, SubmittedIssue submittedIssue) {
-		if ( canDetemineIssueIsOpen(context, submittedIssue) ) {
-			IssueStateDetailsType currentIssueState = getCurrentIssueStateDetails(context, submittedIssue);
-			if ( isIssueCloseable(context, submittedIssue, currentIssueState) ) {
-				return closeIssue(context, submittedIssue, currentIssueState);
-			}
-		}
-		return false;
-	}
-
-	protected boolean openIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return false;
-	}
-	
-	protected boolean closeIssue(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return false;
-	}
-	
-	protected final IssueStateDetailsType getCurrentIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
-		return getIssueStateDetailsRetriever()==null ? null : getIssueStateDetailsRetriever().getIssueStateDetails(context, submittedIssue);
-	}
-	
-	protected IIssueStateDetailsRetriever<IssueStateDetailsType> getIssueStateDetailsRetriever() {
+	protected ITargetIssueFieldsUpdater getTargetIssueFieldsUpdater() {
 		return null;
 	}
 	
-	public abstract String getTargetName();
-	
-	protected boolean canDetemineIssueIsClosed(Context context, SubmittedIssue submittedIssue) {
-		return getIsIssueCloseableExpression()!=null;
-	}
-	
-	protected boolean canDetemineIssueIsOpen(Context context, SubmittedIssue submittedIssue) {
-		return getIsIssueOpenableExpression()!=null;
-	}
-	
-	protected boolean isIssueCloseable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueCloseableExpression());
-	}
-
-	protected boolean isIssueOpenable(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState) {
-		return doesIssueStateMatchExpression(context, submittedIssue, currentIssueState, getIsIssueOpenableExpression());
-	}
-	
-	protected boolean doesIssueStateMatchExpression(Context context, SubmittedIssue submittedIssue, IssueStateDetailsType currentIssueState, SimpleExpression expression) {
-		if ( expression!=null && currentIssueState!=null ) {
-			return ContextSpringExpressionUtil.evaluateExpression(context, currentIssueState, expression, Boolean.class);
-		}
+	/**
+	 * Subclasses can override this method to add support for re-opening closed issues
+	 * @param context The current context
+	 * @param targetIssueLocatorAndFields provides access to target issue locator and fields
+	 * @return true if target issue state has been changed, false otherwise
+	 */
+	protected boolean openIssueIfClosed(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
 		return false;
 	}
+
+	/**
+	 * Subclasses can override this method to add support for closing issues
+	 * @param context The current context
+	 * @param targetIssueLocatorAndFields provides access to target issue locator and fields
+	 * @return true if target issue state has been changed, false otherwise
+	 */
+	protected boolean closeIssueIfOpen(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
+		return false;
+	}
+
+	public abstract String getTargetName();
 	
 	private boolean hasOpenVulnerabilities(List<Object> currentGroup) {
 		for ( Object o : currentGroup ) {
@@ -279,34 +303,6 @@ public abstract class AbstractTargetProcessorUpdateIssues<IssueStateDetailsType>
 	@Override
 	public void setVulnBugLinkExpression(SimpleExpression vulnBugLinkExpression) {
 		this.vulnBugLinkExpression = vulnBugLinkExpression;
-	}
-
-	/**
-	 * @return the isIssueOpenableExpression
-	 */
-	public SimpleExpression getIsIssueOpenableExpression() {
-		return isIssueOpenableExpression;
-	}
-
-	/**
-	 * @param isIssueOpenableExpression the isIssueOpenableExpression to set
-	 */
-	public void setIsIssueOpenableExpression(SimpleExpression isIssueOpenableExpression) {
-		this.isIssueOpenableExpression = isIssueOpenableExpression;
-	}
-
-	/**
-	 * @return the isIssueCloseableExpression
-	 */
-	public SimpleExpression getIsIssueCloseableExpression() {
-		return isIssueCloseableExpression;
-	}
-
-	/**
-	 * @param isIssueCloseableExpression the isIssueCloseableExpression to set
-	 */
-	public void setIsIssueCloseableExpression(SimpleExpression isIssueCloseableExpression) {
-		this.isIssueCloseableExpression = isIssueCloseableExpression;
 	}
 	
 	@Override

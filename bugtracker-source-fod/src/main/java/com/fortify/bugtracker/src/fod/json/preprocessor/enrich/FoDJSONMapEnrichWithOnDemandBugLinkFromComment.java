@@ -26,7 +26,7 @@ package com.fortify.bugtracker.src.fod.json.preprocessor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssueCommentHelper;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
@@ -66,7 +66,7 @@ public class FoDJSONMapEnrichWithOnDemandBugLinkFromComment extends AbstractJSON
 			String spel = "summary?.comments?.$[comment matches '"+matchExpression+"']?.comment";
 			String bugComment = SpringExpressionUtil.evaluateExpression(parent, spel, String.class);
 			if ( StringUtils.isNotBlank(bugComment) ) {
-				return SubmittedIssueCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();
+				return TargetIssueLocatorCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();
 			} else {
 				return null;
 			}

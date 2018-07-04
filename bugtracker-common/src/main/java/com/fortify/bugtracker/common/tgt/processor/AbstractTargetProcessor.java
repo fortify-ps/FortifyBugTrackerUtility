@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,50 +22,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.tgt.issue;
+package com.fortify.bugtracker.common.tgt.processor;
 
-/**
- * This class holds information, like id and deep link, about issues that have been
- * submitted to an external system. Bug tracker implementations can optionally use 
- * subclasses to hold additional information.
- * 
- * @author Ruud Senden
- */
-public class SubmittedIssue {
-	private String id;
-	private String deepLink;
-	
-	public SubmittedIssue() {}
-	
-	public SubmittedIssue(String id, String deepLink) {
-		this.id = id;
-		this.deepLink = deepLink;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
+
+public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObjectMapFromGroupedObjects {
+	protected TargetIssueLocatorAndFields getTargetIssueLocatorAndFields(Context context, TargetIssueLocator targetIssueLocator) {
+		return new TargetIssueLocatorAndFields(context, targetIssueLocator, getTargetIssueFieldsRetriever());
 	}
 
 	/**
-	 * @return the id
+	 * Subclasses may override this method to return an {@link ITargetIssueFieldsRetriever} instance that
+	 * can be used to retrieve target issue fields.
+	 * @return
 	 */
-	public String getId() {
-		return id;
+	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() { 
+		return null;
 	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-	/**
-	 * @return the deepLink
-	 */
-	public String getDeepLink() {
-		return deepLink;
-	}
-	/**
-	 * @param deepLink the deepLink to set
-	 */
-	public void setDeepLink(String deepLink) {
-		this.deepLink = deepLink;
-	}
-	
-	
+
 }

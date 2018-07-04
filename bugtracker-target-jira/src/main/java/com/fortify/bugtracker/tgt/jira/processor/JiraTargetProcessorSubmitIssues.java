@@ -30,8 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.tgt.issue.IIssueStateDetailsRetriever;
-import com.fortify.bugtracker.common.tgt.issue.SubmittedIssue;
+import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration;
 import com.fortify.bugtracker.tgt.jira.connection.JiraConnectionFactory;
@@ -47,7 +47,7 @@ import com.fortify.util.rest.json.JSONMap;
  * submits issues to Jira.
  */
 @Component
-public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues<JSONMap> {
+public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	private String issueType;
 	
 	@Override
@@ -61,7 +61,7 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 	}
 	
 	@Override
-	protected SubmittedIssue submitIssue(Context context, LinkedHashMap<String, Object> issueFields) {
+	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueFields) {
 		IContextJira contextJira = context.as(IContextJira.class);
 		JiraRestConnection conn = JiraConnectionFactory.getConnection(context);
 		issueFields.put("project.key", contextJira.getJiraProjectKey());
@@ -71,10 +71,10 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 	}
 	
 	@Override
-	protected IIssueStateDetailsRetriever<JSONMap> getIssueStateDetailsRetriever() {
-		return new IIssueStateDetailsRetriever<JSONMap>() {
-			public JSONMap getIssueStateDetails(Context context, SubmittedIssue submittedIssue) {
-				return JiraConnectionFactory.getConnection(context).getIssueState(submittedIssue);
+	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
+		return new ITargetIssueFieldsRetriever() {
+			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
+				return JiraConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator);
 			}
 		};
 	}
