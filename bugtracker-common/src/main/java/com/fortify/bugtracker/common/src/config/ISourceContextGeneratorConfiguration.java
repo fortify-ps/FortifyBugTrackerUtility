@@ -25,10 +25,16 @@
 package com.fortify.bugtracker.common.src.config;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 public interface ISourceContextGeneratorConfiguration {
 	public LinkedHashMap<String, String> getExtraData();
-	public LinkedHashMap<String, Context> getExpressionToContextMap();
+	public SimpleExpression getFilterExpression();
+	public LinkedHashMap<SimpleExpression, Context> getExpressionToContextMap();
+	public LinkedHashMap<Pattern, Context> getNamePatternToContextMap();
+	public Map<String, String> getAttributeMappings();
 }

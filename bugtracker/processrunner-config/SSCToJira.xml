@@ -43,7 +43,7 @@
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.jira"/>
 	
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
-		<property name="requiredAttributeMappings"><map>
+		<property name="attributeMappings"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
 	</bean>

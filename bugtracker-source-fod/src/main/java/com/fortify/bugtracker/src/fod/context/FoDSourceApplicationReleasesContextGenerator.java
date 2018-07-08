@@ -26,24 +26,31 @@ package com.fortify.bugtracker.src.fod.context;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
+import com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.releases.IFoDReleaseQueryBuilderUpdater;
+import com.fortify.bugtracker.src.fod.releases.json.preprocessor.filter.FoDJSONMapFilterListenerLoggerRelease;
 import com.fortify.client.fod.api.FoDReleaseAPI;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
+import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 @Component
-public class FoDSourceApplicationReleasesContextGenerator extends AbstractSourceContextGenerator implements IContextPropertyDefinitionProvider {
+public class FoDSourceApplicationReleasesContextGenerator extends AbstractSourceContextGenerator<FoDSourceReleasesConfiguration> implements IContextPropertyDefinitionProvider {
 	private List<IFoDReleaseQueryBuilderUpdater> queryBuilderUpdaters;
 
 	@Override
@@ -52,7 +59,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	}
 	
 	@Override
-	protected AbstractRestConnectionQueryBuilder<?, ?> createBaseQueryBuilder(Context context, boolean hasFilterExpressions) {
+	protected AbstractRestConnectionQueryBuilder<?, ?> createBaseQueryBuilder(Context context) {
 		IContextFoD fodCtx = context.as(IContextFoD.class);
 		FoDReleasesQueryBuilder queryBuilder = FoDConnectionFactory.getConnection(context)
 				.api(FoDReleaseAPI.class).queryReleases();
@@ -61,9 +68,8 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 			queryBuilder.releaseId(fodCtx.getFoDReleaseId());
 		} else if ( StringUtils.isNotBlank(fodCtx.getFoDReleases()) ) {
 			queryBuilder.namesOrIds(fodCtx.getFoDReleases());
-		} else if ( !hasFilterExpressions ) {
-			throw new IllegalArgumentException("Either release(s) need to be specified, or configuration file must define release filters");
-		}
+		} 
+		
 		if ( getQueryBuilderUpdaters()!=null ) {
 			for ( IFoDReleaseQueryBuilderUpdater updater : getQueryBuilderUpdaters() ) {
 				updater.updateFoDReleaseQueryBuilder(context, queryBuilder);
@@ -73,11 +79,10 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	}
 	
 	@Override
-	protected Context updateContextFromJSONMap(Context context, JSONMap json) {
+	protected void updateContextForSourceObject(Context context, JSONMap sourceObject) {
 		IContextFoD fodCtx = context.as(IContextFoD.class);
-		fodCtx.setFoDReleaseId(json.get("releaseId", String.class));
-		fodCtx.setRelease(json);
-		return context;
+		fodCtx.setFoDReleaseId(sourceObject.get("releaseId", String.class));
+		fodCtx.setRelease(sourceObject);
 	}
 	
 	public final List<IFoDReleaseQueryBuilderUpdater> getQueryBuilderUpdaters() {
@@ -87,6 +92,52 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	@Autowired(required=false)
 	public final void setQueryBuilderUpdaters(List<IFoDReleaseQueryBuilderUpdater> queryBuilderUpdaters) {
 		this.queryBuilderUpdaters = queryBuilderUpdaters;
+	}
+
+	@Override
+	protected FoDSourceReleasesConfiguration getDefaultConfig() {
+		return new FoDSourceReleasesConfiguration();
+	}
+
+	@Override
+	protected boolean ignoreConfiguredFilters(Context initialContext) {
+		IContextFoD sscCtx = initialContext.as(IContextFoD.class);
+		return StringUtils.isNotBlank(sscCtx.getFoDReleaseId()) 
+				|| StringUtils.isNotBlank(sscCtx.getFoDReleases());
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForFilterExpression(Context initialContext) {
+		return new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} match configured filter expression");
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForNamePatterns(Context initialContext) {
+		return new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} match any configured application version name");
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForAttributes(Context initialContext) {
+		return new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} have values for all attributes ${filter.requiredAttributeNames}");
+	}
+
+	@Override
+	protected String getAttributeValue(JSONMap sourceObject, String attributeName) {
+		JSONMap attributesMap = SpringExpressionUtil.evaluateExpression(sourceObject, "applicationWithAttributesMap.attributesMap", JSONMap.class);
+		JSONList attributeValues = attributesMap==null?null:attributesMap.get(attributeName, JSONList.class);
+		String attributeValue = CollectionUtils.isEmpty(attributeValues)?null:(String)attributeValues.get(0);
+		return attributeValue;
+	}
+
+	@Override
+	protected String getName(JSONMap sourceObject) {
+		return SpringExpressionUtil.evaluateTemplateExpression(sourceObject, "${applicationName}:${releaseName}", String.class);
 	}
 
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC
- *
+ * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,9 +22,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.config;
+package com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter;
 
-import com.fortify.bugtracker.common.src.config.AbstractSourceContextGeneratorConfiguration;
+import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterSpEL;
+import com.fortify.util.spring.expression.SimpleExpression;
 
-public class FoDSourceReleasesConfiguration extends AbstractSourceContextGeneratorConfiguration {
+/**
+ * This extension of {@link SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes} adds
+ * information logging about excluded applications versions.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class SSCJSONMapFilterWithLoggerApplicationVersionSpEL extends JSONMapFilterSpEL {
+	public SSCJSONMapFilterWithLoggerApplicationVersionSpEL(MatchMode matchMode, SimpleExpression expression) {
+		super(matchMode, expression);
+		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} match expression "+expression.getExpressionString()));
+	}
 }

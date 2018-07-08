@@ -26,25 +26,32 @@ package com.fortify.bugtracker.src.ssc.context;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
 import com.fortify.bugtracker.common.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
+import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterListenerLoggerApplicationVersion;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
+import com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration;
 import com.fortify.client.ssc.api.SSCApplicationVersionAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
+import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 @Component
-public class SSCSourceApplicationVersionsContextGenerator extends AbstractSourceContextGenerator implements IContextPropertyDefinitionProvider {
+public class SSCSourceApplicationVersionsContextGenerator extends AbstractSourceContextGenerator<SSCSourceApplicationVersionsConfiguration> implements IContextPropertyDefinitionProvider {
 	private List<ISSCApplicationVersionQueryBuilderUpdater> queryBuilderUpdaters;
 
 	@Override
@@ -53,7 +60,12 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	}
 	
 	@Override
-	protected AbstractRestConnectionQueryBuilder<?, ?> createBaseQueryBuilder(Context context, boolean hasFilterExpressions) {
+	protected SSCSourceApplicationVersionsConfiguration getDefaultConfig() {
+		return new SSCSourceApplicationVersionsConfiguration();
+	}
+	
+	@Override
+	protected AbstractRestConnectionQueryBuilder<?, ?> createBaseQueryBuilder(Context context) {
 		IContextSSCCommon sscCtx = context.as(IContextSSCCommon.class);
 		SSCApplicationVersionsQueryBuilder queryBuilder = SSCConnectionFactory.getConnection(context)
 				.api(SSCApplicationVersionAPI.class).queryApplicationVersions();
@@ -62,9 +74,8 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 			queryBuilder.id(sscCtx.getSSCApplicationVersionId());
 		} else if ( StringUtils.isNotBlank(sscCtx.getSSCApplicationVersions()) ) {
 			queryBuilder.namesOrIds(sscCtx.getSSCApplicationVersions());
-		} else if ( !hasFilterExpressions ) {
-			throw new IllegalArgumentException("Either application version(s) need to be specified, or configuration file must define application version filters");
-		}
+		} 
+		
 		if ( getQueryBuilderUpdaters()!=null ) {
 			for ( ISSCApplicationVersionQueryBuilderUpdater updater : getQueryBuilderUpdaters() ) {
 				updater.updateSSCApplicationVersionsQueryBuilder(context, queryBuilder);
@@ -72,15 +83,15 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 		}
 		return queryBuilder;
 	}
-	
+
+
 	@Override
-	protected Context updateContextFromJSONMap(Context context, JSONMap json) {
+	protected void updateContextForSourceObject(Context context, JSONMap applicationVersion) {
 		IContextSSCCommon sscCtx = context.as(IContextSSCCommon.class);
-		sscCtx.setSSCApplicationVersionId(json.get("id", String.class));
-		sscCtx.setApplicationVersion(json);
-		return context;
+		sscCtx.setSSCApplicationVersionId(applicationVersion.get("id", String.class));
+		sscCtx.setApplicationVersion(applicationVersion);
 	}
-	
+
 	public final List<ISSCApplicationVersionQueryBuilderUpdater> getQueryBuilderUpdaters() {
 		return queryBuilderUpdaters;
 	}
@@ -88,6 +99,47 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	@Autowired(required=false)
 	public final void setQueryBuilderUpdaters(List<ISSCApplicationVersionQueryBuilderUpdater> queryBuilderUpdaters) {
 		this.queryBuilderUpdaters = queryBuilderUpdaters;
+	}
+
+	@Override
+	protected boolean ignoreConfiguredFilters(Context initialContext) {
+		IContextSSCCommon sscCtx = initialContext.as(IContextSSCCommon.class);
+		return StringUtils.isNotBlank(sscCtx.getSSCApplicationVersionId()) 
+				|| StringUtils.isNotBlank(sscCtx.getSSCApplicationVersions());
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForFilterExpression(Context initialContext) {
+		return new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} match configured filter expression");
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForNamePatterns(Context initialContext) {
+		return new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} match any configured application version name");
+	}
+
+	@Override
+	protected IJSONMapFilterListener getFilterListenerForAttributes(Context initialContext) {
+		return new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} have values for all attributes ${filter.requiredAttributeNames}");
+	}
+
+	@Override
+	protected String getAttributeValue(JSONMap sourceObject, String attributeName) {
+		JSONMap attributeValuesByName = sourceObject.get("attributeValuesByName", JSONMap.class);
+		JSONList attributeValues = attributeValuesByName==null?null:attributeValuesByName.get(attributeName, JSONList.class);
+		String attributeValue = CollectionUtils.isEmpty(attributeValues)?null:(String)attributeValues.get(0);
+		return attributeValue;
+	}
+
+	@Override
+	protected String getName(JSONMap sourceObject) {
+		return SpringExpressionUtil.evaluateTemplateExpression(sourceObject, "${project.name}:${name}", String.class);
 	}
 
 }

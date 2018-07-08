@@ -25,9 +25,12 @@
 package com.fortify.bugtracker.common.src.config;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * Configuration class for {@link AbstractSourceContextGenerator}.
@@ -37,14 +40,26 @@ import com.fortify.processrunner.context.Context;
  */
 public class AbstractSourceContextGeneratorConfiguration implements ISourceContextGeneratorConfiguration {
 	private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
-	private LinkedHashMap<String, Context> expressionToContextMap = new LinkedHashMap<>();
+	private SimpleExpression filterExpression = null;
+	private LinkedHashMap<SimpleExpression, Context> expressionToContextMap = new LinkedHashMap<>();
+	private Map<String, String> attributeMappings = null;
+	private LinkedHashMap<Pattern, Context> namePatternToContextMap = null;
 
 	@Override
-	public LinkedHashMap<String, Context> getExpressionToContextMap() {
+	public SimpleExpression getFilterExpression() {
+		return filterExpression;
+	}
+
+	public void setFilterExpression(SimpleExpression filterExpression) {
+		this.filterExpression = filterExpression;
+	}
+
+	@Override
+	public LinkedHashMap<SimpleExpression, Context> getExpressionToContextMap() {
 		return expressionToContextMap;
 	}
 
-	public void setExpressionToContextMap(LinkedHashMap<String, Context> expressionToContextMap) {
+	public void setExpressionToContextMap(LinkedHashMap<SimpleExpression, Context> expressionToContextMap) {
 		this.expressionToContextMap = expressionToContextMap;
 	}
 
@@ -57,5 +72,21 @@ public class AbstractSourceContextGeneratorConfiguration implements ISourceConte
 		this.extraData = extraData;
 	}
 	
-	
+	@Override
+	public Map<String, String> getAttributeMappings() {
+		return attributeMappings;
+	}
+
+	public void setAttributeMappings(Map<String, String> attributeMappings) {
+		this.attributeMappings = attributeMappings;
+	}
+
+	@Override
+	public LinkedHashMap<Pattern, Context> getNamePatternToContextMap() {
+		return namePatternToContextMap;
+	}
+
+	public void setNamePatternToContextMap(LinkedHashMap<Pattern, Context> namePatternToContextMap) {
+		this.namePatternToContextMap = namePatternToContextMap;
+	}
 }
