@@ -337,9 +337,11 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 
 		@Override
 		protected boolean isMatching(JSONMap json) {
-			for ( Pattern pattern : namePatterns ) {
-				if ( pattern.matcher(getName(json)).matches() ) {
-					return true;
+			if ( CollectionUtils.isNotEmpty(namePatterns) ) {
+				for ( Pattern pattern : namePatterns ) {
+					if ( pattern.matcher(getName(json)).matches() ) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -362,9 +364,11 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 
 		@Override
 		protected boolean isMatching(JSONMap json) {
-			for ( String requiredAttributeName : requiredAttributeNames ) {
-				if ( StringUtils.isBlank(getAttributeValue(json, requiredAttributeName)) ) {
-					return false;
+			if ( CollectionUtils.isNotEmpty(requiredAttributeNames) ) {
+				for ( String requiredAttributeName : requiredAttributeNames ) {
+					if ( StringUtils.isBlank(getAttributeValue(json, requiredAttributeName)) ) {
+						return false;
+					}
 				}
 			}
 			return true;

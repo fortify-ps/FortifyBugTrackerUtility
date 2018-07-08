@@ -124,7 +124,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	protected IJSONMapFilterListener getFilterListenerForAttributes(Context initialContext) {
 		return new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
 				null,
-				"${textObjectDoesOrDoesnt} have values for all attributes ${filter.requiredAttributeNames}");
+				"${textObjectDoesOrDoesnt} have values for all attributes ${filter.requiredAttributeNames.toString()}");
 	}
 
 	@Override

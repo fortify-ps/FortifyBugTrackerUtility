@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -204,7 +205,10 @@ public class RunProcessRunnerFromSpringConfig {
 		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
 			String name = contextPropertyDefinition.getName();
 			if ( !context.hasValueForKey(name) ) {
-				context.put(name, contextPropertyDefinition.getDefaultValue(context));
+				String defaultValue = contextPropertyDefinition.getDefaultValue(context);
+				if ( StringUtils.isNotBlank(defaultValue) ) {
+					context.put(name, defaultValue);
+				}
 			}
 		}
 	}

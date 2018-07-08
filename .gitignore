@@ -53,3 +53,4 @@ local.properties
 .scannerwork/
 sonar-project.properties
 /target/
+*.zip
