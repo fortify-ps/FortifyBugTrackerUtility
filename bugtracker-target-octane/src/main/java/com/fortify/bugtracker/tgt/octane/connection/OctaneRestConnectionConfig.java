@@ -24,6 +24,8 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.octane.connection;
 
+import java.net.URI;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection.IOctaneCredentials;
@@ -66,5 +68,12 @@ public class OctaneRestConnectionConfig<T extends OctaneRestConnectionConfig<T>>
 		}
 	}
 	
+	@Override
+	protected void setBaseUrl(URI baseUrl) {
+		String baseUrlString = baseUrl.toASCIIString();
+		baseUrlString = StringUtils.removeEnd(baseUrlString, "/");
+		baseUrlString = StringUtils.removeEnd(baseUrlString, "ui");
+		super.setBaseUrl(URI.create(baseUrlString));
+	}
 	
 }
