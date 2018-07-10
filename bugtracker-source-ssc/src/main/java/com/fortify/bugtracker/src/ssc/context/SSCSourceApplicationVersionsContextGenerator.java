@@ -90,6 +90,7 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 		IContextSSCCommon sscCtx = context.as(IContextSSCCommon.class);
 		sscCtx.setSSCApplicationVersionId(applicationVersion.get("id", String.class));
 		sscCtx.setApplicationVersion(applicationVersion);
+		sscCtx.setSSCApplicationAndVersionName(getName(applicationVersion));
 	}
 
 	public final List<ISSCApplicationVersionQueryBuilderUpdater> getQueryBuilderUpdaters() {

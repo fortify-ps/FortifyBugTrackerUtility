@@ -48,7 +48,7 @@ public class SSCSourceProcessorRetrieveVulnerabilities extends AbstractSourcePro
 	protected String getLogMessageStart(Context context, String purpose) {
 		IContextSSCCommon contextSSC = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		return "[SSC] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from application version id "+contextSSC.getSSCApplicationVersionId()+" at "+conn.getBaseUrl();
+		return "[SSC] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from application version "+contextSSC.getSSCApplicationAndVersionName()+" at "+conn.getBaseUrl();
 	}
 	
 	@Override

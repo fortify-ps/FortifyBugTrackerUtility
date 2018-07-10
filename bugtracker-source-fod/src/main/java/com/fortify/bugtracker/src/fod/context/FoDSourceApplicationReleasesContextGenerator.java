@@ -83,6 +83,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 		IContextFoD fodCtx = context.as(IContextFoD.class);
 		fodCtx.setFoDReleaseId(sourceObject.get("releaseId", String.class));
 		fodCtx.setRelease(sourceObject);
+		fodCtx.setFoDApplicationAndReleaseName(getName(sourceObject));
 	}
 	
 	public final List<IFoDReleaseQueryBuilderUpdater> getQueryBuilderUpdaters() {

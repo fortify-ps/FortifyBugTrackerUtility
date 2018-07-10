@@ -46,7 +46,7 @@ public class FoDSourceProcessorRetrieveVulnerabilities extends AbstractSourcePro
 	protected String getLogMessageStart(Context context, String purpose) {
 		IContextFoD contextFoD = context.as(IContextFoD.class);
 		FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
-		return "[FoD] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from release "+contextFoD.getFoDReleaseId()+" at "+conn.getBaseUrl();
+		return "[FoD] Retrieving vulnerabilities"+(purpose==null?"":" for "+purpose)+" from release "+contextFoD.getFoDApplicationAndReleaseName()+" at "+conn.getBaseUrl();
 	}
 	
 	@Override
