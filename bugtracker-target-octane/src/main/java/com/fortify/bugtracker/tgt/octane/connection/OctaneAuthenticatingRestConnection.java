@@ -24,7 +24,6 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.octane.connection;
 
-import java.net.URI;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -91,7 +90,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
 		}
 		OctaneIssueId fullId = new OctaneIssueId(sharedSpaceAndWorkspaceId, id);
-		return new TargetIssueLocator(fullId.toString(), fullId.getDeepLink(getBaseUrl()));
+		return new TargetIssueLocator(fullId.toString(), fullId.getDeepLink(getBaseUrlStringWithoutTrailingSlash()));
 	}
 	
 	public void updateIssue(TargetIssueLocator targetIssueLocator, Map<String, Object> issueData) {
@@ -255,7 +254,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		private final String issueId;
 		
 		public OctaneIssueId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId) {
-			super();
 			this.sharedSpaceAndWorkspaceId = sharedSpaceAndWorkspaceId;
 			this.issueId = issueId;
 		}
@@ -274,9 +272,9 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId});
 		}
 		
-		public String getDeepLink(URI baseUrl) {
+		public String getDeepLink(String baseUrlWithoutTrailingSlash) {
 			return FMT_DEEP_LINK.format(new Object[]{
-				baseUrl.toASCIIString(), sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId
+					baseUrlWithoutTrailingSlash, sharedSpaceAndWorkspaceId.getSharedSpaceUid(), sharedSpaceAndWorkspaceId.getWorkspaceId(), issueId
 			});
 		}
 		
