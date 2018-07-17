@@ -22,23 +22,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter;
+package com.fortify.bugtracker.common.ssc.json.preprocessor.filter;
 
-import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasBugTrackerId;
+import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 
 /**
- * This extension of {@link SSCJSONMapFilterApplicationVersionHasBugTrackerId} adds
+ * This extension of {@link SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName} adds
  * information logging about excluded applications versions.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerId extends SSCJSONMapFilterApplicationVersionHasBugTrackerId {
-	public SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerId(MatchMode matchMode, String bugTrackerPluginId) {
-		super(matchMode, bugTrackerPluginId);
+public class SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName extends SSCJSONMapFilterApplicationVersionHasBugTrackerShortDisplayName {
+	public SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode matchMode, String bugTrackerPluginShortDisplayName) {
+		super(matchMode, bugTrackerPluginShortDisplayName);
 		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
 				null,
-				"${textObjectDoesOrDoesnt} have bug tracker id "+bugTrackerPluginId));
+				"${textObjectDoesOrDoesnt} have bug tracker "+bugTrackerPluginShortDisplayName));
 	}
 }

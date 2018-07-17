@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,7 @@ import com.fortify.bugtracker.common.src.config.ISourceContextGeneratorConfigura
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.context.IContextGenerator;
+import com.fortify.processrunner.util.rest.IQueryBuilderUpdater;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter;
@@ -65,7 +67,9 @@ import com.fortify.util.spring.expression.SimpleExpression;
  *
  * @param <C>
  */
-public abstract class AbstractSourceContextGenerator<C extends ISourceContextGeneratorConfiguration> implements IContextGenerator {
+public abstract class AbstractSourceContextGenerator<C extends ISourceContextGeneratorConfiguration, Q extends AbstractRestConnectionQueryBuilder<?, ?>> implements IContextGenerator {
+	private List<IQueryBuilderUpdater<Q>> queryBuilderUpdaters;
+	
 	private C config = getDefaultConfig();
 	
 	/**
@@ -77,15 +81,30 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	protected abstract C getDefaultConfig();
 	
 	/**
-	 * Method to be implemented by concrete implementations to create the base source system query builder.
-	 * This query builder must include filtering criteria based on the given filterExpression, if any, and
-	 * can optionally add additional implementation-specific filtering criteria.
+	 * Method to be implemented by concrete implementations to return the context property name
+	 * for selecting a single source object by id.
 	 * 
-	 * @param context
-	 * @param filterExpression
 	 * @return
 	 */
-	protected abstract AbstractRestConnectionQueryBuilder<?, ?> createBaseQueryBuilder(Context initialContext);
+	protected abstract String getContextPropertyNameForId();
+	
+	/**
+	 * Method to be implemented by concrete implementations to return the context property name
+	 * for selecting one or more source objects by a list of name patterns.
+	 * 
+	 * @return
+	 */
+	protected abstract String getContextPropertyNameForNamePatterns();
+	
+	/**
+	 * Method to be implemented by concrete implementations to create the base source system query builder.
+	 * This query builder should add any required on-demand data (for example attributes map), but should
+	 * not add any filters, as that will be taken care of by other methods in this class.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	protected abstract Q createBaseQueryBuilder(Context initialContext);
 
 	/**
 	 * Method to be implemented by concrete implementations to add context properties to
@@ -101,24 +120,13 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	protected abstract void updateContextForSourceObject(Context newContext, JSONMap sourceObject);
 	
 	/**
-	 * Method to be implemented by concrete implementations to indicate whether configured
-	 * filters should be ignored or not. This method should return true if the source objects
-	 * to use have been defined on the command line, or false if this implementation should
-	 * automatically load source objects based on defined filters.
-	 * 
-	 * @param initialContext is the initial context
-	 * @return
-	 */
-	protected abstract boolean ignoreConfiguredFilters(Context initialContext);
-	
-	/**
 	 * Method to be implemented by concrete implementations to log messages stating that a
 	 * source object is included or excluded because configured filter expression matches 
 	 * or does not match source object.
 	 * @param initialContext
 	 * @return
 	 */
-	protected abstract IJSONMapFilterListener getFilterListenerForFilterExpression(Context initialContext);
+	protected abstract IJSONMapFilterListener getFilterListenerForConfiguredFilterExpression(Context initialContext);
 	
 	/**
 	 * Method to be implemented by concrete implementations to log messages stating that a
@@ -127,7 +135,16 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	 * @param initialContext
 	 * @return
 	 */
-	protected abstract IJSONMapFilterListener getFilterListenerForNamePatterns(Context initialContext);
+	protected abstract IJSONMapFilterListener getFilterListenerForConfiguredNamePatterns(Context initialContext);
+	
+	/**
+	 * Method to be implemented by concrete implementations to log messages stating that a
+	 * source object is included or excluded because one of the name patterns provided as
+	 * a context property matches or does not match source object.
+	 * @param initialContext
+	 * @return
+	 */
+	protected abstract IJSONMapFilterListener getFilterListenerForContextNamePatterns(Context initialContext);
 	
 	/**
 	 * Method to be implemented by concrete implementations to log messages stating that a
@@ -136,11 +153,11 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	 * @param initialContext
 	 * @return
 	 */
-	protected abstract IJSONMapFilterListener getFilterListenerForAttributes(Context initialContext);
+	protected abstract IJSONMapFilterListener getFilterListenerForConfiguredAttributes(Context initialContext);
 	
 	// TODO Add JavaDoc
-	protected abstract String getAttributeValue(JSONMap sourceObject, String attributeName);
-	protected abstract String getName(JSONMap sourceObject);
+	protected abstract String getSourceObjectAttributeValue(JSONMap sourceObject, String attributeName);
+	protected abstract String getSourceObjectName(JSONMap sourceObject);
 	
 	
 	/**
@@ -200,7 +217,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		if ( MapUtils.isNotEmpty(getConfig().getNamePatternToContextMap()) ) {
 			for (Map.Entry<Pattern, Context> entry : getConfig().getNamePatternToContextMap().entrySet()) {
 				Pattern pattern = entry.getKey();
-				if ( pattern.matcher(getName(sourceObject)).matches() ) {
+				if ( pattern.matcher(getSourceObjectName(sourceObject)).matches() ) {
 					mergeContexts(newContext, entry.getValue(), sourceObject);
 				}
 			}
@@ -211,7 +228,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		if ( MapUtils.isNotEmpty(getConfig().getAttributeMappings()) ) {
 			for (Map.Entry<String, String> entry : getConfig().getAttributeMappings().entrySet() ) {
 				String attributeName = entry.getKey();
-				String attributeValue = getAttributeValue(sourceObject, attributeName);
+				String attributeValue = getSourceObjectAttributeValue(sourceObject, attributeName);
 				if ( StringUtils.isNotBlank(attributeValue) ) {
 					mergeContexts(newContext, new Context().chainedPut(entry.getValue(), attributeValue), sourceObject);
 				}
@@ -251,13 +268,18 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	 * @return
 	 */
 	private final IRestConnectionQuery createQuery(Context initialContext) {
-		AbstractRestConnectionQueryBuilder<?,?> queryBuilder = createBaseQueryBuilder(initialContext);
+		Q queryBuilder = createBaseQueryBuilder(initialContext);
 		addOnDemandData(queryBuilder);
-		if ( !ignoreConfiguredFilters(initialContext) ) {
-			addJSONMapFilterForFilterExpression(initialContext, queryBuilder);
-			addJSONMapFilterForNamePatterns(initialContext, queryBuilder);
-			addJSONMapFilterForAttributes(initialContext, queryBuilder);
+		if ( initialContext.containsKey(getContextPropertyNameForId()) ) {
+			updateQueryBuilderWithId(initialContext, queryBuilder);
+		} else if ( initialContext.containsKey(getContextPropertyNameForNamePatterns()) ) {
+			updateQueryBuilderWithContextNamePatterns(initialContext, queryBuilder);
+		} else {
+			updateQueryBuilderWithConfiguredFilterExpression(initialContext, queryBuilder);
+			updateQueryBuilderWithConfiguredNamePatterns(initialContext, queryBuilder);
+			updateQueryBuilderWithConfiguredAttributes(initialContext, queryBuilder);
 		}
+		updateQueryBuilderWithQueryBuilderUpdaters(initialContext, queryBuilder);
 		return queryBuilder.build();
 	}
 
@@ -281,35 +303,61 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		}
 	}
 	
-	private void addJSONMapFilterForFilterExpression(Context initialContext, AbstractRestConnectionQueryBuilder<?, ?> queryBuilder) {
+	// TODO Add default implementation?
+	protected abstract void updateQueryBuilderWithId(Context initialContext, Q queryBuilder);
+
+	private void updateQueryBuilderWithContextNamePatterns(Context initialContext,	Q queryBuilder) {
+		String namePatternsString = (String)initialContext.get(getContextPropertyNameForNamePatterns());
+		Set<Pattern> namePatterns = parseNamePatternStrings(namePatternsString);
+		JSONMapFilterNamePatterns filter = new JSONMapFilterNamePatterns(MatchMode.INCLUDE, namePatterns);
+		addNonNullFilterListener(filter, getFilterListenerForContextNamePatterns(initialContext));
+		queryBuilder.preProcessor(filter);
+	}
+	
+	private Set<Pattern> parseNamePatternStrings(String namePatternsString) {
+		Set<Pattern> result = new LinkedHashSet<>();
+		for ( String patternString : namePatternsString.split(",") ) {
+			result.add(Pattern.compile(patternString));
+		}
+		return result;
+	}
+
+	private void updateQueryBuilderWithConfiguredFilterExpression(Context initialContext, Q queryBuilder) {
 		SimpleExpression filterExpression = getConfig().getFilterExpression();
 		if ( filterExpression != null ) {
 			JSONMapFilterSpEL filter = new JSONMapFilterSpEL(MatchMode.INCLUDE, filterExpression);
-			addNonNullFilterListener(filter, getFilterListenerForFilterExpression(initialContext));
+			addNonNullFilterListener(filter, getFilterListenerForConfiguredFilterExpression(initialContext));
 			queryBuilder.preProcessor(filter);
 		}
 	}
 
-	private void addJSONMapFilterForNamePatterns(Context initialContext, AbstractRestConnectionQueryBuilder<?, ?> queryBuilder) {
+	private void updateQueryBuilderWithConfiguredNamePatterns(Context initialContext, Q queryBuilder) {
 		LinkedHashMap<Pattern, Context> namePatternToContextMap = getConfig().getNamePatternToContextMap();
 		if ( MapUtils.isNotEmpty(namePatternToContextMap) ) {
 			JSONMapFilterNamePatterns filter = new JSONMapFilterNamePatterns(MatchMode.INCLUDE, namePatternToContextMap.keySet());
-			addNonNullFilterListener(filter, getFilterListenerForNamePatterns(initialContext));
+			addNonNullFilterListener(filter, getFilterListenerForConfiguredNamePatterns(initialContext));
 			queryBuilder.preProcessor(filter);
 		}
 	}
 
-	private void addJSONMapFilterForAttributes(Context initialContext, AbstractRestConnectionQueryBuilder<?, ?> queryBuilder) {
+	private void updateQueryBuilderWithConfiguredAttributes(Context initialContext, Q queryBuilder) {
 		Map<String, String> attributeMappings = getConfig().getAttributeMappings();
 		if ( MapUtils.isNotEmpty(attributeMappings) ) {
 			Map<String, String> copyOfAttributeMappings = new HashMap<>(attributeMappings);
 			// Remove any mappings for which a context attribute already exists in the given initialContext
 			copyOfAttributeMappings.values().removeAll(initialContext.keySet());
 			JSONMapFilterRequiredAttributes filter = new JSONMapFilterRequiredAttributes(MatchMode.INCLUDE, copyOfAttributeMappings.keySet());
-			addNonNullFilterListener(filter, getFilterListenerForAttributes(initialContext));
+			addNonNullFilterListener(filter, getFilterListenerForConfiguredAttributes(initialContext));
 			queryBuilder.preProcessor(filter);
 		}
-		
+	}
+	
+	private void updateQueryBuilderWithQueryBuilderUpdaters(Context initialContext, Q queryBuilder) {
+		if ( getQueryBuilderUpdaters()!=null ) {
+			for ( IQueryBuilderUpdater<Q> updater : getQueryBuilderUpdaters() ) {
+				updater.updateQueryBuilder(initialContext, queryBuilder);
+			}
+		}
 	}
 	
 	private void addNonNullFilterListener(AbstractJSONMapFilter filter, IJSONMapFilterListener listener) {
@@ -327,6 +375,15 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		this.config = config;
 	}
 	
+	public List<IQueryBuilderUpdater<Q>> getQueryBuilderUpdaters() {
+		return queryBuilderUpdaters;
+	}
+
+	@Autowired(required=false)
+	public void setQueryBuilderUpdaters(List<IQueryBuilderUpdater<Q>> queryBuilderUpdaters) {
+		this.queryBuilderUpdaters = queryBuilderUpdaters;
+	}
+
 	private class JSONMapFilterNamePatterns extends AbstractJSONMapFilter {
 		private final Set<Pattern> namePatterns;
 		
@@ -339,7 +396,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		protected boolean isMatching(JSONMap json) {
 			if ( CollectionUtils.isNotEmpty(namePatterns) ) {
 				for ( Pattern pattern : namePatterns ) {
-					if ( pattern.matcher(getName(json)).matches() ) {
+					if ( pattern.matcher(getSourceObjectName(json)).matches() ) {
 						return true;
 					}
 				}
@@ -366,7 +423,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		protected boolean isMatching(JSONMap json) {
 			if ( CollectionUtils.isNotEmpty(requiredAttributeNames) ) {
 				for ( String requiredAttributeName : requiredAttributeNames ) {
-					if ( StringUtils.isBlank(getAttributeValue(json, requiredAttributeName)) ) {
+					if ( StringUtils.isBlank(getSourceObjectAttributeValue(json, requiredAttributeName)) ) {
 						return false;
 					}
 				}

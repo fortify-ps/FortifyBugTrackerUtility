@@ -29,9 +29,9 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
-import com.fortify.bugtracker.common.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
-import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
-import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
+import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;
+import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
+import com.fortify.bugtracker.common.ssc.query.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
@@ -58,7 +58,7 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private boolean enableRevisionWorkAround = false;
 	
 	@Override
-	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
+	public void updateQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
 		if ( StringUtils.isNotBlank(getBugLinkCustomTagName()) ) {
 			builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags(MatchMode.INCLUDE, getBugLinkCustomTagName()));
 		} else if ( isAddNativeBugLink() ) {

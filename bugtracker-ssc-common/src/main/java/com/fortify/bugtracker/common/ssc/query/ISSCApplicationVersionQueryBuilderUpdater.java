@@ -22,25 +22,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter;
+package com.fortify.bugtracker.common.ssc.query;
 
-import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterSpEL;
-import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.processrunner.util.rest.IQueryBuilderUpdater;
 
 /**
- * This extension of {@link SSCJSONMapFilterApplicationVersionHasValuesForAllAttributes} adds
- * information logging about excluded applications versions.
+ * This interface allows for updating an {@link SSCApplicationVersionsQueryBuilder} to
+ * automatically select SSC application versions to be processed.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCJSONMapFilterWithLoggerApplicationVersionSpEL extends JSONMapFilterSpEL {
-	public SSCJSONMapFilterWithLoggerApplicationVersionSpEL(MatchMode matchMode, SimpleExpression expression) {
-		super(matchMode, expression);
-		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
-				null,
-				"${textObjectDoesOrDoesnt} match expression "+expression.getExpressionString()));
-	}
-}
+public interface ISSCApplicationVersionQueryBuilderUpdater extends IQueryBuilderUpdater<SSCApplicationVersionsQueryBuilder> {}

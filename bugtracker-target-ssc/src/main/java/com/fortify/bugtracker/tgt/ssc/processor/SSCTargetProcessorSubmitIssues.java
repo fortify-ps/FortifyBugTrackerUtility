@@ -34,9 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
-import com.fortify.bugtracker.common.ssc.appversion.ISSCApplicationVersionQueryBuilderUpdater;
-import com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
+import com.fortify.bugtracker.common.ssc.query.ISSCApplicationVersionQueryBuilderUpdater;
 import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.ssc.config.SSCTargetConfiguration;
@@ -75,7 +75,7 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	}
 	
 	@Override
-	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
+	public void updateQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
 		builder.preProcessor(new SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName(MatchMode.INCLUDE, getSscBugTrackerName()));
 	}
 

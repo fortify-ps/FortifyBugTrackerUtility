@@ -38,11 +38,11 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsTo
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
+import com.fortify.bugtracker.common.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
+import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
-import com.fortify.bugtracker.src.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
-import com.fortify.bugtracker.src.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
 import com.fortify.client.ssc.api.SSCCustomTagAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;

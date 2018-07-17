@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.ssc.json.preprocessor.enrich;
+package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 
 import org.apache.commons.lang.StringUtils;
 

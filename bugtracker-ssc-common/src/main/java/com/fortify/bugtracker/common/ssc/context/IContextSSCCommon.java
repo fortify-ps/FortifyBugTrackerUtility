@@ -39,9 +39,7 @@ public interface IContextSSCCommon {
 	public static final String PRP_SSC_USER_NAME = "SSCUserName";
 	public static final String PRP_SSC_PASSWORD = "SSCPassword";
 	public static final String PRP_SSC_APPLICATION_VERSION_ID = "SSCApplicationVersionId";
-	public static final String PRP_SSC_APPLICATION_VERSIONS = "SSCApplicationVersions";
-	public static final String PRP_SSC_APPLICATION_VERSION = "SSCApplicationVersion";
-	public static final String PRP_SSC_APPLICATION_AND_VERSION_NAME = "SSCApplicationAndVersionName";
+	public static final String PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS = "SSCApplicationVersionNamePatterns";
 	
 	public void setSSCBaseUrl(String baseUrl);
 	public String getSSCBaseUrl();
@@ -57,8 +55,8 @@ public interface IContextSSCCommon {
 	public void setSSCApplicationVersionId(String applicationVersionId);
 	public String getSSCApplicationVersionId();
 	
-	public void setSSCApplicationVersions(String applicationVersionIdsOrNames);
-	public String getSSCApplicationVersions();
+	public void setSSCApplicationVersionNamePatterns(String applicationVersionNamePatterns);
+	public String getSSCApplicationVersionNamePatterns();
 	
 	public void setApplicationVersion(JSONMap applicationVersion);
 	public JSONMap getApplicationVersion();

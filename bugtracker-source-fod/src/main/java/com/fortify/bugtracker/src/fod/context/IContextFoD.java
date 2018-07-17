@@ -41,10 +41,7 @@ public interface IContextFoD {
 	public static final String PRP_FOD_USER_NAME = "FoDUserName";
 	public static final String PRP_FOD_PASSWORD = "FoDPassword";
 	public static final String PRP_FOD_RELEASE_ID = "FoDReleaseId";
-	public static final String PRP_FOD_RELEASES = "FoDReleases";
-	public static final String PRP_FOD_APPLICATIONS = "FoDApplications";
-	public static final String PRP_FOD_RELEASE = "FoDRelease";
-	public static final String PRP_FOD_APPLICATION_AND_RELEASE_NAME = "FoDApplicationAndReleaseName";
+	public static final String PRP_FOD_RELEASE_NAME_PATTERNS = "FoDReleaseNamePatterns";
 	
 	public void setFoDBaseUrl(String baseUrl);
 	public String getFoDBaseUrl();
@@ -64,11 +61,11 @@ public interface IContextFoD {
 	public void setFoDReleaseId(String releaseId);
 	public String getFoDReleaseId();
 	
+	public void setFoDReleaseNamePatterns(String releaseNamePatterns);
+	public String getFoDReleaseNamePatterns();
+	
 	public void setRelease(JSONMap release);
 	public String getRelease();
-	
-	public void setFoDReleases(String releases);
-	public String getFoDReleases();
 	
 	public void setFoDApplicationAndReleaseName(String applicationAndReleaseName);
 	public String getFoDApplicationAndReleaseName();

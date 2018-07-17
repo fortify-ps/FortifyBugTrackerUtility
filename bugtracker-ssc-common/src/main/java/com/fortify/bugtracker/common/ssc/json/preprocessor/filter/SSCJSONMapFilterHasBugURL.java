@@ -22,41 +22,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.ssc.json.preprocessor.enrich;
+package com.fortify.bugtracker.common.ssc.json.preprocessor.filter;
 
-import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
-import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
-import com.fortify.util.spring.SpringExpressionUtil;
+import java.util.regex.Pattern;
+
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 
 /**
- * This {@link AbstractJSONMapEnrich} implementation adds an on-demand revision property to the
- * current vulnerability based on the revision included in the issue details. This is a work-around
- * for a bug in some SSC versions, where the project version issues REST API doesn't return the
- * correct revision until metrics have been refreshed.
+ * This class allows for including or excluding SSC vulnerabilities based on whether 
+ * the vulnerability bugURL field contains any value or not.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCJSONMapEnrichWithRevisionFromDetails extends AbstractJSONMapEnrich {
-	public SSCJSONMapEnrichWithRevisionFromDetails() {}
-	
-	@Override
-	protected void enrich(JSONMap json) {
-		json.put("revision", new SSCJSONMapOnDemandLoaderRevisionFromDetails());
+public class SSCJSONMapFilterHasBugURL extends JSONMapFilterRegEx {
+	public SSCJSONMapFilterHasBugURL(MatchMode matchMode) {
+		super(matchMode, "bugURL", Pattern.compile("^\\S+$"));
 	}
-	
-	private static class SSCJSONMapOnDemandLoaderRevisionFromDetails extends AbstractJSONMapOnDemandLoader {
-		private static final long serialVersionUID = 1L;
-		
-		public SSCJSONMapOnDemandLoaderRevisionFromDetails() {
-			super(true);
-		}
-
-		@Override
-		public Object getOnDemand(String propertyName, JSONMap parent) {
-			return SpringExpressionUtil.evaluateExpression(parent, "details.revision", String.class);
-		}
-	}
-
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,9 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.ssc.json.preprocessor.enrich;
-/**
- * This package contains SSC-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
- * implementations for enriching SSC {@link com.fortify.util.rest.json.JSONMap} instances.
- * 
- */
+package com.fortify.processrunner.util.rest;
+
+import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
+
+public interface IQueryBuilderUpdater<Q extends AbstractRestConnectionQueryBuilder<?, ?>> {
+	public void updateQueryBuilder(Context context, Q builder);
+}

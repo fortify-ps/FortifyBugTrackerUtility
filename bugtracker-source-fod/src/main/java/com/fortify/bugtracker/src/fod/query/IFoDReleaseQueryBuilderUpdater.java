@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC
- *
+ * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,23 +22,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter;
+package com.fortify.bugtracker.src.fod.query;
 
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger;
+import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
+import com.fortify.processrunner.util.rest.IQueryBuilderUpdater;
 
-public final class SSCJSONMapFilterListenerLoggerApplicationVersion extends JSONMapFilterListenerLogger {
-
-	public SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel logLevel, String reasonExpression) {
-		super(logLevel, getFullExpression(reasonExpression));
-	}
-
-	public SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel logLevel, String reasonExpressionIncluded, String reasonExpressionExcluded) {
-		super(logLevel, getFullExpression(reasonExpressionIncluded), getFullExpression(reasonExpressionExcluded));
-	}
-
-	private static String getFullExpression(String reasonExpression) {
-		return reasonExpression == null ? null :
-			("[SSC] Application version ${json.project.name}:${json.name} ${textObjectIncludedOrExcluded}; "+reasonExpression);
-	}
-
-}
+/**
+ * This interface allows for updating an {@link FoDReleasesQueryBuilder} to
+ * automatically select FoD releases to be processed.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public interface IFoDReleaseQueryBuilderUpdater extends IQueryBuilderUpdater<FoDReleasesQueryBuilder> {}

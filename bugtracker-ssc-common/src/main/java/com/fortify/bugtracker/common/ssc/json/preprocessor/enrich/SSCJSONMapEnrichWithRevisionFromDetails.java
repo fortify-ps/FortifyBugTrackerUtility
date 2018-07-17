@@ -22,25 +22,41 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.appversion.json.preprocessor.filter;
+package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 
-import java.util.Arrays;
-
-import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
+import com.fortify.util.rest.json.JSONMap;
+import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
+import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
+import com.fortify.util.spring.SpringExpressionUtil;
 
 /**
- * This extension of {@link SSCJSONMapFilterApplicationVersionHasAllCustomTags} adds
- * information logging about excluded applications versions.
+ * This {@link AbstractJSONMapEnrich} implementation adds an on-demand revision property to the
+ * current vulnerability based on the revision included in the issue details. This is a work-around
+ * for a bug in some SSC versions, where the project version issues REST API doesn't return the
+ * correct revision until metrics have been refreshed.
  * 
  * @author Ruud Senden
  *
  */
-public class SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags extends SSCJSONMapFilterApplicationVersionHasAllCustomTags {
-	public SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags(MatchMode matchMode, String... customTagNames) {
-		super(matchMode, customTagNames);
-		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
-				null,
-				"${textObjectDoesOrDoesnt} have all custom tags "+Arrays.asList(customTagNames)));
+public class SSCJSONMapEnrichWithRevisionFromDetails extends AbstractJSONMapEnrich {
+	public SSCJSONMapEnrichWithRevisionFromDetails() {}
+	
+	@Override
+	protected void enrich(JSONMap json) {
+		json.put("revision", new SSCJSONMapOnDemandLoaderRevisionFromDetails());
 	}
+	
+	private static class SSCJSONMapOnDemandLoaderRevisionFromDetails extends AbstractJSONMapOnDemandLoader {
+		private static final long serialVersionUID = 1L;
+		
+		public SSCJSONMapOnDemandLoaderRevisionFromDetails() {
+			super(true);
+		}
+
+		@Override
+		public Object getOnDemand(String propertyName, JSONMap parent) {
+			return SpringExpressionUtil.evaluateExpression(parent, "details.revision", String.class);
+		}
+	}
+
 }

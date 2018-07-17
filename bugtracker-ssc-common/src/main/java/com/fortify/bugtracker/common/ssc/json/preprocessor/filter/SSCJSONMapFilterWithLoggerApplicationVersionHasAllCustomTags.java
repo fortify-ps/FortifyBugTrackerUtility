@@ -22,18 +22,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.releases;
+package com.fortify.bugtracker.common.ssc.json.preprocessor.filter;
 
-import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
-import com.fortify.processrunner.context.Context;
+import java.util.Arrays;
+
+import com.fortify.client.ssc.json.preprocessor.filter.SSCJSONMapFilterApplicationVersionHasAllCustomTags;
+import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 
 /**
- * This interface allows for updating an {@link FoDReleasesQueryBuilder} to
- * automatically select FoD releases to be processed.
+ * This extension of {@link SSCJSONMapFilterApplicationVersionHasAllCustomTags} adds
+ * information logging about excluded applications versions.
  * 
  * @author Ruud Senden
  *
  */
-public interface IFoDReleaseQueryBuilderUpdater {
-	public void updateFoDReleaseQueryBuilder(Context context, FoDReleasesQueryBuilder builder);
+public class SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags extends SSCJSONMapFilterApplicationVersionHasAllCustomTags {
+	public SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags(MatchMode matchMode, String... customTagNames) {
+		super(matchMode, customTagNames);
+		addFilterListeners(new SSCJSONMapFilterListenerLoggerApplicationVersion(LogLevel.INFO,
+				null,
+				"${textObjectDoesOrDoesnt} have all custom tags "+Arrays.asList(customTagNames)));
+	}
 }

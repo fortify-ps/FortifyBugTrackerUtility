@@ -22,18 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.appversion;
-
-import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
-import com.fortify.processrunner.context.Context;
-
+package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 /**
- * This interface allows for updating an {@link SSCApplicationVersionsQueryBuilder} to
- * automatically select SSC application versions to be processed.
+ * This package contains SSC-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
+ * implementations for enriching SSC {@link com.fortify.util.rest.json.JSONMap} instances.
  * 
- * @author Ruud Senden
- *
  */
-public interface ISSCApplicationVersionQueryBuilderUpdater {
-	public void updateSSCApplicationVersionsQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder);
-}
