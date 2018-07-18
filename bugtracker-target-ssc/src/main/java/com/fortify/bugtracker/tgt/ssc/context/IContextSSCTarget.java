@@ -35,12 +35,4 @@ import com.fortify.processrunner.context.Context;
  * @author Ruud Senden
  */
 public interface IContextSSCTarget extends IContextSSCCommon {	
-	public static final String PRP_SSC_BUG_TRACKER_USER_NAME = "SSCBugTrackerUserName";
-	public static final String PRP_SSC_BUG_TRACKER_PASSWORD = "SSCBugTrackerPassword";
-	
-	public void setSSCBugTrackerUserName(String userName);
-	public String getSSCBugTrackerUserName();
-	
-	public void setSSCBugTrackerPassword(String password);
-	public String getSSCBugTrackerPassword();
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,11 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
 		SSCBugTrackerAPI bugTrackerAPI = conn.api(SSCBugTrackerAPI.class);
 		if ( bugTrackerAPI.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
+			String btUserName = ctx.getSSCBugTrackerUserName();
+			String btPassword = ctx.getSSCBugTrackerPassword();
+			if ( StringUtils.isBlank(btUserName) || StringUtils.isBlank(btPassword) ) {
+				throw new IllegalArgumentException("SSC bug tracker requires authentication, but no username or password provided");
+			}
 			bugTrackerAPI.authenticateForBugFiling(applicationVersionId, ctx.getSSCBugTrackerUserName(), ctx.getSSCBugTrackerPassword());
 		}
 		List<String> issueInstanceIds = new ArrayList<String>();

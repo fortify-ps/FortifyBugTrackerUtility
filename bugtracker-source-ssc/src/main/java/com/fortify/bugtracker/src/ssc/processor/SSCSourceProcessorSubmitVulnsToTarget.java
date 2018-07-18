@@ -135,6 +135,17 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 			Map<String, Object> issueDetails = new HashMap<String, Object>();
 			issueDetails.put("existingBugLink", targetIssueLocatorAndFields.getLocator().getDeepLink());
 			List<String> issueInstanceIds = ContextSpringExpressionUtil.evaluateExpression(context, vulnerabilities, "#root.![issueInstanceId]", List.class);
+			
+			SSCBugTrackerAPI bugTrackerAPI = conn.api(SSCBugTrackerAPI.class);
+			if ( bugTrackerAPI.isBugTrackerAuthenticationRequired(applicationVersionId) ) {
+				// If SSC bug tracker username/password are not specified, we use dummy values;
+				// 'Add Existing Bugs' doesn't care about credentials but requires authentication
+				// to work around SSC 17.20+ bugs
+				String btUserName = StringUtils.defaultIfBlank(ctx.getSSCBugTrackerUserName(), "dummy");
+				String btPassword = StringUtils.defaultIfBlank(ctx.getSSCBugTrackerPassword(), "dummy");
+				bugTrackerAPI.authenticateForBugFiling(applicationVersionId, btUserName, btPassword);
+			}
+			
 			conn.api(SSCBugTrackerAPI.class).fileBug(applicationVersionId, issueDetails, issueInstanceIds);
 			LOG.info("[SSC] Added bug link for SSC vulnerabilities using '"+getConfiguration().getAddNativeBugLinkBugTrackerName()+"' bug tracker");
 		}
