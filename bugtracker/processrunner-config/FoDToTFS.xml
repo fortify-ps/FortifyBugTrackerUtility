@@ -75,9 +75,9 @@
 		<property name="fieldsToUpdateDuringStateManagement" value="Microsoft.VSTS.TCM.ReproSteps"/>
 		
 		<property name="transitionsForOpeningIssue"><map>
-			<entry key="workItemType=='Bug' and state=='Done'" value="Committed[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="workItemType=='Bug' and state=='Removed'" value="New[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="workItemType=='Bug' and state matches 'Resolved|Closed'" value="Active[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields.workItemType=='Bug' and fields.state=='Done'" value="Committed[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields.workItemType=='Bug' and fields.state=='Removed'" value="New[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields.workItemType=='Bug' and fields.state matches 'Resolved|Closed'" value="Active[Issue re-opened by FortifyBugTrackerUtility" />
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- TODO Add transitions for closing issues -->
