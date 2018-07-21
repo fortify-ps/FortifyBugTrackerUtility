@@ -84,17 +84,17 @@
 		     mappings.-->
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- JIRA default workflow -->
-			<entry key="status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FoDBugTrackerUtility]"/>
+			<entry key="fields.status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FoDBugTrackerUtility]"/>
 			<!-- JIRA Software Simplified Workflow -->
-			<entry key="status.name matches 'Done'" value="To Do[Issue re-opened by FoDBugTrackerUtility]"/>
+			<entry key="fields.status.name matches 'Done'" value="To Do[Issue re-opened by FoDBugTrackerUtility]"/>
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- JIRA default workflow -->
-			<entry key="status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FoDBugTrackerUtility]"/>
+			<entry key="fields.status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FoDBugTrackerUtility]"/>
 			<!-- JIRA Software Simplified Workflow -->
-			<entry key="status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FoDBugTrackerUtility]"/>
+			<entry key="fields.status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FoDBugTrackerUtility]"/>
 			<!-- Example on performing multiple transitions to reach the target state -->
-			<entry key="status.name matches 'My Custom Status'"><list>
+			<entry key="fields.status.name matches 'My Custom Status'"><list>
 				<value>IntermediateTransition1</value> <!-- Transition without comment -->
 				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
 				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>

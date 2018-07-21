@@ -43,7 +43,7 @@
 		<!-- This example matches all application versions that have a non-empty 'Jira Project Key' 
 		     attribute. For each matching application version, the value of this attribute is mapped 
 		     to a corresponding JiraProjectKey context property. -->
-		<property name="requiredAttributeMappings"><map>
+		<property name="attributeMappings"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
 	</bean>

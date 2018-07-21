@@ -101,20 +101,20 @@
 		     mappings.-->
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- Octane default workflow -->
-			<entry key="phase.name matches 'Fixed'" value="Opened[Issue re-opened by FoDBugTrackerUtility]"/>
+			<entry key="fields.phase.name matches 'Fixed'" value="Opened[Issue re-opened by FoDBugTrackerUtility]"/>
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- Octane default workflow -->
-			<entry key="phase.name matches 'New|Deferred'"><list>
+			<entry key="fields.phase.name matches 'New|Deferred'"><list>
 				<value>Opened[Intermediate transition performed by FoDBugTrackerUtility]</value>
 				<value>Fixed[Intermediate transition performed by FoDBugTrackerUtility]</value>
 				<value>Closed[Issue closed by FoDBugTrackerUtility]</value>
 			</list></entry>
-			<entry key="phase.name matches 'Opened'"><list>
+			<entry key="fields.phase.name matches 'Opened'"><list>
 				<value>Fixed[Intermediate transition performed by FoDBugTrackerUtility]</value>
 				<value>Closed[Issue closed by FoDBugTrackerUtility]</value>
 			</list></entry>
-			<entry key="phase.name matches 'Fixed'" value="Closed[Issue closed by FoDBugTrackerUtility]"/>
+			<entry key="fields.phase.name matches 'Fixed'" value="Closed[Issue closed by FoDBugTrackerUtility]"/>
 		</map></property>
 	</bean>
 	<!-- END SNIPPET: bean -->

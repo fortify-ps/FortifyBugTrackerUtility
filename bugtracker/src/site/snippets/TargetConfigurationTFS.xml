@@ -57,7 +57,7 @@
 		-->
 		<property name="appendedFields"><map>
 			<!-- TODO For some reason TFS encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
-			<entry key="System.Description"><value><![CDATA[
+			<entry key="Microsoft.VSTS.TCM.ReproSteps"><value><![CDATA[
 				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
 			]]></value></entry>
 		</map></property>
@@ -86,29 +86,29 @@
 		     mappings.-->
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- TODO These transitions were taken from the SSC TFS integration, but seem to be incomplete for VSTS Agile workflow  -->
-			<entry key="workItemType=='Task' and state matches 'Done|Removed'" value="To Do[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Bug' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Bug' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feature' and state=='Done'" value="In Progress[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feature' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Feedback Request' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Product Backlog Item' and state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Product Backlog Item' and state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Shared Parameter' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Shared Steps' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Case' and state=='Closed'" value="Ready[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Case' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Plan' and state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Test Suite' and state=='Completed'" value="In Planning[Issue re-opened by FoDBugTrackerUtility]" />
-			<entry key="workItemType=='Issue' and state=='Resolved'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Task' and fields.state matches 'Done|Removed'" value="To Do[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Bug' and fields.state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Bug' and fields.state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Feature' and fields.state=='Done'" value="In Progress[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Feature' and fields.state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Feedback Request' and fields.state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Product Backlog Item' and fields.state=='Done'" value="Committed[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Product Backlog Item' and fields.state=='Removed'" value="New[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Shared Parameter' and fields.state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Shared Steps' and fields.state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Test Case' and fields.state=='Closed'" value="Ready[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Test Case' and fields.state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Test Plan' and fields.state=='Inactive'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Test Suite' and fields.state=='Completed'" value="In Planning[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Issue' and fields.state=='Resolved'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
 			<!-- <entry key="workItemType=='Issue' and state=='Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" /> -->
 			<!-- Entry that was not in SSC, but is required to re-open bugs in VSTS Agile workflow -->
-			<entry key="workItemType=='Bug' and state matches 'Resolved|Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
+			<entry key="fields.workItemType=='Bug' and fields.state matches 'Resolved|Closed'" value="Active[Issue re-opened by FoDBugTrackerUtility]" />
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- TODO Add transitions for closing issues -->
 			<!-- Example on performing multiple transitions to reach the target state -->
-			<entry key="state=='My Custom Status'"><list>
+			<entry key="fields.state=='My Custom Status'"><list>
 				<value>IntermediateTransition1</value> <!-- Transition without comment -->
 				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
 				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
