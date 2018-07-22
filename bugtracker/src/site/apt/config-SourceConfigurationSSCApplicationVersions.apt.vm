@@ -1,6 +1,10 @@
 SSC Application Versions Source Configuration
 
-  TODO
+    FortifyBugTrackerUtility can automatically select SSC application versions to be processed, 
+and map application versions to target properties like the corresponding bug tracker projects. 
+The following example shows a full bean definition, listing all available properties and corresponding 
+description. Note that this bean is optional; if not defined the utility will process all releases unless
+specific releases are specified on the command line.
 
 %{snippet|id=bean|file=$basedir/src/site/snippets/SourceConfigurationSSCApplicationVersions.xml}
 

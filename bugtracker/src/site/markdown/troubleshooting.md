@@ -6,7 +6,7 @@ This page describes some troubleshooting tips.
     - Work around this issue by preceding all options that start with the 'J' character with double dashes instead of a single dash, for example --JiraProjectKey instead of -JiraProjectKey.
 
 
-- java.lang.OutOfMemoryError: FortifyBugTrackerUtility now uses temporary files while grouping vulnerabilities, so even with limited amounts of memory, vulnerability processing should usually not cause any out of memory errors. However, in case you do run into these kinds of errors, the following approaches can be tried:
+- java.lang.OutOfMemoryError: FortifyBugTrackerUtility uses temporary files while grouping vulnerabilities, so even with limited amounts of memory, vulnerability processing should usually not cause any out of memory errors. However, in case you do run into these kinds of errors, the following approaches can be tried:
     - Increase the amount of available memory by adding the java `-Xmx<size>` option, for example `java -Xmx4G -jar ...`
     - Add/update filtering settings in the configuration file to match a lower number of vulnerabilities
 
