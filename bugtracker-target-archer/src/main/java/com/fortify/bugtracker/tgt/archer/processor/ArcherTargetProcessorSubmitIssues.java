@@ -45,7 +45,7 @@ public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "Archer";
 	}
 	

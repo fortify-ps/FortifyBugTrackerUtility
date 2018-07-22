@@ -54,7 +54,7 @@ public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true));
 	}
 	
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "Octane";
 	}
 	

@@ -33,7 +33,7 @@ import com.fortify.processrunner.context.Context;
  * @author Ruud Senden
  */
 public interface IContextBugTracker {
-	public static final String PRP_BUG_TRACKER_NAME = "BugTrackerName";
-	public void setBugTrackerName(String bugTrackerName);
-	public String getBugTrackerName();
+	public static final String PRP_TARGET_NAME = "TargetName";
+	public void setTargetName(String bugTrackerName);
+	public String getTargetName();
 }

@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.octane.processor;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Component;
@@ -47,8 +48,13 @@ public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTa
 	}
 	
 	@Override
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "Octane";
+	}
+	
+	@Override
+	protected URI getTargetURI(Context context) {
+		return getOctaneConnection(context).getBaseUrl();
 	}
 	
 	@Override

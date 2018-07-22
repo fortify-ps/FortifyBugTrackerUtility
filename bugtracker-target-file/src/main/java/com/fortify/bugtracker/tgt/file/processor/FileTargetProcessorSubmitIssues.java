@@ -75,7 +75,7 @@ public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjec
 	
 	@Override
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		context.as(IContextBugTracker.class).setBugTrackerName(getTargetName());
+		context.as(IContextBugTracker.class).setTargetName(getTargetName());
 	}
 	
 	@Override

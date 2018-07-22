@@ -68,7 +68,7 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 				.addMapUpdater(new MapUpdaterPutValuesFromExpressionMap(sec, currentGroup.get(0), getFields()))
 				.addMapUpdater(new MapUpdaterAppendValuesFromExpressionMap(sec, currentGroup, getAppendedFields()))
 				.build(new LinkedHashMap<String, Object>());
-		return processMap(context, currentGroup, map);
+		return processMap(context, groupName, currentGroup, map);
 	}
 	
 	/**
@@ -79,7 +79,7 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	 * @param map
 	 * @return
 	 */
-	protected abstract boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map);
+	protected abstract boolean processMap(Context context, String groupName, List<Object> currentGroup, LinkedHashMap<String, Object> map);
 
 	/**
 	 * Get the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}

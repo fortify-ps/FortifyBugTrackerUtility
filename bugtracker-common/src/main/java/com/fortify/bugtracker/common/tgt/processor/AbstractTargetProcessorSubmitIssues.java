@@ -35,10 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -65,26 +63,6 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 	}
 	
 	/**
-	 * Add the bug tracker name to the current context, and call 
-	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
-	 * to allow subclasses to add additional context property definitions
-	 */
-	@Override
-	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
-		// contextPropertyDefinitions.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
-		context.as(IContextBugTracker.class).setBugTrackerName(getTargetName());
-		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
-	}
-	
-	/**
-	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}
-	 * @param contextPropertyDefinitions
-	 * @param context
-	 */
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
-	
-	/**
 	 * Autowire the configuration from the Spring configuration file.
 	 * @param config
 	 */
@@ -102,14 +80,19 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 	 * to store the bug id or deep link.
 	 */
 	@Override
-	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
-		TargetIssueLocator targetIssueLocator = submitIssue(context, map); 
-		if ( targetIssueLocator != null ) {
-			LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getTargetName(), currentGroup.size(), targetIssueLocator.getDeepLink()));
-			if ( vulnerabilityUpdater != null ) {
-				vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getTargetName(), getTargetIssueLocatorAndFields(context, targetIssueLocator), currentGroup);
+	protected boolean processMap(Context context, String groupName, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
+		try {
+			TargetIssueLocator targetIssueLocator = submitIssue(context, map); 
+			if ( targetIssueLocator != null ) {
+				LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getTargetName(), currentGroup.size(), targetIssueLocator.getDeepLink()));
+				if ( vulnerabilityUpdater != null ) {
+					vulnerabilityUpdater.updateVulnerabilityStateForNewIssue(context, getTargetName(), getTargetIssueLocatorAndFields(context, targetIssueLocator), currentGroup);
+				}
 			}
+		} catch ( RuntimeException re ) {
+			LOG.error(String.format("[%s] Error submitting vulnerabilities for group %s", getTargetName(), groupName), re);
 		}
+		
 		return true;
 	}
 	

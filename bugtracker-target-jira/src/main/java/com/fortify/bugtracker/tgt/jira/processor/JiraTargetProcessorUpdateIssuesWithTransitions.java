@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.jira.processor;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Component;
@@ -47,8 +48,13 @@ public class JiraTargetProcessorUpdateIssuesWithTransitions extends AbstractTarg
 	}
 	
 	@Override
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "Jira";
+	}
+	
+	@Override
+	protected URI getTargetURI(Context context) {
+		return getJiraConnection(context).getBaseUrl();
 	}
 	
 	@Override

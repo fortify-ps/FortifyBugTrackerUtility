@@ -76,15 +76,15 @@
 	
 		<property name="transitionsForOpeningIssue"><map>
 			<!-- JIRA default workflow -->
-			<entry key="fields.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FortifyBugTrackerUtility"/>
+			<entry key="fields.status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FortifyBugTrackerUtility]"/>
 			<!-- JIRA Software Simplified Workflow -->
-			<entry key="fields.name matches 'Done'" value="To Do[Issue re-opened by FortifyBugTrackerUtility"/>
+			<entry key="fields.status.name matches 'Done'" value="To Do[Issue re-opened by FortifyBugTrackerUtility]"/>
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
 			<!-- JIRA default workflow -->
-			<entry key="fields.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FortifyBugTrackerUtility"/>
+			<entry key="fields.status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FortifyBugTrackerUtility]"/>
 			<!-- JIRA Software Simplified Workflow -->
-			<entry key="fields.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FortifyBugTrackerUtility"/>
+			<entry key="fields.status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FortifyBugTrackerUtility]"/>
 		</map></property>
 	</bean>
 

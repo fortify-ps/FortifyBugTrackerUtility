@@ -56,7 +56,7 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", true));
 	}
 	
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "Jira";
 	}
 	

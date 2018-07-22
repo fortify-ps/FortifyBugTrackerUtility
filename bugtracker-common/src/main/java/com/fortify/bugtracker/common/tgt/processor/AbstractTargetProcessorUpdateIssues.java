@@ -24,6 +24,8 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.tgt.processor;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +36,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fortify.bugtracker.common.processor.IProcessorWithTargetName;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesConfiguration;
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -70,7 +69,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTargetProcessor implements IProcessorWithTargetName, ITargetProcessorUpdateIssues {
+public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTargetProcessor implements ITargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssues.class);
 	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
 	private SimpleExpression isVulnStateOpenExpression;
@@ -83,26 +82,6 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	public AbstractTargetProcessorUpdateIssues() {
 		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
 	}
-	
-	/**
-	 * Add the bug tracker name to the current context, and call 
-	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
-	 * to allow subclasses to add additional context property definitions
-	 */
-	@Override
-	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		// TODO Decide on whether we want the user to be able to override the bug tracker name via the context
-		// contextPropertyDefinitions.add(new ContextProperty(IContextBugTracker.PRP_BUG_TRACKER_NAME, "Bug tracker name", context, getBugTrackerName(), false));
-		context.as(IContextBugTracker.class).setBugTrackerName(getTargetName());
-		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
-	}
-	
-	/**
-	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}
-	 * @param contextPropertyDefinitions
-	 * @param context
-	 */
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
 	
 	/**
 	 * Autowire the configuration from the Spring configuration file.
@@ -120,27 +99,72 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	 * but there are open vulnerabilities, and closing issues if they are open but no open vulnerabilities are remaining.
 	 */
 	@Override
-	protected boolean processMap(Context context, List<Object> vulnerabilities, LinkedHashMap<String, Object> issueData) {
+	protected boolean processMap(Context context, String groupName, List<Object> vulnerabilities, LinkedHashMap<String, Object> issueData) {
 		TargetIssueLocator targetIssueLocator = getTargetIssueLocator(vulnerabilities.get(0));
-		TargetIssueLocatorAndFields targetIssueLocatorAndFields = getTargetIssueLocatorAndFields(context, targetIssueLocator);
-		boolean targetIssueUpdated = false;
-		targetIssueUpdated |= updateIssueFieldsIfNecessary(context, targetIssueLocatorAndFields, issueData);
-		
-		if ( hasOpenVulnerabilities(vulnerabilities) ) {
-			targetIssueUpdated |= openIssueIfNecessary(context, targetIssueLocatorAndFields);
-		} else {
-			targetIssueUpdated |= closeIssueIfNecessary(context, targetIssueLocatorAndFields);
+		try {
+			if ( canUpdate(context, targetIssueLocator) ) {
+				TargetIssueLocatorAndFields targetIssueLocatorAndFields = getTargetIssueLocatorAndFields(context, targetIssueLocator);
+				boolean targetIssueUpdated = false;
+				targetIssueUpdated |= updateIssueFieldsIfNecessary(context, targetIssueLocatorAndFields, issueData);
+				
+				if ( hasOpenVulnerabilities(vulnerabilities) ) {
+					targetIssueUpdated |= openIssueIfNecessary(context, targetIssueLocatorAndFields);
+				} else {
+					targetIssueUpdated |= closeIssueIfNecessary(context, targetIssueLocatorAndFields);
+				}
+				
+				if ( !targetIssueUpdated ) {
+					LOG.info(String.format("[%s] No updates needed for issue %s", getTargetName(), targetIssueLocator.getDeepLink()));
+				}
+				
+				if ( vulnerabilityUpdater!=null ) {
+					vulnerabilityUpdater.updateVulnerabilityStateForExistingIssue(context, getTargetName(), targetIssueLocatorAndFields, vulnerabilities);
+				}
+			}
+		} catch ( RuntimeException re ) {
+			LOG.error(String.format("[%s] Error updating issue %s", getTargetName(), targetIssueLocator.getDeepLink()), re);
 		}
-		
-		if ( !targetIssueUpdated ) {
-			LOG.info(String.format("[%s] No updates needed for issue %s", getTargetName(), targetIssueLocator.getDeepLink()));
-		}
-		
-		if ( vulnerabilityUpdater!=null ) {
-			vulnerabilityUpdater.updateVulnerabilityStateForExistingIssue(context, getTargetName(), targetIssueLocatorAndFields, vulnerabilities);
-		}
-		
 		return true;
+	}
+
+	/**
+	 * This method checks whether the deep link from the given {@link TargetIssueLocator}
+	 * matches the host and port for our currently configured connection. Subclasses may
+	 * override this method to perform additional checks.
+	 * 
+	 * @param context
+	 * @param targetIssueLocator
+	 * @return true if the given target issue can be updated, false otherwise
+	 */
+	protected boolean canUpdate(Context context, TargetIssueLocator targetIssueLocator) {
+		URI deepLinkURI = getDeepLinkURI(targetIssueLocator);
+		URI targetURI = getTargetURI(context);
+		if ( deepLinkURI!=null && targetURI!=null && !compareTargetURIWithDeepLinkURI(targetURI, deepLinkURI) ) {
+			LOG.warn(String.format("[%s] Not updating issue %s; doesn't match current %s URL or port", getTargetName(), targetIssueLocator.getDeepLink(), getTargetName()));
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	protected abstract URI getTargetURI(Context context);
+
+	private final URI getDeepLinkURI(TargetIssueLocator targetIssueLocator) {
+		URI result = null;
+		String deepLinkString = targetIssueLocator.getDeepLink();
+		if ( StringUtils.isNotBlank(deepLinkString) ) {
+			try {
+				result = new URI(deepLinkString);
+			} catch (URISyntaxException e) {
+				LOG.warn(String.format("[%s] Unable to parse issue deep link %s", getTargetName(), deepLinkString));
+			}
+		}
+		return result;
+	}
+	
+	protected boolean compareTargetURIWithDeepLinkURI(URI targetURI, URI deepLinkURI) {
+		return targetURI.getHost().equals(deepLinkURI.getHost()) &&
+				targetURI.getPort() == deepLinkURI.getPort();
 	}
 
 	private boolean updateIssueFieldsIfNecessary(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
@@ -251,8 +275,6 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	protected boolean closeIssueIfOpen(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
 		return false;
 	}
-
-	public abstract String getTargetName();
 	
 	private boolean hasOpenVulnerabilities(List<Object> currentGroup) {
 		for ( Object o : currentGroup ) {

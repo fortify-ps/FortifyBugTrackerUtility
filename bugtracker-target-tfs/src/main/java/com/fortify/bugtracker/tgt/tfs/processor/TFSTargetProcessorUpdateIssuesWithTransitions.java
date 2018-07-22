@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.tfs.processor;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,8 +52,13 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	}
 	
 	@Override
-	public String getTargetName() {
+	public String getDefaultTargetName() {
 		return "TFS";
+	}
+	
+	@Override
+	protected URI getTargetURI(Context context) {
+		return getTFSConnection(context).getBaseUrl();
 	}
 	
 	@Override
@@ -61,9 +67,8 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 			@Override
 			public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
 				IContextTFS contextTFS = context.as(IContextTFS.class);
-				TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 				String collection = contextTFS.getTFSCollection();
-				return conn.updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
+				return getTFSConnection(context).updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
 			}
 		};
 	}
@@ -72,21 +77,24 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return TFSConnectionFactory.getConnection(context).getWorkItemFields(context.as(IContextTFS.class).getTFSCollection(), targetIssueLocator);
+				return getTFSConnection(context).getWorkItemFields(context.as(IContextTFS.class).getTFSCollection(), targetIssueLocator);
 			}
 		};
+	}
+	
+	protected TFSRestConnection getTFSConnection(Context context) {
+		return TFSConnectionFactory.getConnection(context);
 	}
 	
 	@Override
 	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
 		IContextTFS contextTFS = context.as(IContextTFS.class);
-		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		String collection = contextTFS.getTFSCollection();
 		Map<String, Object> fields = new LinkedHashMap<String, Object>();
 		if ( comment != null ) {
 			fields.put("System.History", comment);
 		}
 		fields.put("System.State", transitionName);
-		return conn.updateIssueData(collection, targetIssueLocator, fields);
+		return getTFSConnection(context).updateIssueData(collection, targetIssueLocator, fields);
 	}
 }

@@ -115,7 +115,7 @@ public class AddExistingBugBugTrackerPlugin extends AbstractBatchBugTrackerPlugi
 	public boolean requiresAuthentication() {
 		// For now, when running in SSC 17.20+ (i.e. running in OSGi container),
 		// we require authentication to work around bugs in SSC.
-		System.out.println("ClassLoader: "+this.getClass().getClassLoader().getClass().getName());
+		//System.out.println("ClassLoader: "+this.getClass().getClassLoader().getClass().getName());
 		return this.getClass().getClassLoader().getClass().getName().toLowerCase().contains("bundle");
 	}
 

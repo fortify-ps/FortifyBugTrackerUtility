@@ -42,23 +42,23 @@ import com.fortify.util.spring.SpringExpressionUtil;
  *
  */
 public class FoDJSONMapEnrichWithOnDemandBugLinkFromComment extends AbstractJSONMapEnrich {
-	private final String bugTrackerName;
-	public FoDJSONMapEnrichWithOnDemandBugLinkFromComment(String bugTrackerName) {
-		this.bugTrackerName = bugTrackerName;
+	private final String targetName;
+	public FoDJSONMapEnrichWithOnDemandBugLinkFromComment(String targetName) {
+		this.targetName = targetName;
 	}
 	
 	@Override
 	protected void enrich(JSONMap json) {
-		json.put("bugLink", new FoDJSONMapOnDemandLoaderBugLinkFromComment(bugTrackerName));
+		json.put("bugLink", new FoDJSONMapOnDemandLoaderBugLinkFromComment(targetName));
 	}
 	
 	private static class FoDJSONMapOnDemandLoaderBugLinkFromComment extends AbstractJSONMapOnDemandLoader {
 		private static final long serialVersionUID = 1L;
 		private final String matchExpression;
 		
-		public FoDJSONMapOnDemandLoaderBugLinkFromComment(String bugTrackerName) {
+		public FoDJSONMapOnDemandLoaderBugLinkFromComment(String targetName) {
 			super(true);
-			this.matchExpression = "--- Vulnerability submitted to "+bugTrackerName+".*";
+			this.matchExpression = "--- Vulnerability submitted to "+targetName+":.*";
 		}
 
 		@Override

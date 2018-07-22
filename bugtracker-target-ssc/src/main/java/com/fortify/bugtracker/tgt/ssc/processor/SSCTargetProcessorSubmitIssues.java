@@ -92,7 +92,7 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false).readFromConsole(true));
 		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCBugTracker.PRP_USER_NAME));
-		context.as(IContextBugTracker.class).setBugTrackerName(getTargetName());
+		context.as(IContextBugTracker.class).setTargetName(getTargetName());
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
@@ -109,7 +109,7 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	}
 	
 	@Override
-	protected boolean processMap(Context context, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
+	protected boolean processMap(Context context, String groupName, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		IContextSSCTarget ctx = context.as(IContextSSCTarget.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 		String applicationVersionId = ctx.getSSCApplicationVersionId();
