@@ -37,10 +37,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.spring.SpringExpressionUtil;
@@ -70,12 +68,6 @@ public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjec
 		// TODO should we make this configurable (full or partial export)?
 		// We return false to indicate that we don't  support an issue submitted listener.
 		return false;
-	}
-	
-	
-	@Override
-	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		context.as(IContextBugTracker.class).setTargetName(getTargetName());
 	}
 	
 	@Override

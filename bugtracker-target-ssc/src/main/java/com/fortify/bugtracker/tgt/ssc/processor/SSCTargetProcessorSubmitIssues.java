@@ -36,9 +36,9 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasBugTrackerShortDisplayName;
 import com.fortify.bugtracker.common.ssc.query.ISSCApplicationVersionQueryBuilderUpdater;
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.ssc.config.SSCTargetConfiguration;
 import com.fortify.bugtracker.tgt.ssc.context.IContextSSCTarget;
@@ -90,9 +90,8 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	
 	@Override
 	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCBugTracker.PRP_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCBugTracker.PRP_USER_NAME));
-		context.as(IContextBugTracker.class).setTargetName(getTargetName());
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false).readFromConsole(true));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_PASSWORD, getSscBugTrackerName()+" password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME));
 		SSCConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
@@ -142,16 +141,5 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	
 	public boolean isIgnorePreviouslySubmittedIssues() {
 		return true;
-	}
-	
-	private interface IContextSSCBugTracker {
-		public static final String PRP_USER_NAME = "SSCBugTrackerUserName";
-		public static final String PRP_PASSWORD = "SSCBugTrackerPassword";
-		
-		public void setSSCBugTrackerUserName(String userName);
-		public String getSSCBugTrackerUserName();
-		public void setSSCBugTrackerPassword(String password);
-		public String getSSCBugTrackerPassword();
-		
 	}
 }

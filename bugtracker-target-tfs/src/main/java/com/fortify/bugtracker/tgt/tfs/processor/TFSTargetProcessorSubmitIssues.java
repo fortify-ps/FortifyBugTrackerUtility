@@ -57,7 +57,7 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSProject", "TFS project to submit vulnerabilities to", true));
 	}
 	
-	public String getDefaultTargetName() {
+	public String getTargetName() {
 		return "TFS";
 	}
 	

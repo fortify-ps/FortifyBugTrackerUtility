@@ -25,36 +25,26 @@
 package com.fortify.bugtracker.common.tgt.processor;
 
 import com.fortify.bugtracker.common.processor.IProcessorWithTargetName;
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
 import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 
 public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorWithTargetName {
-	private String targetName;
-	
 	/**
-	 * Add the bug tracker name to the current context, and call 
+	 * This method just calls 
 	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
 	 * to allow subclasses to add additional context property definitions
 	 */
 	@Override
 	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextBugTracker.PRP_TARGET_NAME, "Target name", false).defaultValue(getDefaultTargetName()));
-		this.targetName = (String)context.getOrDefault(IContextBugTracker.PRP_TARGET_NAME, getDefaultTargetName());
 		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
 	}
 	
-	protected abstract String getDefaultTargetName();
-	
 	@Override
-	public final String getTargetName() {
-		return targetName!=null ? targetName : getDefaultTargetName();
-	}
+	public abstract String getTargetName();
 
 	/**
 	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}

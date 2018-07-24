@@ -48,7 +48,7 @@ public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTa
 	}
 	
 	@Override
-	public String getDefaultTargetName() {
+	public String getTargetName() {
 		return "Octane";
 	}
 	

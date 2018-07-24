@@ -24,9 +24,13 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.config;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
+import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This class holds all FoD-related configuration properties used to submit vulnerabilities
@@ -40,6 +44,8 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
 	private boolean addBugDataAsComment = false;
+	private String commentTargetName = null;
+	private TemplateExpression commentTemplateExpression = null;
 	private boolean addNativeBugLink = false;
 	
 	@Override
@@ -59,10 +65,32 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	public void setAddBugDataAsComment(boolean addBugDataAsComment) {
 		this.addBugDataAsComment = addBugDataAsComment;
 	}
+	public String getCommentTargetName() {
+		return commentTargetName;
+	}
+	public void setCommentTargetName(String commentTargetName) {
+		this.commentTargetName = commentTargetName;
+	}
+	public TemplateExpression getCommentTemplateExpression() {
+		return commentTemplateExpression;
+	}
+	public void setCommentTemplateExpression(TemplateExpression commentTemplateExpression) {
+		this.commentTemplateExpression = commentTemplateExpression;
+	}
 	public boolean isAddNativeBugLink() {
 		return addNativeBugLink;
 	}
 	public void setAddNativeBugLink(boolean addNativeBugLink) {
 		this.addNativeBugLink = addNativeBugLink;
+	}
+	
+	public TargetIssueLocatorCommentHelper getTargetIssueLocatorCommentHelper(String defaultTargetName) {
+		if ( commentTemplateExpression != null ) {
+			return TargetIssueLocatorCommentHelper.fromTemplateExpression(commentTemplateExpression);
+		} else if ( StringUtils.isNotBlank(commentTargetName) ) {
+			return TargetIssueLocatorCommentHelper.fromTargetName(commentTargetName);
+		} else {
+			return TargetIssueLocatorCommentHelper.fromTargetName(defaultTargetName);
+		}
 	}
 }

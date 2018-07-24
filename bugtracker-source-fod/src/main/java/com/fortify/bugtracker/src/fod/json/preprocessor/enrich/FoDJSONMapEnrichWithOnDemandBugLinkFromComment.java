@@ -24,9 +24,12 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.json.preprocessor.enrich;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.regex.Pattern;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
+import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
@@ -42,34 +45,38 @@ import com.fortify.util.spring.SpringExpressionUtil;
  *
  */
 public class FoDJSONMapEnrichWithOnDemandBugLinkFromComment extends AbstractJSONMapEnrich {
-	private final String targetName;
-	public FoDJSONMapEnrichWithOnDemandBugLinkFromComment(String targetName) {
-		this.targetName = targetName;
+	private final TargetIssueLocatorCommentHelper commentHelper;
+	public FoDJSONMapEnrichWithOnDemandBugLinkFromComment(TargetIssueLocatorCommentHelper commentHelper) {
+		this.commentHelper = commentHelper;
 	}
 	
 	@Override
 	protected void enrich(JSONMap json) {
-		json.put("bugLink", new FoDJSONMapOnDemandLoaderBugLinkFromComment(targetName));
+		json.put("bugLink", new FoDJSONMapOnDemandLoaderBugLinkFromComment(commentHelper));
 	}
 	
 	private static class FoDJSONMapOnDemandLoaderBugLinkFromComment extends AbstractJSONMapOnDemandLoader {
 		private static final long serialVersionUID = 1L;
-		private final String matchExpression;
+		private final TargetIssueLocatorCommentHelper commentHelper;
 		
-		public FoDJSONMapOnDemandLoaderBugLinkFromComment(String targetName) {
+		public FoDJSONMapOnDemandLoaderBugLinkFromComment(TargetIssueLocatorCommentHelper commentHelper) {
 			super(true);
-			this.matchExpression = "--- Vulnerability submitted to "+targetName+":.*";
+			this.commentHelper = commentHelper;
 		}
 
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
-			String spel = "summary?.comments?.$[comment matches '"+matchExpression+"']?.comment";
-			String bugComment = SpringExpressionUtil.evaluateExpression(parent, spel, String.class);
-			if ( StringUtils.isNotBlank(bugComment) ) {
-				return TargetIssueLocatorCommentHelper.getSubmittedIssueFromComment(bugComment).getDeepLink();
-			} else {
-				return null;
+			Pattern commentMatchPattern = commentHelper.getMatchPattern();
+			JSONList comments = SpringExpressionUtil.evaluateExpression(parent, "summary?.comments", JSONList.class);
+			if ( CollectionUtils.isNotEmpty(comments) ) {
+				for ( JSONMap commentObject : comments.asValueType(JSONMap.class) ) {
+					String comment = commentObject.get("comment", String.class);
+					if ( commentMatchPattern.matcher(comment).matches() ) {
+						return commentHelper.getTargetIssueLocatorFromComment(comment).getDeepLink();
+					}
+				}
 			}
+			return null;
 		}
 	}
 

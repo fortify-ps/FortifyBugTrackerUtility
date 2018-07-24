@@ -49,6 +49,8 @@ import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQuery
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.context.ContextPropertyDefinition;
+import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
@@ -77,6 +79,12 @@ import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 @Component
 public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVulnerabilityProcessor implements ISourceProcessorSubmitVulnsToTarget, INewIssueVulnerabilityUpdater {
 	private static final Log LOG = LogFactory.getLog(SSCSourceProcessorSubmitVulnsToTarget.class);
+	
+	@Override
+	protected void addSourceContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker user name (required if SSC bug tracker requires authentication)", false));
+		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_PASSWORD, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker password", false).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME));
+	}
 	
 	@Override
 	protected SourceVulnerabilityProcessorHelper getSourceVulnerabilityProcessorHelper() {

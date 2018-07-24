@@ -24,34 +24,70 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.tgt.issue;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.TemplateExpression;
 
 /**
  * This helper class allows for generating and parsing comments with information about submitted issues.
+ * As this may be used in serializable on-demand objects, this class is {@link Serializable}.
  * 
  * @author Ruud Senden
  */
-public class TargetIssueLocatorCommentHelper {
-	private static final String FMT_COMMENT_STR = "--- Vulnerability submitted to {0}:{1} Location {2}";
-	private static final MessageFormat FMT_COMMENT = new MessageFormat(FMT_COMMENT_STR);
+public class TargetIssueLocatorCommentHelper implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private final String templateExpressionString;
+	private final String matchPatternString;
+	private final String parserFormatString;
 	
-	private TargetIssueLocatorCommentHelper() {}
+	private TargetIssueLocatorCommentHelper(String templateExpressionString) {
+		this.templateExpressionString = templateExpressionString;
+		this.matchPatternString = createMatchPatternString(templateExpressionString);
+		this.parserFormatString = createParserFormatString(templateExpressionString);
+	}
+	
+	public static final TargetIssueLocatorCommentHelper fromTargetName(String targetName) {
+		return new TargetIssueLocatorCommentHelper(createTemplateExpressionStringForTargetName(targetName));
+	}
+	
+	public static final TargetIssueLocatorCommentHelper fromTemplateExpression(TemplateExpression templateExpression) {
+		return new TargetIssueLocatorCommentHelper(templateExpression.getExpressionString());
+	}
+	
+	private static final String createTemplateExpressionStringForTargetName(String targetName) {
+		return "--- Vulnerability submitted to "+targetName+": ID ${id} Location ${deepLink}";
+	}
+	
+	private String createMatchPatternString(String templateExpressionString) {
+		return "\\Q"+
+				templateExpressionString.replaceAll(Pattern.quote("${id}"), "\\\\E.*\\\\Q")
+		           .replaceAll(Pattern.quote("${deepLink}"), "\\\\E.*\\\\Q")
+				+"\\E";
+	}
+	
+	private String createParserFormatString(String templateExpressionString) {
+		return templateExpressionString
+				.replaceAll("'", "''") // Quote any single quotes
+				.replaceAll(Pattern.quote("${id}"), "::0::")
+				.replaceAll(Pattern.quote("${deepLink}"), "::1::")
+				.replaceAll(Pattern.quote("{"), "'{'")
+				.replaceAll(Pattern.quote("}"), "'}'")
+				.replaceAll(Pattern.quote("::0::"), "{0}")
+				.replaceAll(Pattern.quote("::1::"), "{1}"); 
+	}
+
 	
 	/**
-	 * Get a comment string that describes the given {@link TargetIssueLocator} for the given bug tracker name
-	 * @param bugTrackerName
+	 * Get a comment string that describes the given {@link TargetIssueLocator} using the configured template expression
 	 * @param targetIssueLocator
 	 * @return
 	 */
-	public static final String getCommentForSubmittedIssue(String bugTrackerName, TargetIssueLocator targetIssueLocator) {
-		StringBuffer sb = new StringBuffer("--- Vulnerability submitted to ").append(bugTrackerName). append(": ");
-		if ( targetIssueLocator.getId()!=null ) {
-			sb.append("ID ").append(targetIssueLocator.getId()).append(" ");
-		}
-		sb.append("Location ").append(targetIssueLocator.getDeepLink());
-		return sb.toString();
+	public final String getCommentForSubmittedIssue(TargetIssueLocator targetIssueLocator) {
+		return SpringExpressionUtil.evaluateExpression(targetIssueLocator, getTemplateExpression(), String.class);
 	}
 	
 	/**
@@ -60,14 +96,29 @@ public class TargetIssueLocatorCommentHelper {
 	 * @param comment
 	 * @return
 	 */
-	public static final TargetIssueLocator getSubmittedIssueFromComment(String comment) {
+	public final TargetIssueLocator getTargetIssueLocatorFromComment(String comment) {
 		try {
-			Object[] fields = FMT_COMMENT.parse(comment);
-			String id = StringUtils.removeStart(StringUtils.trim((String)fields[1]), "ID ");
-			String deepLink = StringUtils.trim((String)fields[2]);
+			Object[] fields = getParser().parse(comment);
+			String id = fields.length<1 ? null : (String)fields[0];
+			String deepLink = fields.length<2 ? null : (String)fields[1];
 			return new TargetIssueLocator(id, deepLink);
-		} catch (Exception e) {
-			throw new RuntimeException("Error parsing comment "+comment);
+		} catch (ParseException e) {
+			throw new RuntimeException("Error parsing comment "+comment, e);
 		}
+	}
+
+	// TODO Cache in transient variable
+	public final TemplateExpression getTemplateExpression() {
+		return SpringExpressionUtil.parseTemplateExpression(templateExpressionString);
+	}
+
+	// TODO Cache in transient variable
+	public final Pattern getMatchPattern() {
+		return Pattern.compile(matchPatternString);
+	}
+
+	// TODO Cache in transient variable
+	public final MessageFormat getParser() {
+		return new MessageFormat(parserFormatString);
 	}
 }

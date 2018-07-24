@@ -28,12 +28,11 @@ import com.fortify.processrunner.context.Context;
 
 /**
  * This interface can be used with the {@link Context#as(Class)} method 
- * to allow easy access to bugtracker-related information.
+ * to allow easy access to bugtracker-related information. For now this 
+ * is just an empty interface that is extended by target-specific
+ * Context interfaces.
  * 
  * @author Ruud Senden
  */
 public interface IContextBugTracker {
-	public static final String PRP_TARGET_NAME = "TargetName";
-	public void setTargetName(String bugTrackerName);
-	public String getTargetName();
 }

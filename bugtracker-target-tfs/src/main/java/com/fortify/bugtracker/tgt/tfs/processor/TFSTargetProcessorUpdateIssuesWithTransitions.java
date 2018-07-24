@@ -52,7 +52,7 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	}
 	
 	@Override
-	public String getDefaultTargetName() {
+	public String getTargetName() {
 		return "TFS";
 	}
 	

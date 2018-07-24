@@ -48,7 +48,7 @@ public class JiraTargetProcessorUpdateIssuesWithTransitions extends AbstractTarg
 	}
 	
 	@Override
-	public String getDefaultTargetName() {
+	public String getTargetName() {
 		return "Jira";
 	}
 	
