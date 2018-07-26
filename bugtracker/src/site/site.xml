@@ -32,6 +32,7 @@
     <menu name="FortifyBugTrackerUtility">
       <item name="Introduction" href="index.html"/>
       <item name="Usage" href="usage.html"/>
+      <item name="SSC Token" href="ssc-tokendefinition.html"/>
       <item name="Configuration" href="config.html">
         <item name="Global">
         	<item name="beans" href="config-beans.html"/>
