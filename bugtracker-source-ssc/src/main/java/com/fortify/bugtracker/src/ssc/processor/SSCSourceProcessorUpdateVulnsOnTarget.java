@@ -86,7 +86,7 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 					.includeRemoved(true)
 					.includeSuppressed(true);
 			if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-				builder.paramFilter(getConfiguration().getBugLinkCustomTagName()+":!<none>");
+				builder.paramQAnd(getConfiguration().getBugLinkCustomTagName(),"!<none>");
 			}
 			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
 			if ( getConfiguration().isEnableRevisionWorkAround() ) {
