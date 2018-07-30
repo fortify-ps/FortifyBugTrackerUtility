@@ -24,12 +24,11 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.ssc.connection;
 
-import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
+import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
@@ -41,12 +40,12 @@ import com.fortify.util.rest.connection.ProxyConfig;
  */
 public final class SSCConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BASE_URL, "SSC base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_USER_NAME, "SSC user name (leave blank to use auth token)", true).readFromConsole(true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_AUTH_TOKEN));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_PASSWORD, "SSC password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCCommon.PRP_SSC_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_AUTH_TOKEN, "SSC auth token (leave blank to use username/password)", true).readFromConsole(true).isPassword(true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_USER_NAME));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "SSC");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_BASE_URL);
+		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_USER_NAME);
+		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_PASSWORD);
+		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "SSC");
 	}
 	
 	public static final SSCAuthenticatingRestConnection getConnection(Context context) {
@@ -60,16 +59,14 @@ public final class SSCConnectionFactory
 	}
 
 	private static final SSCAuthenticatingRestConnection createConnection(Context context) {
-		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "SSC");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "SSC");
 		return SSCAuthenticatingRestConnection.builder()
 			.proxy(proxy)
 			.enableSerializationSingleJVM()
-			.baseUrl(ctx.getSSCBaseUrl())
-			.authToken(ctx.getSSCAuthToken())
-			.userName(ctx.getSSCUserName())
-			.password(ctx.getSSCPassword())
+			.baseUrl(ICLIOptionsSSC.CLI_SSC_BASE_URL.getValue(context))
+			.authToken(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN.getValue(context))
+			.userName(ICLIOptionsSSC.CLI_SSC_USER_NAME.getValue(context))
+			.password(ICLIOptionsSSC.CLI_SSC_PASSWORD.getValue(context))
 			.build();
 	}
 	

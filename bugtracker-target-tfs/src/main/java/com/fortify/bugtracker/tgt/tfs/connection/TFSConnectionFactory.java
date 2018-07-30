@@ -24,20 +24,19 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.tfs.connection;
 
-import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
+import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class TFSConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_BASE_URL, "TFS base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_USER_NAME, "TFS user name", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextTFS.PRP_PASSWORD, "TFS password", true).readFromConsole(true).isPassword(true));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "TFS");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PASSWORD);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "TFS");
 	}
 	
 	public static final TFSRestConnection getConnection(Context context) {
@@ -51,14 +50,12 @@ public final class TFSConnectionFactory
 	}
 
 	private static final TFSRestConnection createConnection(Context context) {
-		IContextTFS ctx = context.as(IContextTFS.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "TFS");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "TFS");
 		return TFSRestConnection.builder()
 			.proxy(proxy)
-			.baseUrl(ctx.getTFSBaseUrl())
-			.userName(ctx.getTFSUserName())
-			.password(ctx.getTFSPassword())
+			.baseUrl(ICLIOptionsTFS.CLI_TFS_BASE_URL.getValue(context))
+			.userName(ICLIOptionsTFS.CLI_TFS_USER_NAME.getValue(context))
+			.password(ICLIOptionsTFS.CLI_TFS_PASSWORD.getValue(context))
 			.build();
 	}
 	

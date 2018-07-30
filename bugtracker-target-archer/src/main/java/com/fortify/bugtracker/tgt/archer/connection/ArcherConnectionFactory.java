@@ -24,23 +24,22 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.archer.connection;
 
-import com.fortify.bugtracker.tgt.archer.context.IContextArcher;
+import com.fortify.bugtracker.tgt.archer.cli.ICLIOptionsArcher;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class ArcherConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_BASE_URL, "Archer base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_APPLICATION_NAME, "Archer application name", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_INSTANCE_NAME, "Archer instance name", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_NAME, "Archer user name", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_USER_DOMAIN, "Archer user domain, use 'undefined' if not defined", false).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextArcher.PRP_PASSWORD, "Archer password", true).readFromConsole(true).isPassword(true));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Archer");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_BASE_URL);
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_APPLICATION_NAME);
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_INSTANCE_NAME);
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_NAME);
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_DOMAIN);
+		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_PASSWORD);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "Archer");
 	}
 	
 	public static final ArcherAuthenticatingRestConnection getConnection(Context context) {
@@ -54,17 +53,15 @@ public final class ArcherConnectionFactory
 	}
 
 	private static final ArcherAuthenticatingRestConnection createConnection(Context context) {
-		IContextArcher ctx = context.as(IContextArcher.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Archer");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "Archer");
 		return ArcherAuthenticatingRestConnection.builder()
 			.proxy(proxy)
-			.baseUrl(ctx.getArcherBaseUrl())
-			.applicationName(ctx.getArcherApplicationName())
-			.instanceName(ctx.getArcherInstanceName())
-			.userName(ctx.getArcherUserName())
-			.userDomain(ctx.getArcherUserDomain())
-			.password(ctx.getArcherPassword())
+			.baseUrl(ICLIOptionsArcher.CLI_ARCHER_BASE_URL.getValue(context))
+			.applicationName(ICLIOptionsArcher.CLI_ARCHER_APPLICATION_NAME.getValue(context))
+			.instanceName(ICLIOptionsArcher.CLI_ARCHER_INSTANCE_NAME.getValue(context))
+			.userName(ICLIOptionsArcher.CLI_ARCHER_USER_NAME.getValue(context))
+			.userDomain(ICLIOptionsArcher.CLI_ARCHER_USER_DOMAIN.getValue(context))
+			.password(ICLIOptionsArcher.CLI_ARCHER_PASSWORD.getValue(context))
 			.build();
 	}
 	

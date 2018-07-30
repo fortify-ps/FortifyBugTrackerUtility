@@ -24,22 +24,21 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.octane.connection;
 
-import com.fortify.bugtracker.tgt.octane.context.IContextOctane;
+import com.fortify.bugtracker.tgt.octane.cli.ICLIOptionsOctane;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class OctaneConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_BASE_URL, "Octane base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_USER_NAME, "Octane user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextOctane.PRP_CLIENT_ID));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_PASSWORD, "Octane password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextOctane.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_ID, "Octane client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextOctane.PRP_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_CLIENT_SECRET, "Octane client secret", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextOctane.PRP_CLIENT_ID));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Octane");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_PASSWORD);
+		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_CLIENT_ID);
+		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_CLIENT_SECRET);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "Octane");
 	}
 	
 	public static final OctaneAuthenticatingRestConnection getConnection(Context context) {
@@ -53,16 +52,14 @@ public final class OctaneConnectionFactory
 	}
 
 	private static final OctaneAuthenticatingRestConnection createConnection(Context context) {
-		IContextOctane ctx = context.as(IContextOctane.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Octane");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "Octane");
 		return OctaneAuthenticatingRestConnection.builder()
 			.proxy(proxy)
-			.baseUrl(ctx.getOctaneBaseUrl())
-			.clientId(ctx.getOctaneClientId())
-			.clientSecret(ctx.getOctaneClientSecret())
-			.userName(ctx.getOctaneUserName())
-			.password(ctx.getOctanePassword())
+			.baseUrl(ICLIOptionsOctane.CLI_OCTANE_BASE_URL.getValue(context))
+			.clientId(ICLIOptionsOctane.CLI_OCTANE_CLIENT_ID.getValue(context))
+			.clientSecret(ICLIOptionsOctane.CLI_OCTANE_CLIENT_SECRET.getValue(context))
+			.userName(ICLIOptionsOctane.CLI_OCTANE_USER_NAME.getValue(context))
+			.password(ICLIOptionsOctane.CLI_OCTANE_PASSWORD.getValue(context))
 			.build();
 	}
 	

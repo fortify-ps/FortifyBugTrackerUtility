@@ -32,9 +32,9 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsTo
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
+import com.fortify.bugtracker.src.fod.cli.ICLIOptionsFoD;
 import com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
-import com.fortify.bugtracker.src.fod.context.IContextFoD;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.client.fod.api.FoDBugTrackerAPI;
 import com.fortify.client.fod.api.FoDVulnerabilityAPI;
@@ -95,9 +95,8 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 
 	@SuppressWarnings("unchecked") @Override
 	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
-		IContextFoD ctx = context.as(IContextFoD.class);
 		FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
-		String releaseId = ctx.getFoDReleaseId();
+		String releaseId = ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(context);
 		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
 		if ( getConfiguration().isAddBugDataAsComment() ) {
 			String comment = getConfiguration().getTargetIssueLocatorCommentHelper(bugTrackerName).getCommentForSubmittedIssue(targetIssueLocatorAndFields.getLocator());

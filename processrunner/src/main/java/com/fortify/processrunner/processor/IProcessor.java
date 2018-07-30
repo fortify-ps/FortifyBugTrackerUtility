@@ -24,8 +24,8 @@
  ******************************************************************************/
 package com.fortify.processrunner.processor;
 
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * <p>This interface defines processors that can perform arbitrary
@@ -43,7 +43,7 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
  * 
  * @author Ruud Senden
  */
-public interface IProcessor extends IContextPropertyDefinitionProvider {
+public interface IProcessor extends ICLIOptionDefinitionProvider {
 	/**
 	 * Enumeration describing the available processing phases.
 	 */

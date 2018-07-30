@@ -26,9 +26,9 @@ package com.fortify.processrunner.util.rest;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
@@ -38,23 +38,23 @@ import com.fortify.util.rest.connection.ProxyConfig;
  * @author Ruud Senden
  *
  */
-public final class ContextAwareProxyConfigurationFactory {
+public final class CLIOptionAwareProxyConfiguration {
 	private static final String PRP_SFX_URL = "ProxyUrl";
 	private static final String PRP_SFX_USER_NAME = "ProxyUserName";
 	private static final String PRP_SFX_PASSWORD = "ProxyPassword";
 	
-	private ContextAwareProxyConfigurationFactory() {}
+	private CLIOptionAwareProxyConfiguration() {}
 	
 	/**
-	 * Add {@link ContextPropertyDefinitions} that describe various proxy-related settings.
-	 * @param contextPropertyDefinitions
+	 * Add {@link CLIOptionDefinitions} that describe various proxy-related settings.
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 * @param name
 	 */
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context, String name) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).dependsOnProperties(name+PRP_SFX_USER_NAME));
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context, String name) {
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).dependsOnOptions(name+PRP_SFX_USER_NAME));
 	}
 	
 	/**

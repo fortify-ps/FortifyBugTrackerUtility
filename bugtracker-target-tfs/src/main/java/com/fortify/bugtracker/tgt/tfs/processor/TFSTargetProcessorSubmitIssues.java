@@ -33,13 +33,12 @@ import org.springframework.stereotype.Component;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
 import com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
-import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 /**
@@ -51,10 +50,10 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	private String workItemType;
 	
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSProject", "TFS project to submit vulnerabilities to", true));
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		TFSConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+		cLIOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
+		cLIOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PROJECT);
 	}
 	
 	public String getTargetName() {
@@ -63,17 +62,19 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	
 	@Override
 	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		IContextTFS contextTFS = context.as(IContextTFS.class);
 		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
-		return conn.submitIssue(contextTFS.getTFSCollection(), contextTFS.getTFSProject(), getWorkItemType(), issueData);
+		return conn.submitIssue(
+			ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), 
+			ICLIOptionsTFS.CLI_TFS_PROJECT.getValue(context), getWorkItemType(), issueData);
 	}
 	
 	@Override
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return TFSConnectionFactory.getConnection(context).getWorkItemFields(context.as(IContextTFS.class).getTFSCollection(), targetIssueLocator);
+				return TFSConnectionFactory.getConnection(context)
+						.getWorkItemFields(ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), targetIssueLocator);
 			}
 		};
 	}

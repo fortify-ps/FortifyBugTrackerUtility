@@ -34,8 +34,8 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOnTarget;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
+import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
-import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
@@ -99,9 +99,8 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 	public void updateVulnerabilityStateForExistingIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
 		Map<String,String> customTagValues = getExtraCustomTagValues(context, targetIssueLocatorAndFields, vulnerabilities);
 		if ( !customTagValues.isEmpty() ) {
-			IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-			String applicationVersionId = ctx.getSSCApplicationVersionId();
+			String applicationVersionId = ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(context);
 			conn.api(SSCCustomTagAPI.class).setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
 			LOG.info("[SSC] Updated custom tag values for "+vulnerabilities.size()+" SSC vulnerabilities");
 		}

@@ -81,20 +81,20 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	protected abstract C getDefaultConfig();
 	
 	/**
-	 * Method to be implemented by concrete implementations to return the context property name
+	 * Method to be implemented by concrete implementations to return the CLI option name
 	 * for selecting a single source object by id.
 	 * 
 	 * @return
 	 */
-	protected abstract String getContextPropertyNameForId();
+	protected abstract String getCLIOptionNameForId();
 	
 	/**
-	 * Method to be implemented by concrete implementations to return the context property name
+	 * Method to be implemented by concrete implementations to return the CLI option name
 	 * for selecting one or more source objects by a list of name patterns.
 	 * 
 	 * @return
 	 */
-	protected abstract String getContextPropertyNameForNamePatterns();
+	protected abstract String getCLIOptionNameForNamePatterns();
 	
 	/**
 	 * Method to be implemented by concrete implementations to create the base source system query builder.
@@ -270,9 +270,9 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	private final IRestConnectionQuery createQuery(Context initialContext) {
 		Q queryBuilder = createBaseQueryBuilder(initialContext);
 		addOnDemandData(queryBuilder);
-		if ( initialContext.containsKey(getContextPropertyNameForId()) ) {
+		if ( initialContext.containsKey(getCLIOptionNameForId()) ) {
 			updateQueryBuilderWithId(initialContext, queryBuilder);
-		} else if ( initialContext.containsKey(getContextPropertyNameForNamePatterns()) ) {
+		} else if ( initialContext.containsKey(getCLIOptionNameForNamePatterns()) ) {
 			updateQueryBuilderWithContextNamePatterns(initialContext, queryBuilder);
 		} else {
 			updateQueryBuilderWithConfiguredFilterExpression(initialContext, queryBuilder);
@@ -307,7 +307,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	protected abstract void updateQueryBuilderWithId(Context initialContext, Q queryBuilder);
 
 	private void updateQueryBuilderWithContextNamePatterns(Context initialContext,	Q queryBuilder) {
-		String namePatternsString = (String)initialContext.get(getContextPropertyNameForNamePatterns());
+		String namePatternsString = (String)initialContext.get(getCLIOptionNameForNamePatterns());
 		Set<Pattern> namePatterns = parseNamePatternStrings(namePatternsString);
 		JSONMapFilterNamePatterns filter = new JSONMapFilterNamePatterns(MatchMode.INCLUDE, namePatterns);
 		addNonNullFilterListener(filter, getFilterListenerForContextNamePatterns(initialContext));

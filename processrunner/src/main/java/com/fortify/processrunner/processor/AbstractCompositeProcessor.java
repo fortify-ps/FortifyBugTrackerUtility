@@ -27,10 +27,10 @@ package com.fortify.processrunner.processor;
 import java.util.Collection;
 import java.util.List;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * This abstract {@link IProcessor} implementation provides
@@ -46,28 +46,28 @@ import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	
 	/**
-	 * Add the {@link ContextPropertyDefinition} instances by calling the 
-	 * {@link IContextPropertyDefinitionProvider#addContextPropertyDefinitions(Collection, Context)} 
+	 * Add the {@link CLIOptionDefinition} instances by calling the 
+	 * {@link ICLIOptionDefinitionProvider#addCLIOptionDefinitions(Collection, Context)} 
 	 * method on each individual {@link IProcessor} instance returned by the 
 	 * {@link #getProcessors()} method. 
 	 */
 	@Override
-	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+	public final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		for ( IProcessor processor : getProcessors() ) {
 			if ( processor != null ) {
-				processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+				processor.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 			}
 		}
-		addCompositeContextPropertyDefinitions(contextPropertyDefinitions, context);
+		addCompositeContextPropertyDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	/**
 	 * Concrete implementations can override this method to add additional
-	 * {@link ContextPropertyDefinition} instances.
-	 * @param contextPropertyDefinitions
+	 * {@link CLIOptionDefinition} instances.
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected void addCompositeContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	protected void addCompositeContextPropertyDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
 
 	/**
 	 * Run the {@link Phase#PRE_PROCESS} phase on all

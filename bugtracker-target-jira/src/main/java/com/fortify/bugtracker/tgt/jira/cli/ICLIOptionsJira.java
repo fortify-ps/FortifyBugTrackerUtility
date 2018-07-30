@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,30 +22,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.jira.context;
+package com.fortify.bugtracker.tgt.jira.cli;
 
-import com.fortify.bugtracker.common.tgt.context.IContextBugTracker;
-import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.cli.CLIOptionDefinition;
 
-/**
- * This interface can be used with the {@link Context#as(Class)} method to allow
- * access to JIRA properties like project key and issue type.
- */
-public interface IContextJira extends IContextBugTracker {
-	public static final String PRP_BASE_URL = "JiraBaseUrl";
-	public static final String PRP_USER_NAME = "JiraUserName";
-	public static final String PRP_PASSWORD = "JiraPassword";
+public interface ICLIOptionsJira {
+
+	String PRP_JIRA_BASE_URL = "JiraBaseUrl";
+	String PRP_JIRA_USER_NAME = "JiraUserName";
+	String PRP_JIRA_PASSWORD = "JiraPassword";
+	String PRP_JIRA_PROJECT_KEY = "JiraProjectKey";
 	
-	public void setJiraBaseUrl(String baseUrl);
-	public String getJiraBaseUrl();
-	public void setJiraUserName(String userName);
-	public String getJiraUserName();
-	public void setJiraPassword(String password);
-	public String getJiraPassword();
-	
-	public void setJiraProjectKey(String projectKey);
-	public String getJiraProjectKey();
-	
-	public void setJiraIssueType(String issueTypeName);
-	public String getJiraIssueType();
+	CLIOptionDefinition CLI_JIRA_BASE_URL = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_BASE_URL, "JIRA base URL", true).readFromConsole(true);
+	CLIOptionDefinition CLI_JIRA_USER_NAME = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_USER_NAME, "JIRA user name", true).readFromConsole(true);
+	CLIOptionDefinition CLI_JIRA_PASSWORD = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_PASSWORD, "JIRA password", true).readFromConsole(true).isPassword(true);
+	CLIOptionDefinition CLI_JIRA_PROJECT_KEY = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_PROJECT_KEY, "JIRA project key identifying the JIRA project to submit vulnerabilities to", true);
 }

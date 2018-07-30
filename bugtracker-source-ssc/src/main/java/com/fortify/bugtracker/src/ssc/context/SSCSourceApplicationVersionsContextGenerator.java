@@ -28,16 +28,16 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
+import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterListenerLoggerApplicationVersion;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration;
 import com.fortify.client.ssc.api.SSCApplicationVersionAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
@@ -45,21 +45,21 @@ import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogge
 import com.fortify.util.spring.SpringExpressionUtil;
 
 @Component
-public class SSCSourceApplicationVersionsContextGenerator extends AbstractSourceContextGenerator<SSCSourceApplicationVersionsConfiguration, SSCApplicationVersionsQueryBuilder> implements IContextPropertyDefinitionProvider {
+public class SSCSourceApplicationVersionsContextGenerator extends AbstractSourceContextGenerator<SSCSourceApplicationVersionsConfiguration, SSCApplicationVersionsQueryBuilder> implements ICLIOptionDefinitionProvider {
 	
 	@Override
-	protected String getContextPropertyNameForId() {
-		return IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID;
+	protected String getCLIOptionNameForId() {
+		return ICLIOptionsSSC.PRP_SSC_APPLICATION_VERSION_ID;
 	}
 
 	@Override
-	protected String getContextPropertyNameForNamePatterns() {
-		return IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS;
+	protected String getCLIOptionNameForNamePatterns() {
+		return ICLIOptionsSSC.PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS;
 	}
 
 	@Override
-	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS, "SSC application version names (<application name pattern>:<version name pattern>), separated by comma's", true).isAlternativeForProperties(IContextSSCCommon.PRP_SSC_APPLICATION_VERSION_ID));
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME_PATTERNS);
 	}
 	
 	@Override
@@ -76,15 +76,14 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext,	SSCApplicationVersionsQueryBuilder queryBuilder) {
-		IContextSSCCommon sscCtx = initialContext.as(IContextSSCCommon.class);
-		queryBuilder.id(sscCtx.getSSCApplicationVersionId());
+		queryBuilder.id(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
 	}
 
 
 	@Override
 	protected void updateContextForSourceObject(Context context, JSONMap applicationVersion) {
 		IContextSSCCommon sscCtx = context.as(IContextSSCCommon.class);
-		sscCtx.setSSCApplicationVersionId(applicationVersion.get("id", String.class));
+		context.put(ICLIOptionsSSC.PRP_SSC_APPLICATION_VERSION_ID, applicationVersion.get("id", String.class));
 		sscCtx.setApplicationVersion(applicationVersion);
 		sscCtx.setSSCApplicationAndVersionName(getSourceObjectName(applicationVersion));
 	}

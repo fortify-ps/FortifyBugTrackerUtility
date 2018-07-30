@@ -33,13 +33,12 @@ import org.springframework.stereotype.Component;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.jira.cli.ICLIOptionsJira;
 import com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration;
 import com.fortify.bugtracker.tgt.jira.connection.JiraConnectionFactory;
 import com.fortify.bugtracker.tgt.jira.connection.JiraRestConnection;
-import com.fortify.bugtracker.tgt.jira.context.IContextJira;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 /**
@@ -51,9 +50,9 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 	private String issueType;
 	
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("JiraProjectKey", "JIRA project key identifying the JIRA project to submit vulnerabilities to", true));
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		JiraConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions, context);
+		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_PROJECT_KEY);
 	}
 	
 	public String getTargetName() {
@@ -62,9 +61,8 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 	
 	@Override
 	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueFields) {
-		IContextJira contextJira = context.as(IContextJira.class);
 		JiraRestConnection conn = JiraConnectionFactory.getConnection(context);
-		issueFields.put("project.key", contextJira.getJiraProjectKey());
+		issueFields.put("project.key", ICLIOptionsJira.CLI_JIRA_PROJECT_KEY.getValue(context));
 		issueFields.put("issuetype.name", getIssueType());
 		issueFields.put("summary", StringUtils.abbreviate((String)issueFields.get("summary"), 254));
 		return conn.submitIssue(issueFields);

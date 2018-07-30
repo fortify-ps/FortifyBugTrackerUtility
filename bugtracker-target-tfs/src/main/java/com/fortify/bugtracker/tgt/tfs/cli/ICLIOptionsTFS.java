@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,23 +22,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.context;
+package com.fortify.bugtracker.tgt.tfs.cli;
 
-import java.util.Collection;
+import com.fortify.processrunner.cli.CLIOptionDefinition;
 
-/**
- * Interface to be implemented by classes that want to add {@link ContextPropertyDefinition}
- * instances to {@link ContextPropertyDefinitions}.
- * 
- * @author Ruud Senden
- *
- */
-public interface IContextPropertyDefinitionProvider {
-	/**
-	 * Add {@link ContextPropertyDefinition} instances to the provided
-	 * {@link ContextPropertyDefinition} {@link Collection} that describe 
-	 * the context properties supported/required by the current 
-	 * {@link IContextPropertyDefinitionProvider} implementation. 
-	 */
-	public abstract void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context);
+public interface ICLIOptionsTFS {
+
+	String PRP_TFS_BASE_URL = "TFSBaseUrl";
+	String PRP_TFS_USER_NAME = "TFSUserName";
+	String PRP_TFS_PASSWORD = "TFSPassword";
+	String PRP_TFS_COLLECTION = "TFSCollection";
+	String PRP_TFS_PROJECT = "TFSProject";
+	
+	CLIOptionDefinition CLI_TFS_BASE_URL = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_BASE_URL, "TFS base URL", true).readFromConsole(true);
+	CLIOptionDefinition CLI_TFS_USER_NAME = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_USER_NAME, "TFS user name", true).readFromConsole(true);
+	CLIOptionDefinition CLI_TFS_PASSWORD = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_PASSWORD, "TFS password", true).readFromConsole(true).isPassword(true);
+	CLIOptionDefinition CLI_TFS_COLLECTION = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_COLLECTION, "TFS collection containing the project to submit vulnerabilities to", true);
+	CLIOptionDefinition CLI_TFS_PROJECT = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_PROJECT, "TFS project to submit vulnerabilities to", true);
+	
 }

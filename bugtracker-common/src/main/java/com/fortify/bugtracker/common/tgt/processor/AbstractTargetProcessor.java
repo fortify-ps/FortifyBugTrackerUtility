@@ -28,30 +28,30 @@ import com.fortify.bugtracker.common.processor.IProcessorWithTargetName;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 
 public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorWithTargetName {
 	/**
 	 * This method just calls 
-	 * {@link #addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions, Context)}
+	 * {@link #addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions, Context)}
 	 * to allow subclasses to add additional context property definitions
 	 */
 	@Override
-	public final void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		addBugTrackerContextPropertyDefinitions(contextPropertyDefinitions, context);
+	public final void addExtraCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		addBugTrackerCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	@Override
 	public abstract String getTargetName();
 
 	/**
-	 * Subclasses can override this method to add additional bug tracker related {@link ContextPropertyDefinitions}
-	 * @param contextPropertyDefinitions
+	 * Subclasses can override this method to add additional bug tracker related {@link CLIOptionDefinitions}
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
 	
 	
 	

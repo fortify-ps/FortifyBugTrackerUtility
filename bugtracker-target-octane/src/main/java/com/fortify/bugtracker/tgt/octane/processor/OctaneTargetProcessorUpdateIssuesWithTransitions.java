@@ -36,15 +36,15 @@ import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneConnectionFactory;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 @Component
 public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		OctaneConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	@Override

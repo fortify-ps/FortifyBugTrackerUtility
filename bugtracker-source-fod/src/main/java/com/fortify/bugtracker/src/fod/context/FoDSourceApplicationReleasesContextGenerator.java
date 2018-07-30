@@ -28,16 +28,16 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
+import com.fortify.bugtracker.src.fod.cli.ICLIOptionsFoD;
 import com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterListenerLoggerRelease;
 import com.fortify.client.fod.api.FoDReleaseAPI;
 import com.fortify.client.fod.api.query.builder.FoDOrderByDirection;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
@@ -45,20 +45,20 @@ import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogge
 import com.fortify.util.spring.SpringExpressionUtil;
 
 @Component
-public class FoDSourceApplicationReleasesContextGenerator extends AbstractSourceContextGenerator<FoDSourceReleasesConfiguration, FoDReleasesQueryBuilder> implements IContextPropertyDefinitionProvider {
+public class FoDSourceApplicationReleasesContextGenerator extends AbstractSourceContextGenerator<FoDSourceReleasesConfiguration, FoDReleasesQueryBuilder> implements ICLIOptionDefinitionProvider {
 	@Override
-	protected String getContextPropertyNameForId() {
-		return IContextFoD.PRP_FOD_RELEASE_ID;
+	protected String getCLIOptionNameForId() {
+		return ICLIOptionsFoD.PRP_FOD_RELEASE_ID;
 	}
 
 	@Override
-	protected String getContextPropertyNameForNamePatterns() {
-		return IContextFoD.PRP_FOD_RELEASE_NAME_PATTERNS;
+	protected String getCLIOptionNameForNamePatterns() {
+		return ICLIOptionsFoD.PRP_FOD_RELEASE_NAME_PATTERNS;
 	}
 
 	@Override
-	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_RELEASE_NAME_PATTERNS, "FoD application release names (<application name pattern>:<release name pattern>), separated by comma's", true).isAlternativeForProperties(IContextFoD.PRP_FOD_RELEASE_ID));
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME_PATTERNS);
 	}
 	
 	@Override
@@ -71,14 +71,13 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext,	FoDReleasesQueryBuilder queryBuilder) {
-		IContextFoD fodCtx = initialContext.as(IContextFoD.class);
-		queryBuilder.releaseId(fodCtx.getFoDReleaseId());
+		queryBuilder.releaseId(ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
 	}
 	
 	@Override
 	protected void updateContextForSourceObject(Context context, JSONMap sourceObject) {
 		IContextFoD fodCtx = context.as(IContextFoD.class);
-		fodCtx.setFoDReleaseId(sourceObject.get("releaseId", String.class));
+		context.put(ICLIOptionsFoD.PRP_FOD_RELEASE_ID, sourceObject.get("releaseId", String.class));
 		fodCtx.setRelease(sourceObject);
 		fodCtx.setFoDApplicationAndReleaseName(getSourceObjectName(sourceObject));
 	}

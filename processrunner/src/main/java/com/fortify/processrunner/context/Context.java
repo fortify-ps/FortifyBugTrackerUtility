@@ -34,6 +34,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fortify.util.spring.SpringExpressionUtil;
+
 /**
  * <p>This class defines the process runner context. It is basically a 
  * {@link HashMap} that can contain arbitrary String keys together with 
@@ -78,6 +80,10 @@ public class Context extends HashMap<String, Object> {
 	 */
 	public Context chainedPut(String key, Object value) {
 		put(key, value); return this;
+	}
+	
+	public <T> T get(String key, Class<T> returnType) {
+		return SpringExpressionUtil.evaluateExpression(this, key, returnType);
 	}
 	
 	/**

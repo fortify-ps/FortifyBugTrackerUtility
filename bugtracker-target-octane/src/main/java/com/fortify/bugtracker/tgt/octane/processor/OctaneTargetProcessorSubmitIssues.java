@@ -32,13 +32,12 @@ import org.springframework.stereotype.Component;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
+import com.fortify.bugtracker.tgt.octane.cli.ICLIOptionsOctane;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection;
-import com.fortify.bugtracker.tgt.octane.connection.OctaneConnectionFactory;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection.OctaneSharedSpaceAndWorkspaceId;
-import com.fortify.bugtracker.tgt.octane.context.IContextOctane;
+import com.fortify.bugtracker.tgt.octane.connection.OctaneConnectionFactory;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 /**
@@ -48,10 +47,10 @@ import com.fortify.util.rest.json.JSONMap;
 @Component
 public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		OctaneConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_SHARED_SPACE_UID, "Octane Shared Space UID", true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true));
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		OctaneConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+		cLIOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_SHARED_SPACE_UID);
+		cLIOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_WORKSPACE_ID);
 	}
 	
 	public String getTargetName() {
@@ -60,10 +59,11 @@ public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 	
 	@Override
 	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		IContextOctane contextOctane = context.as(IContextOctane.class);
 		OctaneAuthenticatingRestConnection conn = OctaneConnectionFactory.getConnection(context);
 		issueData.put("name", StringUtils.abbreviate((String)issueData.get("name"), 254));
-		return conn.submitIssue(new OctaneSharedSpaceAndWorkspaceId(contextOctane.getOctaneSharedSpaceUid(), contextOctane.getOctaneWorkspaceId()), issueData);
+		return conn.submitIssue(
+			new OctaneSharedSpaceAndWorkspaceId(ICLIOptionsOctane.CLI_OCTANE_SHARED_SPACE_UID.getValue(context), 
+					ICLIOptionsOctane.CLI_OCTANE_WORKSPACE_ID.getValue(context)), issueData);
 	}
 	
 	@Override

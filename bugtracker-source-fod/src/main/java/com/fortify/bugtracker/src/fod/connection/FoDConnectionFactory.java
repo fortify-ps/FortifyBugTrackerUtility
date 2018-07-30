@@ -24,12 +24,11 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.connection;
 
-import com.fortify.bugtracker.src.fod.context.IContextFoD;
+import com.fortify.bugtracker.src.fod.cli.ICLIOptionsFoD;
 import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 /**
@@ -41,14 +40,14 @@ import com.fortify.util.rest.connection.ProxyConfig;
  */
 public final class FoDConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_BASE_URL, "FoD base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_TENANT, "FoD tenant", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_USER_NAME, "FoD user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextFoD.PRP_FOD_CLIENT_ID));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_PASSWORD, "FoD password", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextFoD.PRP_FOD_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_CLIENT_ID, "FoD client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForProperties(IContextFoD.PRP_FOD_USER_NAME));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextFoD.PRP_FOD_CLIENT_SECRET, "FoD client secret", true).readFromConsole(true).isPassword(true).dependsOnProperties(IContextFoD.PRP_FOD_CLIENT_ID));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "FoD");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_BASE_URL);
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_TENANT);
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_USER_NAME);
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_PASSWORD);
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_ID);
+		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "FoD");
 	}
 	
 	public static final FoDAuthenticatingRestConnection getConnection(Context context) {
@@ -62,18 +61,16 @@ public final class FoDConnectionFactory
 	}
 
 	private static final FoDAuthenticatingRestConnection createConnection(Context context) {
-		IContextFoD ctx = context.as(IContextFoD.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "FoD");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "FoD");
 		return FoDAuthenticatingRestConnection.builder()
 			.proxy(proxy)
 			.enableSerializationSingleJVM()
-			.baseUrl(ctx.getFoDBaseUrl())
-			.clientId(ctx.getFoDClientId())
-			.clientSecret(ctx.getFoDClientSecret())
-			.tenant(ctx.getFoDTenant())
-			.userName(ctx.getFoDUserName())
-			.password(ctx.getFoDPassword())
+			.baseUrl(ICLIOptionsFoD.CLI_FOD_BASE_URL.getValue(context))
+			.clientId(ICLIOptionsFoD.CLI_FOD_CLIENT_ID.getValue(context))
+			.clientSecret(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET.getValue(context))
+			.tenant(ICLIOptionsFoD.CLI_FOD_TENANT.getValue(context))
+			.userName(ICLIOptionsFoD.CLI_FOD_USER_NAME.getValue(context))
+			.password(ICLIOptionsFoD.CLI_FOD_PASSWORD.getValue(context))
 			.build();
 	}
 	

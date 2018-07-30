@@ -22,43 +22,44 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.context;
+package com.fortify.processrunner.cli;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 
 /**
- * This class describes a single context property that is supported by a given {@link IProcessor} implementation.
- * It contains context property name, description, and whether the property is required to be available in
- * the {@link Context}. Optionally, this class also supports reading a context property value from the console
+ * This class describes a single command line option that is supported by a given {@link IProcessor} implementation.
+ * It contains option name, description, and whether the property is required to be available in the current
+ * {@link Context}. Optionally, this class also supports reading a context property value from the console
  * ({@link #readFromConsole} as either a normal string or password (hiding the input; {@link #isPassword(boolean)}.
- * The context property definition can optionally be ignored (not required and not read from console) if an
- * alternative context property has been set ({@link #isAlternativeForProperties(String...)}), or if other 
- * context properties that the current property depends on have not been set ({@link #dependsOnProperties(String...)}).
+ * The option definition can optionally be ignored (not required and not read from console) if an alternative 
+ * option has been set ({@link #isAlternativeForOptions(String...)}), or if other options that the current property 
+ * depends on have not been set ({@link #dependsOnOptions(String...)}).
  * 
  * @author Ruud Senden
  */
-public class ContextPropertyDefinition {
+public class CLIOptionDefinition {
 	private final String name;
 	private final String description;
 	private final boolean required;
 	private String defaultValue = null;
 	private boolean readFromConsole = false;
 	private boolean isPassword = false;
-	private String[] isAlternativeForProperties = null;
-	private String[] dependsOnProperties = null;
+	private String[] isAlternativeForOptions = null;
+	private String[] dependsOnOptions = null;
 	
 	
 	/**
-	 * Constructor for setting the context property name, description and required flag.
+	 * Constructor for setting the option name, description and required flag.
 	 * @param name
 	 * @param description
 	 * @param required
 	 */
-	public ContextPropertyDefinition(String name, String description, boolean required) {
+	public CLIOptionDefinition(String name, String description, boolean required) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -114,8 +115,8 @@ public class ContextPropertyDefinition {
 	 * @return
 	 */
 	public boolean isNotIgnored(Context context) {
-		return ( dependsOnProperties==null || context.hasValueForAllKeys(dependsOnProperties) ) &&
-				( isAlternativeForProperties==null || !context.hasValueForAnyKey(isAlternativeForProperties) );
+		return ( dependsOnOptions==null || context.hasValueForAllKeys(dependsOnOptions) ) &&
+				( isAlternativeForOptions==null || !context.hasValueForAnyKey(isAlternativeForOptions) );
 	}
 
 	/**
@@ -194,16 +195,16 @@ public class ContextPropertyDefinition {
 	 * Get the property names that, if any of them is set, will cause the current property definition to be ignored
 	 * @return
 	 */
-	public String[] getIsAlternativeForProperties() {
-		return isAlternativeForProperties;
+	public String[] getIsAlternativeForOptions() {
+		return isAlternativeForOptions;
 	}
 	
 	/**
 	 * Get the property name that, if not set, will cause the current property definition to be ignored
 	 * @return
 	 */
-	public String[] getDependsOnProperties() {
-		return dependsOnProperties;
+	public String[] getDependsOnOptions() {
+		return dependsOnOptions;
 	}
 	
 	/**
@@ -211,7 +212,7 @@ public class ContextPropertyDefinition {
 	 * @param defaultValue
 	 * @return
 	 */
-	public ContextPropertyDefinition defaultValue(String defaultValue) {
+	public CLIOptionDefinition defaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 		return this;
 	}
@@ -221,7 +222,7 @@ public class ContextPropertyDefinition {
 	 * @param readFromConsole
 	 * @return
 	 */
-	public ContextPropertyDefinition readFromConsole(boolean readFromConsole) {
+	public CLIOptionDefinition readFromConsole(boolean readFromConsole) {
 		this.readFromConsole = readFromConsole;
 		return this;
 	}
@@ -231,37 +232,41 @@ public class ContextPropertyDefinition {
 	 * @param isPassword
 	 * @return
 	 */
-	public ContextPropertyDefinition isPassword(boolean isPassword) {
+	public CLIOptionDefinition isPassword(boolean isPassword) {
 		this.isPassword = isPassword;
 		return this;
 	}
 
 	/**
-	 * Set the property names that, if any of them is set, will cause the current property definition to be ignored
+	 * Set the option names that, if any of them is set, will cause the current option definition to be ignored
 	 * @param property
 	 * @return
 	 */
-	public ContextPropertyDefinition isAlternativeForProperties(String... properties) {
-		this.isAlternativeForProperties = properties;
+	public CLIOptionDefinition isAlternativeForOptions(String... properties) {
+		this.isAlternativeForOptions = properties;
 		return this;
 	}
 
 	/**
-	 * Set the property names that, if any of them is not set, will cause the current property definition to be ignored
+	 * Set the option names that, if any of them is not set, will cause the current option definition to be ignored
 	 * @param property
 	 * @return
 	 */
-	public ContextPropertyDefinition dependsOnProperties(String... properties) {
-		this.dependsOnProperties = properties;
+	public CLIOptionDefinition dependsOnOptions(String... properties) {
+		this.dependsOnOptions = properties;
 		return this;
 	}
 	
+	public String getValue(Context context) {
+		return context.get(getName(), String.class);
+	}
+	
 	/**
-	 * Get a human-readable presentation of this {@link ContextPropertyDefinition}
+	 * Get a human-readable presentation of this {@link CLIOptionDefinition}
 	 */
 	@Override
 	public String toString() {
-		return "ContextPropertyDefinition [name=" + name + ", description=" + description + ", defaultValue="
+		return this.getClass().getSimpleName()+" [name=" + name + ", description=" + description + ", defaultValue="
 				+ defaultValue + ", required=" + required + "]";
 	}
 }

@@ -31,8 +31,8 @@ import org.springframework.stereotype.Component;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
 import com.fortify.bugtracker.tgt.archer.connection.ArcherConnectionFactory;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
 /**
  * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
@@ -41,8 +41,8 @@ import com.fortify.processrunner.context.ContextPropertyDefinitions;
 @Component
 public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		ArcherConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		ArcherConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	public String getTargetName() {

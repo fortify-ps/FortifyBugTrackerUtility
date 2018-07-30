@@ -34,36 +34,6 @@ import com.fortify.util.rest.json.JSONMap;
  * @author Ruud Senden
  */
 public interface IContextFoD {
-	public static final String PRP_FOD_BASE_URL = "FoDBaseUrl";
-	public static final String PRP_FOD_CLIENT_ID = "FoDClientId";
-	public static final String PRP_FOD_CLIENT_SECRET = "FoDClientSecret";
-	public static final String PRP_FOD_TENANT = "FoDTenant";
-	public static final String PRP_FOD_USER_NAME = "FoDUserName";
-	public static final String PRP_FOD_PASSWORD = "FoDPassword";
-	public static final String PRP_FOD_RELEASE_ID = "FoDReleaseId";
-	public static final String PRP_FOD_RELEASE_NAME_PATTERNS = "FoDReleaseNamePatterns";
-	
-	public void setFoDBaseUrl(String baseUrl);
-	public String getFoDBaseUrl();
-	
-	public void setFoDClientId(String clientId);
-	public String getFoDClientId();
-	public void setFoDClientSecret(String clientSecret);
-	public String getFoDClientSecret();
-	
-	public void setFoDTenant(String tenant);
-	public String getFoDTenant();
-	public void setFoDUserName(String userName);
-	public String getFoDUserName();
-	public void setFoDPassword(String password);
-	public String getFoDPassword();
-	
-	public void setFoDReleaseId(String releaseId);
-	public String getFoDReleaseId();
-	
-	public void setFoDReleaseNamePatterns(String releaseNamePatterns);
-	public String getFoDReleaseNamePatterns();
-	
 	public void setRelease(JSONMap release);
 	public String getRelease();
 	

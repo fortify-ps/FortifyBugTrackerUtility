@@ -37,11 +37,11 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.IContextGenerator;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.util.spring.SpringContextUtil;
 
 /**
@@ -109,21 +109,21 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Get the {@link ContextPropertyDefinitions} for the given {@link ProcessRunner} name
+	 * Get the {@link CLIOptionDefinitions} for the given {@link ProcessRunner} name
 	 * @param processRunnerName
 	 * @return
 	 */
-	public ContextPropertyDefinitions getContextPropertyDefinitions(String processRunnerName) {
+	public CLIOptionDefinitions getContextPropertyDefinitions(String processRunnerName) {
 		return getContextPropertyDefinitions(getProcessRunner(getProcessRunnerNameOrDefault(processRunnerName)), new Context());
 	}
 	
 	/**
-	 * Get the {@link ContextPropertyDefinitions} for the given {@link ProcessRunner} instance
+	 * Get the {@link CLIOptionDefinitions} for the given {@link ProcessRunner} instance
 	 * @param processRunnerName
 	 * @return
 	 */
-	private final ContextPropertyDefinitions getContextPropertyDefinitions(ProcessRunner runner, Context context) {
-		ContextPropertyDefinitions result = new ContextPropertyDefinitions();
+	private final CLIOptionDefinitions getContextPropertyDefinitions(ProcessRunner runner, Context context) {
+		CLIOptionDefinitions result = new CLIOptionDefinitions();
 		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
 		addContextPropertyDefinitionsFromContextGenerator(result, context);
 		return result;
@@ -181,15 +181,15 @@ public class RunProcessRunnerFromSpringConfig {
 
 	/**
 	 * Check the given {@link Context} for any missing context property values, based on
-	 * the available {@link ContextPropertyDefinitions}
+	 * the available {@link CLIOptionDefinitions}
 	 * @param runner
 	 * @param context
 	 */
 	protected final void checkContext(ProcessRunner runner, Context context) {
-		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
-		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
-			String name = contextPropertyDefinition.getName();
-			if ( contextPropertyDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
+		CLIOptionDefinitions cLIOptionDefinitions = getContextPropertyDefinitions(runner, context);
+		for ( CLIOptionDefinition cLIOptionDefinition : cLIOptionDefinitions.values() ) {
+			String name = cLIOptionDefinition.getName();
+			if ( cLIOptionDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
 				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
 			}
 		}
@@ -201,11 +201,11 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param context
 	 */
 	protected final void addDefaultValues(ProcessRunner runner, Context context) {
-		ContextPropertyDefinitions contextPropertyDefinitions = getContextPropertyDefinitions(runner, context);
-		for ( ContextPropertyDefinition contextPropertyDefinition : contextPropertyDefinitions.values() ) {
-			String name = contextPropertyDefinition.getName();
+		CLIOptionDefinitions cLIOptionDefinitions = getContextPropertyDefinitions(runner, context);
+		for ( CLIOptionDefinition cLIOptionDefinition : cLIOptionDefinitions.values() ) {
+			String name = cLIOptionDefinition.getName();
 			if ( !context.hasValueForKey(name) ) {
-				String defaultValue = contextPropertyDefinition.getDefaultValue(context);
+				String defaultValue = cLIOptionDefinition.getDefaultValue(context);
 				if ( StringUtils.isNotBlank(defaultValue) ) {
 					context.put(name, defaultValue);
 				}
@@ -216,22 +216,22 @@ public class RunProcessRunnerFromSpringConfig {
 	/**
 	 * Add context property definitions from the given {@link ProcessRunner}
 	 * @param runner
-	 * @param contextPropertyDefinitions
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		runner.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		runner.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	/**
 	 * Add context property definitions from the configured {@link IContextGenerator} 
-	 * @param contextPropertyDefinitions
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected final void addContextPropertyDefinitionsFromContextGenerator(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+	protected final void addContextPropertyDefinitionsFromContextGenerator(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		IContextGenerator generator = getContextGenerator();
-		if ( generator != null && generator instanceof IContextPropertyDefinitionProvider ) {
-			((IContextPropertyDefinitionProvider)generator).addContextPropertyDefinitions(contextPropertyDefinitions, context);
+		if ( generator != null && generator instanceof ICLIOptionDefinitionProvider ) {
+			((ICLIOptionDefinitionProvider)generator).addCLIOptionDefinitions(cLIOptionDefinitions, context);
 		}
 		
 	}

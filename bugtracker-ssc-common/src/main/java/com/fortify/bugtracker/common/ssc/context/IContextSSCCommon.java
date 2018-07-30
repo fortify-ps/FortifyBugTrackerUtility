@@ -34,41 +34,8 @@ import com.fortify.util.rest.json.JSONMap;
  * @author Ruud Senden
  */
 public interface IContextSSCCommon {
-	public static final String PRP_SSC_BASE_URL = "SSCBaseUrl";
-	public static final String PRP_SSC_AUTH_TOKEN = "SSCAuthToken";
-	public static final String PRP_SSC_USER_NAME = "SSCUserName";
-	public static final String PRP_SSC_PASSWORD = "SSCPassword";
-	public static final String PRP_SSC_APPLICATION_VERSION_ID = "SSCApplicationVersionId";
-	public static final String PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS = "SSCApplicationVersionNamePatterns";
-	public static final String PRP_SSC_BUG_TRACKER_USER_NAME = "SSCBugTrackerUserName";
-	public static final String PRP_SSC_BUG_TRACKER_PASSWORD = "SSCBugTrackerPassword";
-	
-	public void setSSCBaseUrl(String baseUrl);
-	public String getSSCBaseUrl();
-	
-	public void setSSCAuthToken(String authToken);
-	public String getSSCAuthToken();
-	
-	public void setSSCUserName(String userName);
-	public String getSSCUserName();
-	public void setSSCPassword(String password);
-	public String getSSCPassword();
-	
-	public void setSSCApplicationVersionId(String applicationVersionId);
-	public String getSSCApplicationVersionId();
-	
-	public void setSSCApplicationVersionNamePatterns(String applicationVersionNamePatterns);
-	public String getSSCApplicationVersionNamePatterns();
-	
 	public void setApplicationVersion(JSONMap applicationVersion);
 	public JSONMap getApplicationVersion();
-	
-	public void setSSCApplicationAndVersionName(String applicationAndVersionName);
+	public void setSSCApplicationAndVersionName(String applicationAdnVersionName);
 	public String getSSCApplicationAndVersionName();
-	
-	public void setSSCBugTrackerUserName(String userName);
-	public String getSSCBugTrackerUserName();
-	
-	public void setSSCBugTrackerPassword(String password);
-	public String getSSCBugTrackerPassword();
 }

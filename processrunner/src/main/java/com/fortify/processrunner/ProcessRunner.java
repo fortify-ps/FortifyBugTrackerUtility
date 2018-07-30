@@ -27,9 +27,9 @@ package com.fortify.processrunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.processrunner.processor.IProcessor.Phase;
 
@@ -41,7 +41,7 @@ import com.fortify.processrunner.processor.IProcessor.Phase;
  * @author Ruud Senden
  *
  */
-public class ProcessRunner implements IContextPropertyDefinitionProvider {
+public class ProcessRunner implements ICLIOptionDefinitionProvider {
 	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
 	private IProcessor[] processors = new IProcessor[]{};
 	private String description;
@@ -50,11 +50,11 @@ public class ProcessRunner implements IContextPropertyDefinitionProvider {
 
 	/**
 	 * Allow all configured {@link IProcessor} implementations to add
-	 * their {@link ContextPropertyDefinitions}
+	 * their {@link CLIOptionDefinitions}
 	 */
-	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		for ( IProcessor processor : processors ) {
-			processor.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+			processor.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 		}
 	}
 	

@@ -24,20 +24,19 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.jira.connection;
 
-import com.fortify.bugtracker.tgt.jira.context.IContextJira;
+import com.fortify.bugtracker.tgt.jira.cli.ICLIOptionsJira;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.util.rest.ContextAwareProxyConfigurationFactory;
+import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class JiraConnectionFactory 
 {
-	public static final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_BASE_URL, "JIRA base URL", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_USER_NAME, "JIRA user name", true).readFromConsole(true));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextJira.PRP_PASSWORD, "JIRA password", true).readFromConsole(true).isPassword(true));
-		ContextAwareProxyConfigurationFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context, "Jira");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_PASSWORD);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "Jira");
 	}
 	
 	public static final JiraRestConnection getConnection(Context context) {
@@ -51,14 +50,12 @@ public final class JiraConnectionFactory
 	}
 
 	private static final JiraRestConnection createConnection(Context context) {
-		IContextJira ctx = context.as(IContextJira.class);
-		
-		ProxyConfig proxy = ContextAwareProxyConfigurationFactory.getProxyConfiguration(context, "Jira");
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "Jira");
 		return JiraRestConnection.builder()
 			.proxy(proxy)
-			.baseUrl(ctx.getJiraBaseUrl())
-			.userName(ctx.getJiraUserName())
-			.password(ctx.getJiraPassword())
+			.baseUrl(ICLIOptionsJira.CLI_JIRA_BASE_URL.getValue(context))
+			.userName(ICLIOptionsJira.CLI_JIRA_USER_NAME.getValue(context))
+			.password(ICLIOptionsJira.CLI_JIRA_PASSWORD.getValue(context))
 			.build();
 	}
 	

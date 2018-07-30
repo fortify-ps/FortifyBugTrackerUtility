@@ -22,29 +22,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.processrunner.context;
+package com.fortify.processrunner.cli;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This class holds all configured {@link ContextPropertyDefinition} instances
- * indexed by {@link ContextPropertyDefinition} name.
+ * This class holds all configured {@link CLIOptionDefinition} instances
+ * indexed by {@link CLIOptionDefinition} name.
  * 
  * @author Ruud Senden
  *
  */
-public class ContextPropertyDefinitions extends LinkedHashMap<String, ContextPropertyDefinition> {
+public class CLIOptionDefinitions extends LinkedHashMap<String, CLIOptionDefinition> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Add the given {@link ContextPropertyDefinition} to the {@link Map} of {@link ContextPropertyDefinition}s
-	 * @param contextPropertyDefinition
+	 * Add the given {@link CLIOptionDefinition} to the {@link Map} of {@link CLIOptionDefinition}s
+	 * @param cLIOptionDefinition
 	 * @return
 	 */
-	public ContextPropertyDefinition add(ContextPropertyDefinition contextPropertyDefinition) {
-		put(contextPropertyDefinition.getName(), contextPropertyDefinition);
-		return contextPropertyDefinition;
+	public CLIOptionDefinition add(CLIOptionDefinition cLIOptionDefinition) {
+		put(cLIOptionDefinition.getName(), cLIOptionDefinition);
+		return cLIOptionDefinition;
 	}
 
 }

@@ -35,9 +35,9 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -70,19 +70,19 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 * Add context properties for grouping
 	 */
 	@Override
-	public final void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
+	public final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false));
+			cLIOptionDefinitions.add(new CLIOptionDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false));
 		}
-		addExtraContextPropertyDefinitions(contextPropertyDefinitions, context);
+		addExtraCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	/**
 	 * Subclasses can override this method to add extra context properties
-	 * @param contextPropertyDefinitions
+	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected void addExtraContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
 
 	/**
 	 * If grouping is enabled, initialize the temporary cache that will hold grouped objects.

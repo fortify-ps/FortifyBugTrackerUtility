@@ -36,15 +36,15 @@ import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
 import com.fortify.bugtracker.tgt.jira.connection.JiraConnectionFactory;
 import com.fortify.bugtracker.tgt.jira.connection.JiraRestConnection;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 @Component
 public class JiraTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	protected void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		JiraConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		JiraConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}
 	
 	@Override

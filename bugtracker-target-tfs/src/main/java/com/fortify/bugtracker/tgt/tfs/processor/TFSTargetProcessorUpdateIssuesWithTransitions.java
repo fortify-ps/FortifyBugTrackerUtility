@@ -35,20 +35,19 @@ import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
+import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
 import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
-import com.fortify.bugtracker.tgt.tfs.context.IContextTFS;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.util.rest.json.JSONMap;
 
 @Component
 public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	public void addBugTrackerContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		TFSConnectionFactory.addContextPropertyDefinitions(contextPropertyDefinitions, context);
-		contextPropertyDefinitions.add(new ContextPropertyDefinition("TFSCollection", "TFS collection containing the project to submit vulnerabilities to", true));
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		TFSConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+		cLIOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
 	}
 	
 	@Override
@@ -66,8 +65,7 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 		return new ITargetIssueFieldsUpdater() {
 			@Override
 			public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
-				IContextTFS contextTFS = context.as(IContextTFS.class);
-				String collection = contextTFS.getTFSCollection();
+				String collection = ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context);
 				return getTFSConnection(context).updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
 			}
 		};
@@ -77,7 +75,7 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return getTFSConnection(context).getWorkItemFields(context.as(IContextTFS.class).getTFSCollection(), targetIssueLocator);
+				return getTFSConnection(context).getWorkItemFields(ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), targetIssueLocator);
 			}
 		};
 	}
@@ -88,8 +86,7 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	
 	@Override
 	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
-		IContextTFS contextTFS = context.as(IContextTFS.class);
-		String collection = contextTFS.getTFSCollection();
+		String collection = ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context);
 		Map<String, Object> fields = new LinkedHashMap<String, Object>();
 		if ( comment != null ) {
 			fields.put("System.History", comment);

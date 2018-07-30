@@ -30,10 +30,10 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
-import com.fortify.processrunner.context.IContextPropertyDefinitionProvider;
 
 /**
  * <p>This abstract {@link IProcessor} implementation allows subclasses
@@ -58,13 +58,13 @@ public abstract class AbstractProcessor implements IProcessor {
 	private static final Log LOG = LogFactory.getLog(AbstractProcessor.class);
 	
 	/**
-	 * Add {@link ContextPropertyDefinition} instances to the provided
-	 * {@link ContextPropertyDefinition} {@link Collection} that describe 
+	 * Add {@link CLIOptionDefinition} instances to the provided
+	 * {@link CLIOptionDefinition} {@link Collection} that describe 
 	 * the context properties supported/required by the current 
-	 * {@link IContextPropertyDefinitionProvider} implementation. By 
+	 * {@link ICLIOptionDefinitionProvider} implementation. By 
 	 * default, this method does not add any context properties.
 	 */
-	public void addContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {}
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
 	
 	/**
 	 * Process the given {@link Phase} with the given {@link Context}.

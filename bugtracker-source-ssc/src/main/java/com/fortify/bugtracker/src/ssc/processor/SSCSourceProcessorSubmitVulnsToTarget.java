@@ -36,8 +36,8 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsToTarget;
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
+import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
-import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
@@ -48,9 +48,9 @@ import com.fortify.client.ssc.api.SSCCustomTagAPI;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
@@ -81,9 +81,9 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 	private static final Log LOG = LogFactory.getLog(SSCSourceProcessorSubmitVulnsToTarget.class);
 	
 	@Override
-	protected void addSourceContextPropertyDefinitions(ContextPropertyDefinitions contextPropertyDefinitions, Context context) {
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker user name (required if SSC bug tracker requires authentication)", false));
-		contextPropertyDefinitions.add(new ContextPropertyDefinition(IContextSSCCommon.PRP_SSC_BUG_TRACKER_PASSWORD, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker password", false).readFromConsole(true).isPassword(true).dependsOnProperties(IContextSSCCommon.PRP_SSC_BUG_TRACKER_USER_NAME));
+	protected void addSourceCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+		cLIOptionDefinitions.add(new CLIOptionDefinition(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker user name (required if SSC bug tracker requires authentication)", false));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker password", false).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME));
 	}
 	
 	@Override
@@ -127,9 +127,8 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 	@SuppressWarnings("unchecked")
 	@Override
 	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
-		IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
 		SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
-		String applicationVersionId = ctx.getSSCApplicationVersionId();
+		String applicationVersionId = ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(context);
 		Map<String,String> customTagValues = getExtraCustomTagValues(context, targetIssueLocatorAndFields, vulnerabilities);
 		
 		if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
@@ -149,8 +148,8 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 				// If SSC bug tracker username/password are not specified, we use dummy values;
 				// 'Add Existing Bugs' doesn't care about credentials but requires authentication
 				// to work around SSC 17.20+ bugs
-				String btUserName = StringUtils.defaultIfBlank(ctx.getSSCBugTrackerUserName(), "dummy");
-				String btPassword = StringUtils.defaultIfBlank(ctx.getSSCBugTrackerPassword(), "dummy");
+				String btUserName = StringUtils.defaultIfBlank(context.get(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, String.class), "dummy");
+				String btPassword = StringUtils.defaultIfBlank(context.get(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, String.class), "dummy");
 				bugTrackerAPI.authenticateForBugFiling(applicationVersionId, btUserName, btPassword);
 			}
 			

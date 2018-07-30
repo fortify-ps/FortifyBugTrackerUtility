@@ -43,9 +43,9 @@ import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.context.ContextPropertyDefinition;
-import com.fortify.processrunner.context.ContextPropertyDefinitions;
 
 /**
  * <p>
@@ -165,15 +165,15 @@ public class RunProcessRunnerFromCLI {
 	 * @return
 	 */
 	protected final Context getContextFromArgs(Context configContext, RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, List<String> args) {
-		ContextPropertyDefinitions contextPropertyDefinitions = springRunner.getContextPropertyDefinitions(processRunnerName);
+		CLIOptionDefinitions cLIOptionDefinitions = springRunner.getContextPropertyDefinitions(processRunnerName);
 		Context context = new Context(configContext);
 		while (args.size() > 0) {
 			String opt = args.remove(0);
 			if (!opt.startsWith("-")) {
-				handleErrorAndExit(springRunner, processRunnerName, contextPropertyDefinitions, "ERROR: Invalid option " + opt, 3);
+				handleErrorAndExit(springRunner, processRunnerName, cLIOptionDefinitions, "ERROR: Invalid option " + opt, 3);
 			}
 			if ("--help".equals(opt)) {
-				printUsage(springRunner, processRunnerName, contextPropertyDefinitions, 0);
+				printUsage(springRunner, processRunnerName, cLIOptionDefinitions, 0);
 			}
 			// Allow options to start with either - or --, to work around JDK
 			// bug if multiple options starting with -J are given
@@ -220,7 +220,7 @@ public class RunProcessRunnerFromCLI {
 	 * @param errorMessage
 	 * @param errorCode
 	 */
-	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, ContextPropertyDefinitions contextProperties, String errorMessage, int errorCode) {
+	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, CLIOptionDefinitions contextProperties, String errorMessage, int errorCode) {
 		LOG.error("[Process] " + errorMessage);
 		printUsage(springRunner, processRunnerName, contextProperties, errorCode);
 	}
@@ -231,7 +231,7 @@ public class RunProcessRunnerFromCLI {
 	 * 
 	 * @param context
 	 */
-	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, ContextPropertyDefinitions contextPropertyDefinitions, int returnCode) {
+	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, CLIOptionDefinitions cLIOptionDefinitions, int returnCode) {
 		LOG.info("Usage: " + getBaseCommand()
 				+ " --configFile <configFile> [--logFile <logFile>] [--logLevel <logLevel>] [action] [--help] [options]");
 		LOG.info("");
@@ -257,11 +257,11 @@ public class RunProcessRunnerFromCLI {
 				LOG.info("");
 			}
 			
-			if (contextPropertyDefinitions == null || contextPropertyDefinitions.size() == 0) {
+			if (cLIOptionDefinitions == null || cLIOptionDefinitions.size() == 0) {
 				LOG.info("Available options will be shown when a valid action has been specified.");
 			} else {
 				LOG.info("Available options for the current action ("+springRunner.getProcessRunnerNameOrDefault(processRunnerName)+"):");
-				for (ContextPropertyDefinition cp : contextPropertyDefinitions.values()) {
+				for (CLIOptionDefinition cp : cLIOptionDefinitions.values()) {
 					LOG.info("  -" + cp.getName() + " <value> " + (cp.isRequired() ? "(required)" : "(optional)"));
 					LOG.info("   " + cp.getDescription());
 					if (StringUtils.isNotBlank(cp.getDefaultValueDescription())) {
