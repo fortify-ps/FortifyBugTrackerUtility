@@ -27,62 +27,71 @@ package com.fortify.bugtracker.common;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsToTarget;
 import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOnTarget;
-import com.fortify.processrunner.ProcessRunner;
+import com.fortify.processrunner.AbstractProcessRunner;
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.processor.IProcessor;
 
 /**
- * This {@link ProcessRunner} implementation can be configured to
+ * <p>This {@link AbstractProcessRunner} implementation can be configured to
  * submit vulnerabilities to a bug tracker, update issue state,
  * or both. Depending on available processors in the Spring configuration,
- * this implementation will determine whether the current instance
- * is enabled and whether it should be the default process runner:
+ * this implementation will determine the available actions and default action:
  * <ul>
- *  <li>Only {@link ISourceProcessorSubmitVulnsToTarget} available: Submit ProcessRunner enabled and default runner, others disabled</li>
- *  <li>Only {@link ISourceProcessorUpdateVulnsOnTarget} available: Update ProcessRunner enabled and default runner, others disabled</li>
- *  <li>Both {@link ISourceProcessorSubmitVulnsToTarget} and {@link ISourceProcessorUpdateVulnsOnTarget} available: Submit, Update and Submit&Update ProcessRunners enabled, Submit&Update is default ProcessRunner</li>
- * </ul>
+ *  <li>Only {@link ISourceProcessorSubmitVulnsToTarget} available: submitVulnerabilities action enabled and default, others disabled</li>
+ *  <li>Only {@link ISourceProcessorUpdateVulnsOnTarget} available: updateIssueState action enabled and default, others disabled</li>
+ *  <li>Both {@link ISourceProcessorSubmitVulnsToTarget} and {@link ISourceProcessorUpdateVulnsOnTarget} available: submitVulnerabilities, updateIssueState and submitVulnerabilitiesAndUpdateIssueState actions enabled, submitVulnerabilitiesAndUpdateIssueState is default action</li>
+ * </ul></p>
+ * 
+ * <p>Source system implementations must extend this class, providing the source system name
+ * in the constructor, and annotated with the {@link Component} annotation.</p>
  * 
  * @author Ruud Senden
  *
  */
-public class BugTrackerProcessRunner extends ProcessRunner {
-	private final String sourceSystemName;
-	private final ProcessRunnerType type;
+public abstract class AbstractBugTrackerProcessRunner extends AbstractProcessRunner {
+	private final CLIOptionDefinition cliOptionDefinitionAction = new CLIOptionDefinition("processing", "Action", "Action to be performed", true);
 	protected ISourceProcessorSubmitVulnsToTarget submitVulnerabilitiesProcessor;
 	protected ISourceProcessorUpdateVulnsOnTarget updateStateProcessor;
-
-	public enum ProcessRunnerType {
-		SUBMIT, UPDATE, SUBMIT_AND_UPDATE
-	}
-
-	public BugTrackerProcessRunner(String sourceSystemName, ProcessRunnerType type) {
-		this.sourceSystemName = sourceSystemName;
-		this.type = type;
+	
+	
+	@Override
+	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		cliOptionDefinitions.add(cliOptionDefinitionAction); 
 	}
 
 	@PostConstruct
 	public void postConstruct() {
-		switch (type) {
-		case SUBMIT:
-			this.setProcessors(getSubmitVulnerabilitiesProcessor());
-			this.setEnabled(isSubmitVulnerabilitiesProcessorEnabled());
-			this.setDescription("Submit "+sourceSystemName+" vulnerabilities to "+getBugTrackerName());
-			this.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && !isUpdateBugTrackerStateProcessorEnabled());
-			break;
-		case SUBMIT_AND_UPDATE:
-			this.setProcessors(getUpdateStateProcessor(), getSubmitVulnerabilitiesProcessor());
-			this.setEnabled(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
-			this.setDescription("Submit "+sourceSystemName+" vulnerabilities to "+getBugTrackerName()+" and update issue state");
-			this.setDefault(isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
-			break;
-		case UPDATE:
-			this.setProcessors(getUpdateStateProcessor());
-			this.setEnabled(isUpdateBugTrackerStateProcessorEnabled());
-			this.setDescription("Update "+getBugTrackerName()+" issue state based on "+sourceSystemName+" vulnerability state");
-			this.setDefault(!isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled());
-			break;
+		if ( isUpdateBugTrackerStateProcessorEnabled() ) {
+			cliOptionDefinitionAction.allowedValue("updateIssueState", "Update "+getTargetName()+" issue state based on "+getSourceName()+" vulnerability state");
+			cliOptionDefinitionAction.defaultValue("updateIssueState");
+		}
+		if ( isSubmitVulnerabilitiesProcessorEnabled() ) {
+			cliOptionDefinitionAction.allowedValue("submitVulnerabilities", "Submit "+getSourceName()+" vulnerabilities to "+getTargetName());
+			cliOptionDefinitionAction.defaultValue("submitVulnerabilities");
+		}
+		if ( isSubmitVulnerabilitiesProcessorEnabled() && isUpdateBugTrackerStateProcessorEnabled() ) {
+			cliOptionDefinitionAction.allowedValue("submitVulnerabilitiesAndUpdateIssueState", "Submit "+getSourceName()+" vulnerabilities to "+getTargetName()+" and update issue state");
+			cliOptionDefinitionAction.defaultValue("submitVulnerabilitiesAndUpdateIssueState");
+		}
+	}
+
+	@Override
+	public IProcessor[] getProcessors(Context context) {
+		switch ( cliOptionDefinitionAction.getValue(context) ) {
+		case "updateIssueState": 
+			return new IProcessor[] {getUpdateStateProcessor()};
+		case "submitVulnerabilities": 
+			return new IProcessor[] {getSubmitVulnerabilitiesProcessor()};
+		case "submitVulnerabilitiesAndUpdateIssueState": 
+			return new IProcessor[] {getUpdateStateProcessor(), getSubmitVulnerabilitiesProcessor()};
+		default:
+			throw new IllegalArgumentException("Unknown action specified");
 		}
 	}
 
@@ -112,14 +121,16 @@ public class BugTrackerProcessRunner extends ProcessRunner {
 		this.updateStateProcessor = updateStateProcessor;
 	}
 
-	protected final String getBugTrackerName() {
+	protected final String getTargetName() {
 		if ( getSubmitVulnerabilitiesProcessor()!=null ) {
 			return getSubmitVulnerabilitiesProcessor().getTargetName();
 		}
 		if ( getUpdateStateProcessor()!=null ) {
 			return getUpdateStateProcessor().getTargetName();
 		}
-		throw new IllegalStateException("Cannot determine bug tracker name");
+		throw new IllegalStateException("Cannot determine target name");
 	}
+	
+	protected abstract String getSourceName();
 
 }

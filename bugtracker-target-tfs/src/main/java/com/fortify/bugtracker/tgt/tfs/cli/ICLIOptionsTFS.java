@@ -34,10 +34,10 @@ public interface ICLIOptionsTFS {
 	String PRP_TFS_COLLECTION = "TFSCollection";
 	String PRP_TFS_PROJECT = "TFSProject";
 	
-	CLIOptionDefinition CLI_TFS_BASE_URL = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_BASE_URL, "TFS base URL", true).readFromConsole(true);
-	CLIOptionDefinition CLI_TFS_USER_NAME = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_USER_NAME, "TFS user name", true).readFromConsole(true);
-	CLIOptionDefinition CLI_TFS_PASSWORD = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_PASSWORD, "TFS password", true).readFromConsole(true).isPassword(true);
-	CLIOptionDefinition CLI_TFS_COLLECTION = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_COLLECTION, "TFS collection containing the project to submit vulnerabilities to", true);
-	CLIOptionDefinition CLI_TFS_PROJECT = new CLIOptionDefinition(ICLIOptionsTFS.PRP_TFS_PROJECT, "TFS project to submit vulnerabilities to", true);
+	CLIOptionDefinition CLI_TFS_BASE_URL = new CLIOptionDefinition("TFS", ICLIOptionsTFS.PRP_TFS_BASE_URL, "TFS base URL", true);
+	CLIOptionDefinition CLI_TFS_USER_NAME = new CLIOptionDefinition("TFS", ICLIOptionsTFS.PRP_TFS_USER_NAME, "TFS user name", true);
+	CLIOptionDefinition CLI_TFS_PASSWORD = new CLIOptionDefinition("TFS", ICLIOptionsTFS.PRP_TFS_PASSWORD, "TFS password", true).isPassword(true);
+	CLIOptionDefinition CLI_TFS_COLLECTION = new CLIOptionDefinition("TFS", ICLIOptionsTFS.PRP_TFS_COLLECTION, "TFS collection containing the project to submit vulnerabilities to", true);
+	CLIOptionDefinition CLI_TFS_PROJECT = new CLIOptionDefinition("TFS", ICLIOptionsTFS.PRP_TFS_PROJECT, "TFS project to submit vulnerabilities to", true);
 	
 }

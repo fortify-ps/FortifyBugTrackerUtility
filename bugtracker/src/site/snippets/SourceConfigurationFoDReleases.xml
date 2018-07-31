@@ -35,7 +35,7 @@
 	
 	<!-- START SNIPPET: bean -->
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration">
-		<property name="namePatternToContextMap"><map>
+		<property name="namePatternToOptionsMap"><map>
 			<!-- This example matches all application releases, and generates an OutputFile context attribute -->
 			<entry key=".*" value="OutputFile=Vulnerabilities-${applicationName}-${releaseName}.csv"/>
 			

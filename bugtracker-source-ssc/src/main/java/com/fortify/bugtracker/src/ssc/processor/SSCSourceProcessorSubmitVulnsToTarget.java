@@ -81,9 +81,11 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 	private static final Log LOG = LogFactory.getLog(SSCSourceProcessorSubmitVulnsToTarget.class);
 	
 	@Override
-	protected void addSourceCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		cLIOptionDefinitions.add(new CLIOptionDefinition(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker user name (required if SSC bug tracker requires authentication)", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker password", false).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME));
+	protected void addSourceCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		if ( getConfiguration().isAddNativeBugLink() ) {
+			cliOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker user name (required if SSC bug tracker requires authentication)", false));
+			cliOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, "SSC "+getConfiguration().getAddNativeBugLinkBugTrackerName()+" bug tracker password", false).isPassword(true).dependsOnOptions(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME));
+		}
 	}
 	
 	@Override

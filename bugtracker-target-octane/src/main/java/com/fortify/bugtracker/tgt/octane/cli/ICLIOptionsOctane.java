@@ -36,12 +36,12 @@ public interface ICLIOptionsOctane {
 	String PRP_OCTANE_WORKSPACE_ID = "OctaneWorkspaceId";
 	String PRP_OCTANE_SHARED_SPACE_UID = "OctaneSharedSpaceUid";
 
-	CLIOptionDefinition CLI_OCTANE_BASE_URL = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_BASE_URL, "Octane base URL", true).readFromConsole(true);
-	CLIOptionDefinition CLI_OCTANE_USER_NAME = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_USER_NAME, "Octane user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForOptions(ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID);
-	CLIOptionDefinition CLI_OCTANE_PASSWORD = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_PASSWORD, "Octane password", true).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsOctane.PRP_OCTANE_USER_NAME);
-	CLIOptionDefinition CLI_OCTANE_CLIENT_ID = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID, "Octane client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForOptions(ICLIOptionsOctane.PRP_OCTANE_USER_NAME);
-	CLIOptionDefinition CLI_OCTANE_CLIENT_SECRET = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_CLIENT_SECRET, "Octane client secret", true).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID);
-	CLIOptionDefinition CLI_OCTANE_SHARED_SPACE_UID = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_SHARED_SPACE_UID, "Octane Shared Space UID", true);
-	CLIOptionDefinition CLI_OCTANE_WORKSPACE_ID = new CLIOptionDefinition(ICLIOptionsOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true);
+	CLIOptionDefinition CLI_OCTANE_BASE_URL = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_BASE_URL, "Octane base URL", true);
+	CLIOptionDefinition CLI_OCTANE_USER_NAME = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_USER_NAME, "Octane user name", true).isAlternativeForOptions(ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID);
+	CLIOptionDefinition CLI_OCTANE_PASSWORD = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_PASSWORD, "Octane password", true).isPassword(true).dependsOnOptions(ICLIOptionsOctane.PRP_OCTANE_USER_NAME);
+	CLIOptionDefinition CLI_OCTANE_CLIENT_ID = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID, "Octane client id", true).isAlternativeForOptions(ICLIOptionsOctane.PRP_OCTANE_USER_NAME);
+	CLIOptionDefinition CLI_OCTANE_CLIENT_SECRET = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_CLIENT_SECRET, "Octane client secret", true).isPassword(true).dependsOnOptions(ICLIOptionsOctane.PRP_OCTANE_CLIENT_ID);
+	CLIOptionDefinition CLI_OCTANE_SHARED_SPACE_UID = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_SHARED_SPACE_UID, "Octane Shared Space UID", true);
+	CLIOptionDefinition CLI_OCTANE_WORKSPACE_ID = new CLIOptionDefinition("Octane", ICLIOptionsOctane.PRP_OCTANE_WORKSPACE_ID, "Octane Workspace ID", true);
 	
 }

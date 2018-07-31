@@ -24,21 +24,21 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.ssc;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunnerConfiguration;
+import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
 
 /**
- * SSC-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunnerConfiguration}
+ * SSC-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunner}
  * for more details.
  * 
  * @author Ruud Senden
  *
  */
-@Configuration
-public class SSCBugTrackerProcessRunnerConfiguration extends AbstractBugTrackerProcessRunnerConfiguration {
+@Component
+public class SSCBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner {
 	@Override
-	protected String getSourceSystemName() {
+	protected String getSourceName() {
 		return "SSC";
 	}
 }

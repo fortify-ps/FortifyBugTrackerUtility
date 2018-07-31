@@ -72,7 +72,7 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	@Override
 	public final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			cLIOptionDefinitions.add(new CLIOptionDefinition(IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false));
+			cLIOptionDefinitions.add(new CLIOptionDefinition("processing", IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false).isFlag(true));
 		}
 		addExtraCLIOptionDefinitions(cLIOptionDefinitions, context);
 	}

@@ -24,6 +24,8 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.src.config;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -41,9 +43,10 @@ import com.fortify.util.spring.expression.SimpleExpression;
 public class AbstractSourceContextGeneratorConfiguration implements ISourceContextGeneratorConfiguration {
 	private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
 	private SimpleExpression filterExpression = null;
-	private LinkedHashMap<SimpleExpression, Context> expressionToContextMap = new LinkedHashMap<>();
+	private LinkedHashMap<SimpleExpression, Context> expressionToOptionsMap = new LinkedHashMap<>();
 	private Map<String, String> attributeMappings = null;
-	private LinkedHashMap<Pattern, Context> namePatternToContextMap = null;
+	private LinkedHashMap<Pattern, Context> namePatternToOptionsMap = null;
+	private final Map<String, String> mappingDescriptions = new HashMap<String, String>();
 
 	@Override
 	public SimpleExpression getFilterExpression() {
@@ -55,12 +58,13 @@ public class AbstractSourceContextGeneratorConfiguration implements ISourceConte
 	}
 
 	@Override
-	public LinkedHashMap<SimpleExpression, Context> getExpressionToContextMap() {
-		return expressionToContextMap;
+	public LinkedHashMap<SimpleExpression, Context> getExpressionToOptionsMap() {
+		return expressionToOptionsMap;
 	}
 
-	public void setExpressionToContextMap(LinkedHashMap<SimpleExpression, Context> expressionToContextMap) {
-		this.expressionToContextMap = expressionToContextMap;
+	public void setExpressionToOptionsMap(LinkedHashMap<SimpleExpression, Context> expressionToOptionsMap) {
+		this.expressionToOptionsMap = expressionToOptionsMap;
+		updateMappingDescriptions(expressionToOptionsMap.values(), "Mapped from expressionToContextMap");
 	}
 
 	@Override
@@ -79,14 +83,32 @@ public class AbstractSourceContextGeneratorConfiguration implements ISourceConte
 
 	public void setAttributeMappings(Map<String, String> attributeMappings) {
 		this.attributeMappings = attributeMappings;
+		for ( Map.Entry<String, String> entry : attributeMappings.entrySet() ) {
+			mappingDescriptions.put(entry.getValue(), "Mapped from attribute '"+entry.getKey()+"'");
+		}
 	}
 
 	@Override
-	public LinkedHashMap<Pattern, Context> getNamePatternToContextMap() {
-		return namePatternToContextMap;
+	public LinkedHashMap<Pattern, Context> getNamePatternToOptionsMap() {
+		return namePatternToOptionsMap;
 	}
 
-	public void setNamePatternToContextMap(LinkedHashMap<Pattern, Context> namePatternToContextMap) {
-		this.namePatternToContextMap = namePatternToContextMap;
+	public void setNamePatternToOptionsMap(LinkedHashMap<Pattern, Context> namePatternToOptionsMap) {
+		this.namePatternToOptionsMap = namePatternToOptionsMap;
+		updateMappingDescriptions(namePatternToOptionsMap.values(), "Mapped from namePatternToContextMap");
 	}
+	
+	private void updateMappingDescriptions(Collection<Context> contexts, String description) {
+		for ( Context context : contexts ) {
+			for ( String key : context.keySet() ) {
+				mappingDescriptions.put(key, description);
+			}
+		}
+	}
+	
+	public Map<String, String> getMappingDescriptions() {
+		return mappingDescriptions;
+	}
+	
+	
 }

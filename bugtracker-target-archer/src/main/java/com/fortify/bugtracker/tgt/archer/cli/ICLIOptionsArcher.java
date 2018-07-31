@@ -35,10 +35,10 @@ public interface ICLIOptionsArcher {
 	String PRP_ARCHER_PASSWORD = "ArcherPassword";
 	String PRP_ARCHER_APPLICATION_NAME = "ArcherApplicationName";
 
-	CLIOptionDefinition CLI_ARCHER_BASE_URL = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_BASE_URL, "Archer base URL", true).readFromConsole(true);
-	CLIOptionDefinition CLI_ARCHER_APPLICATION_NAME = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_APPLICATION_NAME, "Archer application name", true).readFromConsole(true);
-	CLIOptionDefinition CLI_ARCHER_INSTANCE_NAME = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_INSTANCE_NAME, "Archer instance name", true).readFromConsole(true);
-	CLIOptionDefinition CLI_ARCHER_USER_NAME = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_USER_NAME, "Archer user name", true).readFromConsole(true);
-	CLIOptionDefinition CLI_ARCHER_USER_DOMAIN = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_USER_DOMAIN, "Archer user domain, use 'undefined' if not defined", false).readFromConsole(true);
-	CLIOptionDefinition CLI_ARCHER_PASSWORD = new CLIOptionDefinition(ICLIOptionsArcher.PRP_ARCHER_PASSWORD, "Archer password", true).readFromConsole(true).isPassword(true);
+	CLIOptionDefinition CLI_ARCHER_BASE_URL = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_BASE_URL, "Archer base URL", true);
+	CLIOptionDefinition CLI_ARCHER_APPLICATION_NAME = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_APPLICATION_NAME, "Archer application name", true);
+	CLIOptionDefinition CLI_ARCHER_INSTANCE_NAME = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_INSTANCE_NAME, "Archer instance name", true);
+	CLIOptionDefinition CLI_ARCHER_USER_NAME = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_USER_NAME, "Archer user name", true);
+	CLIOptionDefinition CLI_ARCHER_USER_DOMAIN = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_USER_DOMAIN, "Archer user domain", false);
+	CLIOptionDefinition CLI_ARCHER_PASSWORD = new CLIOptionDefinition("Archer", ICLIOptionsArcher.PRP_ARCHER_PASSWORD, "Archer password", true).isPassword(true);
 }

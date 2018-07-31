@@ -26,9 +26,7 @@ package com.fortify.processrunner;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -45,14 +43,13 @@ import com.fortify.processrunner.context.IContextGenerator;
 import com.fortify.util.spring.SpringContextUtil;
 
 /**
- * This class allows for running {@link ProcessRunner} instances based on Spring configuration.
+ * This class allows for running {@link AbstractProcessRunner} instances based on Spring configuration.
  * 
  * @author Ruud Senden
  */
 public class RunProcessRunnerFromSpringConfig {
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromSpringConfig.class);
-	private static final String DEFAULT_BEAN_NAME = "defaultProcessRunner";
-	private static final String CONTEXT_PROPERTIES_BEAN_NAME = "contextProperties";
+	private static final String CLI_OPTIONS_DEFAULT_VALUES_BEAN_NAME = "cliOptionsDefaultValues";
 	private final GenericApplicationContext appContext;
 	
 	/**
@@ -66,87 +63,61 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 	
 	/**
-	 * Run the {@link ProcessRunner} instance identified by the given 
-	 * processRunnerName, using the given externalContext. If processRunnerName
-	 * is null, we will try to identify a default {@link ProcessRunner} instance.
-	 * The {@link ProcessRunner} will be run once for every {@link Context} 
-	 * returned by our {@link #getContexts(ProcessRunner, Context)} method.
+	 * Run the {@link AbstractProcessRunner} instance defined in the configuration file.
+	 * The {@link AbstractProcessRunner} will be run once for every {@link Context} 
+	 * returned by our {@link #getContexts(AbstractProcessRunner, Context)} method.
 	 * @param externalContext
 	 * @param processRunnerName
 	 */
-	public void run(Context initialContext, String processRunnerName) {
-		processRunnerName = getProcessRunnerNameOrDefault(processRunnerName);
-		LOG.info("[Process] Using process runner "+processRunnerName);
-		ProcessRunner runner = getProcessRunner(processRunnerName);
-		addDefaultValues(runner, initialContext);
+	public void run(Context initialContext) {
+		AbstractProcessRunner runner = getProcessRunner();
+		addDefaultValues(initialContext);
 		Collection<Context> contexts = getContexts(initialContext);
 		for ( Context context : contexts ) {
 			try {
-				checkContext(runner, context);
+				checkContext(context);
 				runner.run(context);
 			} catch (Throwable t) {
-				LOG.error("[Process] Error during process run for "+processRunnerName+": "+t.getLocalizedMessage(), t);
+				LOG.error("[Process] Error during process run: "+t.getLocalizedMessage(), t);
 			}
 		}
-		LOG.info("[Process] Processing complete for " + processRunnerName);
+		LOG.info("[Process] Processing complete");
 	}
 
 	/**
-	 * This method indicates whether we can identify a default {@link ProcessRunner} instance
-	 * @return
-	 */
-	public boolean hasDefaultProcessRunner() {
-		return getDefaultProcessRunnerName() != null;
-	}
-	
-	/**
-	 * Get the {@link ProcessRunner} for the given name
+	 * Get the {@link CLIOptionDefinitions} for the given {@link AbstractProcessRunner} instance
 	 * @param processRunnerName
 	 * @return
 	 */
-	private ProcessRunner getProcessRunner(String processRunnerName) {
-		return appContext.getBean(processRunnerName, ProcessRunner.class);
-	}
-	
-	/**
-	 * Get the {@link CLIOptionDefinitions} for the given {@link ProcessRunner} name
-	 * @param processRunnerName
-	 * @return
-	 */
-	public CLIOptionDefinitions getContextPropertyDefinitions(String processRunnerName) {
-		return getContextPropertyDefinitions(getProcessRunner(getProcessRunnerNameOrDefault(processRunnerName)), new Context());
-	}
-	
-	/**
-	 * Get the {@link CLIOptionDefinitions} for the given {@link ProcessRunner} instance
-	 * @param processRunnerName
-	 * @return
-	 */
-	private final CLIOptionDefinitions getContextPropertyDefinitions(ProcessRunner runner, Context context) {
+	public final CLIOptionDefinitions getCLIOptionDefinitions(Context context) {
 		CLIOptionDefinitions result = new CLIOptionDefinitions();
-		addContextPropertyDefinitionsFromProcessRunner(runner, result, context);
-		addContextPropertyDefinitionsFromContextGenerator(result, context);
+		addCLIOptionDefinitionsFromProcessRunner(result, context);
+		addCLIOptionDefinitionsFromContextGenerator(result, context);
+		updateCLIOptionDefinitions(result);
 		return result;
 	}
-
-	/**
-	 * Get the given processRunnerName, or try to determine a default {@link ProcessRunner}
-	 * name if the given name is null
-	 * @param processRunnerName
-	 * @return
-	 */
-	public String getProcessRunnerNameOrDefault(String processRunnerName) {
-		if ( processRunnerName==null ) {
-			processRunnerName = getDefaultProcessRunnerName();
+	
+	private void updateCLIOptionDefinitions(CLIOptionDefinitions optionDefinitions) {
+		updateCLIOptionDefinitionsDefaultValues(optionDefinitions, getCLIOptionsDefaultValuesFromConfig());
+		if ( getContextGenerator()!=null ) {
+			getContextGenerator().updateCLIOptionDefinitionsSources(optionDefinitions);
 		}
-		if ( processRunnerName==null ) {
-			throw new IllegalArgumentException("No process runner names specified, and no default process runners available");
-		}
-		return processRunnerName;
 	}
 	
+	private void updateCLIOptionDefinitionsDefaultValues(CLIOptionDefinitions optionDefinitions, Context cliOptionsDefaultValuesFromConfig) {
+		if ( cliOptionsDefaultValuesFromConfig != null ) {
+			for ( Map.Entry<String, Object> entry : cliOptionsDefaultValuesFromConfig.entrySet() ) {
+				CLIOptionDefinition def = optionDefinitions.get(entry.getKey());
+				if ( def != null ) {
+					def.defaultValue((String)entry.getValue());
+				}
+			}
+		}
+		
+	}
+
 	/**
-	 * <p>Get the {@link Context} instances to use to run the given {@link ProcessRunner} instance.
+	 * <p>Get the {@link Context} instances to use to run the given {@link AbstractProcessRunner} instance.
 	 * This method will combine the provided external context and a configured context (if available),
 	 * and use this combined context to generate {@link Context} instances.</p>
 	 * 
@@ -171,10 +142,10 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Context getConfigContext() {
+	public Context getCLIOptionsDefaultValuesFromConfig() {
 		Context result = new Context();
-		if ( appContext.containsBean(CONTEXT_PROPERTIES_BEAN_NAME) ) {
-			result.putAll(appContext.getBean(CONTEXT_PROPERTIES_BEAN_NAME, Map.class));
+		if ( appContext.containsBean(CLI_OPTIONS_DEFAULT_VALUES_BEAN_NAME) ) {
+			result.putAll(appContext.getBean(CLI_OPTIONS_DEFAULT_VALUES_BEAN_NAME, Map.class));
 		}
 		return result;
 	}
@@ -182,12 +153,11 @@ public class RunProcessRunnerFromSpringConfig {
 	/**
 	 * Check the given {@link Context} for any missing context property values, based on
 	 * the available {@link CLIOptionDefinitions}
-	 * @param runner
 	 * @param context
 	 */
-	protected final void checkContext(ProcessRunner runner, Context context) {
-		CLIOptionDefinitions cLIOptionDefinitions = getContextPropertyDefinitions(runner, context);
-		for ( CLIOptionDefinition cLIOptionDefinition : cLIOptionDefinitions.values() ) {
+	protected final void checkContext(Context context) {
+		CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(context);
+		for ( CLIOptionDefinition cLIOptionDefinition : cliOptionDefinitions.values() ) {
 			String name = cLIOptionDefinition.getName();
 			if ( cLIOptionDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
 				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
@@ -200,12 +170,12 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param runner
 	 * @param context
 	 */
-	protected final void addDefaultValues(ProcessRunner runner, Context context) {
-		CLIOptionDefinitions cLIOptionDefinitions = getContextPropertyDefinitions(runner, context);
+	protected final void addDefaultValues(Context context) {
+		CLIOptionDefinitions cLIOptionDefinitions = getCLIOptionDefinitions(context);
 		for ( CLIOptionDefinition cLIOptionDefinition : cLIOptionDefinitions.values() ) {
 			String name = cLIOptionDefinition.getName();
 			if ( !context.hasValueForKey(name) ) {
-				String defaultValue = cLIOptionDefinition.getDefaultValue(context);
+				String defaultValue = cLIOptionDefinition.getDefaultValue();
 				if ( StringUtils.isNotBlank(defaultValue) ) {
 					context.put(name, defaultValue);
 				}
@@ -214,13 +184,13 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 
 	/**
-	 * Add context property definitions from the given {@link ProcessRunner}
+	 * Add context property definitions from the given {@link AbstractProcessRunner}
 	 * @param runner
-	 * @param cLIOptionDefinitions
+	 * @param cliOptionDefinitions
 	 * @param context
 	 */
-	protected final void addContextPropertyDefinitionsFromProcessRunner(ProcessRunner runner, CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		runner.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	protected final void addCLIOptionDefinitionsFromProcessRunner(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		getProcessRunner().addCLIOptionDefinitions(cliOptionDefinitions, context);
 	}
 	
 	/**
@@ -228,7 +198,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param cLIOptionDefinitions
 	 * @param context
 	 */
-	protected final void addContextPropertyDefinitionsFromContextGenerator(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+	protected final void addCLIOptionDefinitionsFromContextGenerator(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
 		IContextGenerator generator = getContextGenerator();
 		if ( generator != null && generator instanceof ICLIOptionDefinitionProvider ) {
 			((ICLIOptionDefinitionProvider)generator).addCLIOptionDefinitions(cLIOptionDefinitions, context);
@@ -249,48 +219,6 @@ public class RunProcessRunnerFromSpringConfig {
 			throw new IllegalArgumentException("ERROR: Configuration file "+configFile+" is not readable");
 		}
 	}
-
-	/**
-	 * Get all enabled {@link ProcessRunner} instances that are available through Spring configuration
-	 * @return
-	 */
-	public Map<String, ProcessRunner> getEnabledProcessRunners() {
-		Map<String, ProcessRunner> processRunnersMap = appContext.getBeansOfType(ProcessRunner.class);
-		processRunnersMap.values().removeIf(new Predicate<ProcessRunner>() {
-			public boolean test(ProcessRunner processRunner) {
-				return !processRunner.isEnabled();
-			}
-		});
-		return processRunnersMap;
-	}
-	
-	/**
-	 * Determine the default {@link ProcessRunner} name
-	 * @return
-	 */
-	private String getDefaultProcessRunnerName() {
-		Map<String, ProcessRunner> processRunnersMap = getEnabledProcessRunners();
-		String result = null;
-		if ( processRunnersMap.containsKey(DEFAULT_BEAN_NAME) ) {
-			result = DEFAULT_BEAN_NAME;
-		} else if (processRunnersMap.size()==1) {
-			result = processRunnersMap.keySet().iterator().next();
-		} else {
-			Map<String, ProcessRunner> defaultRunners = new HashMap<String, ProcessRunner>(processRunnersMap);
-			defaultRunners.values().removeIf(new Predicate<ProcessRunner>() {
-				public boolean test(ProcessRunner processRunner) {
-					return !processRunner.isDefault();
-				}
-			});
-			if ( defaultRunners.size()==1 ) {
-				return defaultRunners.keySet().iterator().next();
-			} else if ( defaultRunners.size()>1 ) {
-				throw new IllegalStateException("More than 1 process runner found");
-			}
-			result = defaultRunners.keySet().iterator().next();
-		}
-		return result;
-	}
 	
 	/**
 	 * Get the configured {@link IContextGenerator} instance
@@ -298,5 +226,19 @@ public class RunProcessRunnerFromSpringConfig {
 	 */
 	protected IContextGenerator getContextGenerator() {
 		return appContext.getBean(IContextGenerator.class);
+	}
+	
+	protected AbstractProcessRunner getProcessRunner() {
+		return appContext.getBean(AbstractProcessRunner.class);
+	}
+
+	public void checkForUnknownCLIOptions(Context context, CLIOptionDefinitions globalCLIOptionDefinitions) {
+		CLIOptionDefinitions optionDefinitions = getCLIOptionDefinitions(context);
+		for ( String key : context.keySet() ) {
+			if ( !globalCLIOptionDefinitions.containsKey(key) && !optionDefinitions.containsKey(key) ) {
+				LOG.warn("[process] Ignoring unknown CLI option "+key);
+			}
+		}
+		
 	}
 }

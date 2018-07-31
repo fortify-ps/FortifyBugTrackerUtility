@@ -24,21 +24,21 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunnerConfiguration;
+import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
 
 /**
- * FoD-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunnerConfiguration}
+ * FoD-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunner}
  * for more details.
  * 
  * @author Ruud Senden
  *
  */
-@Configuration
-public class FoDBugTrackerProcessRunnerConfiguration extends AbstractBugTrackerProcessRunnerConfiguration {
+@Component
+public class FoDBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner {
 	@Override
-	protected String getSourceSystemName() {
+	protected String getSourceName() {
 		return "FoD";
 	}
 }

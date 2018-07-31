@@ -52,9 +52,9 @@ public final class CLIOptionAwareProxyConfiguration {
 	 * @param name
 	 */
 	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context, String name) {
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_URL, name+" Proxy URL", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name+PRP_SFX_PASSWORD, name+" Proxy Password", false).readFromConsole(true).isPassword(true).dependsOnOptions(name+PRP_SFX_USER_NAME));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_URL, name+" Proxy URL", false));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
+		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_PASSWORD, name+" Proxy Password", false).isPassword(true).dependsOnOptions(name+PRP_SFX_USER_NAME));
 	}
 	
 	/**

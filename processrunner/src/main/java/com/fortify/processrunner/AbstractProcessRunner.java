@@ -27,6 +27,7 @@ package com.fortify.processrunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
@@ -35,35 +36,40 @@ import com.fortify.processrunner.processor.IProcessor.Phase;
 
 /**
  * This class allows for running one or more independent {@link IProcessor}
- * implementations as configured through the {@link #setProcessors(IProcessor...)}
+ * implementations as returned by the {@link #getProcessors(Context)}
  * method.
  * 
  * @author Ruud Senden
  *
  */
-public class ProcessRunner implements ICLIOptionDefinitionProvider {
-	private static final Log LOG = LogFactory.getLog(ProcessRunner.class);
-	private IProcessor[] processors = new IProcessor[]{};
-	private String description;
-	private boolean enabled = true;
-	private boolean _default= false;
+public abstract class AbstractProcessRunner implements ICLIOptionDefinitionProvider {
+	private static final Log LOG = LogFactory.getLog(AbstractProcessRunner.class);
 
 	/**
 	 * Allow all configured {@link IProcessor} implementations to add
 	 * their {@link CLIOptionDefinitions}
 	 */
-	public void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		for ( IProcessor processor : processors ) {
-			processor.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		addExtraCLIOptionDefinitions(cliOptionDefinitions, context);
+		for ( IProcessor processor : getProcessors(context) ) {
+			processor.addCLIOptionDefinitions(cliOptionDefinitions, context);
 		}
 	}
 	
+	/**
+	 * Subclasses can override this method to add extra {@link CLIOptionDefinition}
+	 * instances.
+	 * @param cliOptionDefinitions
+	 * @param context
+	 */
+	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {}
+
 	/**
 	 * Run the configured processor(s) using the configured context.
 	 * Each configured processor is run with its own individual context.
 	 */
 	public void run(Context context) {
-		IProcessor[] processors = getProcessors();
+		IProcessor[] processors = getProcessors(context);
 		for ( IProcessor processor : processors ) {
 			// Create a copy to let each processor have its own independent context
 			Context processorContext = new Context(context);
@@ -93,64 +99,8 @@ public class ProcessRunner implements ICLIOptionDefinitionProvider {
 	}
 
 	/**
-	 * Get the {@link IProcessor} instances that will be run for this {@link ProcessRunner}
+	 * Get the {@link IProcessor} instances that will be run for this {@link AbstractProcessRunner}
 	 * @return
 	 */
-	public IProcessor[] getProcessors() {
-		return processors;
-	}
-
-	/**
-	 * Set the {@link IProcessor} instances that will be run for this {@link ProcessRunner}
-	 * @param processors
-	 */
-	public void setProcessors(IProcessor... processors) {
-		this.processors = processors;
-	}
-	
-	/**
-	 * Get the value of the 'enabled' flag which indicates whether this {@link ProcessRunner} is enabled
-	 * @return true if this {@link ProcessRunner} is enabled, false otherwise
-	 */
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	/**
-	 * Set the value of the 'enabled' flag which indicates whether this {@link ProcessRunner} is enabled
-	 */
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-	
-	/**
-	 * Get the value of the 'default' flag which indicates whether this {@link ProcessRunner} is the default {@link ProcessRunner}
-	 * @return true if this is the default {@link ProcessRunner}, false otherwise
-	 */
-	public boolean isDefault() {
-		return _default;
-	}
-
-	/**
-	 * Set the value of the 'default' flag which indicates whether this {@link ProcessRunner} is the default {@link ProcessRunner}
-	 */
-	public void setDefault(boolean _default) {
-		this._default = _default;
-	}
-
-	/**
-	 * Get the description for this {@link ProcessRunner}, describing its functionality/behavior
-	 * @return description for this {@link ProcessRunner}
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * Set the description for this {@link ProcessRunner}, describing its functionality/behavior
-	 * @param description
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	public abstract IProcessor[] getProcessors(Context context);
 }

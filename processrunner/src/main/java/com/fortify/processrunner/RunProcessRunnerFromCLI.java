@@ -25,15 +25,13 @@
 package com.fortify.processrunner;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
@@ -62,8 +60,8 @@ import com.fortify.processrunner.context.Context;
  * 
  * <p>
  * Any remaining command line options are used to identify the
- * {@link ProcessRunner} instance to use, and to build the initial context for
- * that {@link ProcessRunner} instance.
+ * {@link AbstractProcessRunner} instance to use, and to build the initial context for
+ * that {@link AbstractProcessRunner} instance.
  * </p>
  * 
  * <p>
@@ -80,67 +78,72 @@ public class RunProcessRunnerFromCLI {
 		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 	}
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
-	private static final String DEFAULT_LOG_FILE = "processRunner.log";
-	private static final String DEFAULT_LOG_LEVEL = "info";
-
-	private static final Option OPT_CONFIG_FILE = Option.builder().longOpt("configFile").hasArg().build();
-	private static final Option OPT_LOG_FILE = Option.builder().longOpt("logFile").hasArg().build();
-	private static final Option OPT_LOG_LEVEL = Option.builder().longOpt("logLevel").hasArg().build();
-
-	private static final Options OPTIONS = new Options().addOption(OPT_CONFIG_FILE).addOption(OPT_LOG_FILE)
-			.addOption(OPT_LOG_LEVEL);
+	
+	private static final CLIOptionDefinition CLI_HELP = new CLIOptionDefinition("global", "help", "Show help information", false).isFlag(true);
+	private static final CLIOptionDefinition CLI_CONFIG_FILE = new CLIOptionDefinition("global", "configFile", "Configuration file to use", true);
+	private static final CLIOptionDefinition CLI_LOG_FILE = new CLIOptionDefinition("global", "logFile", "Log file; only used if logLevel is specified", true).defaultValue(getDefaultLogFileName()).dependsOnOptions("logLevel");
+	private static final CLIOptionDefinition CLI_LOG_LEVEL = new CLIOptionDefinition("global", "logLevel", "Log level", false)
+			.allowedValue("TRACE", "Detailed log information; may result in large log files containing sensitive information")
+			.allowedValue("DEBUG", "Debug information; may result in large log files containing sensitive information")
+			.allowedValue("INFO", "Log informational messages")
+			.allowedValue("WARN", "Log only warning, error or fatal messages")
+			.allowedValue("ERROR", "Log only error or fatal messages")
+			.allowedValue("FATAL", "Log only fatal messages");
+	
+	private static final CLIOptionDefinitions CLI_OPTION_DEFINITIONS =
+			new CLIOptionDefinitions().add(CLI_HELP, CLI_CONFIG_FILE, CLI_LOG_FILE, CLI_LOG_LEVEL);
 
 	/**
-	 * Main method for running a {@link ProcessRunner} configuration. This will
+	 * Main method for running a {@link AbstractProcessRunner} configuration. This will
 	 * parse the command line options and then invoke {@link RunProcessRunnerFromSpringConfig}
 	 * 
 	 * @param args
 	 */
 	public final void runProcessRunner(String[] argsArray) {
-		CommandLine cl = parseCommandLine(argsArray);
-		updateLogConfig(cl);
-
-		String configFile = getConfigFileName(cl);
-		if ( configFile == null ) {
-			handleErrorAndExit(null, null, null, "No configuration file specified", 1);
+		try {
+			Context cliContext = parseContextFromCLI(argsArray);
+			updateLogConfig(cliContext);
+			RunProcessRunnerFromSpringConfig springRunner = getSpringRunner(cliContext);
+			if ( cliContext.containsKey("help") || springRunner==null ) {
+				printUsage(springRunner, cliContext, 0);
+			}
+			springRunner.checkForUnknownCLIOptions(cliContext, CLI_OPTION_DEFINITIONS);
+			springRunner.run(cliContext);
+		} catch (RuntimeException e) {
+			LOG.error("[Process] Error processing", e);
+			System.exit(1);
 		}
-		RunProcessRunnerFromSpringConfig springRunner = new RunProcessRunnerFromSpringConfig(configFile);
-		List<String> remainingArgs = cl.getArgList();
-		String processRunnerName = getProcessRunnerNameFromArgs(remainingArgs);
-		Context configContext = springRunner.getConfigContext();
-		Context cliContext = getContextFromArgs(configContext, springRunner, processRunnerName, remainingArgs);
-
-		springRunner.run(cliContext, processRunnerName);
 	}
 
-	/**
-	 * Parse the command line options using Apache Commons CLI
-	 * 
-	 * @param argsArray
-	 * @return
-	 */
-	protected CommandLine parseCommandLine(String[] argsArray) {
-		try {
-			return new DefaultParser().parse(OPTIONS, argsArray, true);
-		} catch (ParseException e) {
-			handleErrorAndExit(null, null, null, "ERROR: Cannot parse command line: " + e.getMessage(), 6);
-			return null;
+	private RunProcessRunnerFromSpringConfig getSpringRunner(Context cliContext) {
+		String configFileName = CLI_CONFIG_FILE.getValueFromContext(cliContext);
+		return configFileName==null ? null : new RunProcessRunnerFromSpringConfig(CLI_CONFIG_FILE.getValue(cliContext));
+	}
+
+	private Context parseContextFromCLI(String[] args) {
+		Context result = new Context();
+		for ( int i = 0 ; i < args.length ; i++ ) {
+			String optionName = StringUtils.stripStart(args[i], "-");
+			if ( i==args.length-1 || args[i+1].startsWith("-") ) {
+				result.put(optionName, "true");
+			} else {
+				result.put(optionName, args[++i]);
+			}
 		}
+		return result;
 	}
 
 	/**
 	 * Update the log configuration based on command line options
 	 * 
-	 * @param cl
+	 * @param context
 	 */
-	protected final void updateLogConfig(CommandLine cl) {
-		String logFile = cl.getOptionValue(OPT_LOG_FILE.getLongOpt(), null);
-		String logLevel = cl.getOptionValue(OPT_LOG_LEVEL.getLongOpt(), null);
-		if (logFile != null || logLevel != null) {
-			logFile = logFile != null ? logFile : getDefaultLogFileName();
-			logLevel = logLevel != null ? logLevel : DEFAULT_LOG_LEVEL;
-			LoggerContext context = (LoggerContext) LogManager.getContext(false);
-		    Configuration configuration = context.getConfiguration();
+	protected final void updateLogConfig(Context context) {
+		String logLevel = CLI_LOG_LEVEL.getValue(context);
+		if (logLevel != null) {
+			String logFile = CLI_LOG_FILE.getValue(context);
+			LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+		    Configuration configuration = loggerContext.getConfiguration();
 		    FileAppender appender = FileAppender.newBuilder()
 		    		.withName("File")
 		    		.withFileName(logFile)
@@ -150,79 +153,8 @@ public class RunProcessRunnerFromCLI {
 		    appender.start();
 		    configuration.getRootLogger().addAppender(appender, Level.getLevel(logLevel), null);
 		    configuration.getRootLogger().setLevel(Level.getLevel(logLevel));
-		    context.updateLoggers();
+		    loggerContext.updateLoggers();
 		}
-	}
-
-	/**
-	 * Generate initial context based on command line options
-	 * @param args 
-	 * @param processRunnerName 
-	 * @param springRunner 
-	 * 
-	 * @param contextPropertyDefinitions
-	 * @param args
-	 * @return
-	 */
-	protected final Context getContextFromArgs(Context configContext, RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, List<String> args) {
-		CLIOptionDefinitions cLIOptionDefinitions = springRunner.getContextPropertyDefinitions(processRunnerName);
-		Context context = new Context(configContext);
-		while (args.size() > 0) {
-			String opt = args.remove(0);
-			if (!opt.startsWith("-")) {
-				handleErrorAndExit(springRunner, processRunnerName, cLIOptionDefinitions, "ERROR: Invalid option " + opt, 3);
-			}
-			if ("--help".equals(opt)) {
-				printUsage(springRunner, processRunnerName, cLIOptionDefinitions, 0);
-			}
-			// Allow options to start with either - or --, to work around JDK
-			// bug if multiple options starting with -J are given
-			if (opt.startsWith("--")) {
-				opt = opt.substring(1);
-			}
-			context.put(opt.substring(1), args.remove(0));
-		}
-		return context;
-	}
-
-	/**
-	 * Get the Spring configuration file name from command line options
-	 * 
-	 * @param cl
-	 * @return
-	 */
-	protected final String getConfigFileName(CommandLine cl) {
-		return cl.getOptionValue(OPT_CONFIG_FILE.getLongOpt());
-	}
-
-	/**
-	 * Get the name for the {@link ProcessRunner} configuration to run.
-	 * 
-	 * @param args
-	 * @param context
-	 * @return {@link ProcessRunner} name, or null if not provided via command
-	 *         line
-	 */
-	protected final String getProcessRunnerNameFromArgs(List<String> args) {
-		String result = null;
-		if (args.size() > 0 && !args.get(0).startsWith("-")) {
-			result = args.remove(0);
-		}
-		return result;
-	}
-
-	/**
-	 * Handle the given error by printing the relevant information on standard
-	 * out, and exit the application afterwards.
-	 * @param processRunnerName 
-	 * 
-	 * @param context
-	 * @param errorMessage
-	 * @param errorCode
-	 */
-	protected final void handleErrorAndExit(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, CLIOptionDefinitions contextProperties, String errorMessage, int errorCode) {
-		LOG.error("[Process] " + errorMessage);
-		printUsage(springRunner, processRunnerName, contextProperties, errorCode);
 	}
 
 	/**
@@ -231,55 +163,59 @@ public class RunProcessRunnerFromCLI {
 	 * 
 	 * @param context
 	 */
-	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, String processRunnerName, CLIOptionDefinitions cLIOptionDefinitions, int returnCode) {
-		LOG.info("Usage: " + getBaseCommand()
-				+ " --configFile <configFile> [--logFile <logFile>] [--logLevel <logLevel>] [action] [--help] [options]");
-		LOG.info("");
-		LOG.info("  --configFile <configFile> specifies the configuration file to use.");
-		LOG.info("  --logFile <logFile> specifies the log file to use. Default is " + getDefaultLogFileName());
-		LOG.info(
-				"  --logLevel <logLevel> specifies the log level. Can be one of trace, debug, info, warn, error, or fatal.");
-		LOG.info("");
-		LOG.info("By default no logging is performed unless at least either --logFile or --logLevel is specified.");
-		LOG.info("Note that log levels debug or trace may generate big log files that contain sensitive information.\n");
-
-		
-		if (springRunner == null ) {
-			LOG.info("Available actions will be shown when a valid configuration file has been specified.");
+	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, Context context, int returnCode) {
+		HelpPrinter hp = new HelpPrinter();
+		hp.appendLn(0, "Usage:");
+		hp.appendLn(1, getBaseCommand() + " [options]");
+		appendOptions(hp, context, CLI_OPTION_DEFINITIONS);
+		if ( springRunner == null ) {
+			hp.appendEmptyLn();
+			hp.appendLn(0, "Additional options will be shown when a valid configuration file has been specified");
 		} else {
-			Map<String, ProcessRunner> processRunners = springRunner.getEnabledProcessRunners();
-			LOG.info("Available actions: ");
-			for ( Map.Entry<String, ProcessRunner> processRunnerEntry : processRunners.entrySet() ) {
-				String id = processRunnerEntry.getKey();
-				ProcessRunner processRunner = processRunnerEntry.getValue();
-				LOG.info("  "+id+(processRunner.isDefault()?" (default)":""));
-				LOG.info("  "+processRunner.getDescription());
-				LOG.info("");
-			}
-			
-			if (cLIOptionDefinitions == null || cLIOptionDefinitions.size() == 0) {
-				LOG.info("Available options will be shown when a valid action has been specified.");
-			} else {
-				LOG.info("Available options for the current action ("+springRunner.getProcessRunnerNameOrDefault(processRunnerName)+"):");
-				for (CLIOptionDefinition cp : cLIOptionDefinitions.values()) {
-					LOG.info("  -" + cp.getName() + " <value> " + (cp.isRequired() ? "(required)" : "(optional)"));
-					LOG.info("   " + cp.getDescription());
-					if (StringUtils.isNotBlank(cp.getDefaultValueDescription())) {
-						LOG.info("   Default value: " + cp.getDefaultValueDescription());
+			appendOptions(hp, context, springRunner.getCLIOptionDefinitions(context));
+		}
+		hp.printHelp();
+		System.exit(returnCode);
+	}
+
+	protected final void appendOptions(HelpPrinter hp, Context context, CLIOptionDefinitions cliOptionDefinitions) {
+		for ( Map.Entry<String, Collection<CLIOptionDefinition>> optionsByGroup : cliOptionDefinitions.getByGroups().entrySet() ) {
+			hp.appendEmptyLn();
+			hp.appendLn(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
+			for (CLIOptionDefinition o : optionsByGroup.getValue()) {
+				hp.appendEmptyLn();
+				hp.appendLn(1, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
+				hp.appendLn(2, o.getDescription());
+				hp.appendLn(2, "Default value: " + o.getDefaultValueDescription());
+				hp.appendLn(2, "Current value: " + o.getCurrentValueDescription(context));
+				if (MapUtils.isNotEmpty(o.getAllowedValues())) {
+					hp.appendLn(2, "Allowed values: ");
+					for ( Map.Entry<String, String> entry : o.getAllowedValues().entrySet() ) {
+						hp.appendLn(3, entry.getKey());
+						hp.appendLn(4, entry.getValue());
 					}
-					LOG.info("");
+				}
+				if ( o.getDependsOnOptions()!=null ) {
+					hp.appendLn(2, "Requires options: " + String.join(", ", o.getDependsOnOptions()));
+				}
+				if ( o.getIsAlternativeForOptions()!=null ) {
+					hp.appendLn(2, "Alternative options: " + String.join(", ", o.getIsAlternativeForOptions()));
 				}
 			}
-		} 
-		System.exit(returnCode);
+		}
 	}
 
 	/**
 	 * Get the default log file name
 	 * @return
 	 */
-	protected String getDefaultLogFileName() {
-		return DEFAULT_LOG_FILE;
+	protected static final String getDefaultLogFileName() {
+		String result = "processrunner.log";
+		String jarName = getJarName();
+		if ( jarName != null ) {
+			result = StringUtils.removeEnd(jarName, ".jar") + ".log";
+		}
+		return result;
 	}
 
 	/**
@@ -287,18 +223,18 @@ public class RunProcessRunnerFromCLI {
 	 * @return
 	 */
 	protected String getBaseCommand() {
-		return "java -jar " + getJarName();
+		return "java -jar "+StringUtils.defaultIfBlank(getJarName(), "<jar name>");
 	}
 
 	/**
 	 * Get the name of the JAR file used to invoke the utility,
-	 * or "&lt;jar name&gt;" if unknown
+	 * or null if unknown
 	 * @return
 	 */
-	protected String getJarName() {
+	protected static final String getJarName() {
 		File jar = getJarFile();
-		if (jar == null) {
-			return "<jar name>";
+		if (jar == null || "classes".equals(jar.getName()) ) {
+			return null;
 		} else {
 			return jar.getName();
 		}
@@ -309,9 +245,9 @@ public class RunProcessRunnerFromCLI {
 	 * JAR file cannot be identified
 	 * @return
 	 */
-	protected File getJarFile() {
+	protected static final File getJarFile() {
 		try {
-			return new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+			return new File(RunProcessRunnerFromCLI.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 		} catch (Exception e) {
 			return null;
 		}
@@ -323,5 +259,34 @@ public class RunProcessRunnerFromCLI {
 	 */
 	public static final void main(String[] args) {
 		new RunProcessRunnerFromCLI().runProcessRunner(args);
+	}
+	
+	private static final class HelpPrinter {
+		private int width = 80;
+		private final StringBuffer sb = new StringBuffer();
+		
+		public HelpPrinter() {
+			try {
+				this.width = org.jline.terminal.TerminalBuilder.terminal().getWidth();
+			} catch (IOException e) {}
+			if ( this.width < 10 ) {
+				this.width = 80;
+			}
+		}
+		
+		public HelpPrinter appendLn(int indent, String str) {
+			String padding = StringUtils.leftPad("",indent*2);
+			sb.append(padding+WordUtils.wrap(str, width-padding.length(), "\n"+padding, false)).append("\n");
+			return this;
+		}
+		
+		public HelpPrinter appendEmptyLn() {
+			sb.append("\n");
+			return this;
+		}
+		
+		public void printHelp() {
+			System.out.println(sb.toString());
+		}
 	}
 }

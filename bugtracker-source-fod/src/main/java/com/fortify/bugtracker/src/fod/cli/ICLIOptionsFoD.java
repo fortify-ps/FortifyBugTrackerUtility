@@ -37,13 +37,13 @@ public interface ICLIOptionsFoD {
 	String PRP_FOD_RELEASE_ID = "FoDReleaseId";
 	String PRP_FOD_RELEASE_NAME_PATTERNS = "FoDReleaseNamePatterns";
 
-	CLIOptionDefinition CLI_FOD_BASE_URL = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_BASE_URL, "FoD base URL", true).readFromConsole(true);
-	CLIOptionDefinition CLI_FOD_TENANT = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_TENANT, "FoD tenant", true).readFromConsole(true);
-	CLIOptionDefinition CLI_FOD_CLIENT_ID = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_CLIENT_ID, "FoD client id (leave blank to use user credentials)", true).readFromConsole(true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME);
-	CLIOptionDefinition CLI_FOD_CLIENT_SECRET = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_CLIENT_SECRET, "FoD client secret", true).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
-	CLIOptionDefinition CLI_FOD_USER_NAME = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_USER_NAME, "FoD user name (leave blank to use client credentials)", true).readFromConsole(true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
-	CLIOptionDefinition CLI_FOD_PASSWORD = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_PASSWORD, "FoD password", true).readFromConsole(true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME);
-	CLIOptionDefinition CLI_FOD_RELEASE_ID = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_RELEASE_ID,"FoD release id from which to retrieve vulnerabilities",true);
-	CLIOptionDefinition CLI_FOD_RELEASE_NAME_PATTERNS = new CLIOptionDefinition(ICLIOptionsFoD.PRP_FOD_RELEASE_NAME_PATTERNS, "FoD application release names (<application name pattern>:<release name pattern>), separated by comma's", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_RELEASE_ID);
+	CLIOptionDefinition CLI_FOD_BASE_URL = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_BASE_URL, "FoD base URL", true);
+	CLIOptionDefinition CLI_FOD_TENANT = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_TENANT, "FoD tenant", true);
+	CLIOptionDefinition CLI_FOD_CLIENT_ID = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_CLIENT_ID, "FoD client id", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME);
+	CLIOptionDefinition CLI_FOD_CLIENT_SECRET = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_CLIENT_SECRET, "FoD client secret", true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
+	CLIOptionDefinition CLI_FOD_USER_NAME = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_USER_NAME, "FoD user name", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
+	CLIOptionDefinition CLI_FOD_PASSWORD = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_PASSWORD, "FoD password", true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME);
+	CLIOptionDefinition CLI_FOD_RELEASE_ID = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_RELEASE_ID,"FoD release id from which to retrieve vulnerabilities",true).isAlternativeForOptions(PRP_FOD_RELEASE_NAME_PATTERNS);
+	CLIOptionDefinition CLI_FOD_RELEASE_NAME_PATTERNS = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_RELEASE_NAME_PATTERNS, "FoD application release names (<application name pattern>:<release name pattern>), separated by comma's", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_RELEASE_ID);
 
 }

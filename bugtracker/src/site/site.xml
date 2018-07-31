@@ -37,7 +37,7 @@
         <item name="Global">
         	<item name="beans" href="config-beans.html"/>
         	<item name="component-scan" href="config-component-scan.html"/>
-        	<item name="contextProperties" href="config-contextProperties.html"/>
+        	<item name="CLI default values" href="config-cliDefaultValues.html"/>
         </item>
         <item name="Source">
         	<item name="FoD Releases" href="config-SourceConfigurationFoDReleases.html"/>

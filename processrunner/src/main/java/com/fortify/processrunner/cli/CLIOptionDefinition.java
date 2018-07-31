@@ -24,33 +24,37 @@
  ******************************************************************************/
 package com.fortify.processrunner.cli;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import com.fortify.processrunner.context.Context;
-import com.fortify.processrunner.processor.IProcessor;
 
 /**
- * This class describes a single command line option that is supported by a given {@link IProcessor} implementation.
- * It contains option name, description, and whether the property is required to be available in the current
- * {@link Context}. Optionally, this class also supports reading a context property value from the console
- * ({@link #readFromConsole} as either a normal string or password (hiding the input; {@link #isPassword(boolean)}.
- * The option definition can optionally be ignored (not required and not read from console) if an alternative 
- * option has been set ({@link #isAlternativeForOptions(String...)}), or if other options that the current property 
- * depends on have not been set ({@link #dependsOnOptions(String...)}).
+ * This class describes a single command line option. It contains option name, description, and whether the option 
+ * is required to be available in the current {@link Context}. The option definition can optionally be ignored 
+ * (not required) if an alternative option has been set ({@link #isAlternativeForOptions(String...)}), or if other 
+ * options that the current property depends on have not been set ({@link #dependsOnOptions(String...)}).
  * 
  * @author Ruud Senden
  */
 public class CLIOptionDefinition {
+	private final String group;
 	private final String name;
 	private final String description;
 	private final boolean required;
 	private String defaultValue = null;
-	private boolean readFromConsole = false;
+	private String defaultValueDescription = null;
 	private boolean isPassword = false;
 	private String[] isAlternativeForOptions = null;
 	private String[] dependsOnOptions = null;
+	private LinkedHashMap<String, String> allowedValues = null;
+	private boolean isFlag = false;
 	
 	
 	/**
@@ -59,11 +63,15 @@ public class CLIOptionDefinition {
 	 * @param description
 	 * @param required
 	 */
-	public CLIOptionDefinition(String name, String description, boolean required) {
-		super();
+	public CLIOptionDefinition(String group, String name, String description, boolean required) {
+		this.group = group;
 		this.name = name;
 		this.description = description;
 		this.required = required;
+	}
+	
+	public String getGroup() {
+		return group;
 	}
 
 	/**
@@ -82,23 +90,6 @@ public class CLIOptionDefinition {
 		return description;
 	}
 	
-	
-	/**
-	 * Get the context property default value, optionally reading the
-	 * property value from console.
-	 * @return
-	 */
-	public String getDefaultValue(Context context) {
-		String result = defaultValue;
-		if ( isReadFromConsole() && isNotIgnored(context) ) {
-			if ( isPassword ) {
-				result = readPassword();
-			} else {
-				result = readText();
-			}
-		}
-		return result;
-	}
 	
 	/**
 	 * Indicate whether this context property is required and not ignored
@@ -120,46 +111,6 @@ public class CLIOptionDefinition {
 	}
 
 	/**
-	 * Read text from console (if available) or from StdIn (to support running in Eclipse)
-	 * @return
-	 */
-	private String readText() {
-		return System.console()==null?readTextFromStdin():System.console().readLine(getDescription()+": ");
-	}
-
-	/**
-	 * Read password from console (if available) or from StdIn (to support running in Eclipse).
-	 * Note that the input will not be hidden when reading from StdIn.
-	 * @return
-	 */
-	private String readPassword() {
-		return System.console()==null?readTextFromStdin():new String(System.console().readPassword(getDescription()+": "));
-	}
-	
-	/**
-	 * Read text from StdIn
-	 * @return
-	 */
-	private String readTextFromStdin() {
-		System.out.print(String.format(getDescription()+ ": "));
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-	    try {
-			return reader.readLine();
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading text from stdin", e);
-		}
-	}
-	
-	/**
-	 * Get a description for the default value; either 'Read from console' if
-	 * reading from console is enabled, otherwise the configured default value.
-	 * @return
-	 */
-	public String getDefaultValueDescription() {
-		return readFromConsole ? "Read from console" : defaultValue;
-	}
-
-	/**
 	 * Get the context property required flag.
 	 * @return
 	 */
@@ -174,13 +125,9 @@ public class CLIOptionDefinition {
 	public String getDefaultValue() {
 		return defaultValue;
 	}
-
-	/**
-	 * Get the 'read from console' flag
-	 * @return
-	 */
-	public boolean isReadFromConsole() {
-		return readFromConsole;
+	
+	public String getDefaultValueDescription() {
+		return StringUtils.defaultIfBlank(defaultValueDescription, getValueDescription(getDefaultValue()));
 	}
 	
 	/**
@@ -207,6 +154,14 @@ public class CLIOptionDefinition {
 		return dependsOnOptions;
 	}
 	
+	public Map<String, String> getAllowedValues() {
+		return allowedValues;
+	}
+	
+	public boolean isFlag() {
+		return isFlag;
+	}
+	
 	/**
 	 * Set the default value
 	 * @param defaultValue
@@ -216,14 +171,14 @@ public class CLIOptionDefinition {
 		this.defaultValue = defaultValue;
 		return this;
 	}
-
+	
 	/**
-	 * Set the 'read from console' flag
-	 * @param readFromConsole
+	 * Set the default value description
+	 * @param defaultValueDescription
 	 * @return
 	 */
-	public CLIOptionDefinition readFromConsole(boolean readFromConsole) {
-		this.readFromConsole = readFromConsole;
+	public CLIOptionDefinition defaultValueDescription(String defaultValueDescription) {
+		this.defaultValueDescription = defaultValueDescription;
 		return this;
 	}
 
@@ -239,11 +194,27 @@ public class CLIOptionDefinition {
 
 	/**
 	 * Set the option names that, if any of them is set, will cause the current option definition to be ignored
-	 * @param property
+	 * @param options
 	 * @return
 	 */
-	public CLIOptionDefinition isAlternativeForOptions(String... properties) {
-		this.isAlternativeForOptions = properties;
+	public CLIOptionDefinition isAlternativeForOptions(String... options) {
+		this.isAlternativeForOptions = options;
+		return this;
+	}
+	
+	/**
+	 * Set the allowed values for this option
+	 * @param allowedValues
+	 * @return
+	 */
+	public CLIOptionDefinition allowedValues(LinkedHashMap<String, String> allowedValues) {
+		this.allowedValues = allowedValues;
+		return this;
+	}
+	
+	public CLIOptionDefinition allowedValue(String name, String description) {
+		if ( this.allowedValues==null ) { this.allowedValues = new LinkedHashMap<>(); }
+		this.allowedValues.put(name, description);
 		return this;
 	}
 
@@ -257,7 +228,31 @@ public class CLIOptionDefinition {
 		return this;
 	}
 	
+	public CLIOptionDefinition isFlag(boolean isFlag) {
+		this.isFlag = isFlag;
+		return this;
+	}
+	
 	public String getValue(Context context) {
+		String result = getValueFromContext(context);
+		if ( StringUtils.isBlank(result) ) {
+			result = getDefaultValue();
+			context.put(getName(), result);
+		}
+		if ( StringUtils.isBlank(result) && isRequiredAndNotIgnored(context) ) {
+			// TODO Clean this up
+			@SuppressWarnings("unchecked")
+			List<String> optionNames = new ArrayList<String>(CollectionUtils.arrayToList(getIsAlternativeForOptions()));
+			optionNames.add(getName());
+			throw new IllegalArgumentException("Required CLI option "+StringUtils.join(optionNames, " or ")+" not defined");
+		}
+		if ( StringUtils.isNotBlank(result) && allowedValues!=null && !allowedValues.containsKey(result) ) {
+			throw new IllegalArgumentException("CLI option value "+result+" not allowed for option "+getName());
+		}
+		return result;
+	}
+
+	public String getValueFromContext(Context context) {
 		return context.get(getName(), String.class);
 	}
 	
@@ -268,5 +263,19 @@ public class CLIOptionDefinition {
 	public String toString() {
 		return this.getClass().getSimpleName()+" [name=" + name + ", description=" + description + ", defaultValue="
 				+ defaultValue + ", required=" + required + "]";
+	}
+
+	public String getCurrentValueDescription(Context context) {
+		return getValueDescription(getValueFromContext(context));
+	}
+	
+	private String getValueDescription(String value) {
+		if ( StringUtils.isBlank(value) ) {
+			return "<none>";
+		} else if ( isPassword() ) { 
+			return "<hidden>";
+		} else {
+			return value;
+		}
 	}
 }

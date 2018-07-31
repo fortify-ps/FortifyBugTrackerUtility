@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.processrunner.cli;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,15 +37,36 @@ import java.util.Map;
  */
 public class CLIOptionDefinitions extends LinkedHashMap<String, CLIOptionDefinition> {
 	private static final long serialVersionUID = 1L;
+	private LinkedHashMap<String, LinkedHashMap<String, CLIOptionDefinition>> byGroups = new LinkedHashMap<>();
 
 	/**
-	 * Add the given {@link CLIOptionDefinition} to the {@link Map} of {@link CLIOptionDefinition}s
-	 * @param cLIOptionDefinition
+	 * Add the given {@link CLIOptionDefinition} instances to the {@link Map} of {@link CLIOptionDefinition}s
+	 * @param cliOptionDefinitions
 	 * @return
 	 */
-	public CLIOptionDefinition add(CLIOptionDefinition cLIOptionDefinition) {
-		put(cLIOptionDefinition.getName(), cLIOptionDefinition);
-		return cLIOptionDefinition;
+	public CLIOptionDefinitions add(CLIOptionDefinition... cliOptionDefinitions) {
+		for ( CLIOptionDefinition def : cliOptionDefinitions ) {
+			put(def.getName(), def);
+			addToGroup(def.getGroup(), def.getName(), def);
+		}
+		return this;
+	}
+
+	private void addToGroup(String group, String name, CLIOptionDefinition def) {
+		LinkedHashMap<String, CLIOptionDefinition> currentGroup = byGroups.get(group);
+		if ( currentGroup==null ) {
+			currentGroup = new LinkedHashMap<>();
+			byGroups.put(group, currentGroup);
+		}
+		currentGroup.put(def.getName(), def);
+	}
+	
+	public LinkedHashMap<String, Collection<CLIOptionDefinition>> getByGroups() {
+		LinkedHashMap<String, Collection<CLIOptionDefinition>> result = new LinkedHashMap<>();
+		for ( Map.Entry<String, LinkedHashMap<String, CLIOptionDefinition>> entry : byGroups.entrySet() ) {
+			result.put(entry.getKey(), entry.getValue().values());
+		}
+		return result;
 	}
 
 }

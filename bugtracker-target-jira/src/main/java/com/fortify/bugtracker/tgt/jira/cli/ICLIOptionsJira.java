@@ -33,8 +33,8 @@ public interface ICLIOptionsJira {
 	String PRP_JIRA_PASSWORD = "JiraPassword";
 	String PRP_JIRA_PROJECT_KEY = "JiraProjectKey";
 	
-	CLIOptionDefinition CLI_JIRA_BASE_URL = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_BASE_URL, "JIRA base URL", true).readFromConsole(true);
-	CLIOptionDefinition CLI_JIRA_USER_NAME = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_USER_NAME, "JIRA user name", true).readFromConsole(true);
-	CLIOptionDefinition CLI_JIRA_PASSWORD = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_PASSWORD, "JIRA password", true).readFromConsole(true).isPassword(true);
-	CLIOptionDefinition CLI_JIRA_PROJECT_KEY = new CLIOptionDefinition(ICLIOptionsJira.PRP_JIRA_PROJECT_KEY, "JIRA project key identifying the JIRA project to submit vulnerabilities to", true);
+	CLIOptionDefinition CLI_JIRA_BASE_URL = new CLIOptionDefinition("Jira", ICLIOptionsJira.PRP_JIRA_BASE_URL, "JIRA base URL", true);
+	CLIOptionDefinition CLI_JIRA_USER_NAME = new CLIOptionDefinition("Jira", ICLIOptionsJira.PRP_JIRA_USER_NAME, "JIRA user name", true);
+	CLIOptionDefinition CLI_JIRA_PASSWORD = new CLIOptionDefinition("Jira", ICLIOptionsJira.PRP_JIRA_PASSWORD, "JIRA password", true).isPassword(true);
+	CLIOptionDefinition CLI_JIRA_PROJECT_KEY = new CLIOptionDefinition("Jira", ICLIOptionsJira.PRP_JIRA_PROJECT_KEY, "JIRA project key identifying the JIRA project to submit vulnerabilities to", true);
 }
