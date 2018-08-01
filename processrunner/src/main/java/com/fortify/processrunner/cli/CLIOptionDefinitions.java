@@ -26,18 +26,27 @@ package com.fortify.processrunner.cli;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class holds all configured {@link CLIOptionDefinition} instances
- * indexed by {@link CLIOptionDefinition} name.
+ * indexed by both {@link CLIOptionDefinition} name and group.
  * 
  * @author Ruud Senden
  *
  */
-public class CLIOptionDefinitions extends LinkedHashMap<String, CLIOptionDefinition> {
-	private static final long serialVersionUID = 1L;
-	private LinkedHashMap<String, LinkedHashMap<String, CLIOptionDefinition>> byGroups = new LinkedHashMap<>();
+public class CLIOptionDefinitions {
+	private LinkedHashMap<String, CLIOptionDefinition> optionsByName = new LinkedHashMap<>();
+
+	public CLIOptionDefinitions() {}
+	
+	public CLIOptionDefinitions(CLIOptionDefinitions... others) {
+		for ( CLIOptionDefinitions other : others ) {
+			addAll(other);
+		}
+	}
 
 	/**
 	 * Add the given {@link CLIOptionDefinition} instances to the {@link Map} of {@link CLIOptionDefinition}s
@@ -46,27 +55,50 @@ public class CLIOptionDefinitions extends LinkedHashMap<String, CLIOptionDefinit
 	 */
 	public CLIOptionDefinitions add(CLIOptionDefinition... cliOptionDefinitions) {
 		for ( CLIOptionDefinition def : cliOptionDefinitions ) {
-			put(def.getName(), def);
-			addToGroup(def.getGroup(), def.getName(), def);
+			addByName(def);
 		}
 		return this;
 	}
 
-	private void addToGroup(String group, String name, CLIOptionDefinition def) {
-		LinkedHashMap<String, CLIOptionDefinition> currentGroup = byGroups.get(group);
-		if ( currentGroup==null ) {
-			currentGroup = new LinkedHashMap<>();
-			byGroups.put(group, currentGroup);
+	private void addByName(CLIOptionDefinition def) {
+		if ( !optionsByName.containsKey(def.getName()) ) {
+			optionsByName.put(def.getName(), def);
 		}
-		currentGroup.put(def.getName(), def);
 	}
 	
-	public LinkedHashMap<String, Collection<CLIOptionDefinition>> getByGroups() {
-		LinkedHashMap<String, Collection<CLIOptionDefinition>> result = new LinkedHashMap<>();
-		for ( Map.Entry<String, LinkedHashMap<String, CLIOptionDefinition>> entry : byGroups.entrySet() ) {
-			result.put(entry.getKey(), entry.getValue().values());
+	public boolean containsCLIOptionDefinitionName(String name) {
+		return getCLIOptionDefinitionNames().contains(name);
+	}
+	
+	public Set<String> getCLIOptionDefinitionNames() {
+		return optionsByName.keySet();
+	}
+	
+	public Collection<CLIOptionDefinition> getCLIOptionDefinitions() {
+		return optionsByName.values();
+	}
+	
+	public CLIOptionDefinition getCLIOptionDefinitionByName(String name) {
+		return optionsByName.get(name);
+	}
+	
+	public Map<String, LinkedHashSet<CLIOptionDefinition>> getCLIOptionDefinitionsByGroup() {
+		LinkedHashMap<String, LinkedHashSet<CLIOptionDefinition>> result = new LinkedHashMap<>();
+		for ( CLIOptionDefinition def : getCLIOptionDefinitions() ) {
+			result.computeIfAbsent(def.getGroup(), k -> new LinkedHashSet<CLIOptionDefinition>()).add(def);
 		}
 		return result;
 	}
 
+	public CLIOptionDefinitions addAll(CLIOptionDefinitions defs) {
+		add(defs.getCLIOptionDefinitions().toArray(new CLIOptionDefinition[]{}));
+		return this;
+	}
+	
+	public CLIOptionDefinitions allowedSources(String... allowedSources) {
+		for ( CLIOptionDefinition def : getCLIOptionDefinitions() ) {
+			def.allowedSources(allowedSources);
+		}
+		return this;
+	}
 }

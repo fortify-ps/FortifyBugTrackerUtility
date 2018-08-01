@@ -43,6 +43,7 @@ import com.fortify.processrunner.context.Context;
  * @author Ruud Senden
  */
 public class CLIOptionDefinition {
+	public static final String ALLOWED_SOURCE_CLI = "CLI option";
 	private final String group;
 	private final String name;
 	private final String description;
@@ -52,6 +53,7 @@ public class CLIOptionDefinition {
 	private boolean isPassword = false;
 	private String[] isAlternativeForOptions = null;
 	private String[] dependsOnOptions = null;
+	private String[] allowedSources = {ALLOWED_SOURCE_CLI};
 	private LinkedHashMap<String, String> allowedValues = null;
 	private boolean isFlag = false;
 	
@@ -161,6 +163,10 @@ public class CLIOptionDefinition {
 		return isFlag;
 	}
 	
+	public String[] getAllowedSources() {
+		return allowedSources;
+	}
+	
 	/**
 	 * Set the default value
 	 * @param defaultValue
@@ -229,6 +235,11 @@ public class CLIOptionDefinition {
 	
 	public CLIOptionDefinition isFlag(boolean isFlag) {
 		this.isFlag = isFlag;
+		return this;
+	}
+	
+	public CLIOptionDefinition allowedSources(String... allowedSources) {
+		this.allowedSources= allowedSources;
 		return this;
 	}
 	

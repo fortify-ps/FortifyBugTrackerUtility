@@ -181,8 +181,8 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 	
 	@Override
-	public void updateCLIOptionDefinitionsSources(CLIOptionDefinitions optionDefinitions) {
-		for ( CLIOptionDefinition def : optionDefinitions.values() ) {
+	public void updateCLIOptionDefinitionsDefaultValueDescriptions(CLIOptionDefinitions optionDefinitions) {
+		for ( CLIOptionDefinition def : optionDefinitions.getCLIOptionDefinitions() ) {
 			String desc = getConfig().getMappingDescriptions().get(def.getName());
 			if ( StringUtils.isNotBlank(desc) ) {
 				def.defaultValueDescription(desc);

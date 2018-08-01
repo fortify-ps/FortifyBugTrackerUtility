@@ -41,7 +41,7 @@ public interface ICLIOptionsSSC {
 	public CLIOptionDefinition CLI_SSC_USER_NAME = new CLIOptionDefinition("SSC", PRP_SSC_USER_NAME, "SSC user name", true).isAlternativeForOptions(PRP_SSC_AUTH_TOKEN);
 	public CLIOptionDefinition CLI_SSC_PASSWORD = new CLIOptionDefinition("SSC", PRP_SSC_PASSWORD, "SSC password", true).isPassword(true).dependsOnOptions(PRP_SSC_USER_NAME);
 	public CLIOptionDefinition CLI_SSC_AUTH_TOKEN = new CLIOptionDefinition("SSC", PRP_SSC_AUTH_TOKEN, "SSC auth token", true).isPassword(true).isAlternativeForOptions(PRP_SSC_USER_NAME);
-	public CLIOptionDefinition CLI_SSC_APPLICATION_VERSION_NAME_PATTERNS = new CLIOptionDefinition("SSC", PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS, "SSC application version names (<application name pattern>:<version name pattern>), separated by comma's", true).isAlternativeForOptions(PRP_SSC_APPLICATION_VERSION_ID);
-	public CLIOptionDefinition CLI_SSC_APPLICATION_VERSION_ID = new CLIOptionDefinition("SSC", PRP_SSC_APPLICATION_VERSION_ID, "SSC application version id from which to retrieve vulnerabilities", true).isAlternativeForOptions(PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS);
+	public CLIOptionDefinition CLI_SSC_APPLICATION_VERSION_NAME_PATTERNS = new CLIOptionDefinition("SSC", PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS, "SSC application version names (<application name pattern>:<version name pattern>), separated by comma's", false).isAlternativeForOptions(PRP_SSC_APPLICATION_VERSION_ID);
+	public CLIOptionDefinition CLI_SSC_APPLICATION_VERSION_ID = new CLIOptionDefinition("SSC", PRP_SSC_APPLICATION_VERSION_ID, "SSC application version id from which to retrieve vulnerabilities", true).isAlternativeForOptions(PRP_SSC_APPLICATION_VERSION_NAME_PATTERNS).defaultValueDescription("Automatically set while loading application versions");
 	
 }

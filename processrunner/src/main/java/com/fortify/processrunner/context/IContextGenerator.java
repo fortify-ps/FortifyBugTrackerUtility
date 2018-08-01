@@ -51,5 +51,11 @@ public interface IContextGenerator {
 	 * Update the given {@link CLIOptionDefinitions} with mapping information
 	 * @param optionDefinitions
 	 */
-	public void updateCLIOptionDefinitionsSources(CLIOptionDefinitions optionDefinitions);
+	public void updateCLIOptionDefinitionsDefaultValueDescriptions(CLIOptionDefinitions optionDefinitions);
+	
+	/**
+	 * Get additional allowed source for {@link CLIOptionDefinitions}
+	 * @return
+	 */
+	public String getCLIOptionDefinitionAllowedSource();
 }

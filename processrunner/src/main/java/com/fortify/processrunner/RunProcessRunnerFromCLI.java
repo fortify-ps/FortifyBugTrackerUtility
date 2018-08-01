@@ -26,8 +26,9 @@ package com.fortify.processrunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -91,7 +92,7 @@ public class RunProcessRunnerFromCLI {
 			.allowedValue("FATAL", "Log only fatal messages");
 	
 	private static final CLIOptionDefinitions CLI_OPTION_DEFINITIONS =
-			new CLIOptionDefinitions().add(CLI_HELP, CLI_CONFIG_FILE, CLI_LOG_FILE, CLI_LOG_LEVEL);
+		new CLIOptionDefinitions().add(CLI_HELP, CLI_CONFIG_FILE, CLI_LOG_FILE, CLI_LOG_LEVEL);
 
 	/**
 	 * Main method for running a {@link AbstractProcessRunner} configuration. This will
@@ -165,12 +166,12 @@ public class RunProcessRunnerFromCLI {
 	 */
 	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, Context context, int returnCode) {
 		HelpPrinter hp = new HelpPrinter();
-		hp.appendLn(0, "Usage:");
-		hp.appendLn(1, getBaseCommand() + " [options]");
+		hp.append(0, "Usage:");
+		hp.append(2, getBaseCommand() + " [options]");
 		appendOptions(hp, context, CLI_OPTION_DEFINITIONS);
 		if ( springRunner == null ) {
 			hp.appendEmptyLn();
-			hp.appendLn(0, "Additional options will be shown when a valid configuration file has been specified");
+			hp.append(0, "Additional options will be shown when a valid configuration file has been specified");
 		} else {
 			appendOptions(hp, context, springRunner.getCLIOptionDefinitions(context));
 		}
@@ -179,28 +180,19 @@ public class RunProcessRunnerFromCLI {
 	}
 
 	protected final void appendOptions(HelpPrinter hp, Context context, CLIOptionDefinitions cliOptionDefinitions) {
-		for ( Map.Entry<String, Collection<CLIOptionDefinition>> optionsByGroup : cliOptionDefinitions.getByGroups().entrySet() ) {
+		for ( Entry<String, LinkedHashSet<CLIOptionDefinition>> optionsByGroup : cliOptionDefinitions.getCLIOptionDefinitionsByGroup().entrySet() ) {
 			hp.appendEmptyLn();
-			hp.appendLn(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
+			hp.append(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
 			for (CLIOptionDefinition o : optionsByGroup.getValue()) {
 				hp.appendEmptyLn();
-				hp.appendLn(1, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
-				hp.appendLn(2, o.getDescription());
-				hp.appendLn(2, "Default value: " + o.getDefaultValueDescription());
-				hp.appendLn(2, "Current value: " + o.getCurrentValueDescription(context));
-				if (MapUtils.isNotEmpty(o.getAllowedValues())) {
-					hp.appendLn(2, "Allowed values: ");
-					for ( Map.Entry<String, String> entry : o.getAllowedValues().entrySet() ) {
-						hp.appendLn(3, entry.getKey());
-						hp.appendLn(4, entry.getValue());
-					}
-				}
-				if ( o.getDependsOnOptions()!=null ) {
-					hp.appendLn(2, "Requires options: " + String.join(", ", o.getDependsOnOptions()));
-				}
-				if ( o.getIsAlternativeForOptions()!=null ) {
-					hp.appendLn(2, "Alternative options: " + String.join(", ", o.getIsAlternativeForOptions()));
-				}
+				hp.append(2, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
+				hp.append(4, o.getDescription());
+				hp.append(4, "Default value:       ", o.getDefaultValueDescription());
+				hp.append(4, "Current value:       ", o.getCurrentValueDescription(context));
+				hp.append(4, "Requires options:    ", o.getDependsOnOptions());
+				hp.append(4, "Alternative options: ", o.getIsAlternativeForOptions());
+				hp.append(4, "Allowed values:      ", o.getAllowedValues());
+				hp.append(4, "Allowed sources:     ", o.getAllowedSources());
 			}
 		}
 	}
@@ -273,11 +265,49 @@ public class RunProcessRunnerFromCLI {
 				this.width = 80;
 			}
 		}
-		
-		public HelpPrinter appendLn(int indent, String str) {
-			String padding = StringUtils.leftPad("",indent*2);
+
+		public HelpPrinter append(int indent, String str) {
+			String padding = StringUtils.leftPad("",indent);
 			sb.append(padding+WordUtils.wrap(str, width-padding.length(), "\n"+padding, false)).append("\n");
 			return this;
+		}
+		
+		public HelpPrinter append(int indent, String key, String value) {
+			if ( value != null ) {
+				append(indent, key + value);
+			}
+			return this;
+		}
+		
+		public HelpPrinter append(int indent, String key, String[] values) {
+			if ( values != null ) {
+				int newIndent = indent;
+				for ( String value : values ) {
+					if ( newIndent==indent ) {
+						append(indent, key, value);
+						newIndent = indent+key.length();
+					} else {
+						append(newIndent, value);
+					}
+				}
+			}
+			return this;
+		}
+		
+		public void append(int indent, String key, Map<String, String> values) {
+			if ( MapUtils.isNotEmpty(values) ) {
+				int newIndent = indent;
+				for ( Map.Entry<String, String> entry : values.entrySet() ) {
+					if ( newIndent==indent ) {
+						append(indent, key, entry.getKey());
+						newIndent = indent+key.length();
+					} else {
+						append(newIndent, entry.getKey());
+					}
+					append(newIndent+2, entry.getValue());
+				}
+			}
+			
 		}
 		
 		public HelpPrinter appendEmptyLn() {
