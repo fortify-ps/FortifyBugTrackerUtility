@@ -36,14 +36,14 @@
 	<!-- START SNIPPET: bean -->
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
 		<!-- This example matches all application versions, and generates an OutputFile context attribute -->
-		<property name="namePatternToOptionsMap"><map>
+		<property name="namePatternToCLIOptionsMap"><map>
 			<entry key=".*" value="OutputFile=Vulnerabilities-${project.name}-${name}.csv"/>
 		</map></property>
 		
 		<!-- This example matches all application versions that have a non-empty 'Jira Project Key' 
 		     attribute. For each matching application version, the value of this attribute is mapped 
 		     to a corresponding JiraProjectKey context property. -->
-		<property name="attributeMappings"><map>
+		<property name="attributeToCLIOptionMap"><map>
 			<entry key="Jira Project Key" value="JiraProjectKey"/>
 		</map></property>
 	</bean>

@@ -34,8 +34,8 @@ import com.fortify.util.spring.expression.SimpleExpression;
 public interface ISourceContextGeneratorConfiguration {
 	public LinkedHashMap<String, String> getExtraData();
 	public SimpleExpression getFilterExpression();
-	public LinkedHashMap<SimpleExpression, Context> getExpressionToOptionsMap();
-	public LinkedHashMap<Pattern, Context> getNamePatternToOptionsMap();
-	public Map<String, String> getAttributeMappings();
+	public LinkedHashMap<SimpleExpression, Context> getExpressionToCLIOptionsMap();
+	public LinkedHashMap<Pattern, Context> getNamePatternToCLIOptionsMap();
+	public Map<String, String> getAttributeToCLIOptionMap();
 	public Map<String, String> getMappingDescriptions();
 }

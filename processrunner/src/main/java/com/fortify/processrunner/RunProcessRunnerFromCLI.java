@@ -181,18 +181,24 @@ public class RunProcessRunnerFromCLI {
 
 	protected final void appendOptions(HelpPrinter hp, Context context, CLIOptionDefinitions cliOptionDefinitions) {
 		for ( Entry<String, LinkedHashSet<CLIOptionDefinition>> optionsByGroup : cliOptionDefinitions.getCLIOptionDefinitionsByGroup().entrySet() ) {
-			hp.appendEmptyLn();
-			hp.append(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
+			boolean hasAppendedHeader = false;
 			for (CLIOptionDefinition o : optionsByGroup.getValue()) {
-				hp.appendEmptyLn();
-				hp.append(2, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
-				hp.append(4, o.getDescription());
-				hp.append(4, "Default value:       ", o.getDefaultValueDescription());
-				hp.append(4, "Current value:       ", o.getCurrentValueDescription(context));
-				hp.append(4, "Requires options:    ", o.getDependsOnOptions());
-				hp.append(4, "Alternative options: ", o.getIsAlternativeForOptions());
-				hp.append(4, "Allowed values:      ", o.getAllowedValues());
-				hp.append(4, "Allowed sources:     ", o.getAllowedSources());
+				if ( !o.hideFromHelp() ) {
+					if ( !hasAppendedHeader ) {
+						hp.appendEmptyLn();
+						hp.append(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
+						hasAppendedHeader = true;
+					}
+					hp.appendEmptyLn();
+					hp.append(2, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
+					hp.append(4, o.getDescription());
+					hp.append(4, "Default value:       ", o.getDefaultValueDescription());
+					hp.append(4, "Current value:       ", o.getCurrentValueDescription(context));
+					hp.append(4, "Requires options:    ", o.getDependsOnOptions());
+					hp.append(4, "Alternative options: ", o.getIsAlternativeForOptions());
+					hp.append(4, "Allowed values:      ", o.getAllowedValues());
+					hp.append(4, "Allowed sources:     ", o.getAllowedSources());
+				}
 			}
 		}
 	}

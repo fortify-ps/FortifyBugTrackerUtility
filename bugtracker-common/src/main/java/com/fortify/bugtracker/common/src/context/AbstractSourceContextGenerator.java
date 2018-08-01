@@ -215,8 +215,8 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 
 	private void updateContextWithExpressionMappings(Context newContext, JSONMap sourceObject) {
-		if ( MapUtils.isNotEmpty(getConfig().getExpressionToOptionsMap()) ) {
-			for ( Map.Entry<SimpleExpression, Context> entry : getConfig().getExpressionToOptionsMap().entrySet() ) {
+		if ( MapUtils.isNotEmpty(getConfig().getExpressionToCLIOptionsMap()) ) {
+			for ( Map.Entry<SimpleExpression, Context> entry : getConfig().getExpressionToCLIOptionsMap().entrySet() ) {
 				SimpleExpression exprString = entry.getKey();
 				if ( ContextSpringExpressionUtil.evaluateExpression(newContext, sourceObject, exprString, Boolean.class) ) {
 					mergeContexts(newContext, entry.getValue(), sourceObject);
@@ -226,8 +226,8 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 
 	private void updateContextWithNamePatternMappings(Context newContext, JSONMap sourceObject) {
-		if ( MapUtils.isNotEmpty(getConfig().getNamePatternToOptionsMap()) ) {
-			for (Map.Entry<Pattern, Context> entry : getConfig().getNamePatternToOptionsMap().entrySet()) {
+		if ( MapUtils.isNotEmpty(getConfig().getNamePatternToCLIOptionsMap()) ) {
+			for (Map.Entry<Pattern, Context> entry : getConfig().getNamePatternToCLIOptionsMap().entrySet()) {
 				Pattern pattern = entry.getKey();
 				if ( pattern.matcher(getSourceObjectName(sourceObject)).matches() ) {
 					mergeContexts(newContext, entry.getValue(), sourceObject);
@@ -237,8 +237,8 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 	
 	private void updateContextWithAttributeMappings(Context newContext, JSONMap sourceObject) {
-		if ( MapUtils.isNotEmpty(getConfig().getAttributeMappings()) ) {
-			for (Map.Entry<String, String> entry : getConfig().getAttributeMappings().entrySet() ) {
+		if ( MapUtils.isNotEmpty(getConfig().getAttributeToCLIOptionMap()) ) {
+			for (Map.Entry<String, String> entry : getConfig().getAttributeToCLIOptionMap().entrySet() ) {
 				String attributeName = entry.getKey();
 				String attributeValue = getSourceObjectAttributeValue(sourceObject, attributeName);
 				if ( StringUtils.isNotBlank(attributeValue) ) {
@@ -263,7 +263,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		if ( contextWithValueExpressionsToMerge != null ) {
 			for ( Entry<String, Object> entry : contextWithValueExpressionsToMerge.entrySet() ) {
 				String ctxPropertyName = entry.getKey();
-				if ( !targetContext.containsKey(ctxPropertyName) ) { // TODO Override or not? 
+				if ( !targetContext.containsKey(ctxPropertyName) ) {
 					Object ctxPropertyValue = SpringExpressionUtil.evaluateTemplateExpression(sourceObject, (String)entry.getValue(), Object.class);
 					targetContext.put(ctxPropertyName, ctxPropertyValue);
 				}
@@ -344,7 +344,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 
 	private void updateQueryBuilderWithConfiguredNamePatterns(Context initialContext, Q queryBuilder) {
-		LinkedHashMap<Pattern, Context> namePatternToContextMap = getConfig().getNamePatternToOptionsMap();
+		LinkedHashMap<Pattern, Context> namePatternToContextMap = getConfig().getNamePatternToCLIOptionsMap();
 		if ( MapUtils.isNotEmpty(namePatternToContextMap) ) {
 			JSONMapFilterNamePatterns filter = new JSONMapFilterNamePatterns(MatchMode.INCLUDE, namePatternToContextMap.keySet());
 			addNonNullFilterListener(filter, getFilterListenerForConfiguredNamePatterns(initialContext));
@@ -353,7 +353,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 
 	private void updateQueryBuilderWithConfiguredAttributes(Context initialContext, Q queryBuilder) {
-		Map<String, String> attributeMappings = getConfig().getAttributeMappings();
+		Map<String, String> attributeMappings = getConfig().getAttributeToCLIOptionMap();
 		if ( MapUtils.isNotEmpty(attributeMappings) ) {
 			Map<String, String> copyOfAttributeMappings = new HashMap<>(attributeMappings);
 			// Remove any mappings for which a context attribute already exists in the given initialContext

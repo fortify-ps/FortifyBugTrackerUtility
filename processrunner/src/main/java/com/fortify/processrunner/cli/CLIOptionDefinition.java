@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -165,6 +166,10 @@ public class CLIOptionDefinition {
 	
 	public String[] getAllowedSources() {
 		return allowedSources;
+	}
+	
+	public boolean hideFromHelp() {
+		return MapUtils.isNotEmpty(allowedValues) && allowedValues.size()==1 && allowedValues.containsKey(getDefaultValue());
 	}
 	
 	/**

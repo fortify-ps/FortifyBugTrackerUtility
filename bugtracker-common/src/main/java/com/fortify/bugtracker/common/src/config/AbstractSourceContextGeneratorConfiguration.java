@@ -43,9 +43,9 @@ import com.fortify.util.spring.expression.SimpleExpression;
 public class AbstractSourceContextGeneratorConfiguration implements ISourceContextGeneratorConfiguration {
 	private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
 	private SimpleExpression filterExpression = null;
-	private LinkedHashMap<SimpleExpression, Context> expressionToOptionsMap = new LinkedHashMap<>();
-	private Map<String, String> attributeMappings = null;
-	private LinkedHashMap<Pattern, Context> namePatternToOptionsMap = null;
+	private LinkedHashMap<SimpleExpression, Context> expressionToCLIOptionsMap = new LinkedHashMap<>();
+	private Map<String, String> attributeToCLIOptionMap = null;
+	private LinkedHashMap<Pattern, Context> namePatternToCLIOptionsMap = null;
 	private final Map<String, String> mappingDescriptions = new HashMap<String, String>();
 
 	@Override
@@ -58,13 +58,13 @@ public class AbstractSourceContextGeneratorConfiguration implements ISourceConte
 	}
 
 	@Override
-	public LinkedHashMap<SimpleExpression, Context> getExpressionToOptionsMap() {
-		return expressionToOptionsMap;
+	public LinkedHashMap<SimpleExpression, Context> getExpressionToCLIOptionsMap() {
+		return expressionToCLIOptionsMap;
 	}
 
-	public void setExpressionToOptionsMap(LinkedHashMap<SimpleExpression, Context> expressionToOptionsMap) {
-		this.expressionToOptionsMap = expressionToOptionsMap;
-		updateMappingDescriptions(expressionToOptionsMap.values(), "Mapped from expressionToContextMap");
+	public void setExpressionToCLIOptionsMap(LinkedHashMap<SimpleExpression, Context> expressionToCLIOptionsMap) {
+		this.expressionToCLIOptionsMap = expressionToCLIOptionsMap;
+		updateMappingDescriptions(expressionToCLIOptionsMap.values(), "Mapped from expressionToCLIOptionsMap");
 	}
 
 	@Override
@@ -77,25 +77,25 @@ public class AbstractSourceContextGeneratorConfiguration implements ISourceConte
 	}
 	
 	@Override
-	public Map<String, String> getAttributeMappings() {
-		return attributeMappings;
+	public Map<String, String> getAttributeToCLIOptionMap() {
+		return attributeToCLIOptionMap;
 	}
 
-	public void setAttributeMappings(Map<String, String> attributeMappings) {
-		this.attributeMappings = attributeMappings;
-		for ( Map.Entry<String, String> entry : attributeMappings.entrySet() ) {
+	public void setAttributeToCLIOptionMap(Map<String, String> attributeToCLIOptionMap) {
+		this.attributeToCLIOptionMap = attributeToCLIOptionMap;
+		for ( Map.Entry<String, String> entry : attributeToCLIOptionMap.entrySet() ) {
 			mappingDescriptions.put(entry.getValue(), "Mapped from attribute '"+entry.getKey()+"'");
 		}
 	}
 
 	@Override
-	public LinkedHashMap<Pattern, Context> getNamePatternToOptionsMap() {
-		return namePatternToOptionsMap;
+	public LinkedHashMap<Pattern, Context> getNamePatternToCLIOptionsMap() {
+		return namePatternToCLIOptionsMap;
 	}
 
-	public void setNamePatternToOptionsMap(LinkedHashMap<Pattern, Context> namePatternToOptionsMap) {
-		this.namePatternToOptionsMap = namePatternToOptionsMap;
-		updateMappingDescriptions(namePatternToOptionsMap.values(), "Mapped from namePatternToContextMap");
+	public void setNamePatternToCLIOptionsMap(LinkedHashMap<Pattern, Context> namePatternToCLIOptionsMap) {
+		this.namePatternToCLIOptionsMap = namePatternToCLIOptionsMap;
+		updateMappingDescriptions(namePatternToCLIOptionsMap.values(), "Mapped from namePatternToCLIOptionsMap");
 	}
 	
 	private void updateMappingDescriptions(Collection<Context> contexts, String description) {

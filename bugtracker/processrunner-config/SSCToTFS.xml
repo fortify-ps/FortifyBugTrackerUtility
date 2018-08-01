@@ -43,7 +43,7 @@
 	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.tfs"/>
 	
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
-		<property name="attributeMappings"><map>
+		<property name="attributeToCLIOptionMap"><map>
 			<entry key="TFS Collection" value="TFSCollection"/>
 			<entry key="TFS Project" value="TFSProject"/>
 		</map></property>
