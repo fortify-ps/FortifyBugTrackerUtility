@@ -1,6 +1,6 @@
 # Beans element
 All configuration elements are wrapped inside a `<beans`> element. Each configuration file
-must start with the following `<beans>` tag:
+must start with the following `<beans>` tag, and end with a corresponding `</beans>` closing tag:
 
 ```xml
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -13,5 +13,4 @@ must start with the following `<beans>` tag:
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
 ```
-Note that at the end of the configuration file, you must have a corresponding closing tag `</beans>`
 

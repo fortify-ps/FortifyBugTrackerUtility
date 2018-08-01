@@ -1,4 +1,4 @@
-# ContextProperties map
+# Default values for CLI options
 Every configuration file can contain a util:map bean with id `cliOptionsDefaultValues`. This bean can contain a map of
 default values for one or more command line options. In this map, the key specifies the name of the 
 command line option, and the value specifies the corresponding default value. For example, you can use this approach

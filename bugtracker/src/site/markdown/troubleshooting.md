@@ -3,7 +3,7 @@
 This page describes some troubleshooting tips.
 
 - JRE/JVM crash: There is a known JVM defect in many Java versions which impacts the ability to use command line arguments starting with the 'J' character. See: [Bug ID 8132379](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=8132379)
-    - Work around this issue by preceding all options that start with the 'J' character with double dashes instead of a single dash, for example --JiraProjectKey instead of -JiraProjectKey.
+    - Work around this issue by preceding all options that start with the 'J' character with double dashes instead of a single dash, for example `--JiraProjectKey` instead of `-JiraProjectKey`.
 
 
 - java.lang.OutOfMemoryError: FortifyBugTrackerUtility uses temporary files while grouping vulnerabilities, so even with limited amounts of memory, vulnerability processing should usually not cause any out of memory errors. However, in case you do run into these kinds of errors, the following approaches can be tried:

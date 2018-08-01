@@ -1,30 +1,35 @@
 # Usage
 In order to run the utility, you will need to have a Java 8 Runtime Environment installed. After unpacking the release zip file you can get usage information by running the following command:
 
-`java -jar FortifyBugTrackerUtility-[version].jar --help`
+`java -jar FortifyBugTrackerUtility-[version].jar -help`
 
 In order to do any useful work, the utility requires a configuration file. The utility comes bundled with multiple sample configuration files for different use cases. Currently there are configuration files to submit issues from either FoD or SSC to Jira, CSV File, ALM Octane, RSA Archer, and TFS/Visual Studio Online. 
 
-The configuration file can be specified using the `--configFile` option. Once a valid configuration file has been specified,
-one or more actions may be available. To list the available actions, you can again specify the `--help` option. For example:
+The configuration file can be specified using the `-configFile` option. Once a valid configuration file has been specified,
+you can view additional options by specifying the `-help` option again:
 
-`java -jar FortifyBugTrackerUtility-[version].jar --configFile FoDToJira.xml --help`
+`java -jar FortifyBugTrackerUtility-[version].jar -configFile FoDToJira.xml -help`
 
-If the configuration file includes a default action, the command above will also show all available options for that default action.
-If you want to list the available options for a non-default action, you can specify the action name on the command line together 
-with the `--help` option. For example:
+In order to actually run the utility, you will need to provide appropriate values for all required options. Please make sure to also
+review the optional options though. Note that options can be specified on the command line, but most options also allow default
+values to be specified in the configuration file through the [cliOptionsDefaultValues](config-cliDefaultValues.html) bean in the
+configuration file. In addition, option values can be generated for individual FoD releases or SSC application versions; see
+[FoDSourceVulnerabilitiesConfiguration](config-SourceConfigurationFoDReleases.html) and 
+[SSCSourceApplicationVersionsConfiguration](config-SourceConfigurationSSCApplicationVersions.html) respectively for more details.
 
-`java -jar FortifyBugTrackerUtility-[version].jar --configFile FoDToJira.xml submitVulnerabilities --help`
+Following are some examples:
 
-Note that the `--help` option must always be specified as the last command line option, after the configuration file and
-action options.
+- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123!`
 
-Once you have identified the action that you want to run, and the corresponding options for that action, you can invoke the
-action as follows. You can omit the `[action]` parameter if you want to run the default action, and you can omit the
-action-specific options if the default option values are appropriate. 
+  This would export all Exploitable vulnerabilities for all SSC application versions to CSV files
+  
+- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns EightBall:.*,RabbitMq:.*`
 
-`java -jar FortifyBugTrackerUtility-[version].jar --configFile [configFile] [action] [action-specific options]`
+  This would export all Exploitable vulnerabilities for all SSC application versions in the EightBall and RabbitMq applications to CSV files
+  
+- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToOctane.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns WebGoat:5\.0 -OctaneBaseUrl https://mqast001pngx.saas.hpe.com -OctaneUserName ruud.senden@hpe.com -OctanePassword [password] -OctaneSharedSpaceUid 136002 -OctaneWorkspaceId 1002`
 
-Before running any actions though, you may want to review the configuration file to verify the various selection and grouping
+  This would export all Exploitable vulnerabilities for the 'WebGoat 5.0' application version to the specified Octane workspace
+
+Before running any actions, you may want to review the configuration file to verify the various selection and grouping
 criteria, and the fields to be submitted to the external system. Please see the configuration-related sections in this documentation.
-Note that other parts of the documentation and sample configuration files may refer to the 'action-specific options' as 'context properties'; both terms are equivalent.
