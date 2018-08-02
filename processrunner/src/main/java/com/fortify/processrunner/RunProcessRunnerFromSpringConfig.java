@@ -43,6 +43,13 @@ import com.fortify.util.spring.SpringContextUtil;
 
 /**
  * This class allows for running {@link AbstractProcessRunner} instances based on Spring configuration.
+ * Base on the Spring configuration, this will:
+ * <ul>
+ *  <li>Load the Spring configuration file</li>
+ *  <li>Get an {@link AbstractProcessRunner} instance based on Spring configuration</li>
+ *  <li>Generate one or more {@link Context} instances based on configured {@link IContextGenerator}</li>
+ *  <li>Invoke the configured {@link AbstractProcessRunner} for each generated {@link Context}</li>
+ * </ul>
  * 
  * @author Ruud Senden
  */
@@ -91,16 +98,24 @@ public class RunProcessRunnerFromSpringConfig {
 	 */
 	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		IContextGenerator contextGenerator = getContextGenerator();
+		// Create a temporary CLIOptionDefinitions instance to differentiate between 
+		// CLIOptionDefinition instances provided by the contextGenerator and provided
+		// by the process runner.
 		CLIOptionDefinitions newDefs = new CLIOptionDefinitions()
 				.addAll("contextGenerator", contextGenerator)
 				.addAll(getProcessRunner());
+		// Call the contextGenerator to update any CLIOptionDefinition instances that were
+		// solely provided by the process runner (excluding any CLIOptionDefinition instances
+		// that were provided by both the process runner and context generator)
 		if ( contextGenerator!=null ) {
 			contextGenerator.updateProcessRunnerCLIOptionDefinitions(newDefs.getCLIOptionDefinitionsExludingSource("contextGenerator"));
 		}
+		// Add the updated CLIOptionDefinition instances to the given cliOptionDefinitions
 		cliOptionDefinitions.addAll(newDefs);
+		// Update the default values for all cliOptionDefinitions, based on the cliOptionsDefaultValues bean
 		updateCLIOptionDefinitionsDefaultValues(cliOptionDefinitions);
+		// Update all cliOptionDefinitions to indicate that default values may be configured through the cliOptionsDefaultValues bean
 		cliOptionDefinitions.getCLIOptionDefinitions().forEach(o -> o.addAllowedSources(ALLOWED_SOURCE_DEFAULT_VALUES_BEAN));
-		
 	}
 
 	/**
@@ -121,14 +136,12 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 
 	/**
-	 * <p>Get the {@link Context} instances to use to run the given {@link AbstractProcessRunner} instance.
-	 * This method will combine the provided external context and a configured context (if available),
-	 * and use this combined context to generate {@link Context} instances.</p>
-	 * 
-	 * <p>If an enabled {@link IContextGenerator} has been configured, it will be invoked to generate
-	 * the {@link Context} instances. If not, this method will simply return the single (combined)
-	 * {@link Context} instance.</p>
-	 * @param externalContext
+	 * Get the {@link Context} instances to use to run the configured {@link AbstractProcessRunner} 
+	 * instance based on the configured {@link IContextGenerator}. If an 
+	 * {@link IContextGenerator} has been configured, it will be invoked to generate
+	 * the {@link Context} instances. If not, this method will simply return the single initialContext 
+	 * instance.</p>
+	 * @param initialContext
 	 * @return
 	 */
 	protected Collection<Context> getContexts(Context initialContext) {
@@ -146,7 +159,7 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Context getCLIOptionsDefaultValuesFromConfig() {
+	private Context getCLIOptionsDefaultValuesFromConfig() {
 		Context result = new Context();
 		if ( appContext.containsBean(CLI_OPTIONS_DEFAULT_VALUES_BEAN_NAME) ) {
 			result.putAll(appContext.getBean(CLI_OPTIONS_DEFAULT_VALUES_BEAN_NAME, Map.class));
@@ -190,6 +203,10 @@ public class RunProcessRunnerFromSpringConfig {
 		return appContext.getBean(IContextGenerator.class);
 	}
 	
+	/**
+	 * Get the configured {@link AbstractProcessRunner} instance
+	 * @return
+	 */
 	protected AbstractProcessRunner getProcessRunner() {
 		return appContext.getBean(AbstractProcessRunner.class);
 	}
