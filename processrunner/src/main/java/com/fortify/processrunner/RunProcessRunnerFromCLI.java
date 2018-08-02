@@ -25,7 +25,9 @@
 package com.fortify.processrunner;
 
 import java.io.File;
+import java.util.LinkedHashSet;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,27 +45,26 @@ import com.fortify.processrunner.util.HelpPrinter;
 
 /**
  * <p>
- * This class allows for instantiating a
- * {@link RunProcessRunnerFromSpringConfig} instance based on command line
- * options. The following command line options are available:
- * </p>
- * <ul>
- * <li>--configFile: Spring configuration file to be used by
- * {@link RunProcessRunnerFromSpringConfig}</li>
- * <li>--logFile: Log file to write logging information</li>
- * <li>--logLevel: Log level (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
- * <ul>
- * 
- * <p>
- * Any remaining command line options are used to identify the
- * {@link AbstractProcessRunner} instance to use, and to build the initial context for
- * that {@link AbstractProcessRunner} instance.
+ * This class is the main entry point for running arbitrary processes.
+ * Based on the '-configFile' command line parameter, this class will 
+ * instantiate and run a {@link RunProcessRunnerFromSpringConfig} 
+ * instance, which loads the process-related definitions from a Spring 
+ * configuration file. 
  * </p>
  * 
- * <p>
- * When invoked with invalid arguments, or with the --help option, an message
- * with general usage information will be printed on standard out.
- * </p>
+ * <p>Other responsibilities for this class include the following:
+ * <ul>
+ * <li>Parse any process-specific command line parameters, to be provided
+ *     to {@link RunProcessRunnerFromSpringConfig}</li>
+ * <li>Initialize logging based on the '-logFile' and '-logLevel' command
+ *     line parameters</li>
+ * <li>Update command line parameter values based on default values
+ *     provided through {@link RunProcessRunnerFromSpringConfig}
+ *     configuration</li>
+ * <li>Print help information if the '-help' option is specified, taking 
+ *     into account the process definition loaded through 
+ *     {@link RunProcessRunnerFromSpringConfig}</li>
+ * <ul>
  * 
  * @author Ruud Senden
  */
@@ -85,56 +86,143 @@ public class RunProcessRunnerFromCLI {
 			.allowedValue("WARN", "Log only warning, error or fatal messages")
 			.allowedValue("ERROR", "Log only error or fatal messages")
 			.allowedValue("FATAL", "Log only fatal messages");
-	
-	private static final CLIOptionDefinitions CLI_OPTION_DEFINITIONS =
-		new CLIOptionDefinitions().add(CLI_HELP, CLI_CONFIG_FILE, CLI_LOG_FILE, CLI_LOG_LEVEL);
 
 	/**
-	 * Main method for running a {@link AbstractProcessRunner} configuration. This will
-	 * parse the command line options and then invoke {@link RunProcessRunnerFromSpringConfig}
+	 * Main method for running a process. This method performs the following actions:
+	 * <ul>
+	 *  <li>Initial parse of CLI options to identify configuration file and logging options</li>
+	 *  <li>Instantiate {@link RunProcessRunnerFromSpringConfig} with the provided configuration file</li>
+	 *  <li>Re-parse CLI options based on {@link CLIOptionDefinitions} provided by {@link RunProcessRunnerFromSpringConfig}</li>
+	 *  <li>Log a warning for any unknown command line options</li>
+	 *  <li>Print help information if the '-help' option was specified, or if no configuration file was specified</li>
+	 *  <li>Invoke {@link RunProcessRunnerFromSpringConfig} to actually run the process</li>
+	 * </ul>
 	 * 
 	 * @param args
 	 */
-	public final void runProcessRunner(String[] argsArray) {
+	public final void run(String[] args) {
 		try {
-			Context cliContext = parseContextFromCLI(argsArray);
-			updateLogConfig(cliContext);
+			CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(null);
+			ContextWithUnknownCLIOptionsList cliContext = parseCLIOptionsAndUpdateLogger(args, cliOptionDefinitions);
 			RunProcessRunnerFromSpringConfig springRunner = getSpringRunner(cliContext);
-			if ( cliContext.containsKey("help") || springRunner==null ) {
-				printUsage(springRunner, cliContext, 0);
+			if ( springRunner != null ) {
+				// Parse command line again with additional CLIOptionDefinitions from springRunner
+				cliOptionDefinitions = getCLIOptionDefinitions(springRunner);
+				cliContext = parseCLIOptionsAndUpdateLogger(args, cliOptionDefinitions);
 			}
-			springRunner.checkForUnknownCLIOptions(cliContext, CLI_OPTION_DEFINITIONS);
-			springRunner.run(cliContext);
+			if ( CollectionUtils.isNotEmpty(cliContext.getUnknownCLIOptions()) ) {
+				cliContext.getUnknownCLIOptions().forEach(unknownOption -> LOG.warn("[process] Ignoring unknown command line option "+unknownOption));
+			}
+			if ( cliContext.containsKey("help") || springRunner==null ) {
+				printUsage(cliOptionDefinitions, cliContext, 0);
+			}
+			springRunner.run(cliOptionDefinitions, cliContext);
 		} catch (RuntimeException e) {
 			LOG.error("[Process] Error processing", e);
 			System.exit(1);
 		}
 	}
+	
+	/**
+	 * Get a {@link CLIOptionDefinitions} instances that combines both our own global {@link CLIOptionDefinition}
+	 * instances, and any {@link CLIOptionDefinition} instances provided by the given {@link RunProcessRunnerFromSpringConfig}
+	 * instance (if not null).
+	 * 
+	 * @param springRunner, may be null
+	 * @return
+	 */
+	private CLIOptionDefinitions getCLIOptionDefinitions(RunProcessRunnerFromSpringConfig springRunner) {
+		CLIOptionDefinitions result = new CLIOptionDefinitions();
+		result.add(CLI_HELP, CLI_LOG_LEVEL, CLI_LOG_FILE);
+		if ( springRunner != null ) { springRunner.addCLIOptionDefinitions(result); }
+		result.add(CLI_CONFIG_FILE);
+		return result;
+	}
 
+	/**
+	 * Parse the given args array based on the given {@link CLIOptionDefinitions} into a {@link Context}
+	 * object, update this {@link Context} with default values provided by {@link CLIOptionDefinitions},
+	 * and update the logging configuration.
+	 * @param args Command line arguments to be parsed
+	 * @param cliOptionDefinitions Describes all available command line options
+	 * @return
+	 */
+	private ContextWithUnknownCLIOptionsList parseCLIOptionsAndUpdateLogger(String[] args, CLIOptionDefinitions cliOptionDefinitions) {
+		ContextWithUnknownCLIOptionsList result = parseContextFromCLI(cliOptionDefinitions, args);
+		addCLIOptionDefaultValuesToContext(cliOptionDefinitions, result);
+		updateLogConfig(result);
+		return result;
+	}
+
+	/**
+	 * Create a {@link RunProcessRunnerFromSpringConfig} instance based on the configuration
+	 * file specified on the command line.
+	 * @param cliContext
+	 * @return
+	 */
 	private RunProcessRunnerFromSpringConfig getSpringRunner(Context cliContext) {
 		String configFileName = CLI_CONFIG_FILE.getValueFromContext(cliContext);
 		return configFileName==null ? null : new RunProcessRunnerFromSpringConfig(CLI_CONFIG_FILE.getValue(cliContext));
 	}
 
-	// TODO Make this more robust. For example, this will fail if any of the option values (like a password) starts with a '-'
-	//      Problem is we need to parse the command line first to identify the configuration file and logging options,
-	//      before we can get all supported CLIOptionDefinitions. Available options may even be dependent on some option
-	//      settings, like -Action (see AbstractBugTrackerProcessRunner)
-	private Context parseContextFromCLI(String[] args) {
-		Context result = new Context();
+	/**
+	 * This method iterates over the given args array, and matches each argument against the given
+	 * {@link CLIOptionDefinitions}. If an argument matches with a {@link CLIOptionDefinition},
+	 * the argument value is added to the result {@link ContextWithUnknownCLIOptionsList} (or in case
+	 * of a flag option, "true" is added to the result). Any unknown options will be added to the
+	 * unknown options set.  
+	 * 
+	 * @param cliOptionDefinitions
+	 * @param args
+	 * @return
+	 */
+	private ContextWithUnknownCLIOptionsList parseContextFromCLI(CLIOptionDefinitions cliOptionDefinitions, String[] args) {
+		ContextWithUnknownCLIOptionsList result = new ContextWithUnknownCLIOptionsList();
 		for ( int i = 0 ; i < args.length ; i++ ) {
 			String optionName = StringUtils.stripStart(args[i], "-");
-			if ( i==args.length-1 || args[i+1].startsWith("-") ) {
-				result.put(optionName, "true");
+			if ( cliOptionDefinitions.containsCLIOptionDefinitionName(optionName) ) {
+				if ( cliOptionDefinitions.getCLIOptionDefinitionByName(optionName).isFlag() ) {
+					result.put(optionName, "true");
+				} else {
+					result.put(optionName, args[++i]);
+				}
 			} else {
-				result.put(optionName, args[++i]);
+				result.addUnknowCLIOption(optionName);
+				// Skip next argument if it looks like a value for the unknown option
+				if ( args.length > i+1 && !args[i+1].startsWith("-") ) {i++;}
 			}
 		}
 		return result;
 	}
+	
+	/**
+	 * Add the default values to the {@link Context} for any CLI options that do not yet have a value (i.e.
+	 * not specified on the command line). This is necessary as we cannot access the default value from
+	 * {@link CLIOptionDefinition} in the following cases:
+	 * <ul>
+	 * 	<li>The default value was updated on a copy of {@link CLIOptionDefinition}, whereas the application
+	 *      code is accessing the original {@link CLIOptionDefinition} instance.</li>
+	 *  <li>The value is accessed from the {@link Context} directly, for example when accessing CLI
+	 *      options through Spring expressions.</li>
+	 * </ul> 
+	 *
+	 * @param cliOptionDefinitions
+	 * @param context
+	 */
+	protected final void addCLIOptionDefaultValuesToContext(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+		for ( CLIOptionDefinition cliOptionDefinition : cliOptionDefinitions.getCLIOptionDefinitions() ) {
+			String name = cliOptionDefinition.getName();
+			if ( !context.hasValueForKey(name) ) {
+				String defaultValue = cliOptionDefinition.getDefaultValue();
+				if ( StringUtils.isNotBlank(defaultValue) ) {
+					context.put(name, defaultValue);
+				}
+			}
+		}
+	}
 
 	/**
-	 * Update the log configuration based on command line options
+	 * Update the log configuration based on the current {@link Context}
 	 * 
 	 * @param context
 	 */
@@ -151,9 +239,11 @@ public class RunProcessRunnerFromCLI {
 		    		.withAppend(false)
 		    		.build();
 		    appender.start();
+		    configuration.getRootLogger().removeAppender(appender.getName()); // Remove if previously added
 		    configuration.getRootLogger().addAppender(appender, Level.getLevel(logLevel), null);
 		    configuration.getRootLogger().setLevel(Level.getLevel(logLevel));
 		    loggerContext.updateLoggers();
+		    LOG.info("[process] Logging to "+logFile+" with level "+logLevel);
 		}
 	}
 
@@ -163,17 +253,11 @@ public class RunProcessRunnerFromCLI {
 	 * 
 	 * @param context
 	 */
-	protected final void printUsage(RunProcessRunnerFromSpringConfig springRunner, Context context, int returnCode) {
+	protected final void printUsage(CLIOptionDefinitions cliOptionDefinitions, Context context, int returnCode) {
 		HelpPrinter hp = new HelpPrinter();
 		hp.append(0, "Usage:");
 		hp.append(2, getBaseCommand() + " [options]");
-		appendOptions(hp, context, CLI_OPTION_DEFINITIONS);
-		if ( springRunner == null ) {
-			hp.appendEmptyLn();
-			hp.append(0, "Additional options will be shown when a valid configuration file has been specified");
-		} else {
-			appendOptions(hp, context, springRunner.getCLIOptionDefinitions(context));
-		}
+		appendOptions(hp, context, cliOptionDefinitions);
 		hp.printHelp();
 		System.exit(returnCode);
 	}
@@ -206,8 +290,12 @@ public class RunProcessRunnerFromCLI {
 	}
 
 	/**
-	 * Get the default log file name
-	 * @return
+	 * Get the default log file name. If the current jar name that we are running 
+	 * from is known, the log file will have the same name as the jar name but 
+	 * with '.log' extension. If the jar name is not known, the default log file 
+	 * name will be 'processrunner.log'.
+	 *  
+	 * @return Default log file name
 	 */
 	protected static final String getDefaultLogFileName() {
 		String result = "processrunner.log";
@@ -258,6 +346,26 @@ public class RunProcessRunnerFromCLI {
 	 * @param args
 	 */
 	public static final void main(String[] args) {
-		new RunProcessRunnerFromCLI().runProcessRunner(args);
+		new RunProcessRunnerFromCLI().run(args);
+	}
+	
+	/**
+	 * This {@link Context} extension adds functionality for gathering a
+	 * set of unknown CLI options that were provided on the command line.
+	 *  
+	 * @author Ruud Senden
+	 *
+	 */
+	private static final class ContextWithUnknownCLIOptionsList extends Context {
+		private static final long serialVersionUID = 1L;
+		private final LinkedHashSet<String> unknownCLIOptions = new LinkedHashSet<>();
+		
+		public void addUnknowCLIOption(String name) {
+			unknownCLIOptions.add(name);
+		}
+		
+		public LinkedHashSet<String> getUnknownCLIOptions() {
+			return unknownCLIOptions;
+		}
 	}
 }

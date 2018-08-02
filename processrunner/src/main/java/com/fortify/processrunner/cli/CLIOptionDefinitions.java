@@ -43,6 +43,14 @@ public class CLIOptionDefinitions {
 	private LinkedHashMap<String, CLIOptionDefinition> optionsByName = new LinkedHashMap<>();
 	private LinkedHashMap<String, Collection<CLIOptionDefinition>> optionsByGroup = new LinkedHashMap<>();
 	private LinkedHashMap<String, Collection<CLIOptionDefinition>> optionsBySource = new LinkedHashMap<>();
+	
+	public CLIOptionDefinitions() {}
+	
+	public CLIOptionDefinitions(CLIOptionDefinitions... defs) {
+		for ( CLIOptionDefinitions def : defs ) {
+			addAll(def);
+		}
+	}
 
 	/**
 	 * Add the given {@link CLIOptionDefinition} instances to the {@link Map} of {@link CLIOptionDefinition}s
