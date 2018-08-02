@@ -72,9 +72,9 @@ public class RunProcessRunnerFromSpringConfig {
 	/**
 	 * Run the {@link AbstractProcessRunner} instance defined in the configuration file.
 	 * The {@link AbstractProcessRunner} will be run once for every {@link Context} 
-	 * returned by our {@link #getContexts(AbstractProcessRunner, Context)} method.
-	 * @param externalContext
-	 * @param processRunnerName
+	 * returned by our {@link #getContexts(Context)} method.
+	 * @param cliOptionDefinitions
+	 * @param initialContext
 	 */
 	public void run(CLIOptionDefinitions cliOptionDefinitions, Context initialContext) {
 		AbstractProcessRunner runner = getProcessRunner();
@@ -93,8 +93,7 @@ public class RunProcessRunnerFromSpringConfig {
 	/**
 	 * Add the {@link CLIOptionDefinition} for the configured {@link AbstractProcessRunner} 
 	 * and {@link IContextGenerator} instances.
-	 * @param context
-	 * @return
+	 * @param cliOptionDefinitions
 	 */
 	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		IContextGenerator contextGenerator = getContextGenerator();
@@ -136,7 +135,7 @@ public class RunProcessRunnerFromSpringConfig {
 	}
 
 	/**
-	 * Get the {@link Context} instances to use to run the configured {@link AbstractProcessRunner} 
+	 * <p>Get the {@link Context} instances to use to run the configured {@link AbstractProcessRunner} 
 	 * instance based on the configured {@link IContextGenerator}. If an 
 	 * {@link IContextGenerator} has been configured, it will be invoked to generate
 	 * the {@link Context} instances. If not, this method will simply return the single initialContext 

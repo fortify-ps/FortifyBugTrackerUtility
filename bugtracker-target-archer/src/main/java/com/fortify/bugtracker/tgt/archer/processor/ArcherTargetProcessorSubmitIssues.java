@@ -35,13 +35,13 @@ import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
+ * This {@link AbstractTargetProcessorSubmitIssues} implementation
  * submits issues to Archer.
  */
 @Component
 public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		ArcherConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	

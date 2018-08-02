@@ -33,7 +33,7 @@
 	</formats>
 	<fileSets>
 		<fileSet>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory/>
 			<directory>${project.build.directory}</directory>
 			<includes>
 				<include>THIRD_PARTY_LICENSES.*</include>
@@ -47,7 +47,7 @@
 			</excludes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory/>
 			<directory>${project.build.directory}/../../..</directory>
 			<includes>
 				<include>README.md</include>
@@ -55,11 +55,11 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>/documentation</outputDirectory>
+			<outputDirectory>documentation</outputDirectory>
 			<directory>${project.build.directory}/site</directory>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory/>
 			<directory>${project.build.directory}/../../../ssc-bugtracker-add-existing-bug/target</directory>
 			<includes>
 				<include>ssc-bugtracker-add-existing-bug-?.?.jar</include>

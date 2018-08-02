@@ -92,7 +92,7 @@ public class TargetIssueLocatorCommentHelper implements Serializable {
 	
 	/**
 	 * Parse a {@link TargetIssueLocator} from the given comment string that was previously generated using
-	 * {@link #getCommentForSubmittedIssue(String, TargetIssueLocator)}
+	 * {@link #getCommentForSubmittedIssue(TargetIssueLocator)}
 	 * @param comment
 	 * @return
 	 */

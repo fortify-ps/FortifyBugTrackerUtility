@@ -34,8 +34,7 @@ import com.fortify.processrunner.processor.IProcessor.Phase;
 
 /**
  * This class allows for running one or more independent {@link IProcessor}
- * implementations as returned by the {@link #getProcessors(Context)}
- * method.
+ * implementations as returned by the {@link #getProcessor(Context)} method.
  * 
  * @author Ruud Senden
  *

@@ -50,7 +50,7 @@ public class JiraTargetProcessorSubmitIssues extends AbstractTargetProcessorSubm
 	private String issueType;
 	
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		JiraConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_PROJECT_KEY);
 	}

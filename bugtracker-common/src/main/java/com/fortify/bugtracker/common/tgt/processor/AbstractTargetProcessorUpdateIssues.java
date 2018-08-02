@@ -49,17 +49,17 @@ import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
  * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted issues,
- * based on possibly updated vulnerability data. Based on our superclass {@link AbstractTargetProcessorGenerateIssueFields}, 
+ * based on possibly updated vulnerability data. Based on our superclass {@link AbstractTargetProcessor}, 
  * we first group all previously submitted vulnerabilities by the corresponding external system issue link, and then 
  * update the bug tracker issue based on current vulnerability state.</p>
  * 
  * Concrete implementations can override the following methods to add support for the corresponding
  * functionality:
  * <ul>
- *  <li>{@link #updateIssueFields(Context, TargetIssueLocator, LinkedHashMap)}: Update existing issue fields with updated values</li>
- *  <li>{@link #openIssue(Context, TargetIssueLocator, Object)}: (Re-)open an issue if it is currently closed but corresponding 
+ *  <li>{@link #updateIssueFieldsIfNecessary(Context, TargetIssueLocatorAndFields, LinkedHashMap)}: Update existing issue fields with updated values</li>
+ *  <li>{@link #openIssueIfClosed(Context, TargetIssueLocatorAndFields)}: (Re-)open an issue if it is currently closed but corresponding 
  *      vulnerabilities are still open</li>
- *  <li>{@link #closeIssue(Context, TargetIssueLocator, Object)}: Close an issue if it is currently open but corresponding 
+ *  <li>{@link #closeIssueIfOpen(Context, TargetIssueLocatorAndFields)}: Close an issue if it is currently open but corresponding 
  *      vulnerabilities have been closed/fixed</li>
  * </ul>
  * Note that if a bug tracker uses transitioning schemes for managing issue state, it would be better to subclass

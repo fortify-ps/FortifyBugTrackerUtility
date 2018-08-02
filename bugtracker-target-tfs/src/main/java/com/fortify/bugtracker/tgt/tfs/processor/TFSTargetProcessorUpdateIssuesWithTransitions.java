@@ -45,7 +45,7 @@ import com.fortify.util.rest.json.JSONMap;
 @Component
 public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		TFSConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
 	}

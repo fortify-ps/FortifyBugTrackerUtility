@@ -52,7 +52,7 @@ import com.fortify.processrunner.util.HelpPrinter;
  * configuration file. 
  * </p>
  * 
- * <p>Other responsibilities for this class include the following:
+ * <p>Other responsibilities for this class include the following:</p>
  * <ul>
  * <li>Parse any process-specific command line parameters, to be provided
  *     to {@link RunProcessRunnerFromSpringConfig}</li>
@@ -64,7 +64,7 @@ import com.fortify.processrunner.util.HelpPrinter;
  * <li>Print help information if the '-help' option is specified, taking 
  *     into account the process definition loaded through 
  *     {@link RunProcessRunnerFromSpringConfig}</li>
- * <ul>
+ * </ul>
  * 
  * @author Ruud Senden
  */
@@ -249,9 +249,9 @@ public class RunProcessRunnerFromCLI {
 
 	/**
 	 * Print the usage information for this command.
-	 * @param processRunnerName 
-	 * 
+	 * @param cliOptionDefinitions
 	 * @param context
+	 * @param returnCode
 	 */
 	protected final void printUsage(CLIOptionDefinitions cliOptionDefinitions, Context context, int returnCode) {
 		HelpPrinter hp = new HelpPrinter();

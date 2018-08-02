@@ -30,11 +30,9 @@ import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 
 /**
- * This abstract implementation of {@link AbstractProcessorEnrichCurrentVulnerability} will evaluate a 
+ * This abstract implementation of {@link AbstractJSONMapEnrich} will evaluate a 
  * configurable expression to determine whether the current vulnerability is considered open or closed. 
  * The vulnerability state will then be added to the current vulnerability as the 'vulnState' property.
- * Concrete implementations must implement the {@link #getDefaultIsVulnerabilityOpenExpression()} method
- * to provide a default value for the configurable expression.
  */
 public class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich {
 	public static final String NAME_VULN_STATE = "vulnState";

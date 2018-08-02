@@ -41,6 +41,7 @@ import com.fortify.processrunner.context.Context;
 /**
  * This class describes a single command line option. The following properties are available:
  * <table>
+ *  <caption>List of properties</caption>
  *  <tr><td>name</td><td>Command line option name</td></tr>
  *  <tr><td>group</td><td>Option group, used to group related options together for help output</td></tr>
  *  <tr><td>description</td><td>Option description to be shown in help output</td></tr>
@@ -255,7 +256,7 @@ public class CLIOptionDefinition implements Serializable {
 
 	/**
 	 * Set the option names that, if any of them is not set, will cause the current option definition to be ignored
-	 * @param property
+	 * @param properties
 	 * @return
 	 */
 	public CLIOptionDefinition dependsOnOptions(String... properties) {

@@ -47,7 +47,7 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	
 	/**
 	 * Add the {@link CLIOptionDefinition} instances by calling the 
-	 * {@link ICLIOptionDefinitionProvider#addCLIOptionDefinitions(Collection, Context)} 
+	 * {@link ICLIOptionDefinitionProvider#addCLIOptionDefinitions(CLIOptionDefinitions)} 
 	 * method on each individual {@link IProcessor} instance returned by the 
 	 * {@link #getProcessors()} method. 
 	 */

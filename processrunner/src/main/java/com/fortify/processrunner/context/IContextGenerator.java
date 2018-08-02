@@ -32,9 +32,7 @@ import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 /**
  * This interface provides the {@link #generateContexts(Context)} method for 
  * generating a collection of {@link Context} instances based on a given 
- * initial {@link Context}. The {@link #isContextGeneratorEnabled()} method
- * allows for specifying whether this {@link IContextGenerator} instance is
- * enabled. Usually only one instance may be enabled at any given time. 
+ * initial {@link Context}.
  * 
  * @author Ruud Senden
  *

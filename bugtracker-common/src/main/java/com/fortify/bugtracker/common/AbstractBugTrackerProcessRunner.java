@@ -42,12 +42,12 @@ import com.fortify.processrunner.processor.IProcessor;
  * <p>This {@link AbstractProcessRunner} implementation can be configured to
  * submit vulnerabilities to a bug tracker, update issue state,
  * or both. Depending on available processors in the Spring configuration,
- * this implementation will determine the available actions and default action:
+ * this implementation will determine the available actions and default action:</p>
  * <ul>
  *  <li>Only {@link ISourceProcessorSubmitVulnsToTarget} available: submitVulnerabilities action enabled and default, others disabled</li>
  *  <li>Only {@link ISourceProcessorUpdateVulnsOnTarget} available: updateIssueState action enabled and default, others disabled</li>
  *  <li>Both {@link ISourceProcessorSubmitVulnsToTarget} and {@link ISourceProcessorUpdateVulnsOnTarget} available: submitVulnerabilities, updateIssueState and submitVulnerabilitiesAndUpdateIssueState actions enabled, submitVulnerabilitiesAndUpdateIssueState is default action</li>
- * </ul></p>
+ * </ul>
  * 
  * <p>Source system implementations must extend this class, providing the source system name
  * in the constructor, and annotated with the {@link Component} annotation.</p>

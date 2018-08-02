@@ -33,12 +33,12 @@ public interface ITargetProcessorUpdateIssues extends IProcessorWithTargetName {
 	public void setIsVulnStateOpenExpression(SimpleExpression isVulnStateOpenExpression);
 
 	/**
-	 * @param bugIdExpression the bugIdExpression to set
+	 * @param vulnBugIdExpression the bugIdExpression to set
 	 */
 	public void setVulnBugIdExpression(SimpleExpression vulnBugIdExpression);
 
 	/**
-	 * @param bugLinkExpression the bugLinkExpression to set
+	 * @param vulnBugLinkExpression the bugLinkExpression to set
 	 */
 	public void setVulnBugLinkExpression(SimpleExpression vulnBugLinkExpression);
 

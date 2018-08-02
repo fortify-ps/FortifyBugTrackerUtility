@@ -52,11 +52,11 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * root object belongs to.</p>
  * 
  * <p>During the {@link Phase#POST_PROCESS} phase, the 
- * {@link #processGroup(Context, List)} method will be called
+ * {@link #processGroup(Context, String, List)} method will be called
  * to allow actual implementations to process each group.</p>
  * 
  * <p>If no grouping expression has been defined, or if the DisableGrouping
- * context property has been set to true, the {@link #processGroup(Context, List)}
+ * context property has been set to true, the {@link #processGroup(Context, String, List)}
  * method will be invoked immediately for every individual root object.</p>
  * 
  * @author Ruud Senden
@@ -80,7 +80,6 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	/**
 	 * Subclasses can override this method to add extra context properties
 	 * @param cliOptionDefinitions
-	 * @param context
 	 */
 	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 

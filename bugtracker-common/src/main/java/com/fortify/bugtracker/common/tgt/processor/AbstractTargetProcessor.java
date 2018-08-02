@@ -35,12 +35,12 @@ import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGr
 public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObjectMapFromGroupedObjects implements IProcessorWithTargetName {
 	/**
 	 * This method just calls 
-	 * {@link #addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions, Context)}
+	 * {@link #addTargetCLIOptionDefinitions(CLIOptionDefinitions)}
 	 * to allow subclasses to add additional context property definitions
 	 */
 	@Override
 	public final void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
-		addBugTrackerCLIOptionDefinitions(cliOptionDefinitions);
+		addTargetCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	@Override
@@ -49,9 +49,8 @@ public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObje
 	/**
 	 * Subclasses can override this method to add additional bug tracker related {@link CLIOptionDefinitions}
 	 * @param cliOptionDefinitions
-	 * @param context
 	 */
-	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
+	protected void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 	
 	
 	

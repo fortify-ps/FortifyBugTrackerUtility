@@ -42,7 +42,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * Objects are grouped by our parent {@link AbstractProcessorGroupByExpressions}
  * class. In our {@link #processGroup(Context, String, List)} method we build an
  * object map for each entry in the current group, and then call 
- * {@link #processMap(Context, String, List, LinkedHashMap)} to allow concrete implementations 
+ * {@link #processMaps(Context, String, List, List)} to allow concrete implementations 
  * to further process the object maps.
  * 
  * @author Ruud Senden
@@ -91,7 +91,6 @@ public abstract class AbstractProcessorBuildObjectMapsFromGroupedObjects extends
 	/**
 	 * Set the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
 	 * instances used to generate the corresponding {@link Map} values.
-	 * @return
 	 */
 	public void setFields(LinkedHashMap<String,TemplateExpression> fields) {
 		this.fields = fields;

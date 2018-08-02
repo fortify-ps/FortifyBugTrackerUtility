@@ -40,8 +40,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
 /**
  * <p>This abstract class allows for building an object map from grouped objects.
  * Objects are grouped by our parent {@link AbstractProcessorGroupByExpressions}
- * class. In our {@link #processGroup(Context, List)} method we build an object 
- * map for the current group, and then call {@link #processMap(Context, List, LinkedHashMap)}
+ * class. In our {@link #processGroup(Context, String, List)} method we build an object 
+ * map for the current group, and then call {@link #processMap(Context, String, List, LinkedHashMap)}
  * to allow concrete implementation to further process the object map.</p>
  * 
  * <p>The {@link Map} will initially be built based on the first object in the group
@@ -58,7 +58,7 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	
 	/**
 	 * Build a {@link Map} for the current group, based on the configured {@link #fields} and {@link #appendedFields},
-	 * and then call the {@link #processMap(Context, List, LinkedHashMap)} method to allow the {@link Map} to be
+	 * and then call the {@link #processMap(Context, String, List, LinkedHashMap)} method to allow the {@link Map} to be
 	 * further processed.
 	 */
 	@Override
@@ -93,7 +93,6 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	/**
 	 * Set the configured field names to be added to the generated {@link Map}, together with {@link TemplateExpression}
 	 * instances used to generate the corresponding {@link Map} values.
-	 * @return
 	 */
 	public void setFields(LinkedHashMap<String,TemplateExpression> fields) {
 		this.fields = fields;
@@ -111,7 +110,6 @@ public abstract class AbstractProcessorBuildObjectMapFromGroupedObjects extends 
 	/**
 	 * Set the configured field names to be added/updated in the generated {@link Map}, together with {@link TemplateExpression}
 	 * instances used to generate the corresponding {@link Map} values to be appended to existing {@link Map} values.
-	 * @return
 	 */
 	public void setAppendedFields(LinkedHashMap<String,TemplateExpression> appendedFields) {
 		this.appendedFields = appendedFields;

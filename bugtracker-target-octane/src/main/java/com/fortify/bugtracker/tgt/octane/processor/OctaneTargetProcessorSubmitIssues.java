@@ -41,13 +41,13 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.JSONMap;
 
 /**
- * This {@link AbstractProcessorSubmitJSONObjectFromGroupedObjects} implementation
+ * This {@link AbstractTargetProcessorSubmitIssues} implementation
  * submits issues to Octane.
  */
 @Component
 public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		OctaneConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_SHARED_SPACE_UID);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_WORKSPACE_ID);
