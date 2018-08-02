@@ -32,13 +32,13 @@ import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class OctaneConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_BASE_URL);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_USER_NAME);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_PASSWORD);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_CLIENT_ID);
 		cliOptionDefinitions.add(ICLIOptionsOctane.CLI_OCTANE_CLIENT_SECRET);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "Octane");
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "Octane");
 	}
 	
 	public static final OctaneAuthenticatingRestConnection getConnection(Context context) {

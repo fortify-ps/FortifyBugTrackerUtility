@@ -41,8 +41,8 @@ import com.fortify.processrunner.context.Context;
 @Component
 public class ArcherTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		ArcherConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		ArcherConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	public String getTargetName() {

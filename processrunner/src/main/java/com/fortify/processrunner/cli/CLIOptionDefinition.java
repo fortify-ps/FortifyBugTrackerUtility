@@ -24,12 +24,15 @@
  ******************************************************************************/
 package com.fortify.processrunner.cli;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -43,7 +46,8 @@ import com.fortify.processrunner.context.Context;
  * 
  * @author Ruud Senden
  */
-public class CLIOptionDefinition {
+public class CLIOptionDefinition implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public static final String ALLOWED_SOURCE_CLI = "CLI option";
 	private final String group;
 	private final String name;
@@ -56,6 +60,7 @@ public class CLIOptionDefinition {
 	private String[] dependsOnOptions = null;
 	private String[] allowedSources = {ALLOWED_SOURCE_CLI};
 	private LinkedHashMap<String, String> allowedValues = null;
+	private LinkedHashMap<String, String[]> extraInfo = new LinkedHashMap<>();
 	private boolean isFlag = false;
 	
 	
@@ -160,6 +165,10 @@ public class CLIOptionDefinition {
 		return allowedValues;
 	}
 	
+	public Map<String, String[]> getExtraInfo() {
+		return extraInfo;
+	}
+	
 	public boolean isFlag() {
 		return isFlag;
 	}
@@ -238,6 +247,17 @@ public class CLIOptionDefinition {
 		return this;
 	}
 	
+	public CLIOptionDefinition extraInfo(String key, String... data) {
+		this.extraInfo.put(key, data);
+		return this;
+	}
+	
+	public CLIOptionDefinition addExtraInfo(String key, String... data) {
+		this.extraInfo.put(key, 
+			appendArrays(this.extraInfo.computeIfAbsent(key, k -> new String[]{}), data));
+		return this;
+	}
+	
 	public CLIOptionDefinition isFlag(boolean isFlag) {
 		this.isFlag = isFlag;
 		return this;
@@ -246,6 +266,15 @@ public class CLIOptionDefinition {
 	public CLIOptionDefinition allowedSources(String... allowedSources) {
 		this.allowedSources= allowedSources;
 		return this;
+	}
+	
+	public CLIOptionDefinition addAllowedSources(String... extraAllowedSources) {
+		this.allowedSources = appendArrays(this.allowedSources, extraAllowedSources);
+		return this;
+	}
+	
+	private static final String[] appendArrays(String[] array1, String[] array2) {
+		return (String[])ArrayUtils.addAll(array1, array2);
 	}
 	
 	public String getValue(Context context) {
@@ -292,5 +321,9 @@ public class CLIOptionDefinition {
 		} else {
 			return value;
 		}
+	}
+	
+	public CLIOptionDefinition deepCopy() {
+		return (CLIOptionDefinition) SerializationUtils.clone(this);
 	}
 }

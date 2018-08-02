@@ -52,22 +52,21 @@ public abstract class AbstractCompositeProcessor extends AbstractProcessor {
 	 * {@link #getProcessors()} method. 
 	 */
 	@Override
-	public final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		for ( IProcessor processor : getProcessors() ) {
 			if ( processor != null ) {
-				processor.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+				processor.addCLIOptionDefinitions(cliOptionDefinitions);
 			}
 		}
-		addCompositeContextPropertyDefinitions(cLIOptionDefinitions, context);
+		addCompositeContextPropertyDefinitions(cliOptionDefinitions);
 	}
 	
 	/**
 	 * Concrete implementations can override this method to add additional
 	 * {@link CLIOptionDefinition} instances.
-	 * @param cLIOptionDefinitions
-	 * @param context
+	 * @param cliOptionDefinitions
 	 */
-	protected void addCompositeContextPropertyDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
+	protected void addCompositeContextPropertyDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 
 	/**
 	 * Run the {@link Phase#PRE_PROCESS} phase on all

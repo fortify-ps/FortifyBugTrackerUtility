@@ -25,14 +25,8 @@
 package com.fortify.processrunner;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
@@ -45,6 +39,7 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.util.HelpPrinter;
 
 /**
  * <p>
@@ -121,6 +116,10 @@ public class RunProcessRunnerFromCLI {
 		return configFileName==null ? null : new RunProcessRunnerFromSpringConfig(CLI_CONFIG_FILE.getValue(cliContext));
 	}
 
+	// TODO Make this more robust. For example, this will fail if any of the option values (like a password) starts with a '-'
+	//      Problem is we need to parse the command line first to identify the configuration file and logging options,
+	//      before we can get all supported CLIOptionDefinitions. Available options may even be dependent on some option
+	//      settings, like -Action (see AbstractBugTrackerProcessRunner)
 	private Context parseContextFromCLI(String[] args) {
 		Context result = new Context();
 		for ( int i = 0 ; i < args.length ; i++ ) {
@@ -180,24 +179,27 @@ public class RunProcessRunnerFromCLI {
 	}
 
 	protected final void appendOptions(HelpPrinter hp, Context context, CLIOptionDefinitions cliOptionDefinitions) {
-		for ( Entry<String, LinkedHashSet<CLIOptionDefinition>> optionsByGroup : cliOptionDefinitions.getCLIOptionDefinitionsByGroup().entrySet() ) {
+		for ( String group : cliOptionDefinitions.getCLIOptionDefinitionGroups() ) {
 			boolean hasAppendedHeader = false;
-			for (CLIOptionDefinition o : optionsByGroup.getValue()) {
+			for (CLIOptionDefinition o : cliOptionDefinitions.getCLIOptionDefinitionsByGroup(group)) {
 				if ( !o.hideFromHelp() ) {
 					if ( !hasAppendedHeader ) {
 						hp.appendEmptyLn();
-						hp.append(0, StringUtils.capitalize(optionsByGroup.getKey())+" options:");
+						hp.append(0, StringUtils.capitalize(group)+" options:");
 						hasAppendedHeader = true;
 					}
 					hp.appendEmptyLn();
 					hp.append(2, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
 					hp.append(4, o.getDescription());
-					hp.append(4, "Default value:       ", o.getDefaultValueDescription());
-					hp.append(4, "Current value:       ", o.getCurrentValueDescription(context));
-					hp.append(4, "Requires options:    ", o.getDependsOnOptions());
-					hp.append(4, "Alternative options: ", o.getIsAlternativeForOptions());
-					hp.append(4, "Allowed values:      ", o.getAllowedValues());
-					hp.append(4, "Allowed sources:     ", o.getAllowedSources());
+					hp.keyValueGroupBuilder()
+						.append("Default value", o.getDefaultValueDescription())
+						.append("Current value", o.getCurrentValueDescription(context))
+						.append("Requires options", o.getDependsOnOptions())
+						.append("Alternative options", o.getIsAlternativeForOptions())
+						.append("Allowed values", o.getAllowedValues())
+						.append("Allowed sources", o.getAllowedSources())
+						.append(o.getExtraInfo())
+						.build(4);
 				}
 			}
 		}
@@ -257,72 +259,5 @@ public class RunProcessRunnerFromCLI {
 	 */
 	public static final void main(String[] args) {
 		new RunProcessRunnerFromCLI().runProcessRunner(args);
-	}
-	
-	private static final class HelpPrinter {
-		private int width = 80;
-		private final StringBuffer sb = new StringBuffer();
-		
-		public HelpPrinter() {
-			try {
-				this.width = org.jline.terminal.TerminalBuilder.terminal().getWidth();
-			} catch (IOException e) {}
-			if ( this.width < 10 ) {
-				this.width = 80;
-			}
-		}
-
-		public HelpPrinter append(int indent, String str) {
-			String padding = StringUtils.leftPad("",indent);
-			sb.append(padding+WordUtils.wrap(str, width-padding.length(), "\n"+padding, false)).append("\n");
-			return this;
-		}
-		
-		public HelpPrinter append(int indent, String key, String value) {
-			if ( value != null ) {
-				append(indent, key + value);
-			}
-			return this;
-		}
-		
-		public HelpPrinter append(int indent, String key, String[] values) {
-			if ( values != null ) {
-				int newIndent = indent;
-				for ( String value : values ) {
-					if ( newIndent==indent ) {
-						append(indent, key, value);
-						newIndent = indent+key.length();
-					} else {
-						append(newIndent, value);
-					}
-				}
-			}
-			return this;
-		}
-		
-		public void append(int indent, String key, Map<String, String> values) {
-			if ( MapUtils.isNotEmpty(values) ) {
-				int newIndent = indent;
-				for ( Map.Entry<String, String> entry : values.entrySet() ) {
-					if ( newIndent==indent ) {
-						append(indent, key, entry.getKey());
-						newIndent = indent+key.length();
-					} else {
-						append(newIndent, entry.getKey());
-					}
-					append(newIndent+2, entry.getValue());
-				}
-			}
-			
-		}
-		
-		public HelpPrinter appendEmptyLn() {
-			sb.append("\n");
-			return this;
-		}
-		
-		public void printHelp() {
-			System.out.println(sb.toString());
-		}
 	}
 }

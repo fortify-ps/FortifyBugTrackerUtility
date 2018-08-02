@@ -58,15 +58,10 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	}
 
 	@Override
-	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
-		SSCConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions, context);
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		SSCConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID);
 		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME_PATTERNS);
-	}
-	
-	@Override
-	public String getCLIOptionDefinitionAllowedSource() {
-		return SSCSourceApplicationVersionsConfiguration.class.getSimpleName()+" mappings";
 	}
 	
 	@Override

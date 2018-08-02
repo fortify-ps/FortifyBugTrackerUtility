@@ -26,8 +26,6 @@ package com.fortify.processrunner.cli;
 
 import java.util.Collection;
 
-import com.fortify.processrunner.context.Context;
-
 /**
  * Interface to be implemented by classes that want to add {@link CLIOptionDefinition}
  * instances to {@link CLIOptionDefinitions}.
@@ -42,5 +40,5 @@ public interface ICLIOptionDefinitionProvider {
 	 * the CLI options supported/required by the current 
 	 * {@link ICLIOptionDefinitionProvider} implementation. 
 	 */
-	public abstract void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context);
+	public abstract void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions);
 }

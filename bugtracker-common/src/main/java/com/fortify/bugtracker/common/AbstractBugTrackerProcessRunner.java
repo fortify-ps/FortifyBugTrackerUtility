@@ -35,6 +35,7 @@ import com.fortify.processrunner.AbstractProcessRunner;
 import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
+import com.fortify.processrunner.processor.CompositeProcessor;
 import com.fortify.processrunner.processor.IProcessor;
 
 /**
@@ -55,14 +56,20 @@ import com.fortify.processrunner.processor.IProcessor;
  *
  */
 public abstract class AbstractBugTrackerProcessRunner extends AbstractProcessRunner {
-	private final CLIOptionDefinition cliOptionDefinitionAction = new CLIOptionDefinition("processing", "Action", "Action to be performed", true);
-	protected ISourceProcessorSubmitVulnsToTarget submitVulnerabilitiesProcessor;
-	protected ISourceProcessorUpdateVulnsOnTarget updateStateProcessor;
+	private final CLIOptionDefinition cliOptionDefinitionAction = new CLIOptionDefinition("processing", "Action", "Action to be performed", true).extraInfo("Used for", "Submit", "Update");
+	private ISourceProcessorSubmitVulnsToTarget submitVulnerabilitiesProcessor;
+	private ISourceProcessorUpdateVulnsOnTarget updateStateProcessor;
+	private IProcessor submitVulnerabilitiesAndUpdateIssueStateProcessor;
 	
 	
 	@Override
-	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		cliOptionDefinitions.add(cliOptionDefinitionAction); 
+		cliOptionDefinitions
+				.addAll("updateIssueState", getUpdateStateProcessor())
+				.addAll("submitVulnerabilities", getSubmitVulnerabilitiesProcessor());
+		cliOptionDefinitions.getCLIOptionDefinitionsBySource("submitVulnerabilities").forEach(def->def.addExtraInfo("Used for", "Submit"));
+		cliOptionDefinitions.getCLIOptionDefinitionsBySource("updateIssueState").forEach(def->def.addExtraInfo("Used for", "Update"));
 	}
 
 	@PostConstruct
@@ -82,17 +89,24 @@ public abstract class AbstractBugTrackerProcessRunner extends AbstractProcessRun
 	}
 
 	@Override
-	public IProcessor[] getProcessors(Context context) {
+	public IProcessor getProcessor(Context context) {
 		switch ( cliOptionDefinitionAction.getValue(context) ) {
 		case "updateIssueState": 
-			return new IProcessor[] {getUpdateStateProcessor()};
+			return getUpdateStateProcessor();
 		case "submitVulnerabilities": 
-			return new IProcessor[] {getSubmitVulnerabilitiesProcessor()};
+			return getSubmitVulnerabilitiesProcessor();
 		case "submitVulnerabilitiesAndUpdateIssueState": 
-			return new IProcessor[] {getUpdateStateProcessor(), getSubmitVulnerabilitiesProcessor()};
+			return getSubmitVulnerabilitiesAndUpdateIssueStateProcessor();
 		default:
 			throw new IllegalArgumentException("Unknown action specified");
 		}
+	}
+
+	private IProcessor getSubmitVulnerabilitiesAndUpdateIssueStateProcessor() {
+		if ( submitVulnerabilitiesAndUpdateIssueStateProcessor==null ) {
+			submitVulnerabilitiesAndUpdateIssueStateProcessor = new CompositeProcessor(getUpdateStateProcessor(), getSubmitVulnerabilitiesProcessor());
+		}
+		return submitVulnerabilitiesAndUpdateIssueStateProcessor;
 	}
 
 	private final boolean isSubmitVulnerabilitiesProcessorEnabled() {

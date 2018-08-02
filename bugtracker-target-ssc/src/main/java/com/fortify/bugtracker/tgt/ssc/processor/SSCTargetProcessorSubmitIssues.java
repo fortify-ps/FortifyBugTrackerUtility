@@ -88,10 +88,10 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	
 	
 	@Override
-	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		cLIOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, getSscBugTrackerName()+" password", true).isPassword(true).dependsOnOptions(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME));
-		SSCConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		cliOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME, getSscBugTrackerName()+" user name (required if SSC bug tracker requires authentication)", false));
+		cliOptionDefinitions.add(new CLIOptionDefinition("SSC", ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_PASSWORD, getSscBugTrackerName()+" password", true).isPassword(true).dependsOnOptions(ICLIOptionsSSC.PRP_SSC_BUG_TRACKER_USER_NAME));
+		SSCConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	/**

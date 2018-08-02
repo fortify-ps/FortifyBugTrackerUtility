@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +38,6 @@ import org.springframework.core.io.Resource;
 
 import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
-import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.IContextGenerator;
 import com.fortify.util.spring.SpringContextUtil;
@@ -92,39 +92,25 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @return
 	 */
 	public final CLIOptionDefinitions getCLIOptionDefinitions(Context context) {
-		CLIOptionDefinitions defsFromContextGenerator = getCLIOptionDefinitions(context, getContextGenerator());
-		CLIOptionDefinitions defsFromProcessRunner = getCLIOptionDefinitions(context, getProcessRunner());
-		updateCLIOptionDefinitions(defsFromContextGenerator, defsFromProcessRunner);
-		return new CLIOptionDefinitions(defsFromContextGenerator, defsFromProcessRunner);
-	}
-	
-	/**
-	 * Update the given {@link CLIOptionDefinitions} with default values from
-	 * the configuration file, and with information from the configured
-	 * {@link IContextGenerator}.
-	 * 
-	 * @param optionDefinitions
-	 */
-	private void updateCLIOptionDefinitions(CLIOptionDefinitions optionDefinitionsFromContextGenerator, CLIOptionDefinitions optionDefinitionsFromProcessRunner) {
-		Context cliOptionsDefaultValuesFromConfig = getCLIOptionsDefaultValuesFromConfig();
-		updateCLIOptionDefinitionsDefaultValues(optionDefinitionsFromContextGenerator, cliOptionsDefaultValuesFromConfig);
-		updateCLIOptionDefinitionsDefaultValues(optionDefinitionsFromProcessRunner, cliOptionsDefaultValuesFromConfig);
-		if ( getContextGenerator()!=null ) {
-			getContextGenerator().updateCLIOptionDefinitionsDefaultValueDescriptions(optionDefinitionsFromProcessRunner);
-			optionDefinitionsFromProcessRunner.allowedSources(CLIOptionDefinition.ALLOWED_SOURCE_CLI, ALLOWED_SOURCE_DEFAULT_VALUES_BEAN, getContextGenerator().getCLIOptionDefinitionAllowedSource());
-		} else {
-			optionDefinitionsFromProcessRunner.allowedSources(CLIOptionDefinition.ALLOWED_SOURCE_CLI, ALLOWED_SOURCE_DEFAULT_VALUES_BEAN);
+		IContextGenerator contextGenerator = getContextGenerator();
+		CLIOptionDefinitions result = new CLIOptionDefinitions()
+				.addAll("contextGenerator", contextGenerator)
+				.addAll(getProcessRunner());
+		updateCLIOptionDefinitionsDefaultValues(result);
+		result.getCLIOptionDefinitions().forEach(o -> o.addAllowedSources(ALLOWED_SOURCE_DEFAULT_VALUES_BEAN));
+		if ( contextGenerator!=null ) {
+			contextGenerator.updateProcessRunnerCLIOptionDefinitions(result.getCLIOptionDefinitionsExludingSource("contextGenerator"));
 		}
-		optionDefinitionsFromContextGenerator.allowedSources(CLIOptionDefinition.ALLOWED_SOURCE_CLI, ALLOWED_SOURCE_DEFAULT_VALUES_BEAN);
+		return result;
 	}
-	
+
 	/**
 	 * Update default values for CLI options based on the cliOptionsDefaultValuesFromConfig bean.
 	 * @param optionDefinitions
-	 * @param cliOptionsDefaultValuesFromConfig
 	 */
-	private void updateCLIOptionDefinitionsDefaultValues(CLIOptionDefinitions optionDefinitions, Context cliOptionsDefaultValuesFromConfig) {
-		if ( cliOptionsDefaultValuesFromConfig != null ) {
+	private void updateCLIOptionDefinitionsDefaultValues(CLIOptionDefinitions optionDefinitions) {
+		Context cliOptionsDefaultValuesFromConfig = getCLIOptionsDefaultValuesFromConfig();
+		if ( MapUtils.isNotEmpty(cliOptionsDefaultValuesFromConfig) ) {
 			for ( Map.Entry<String, Object> entry : cliOptionsDefaultValuesFromConfig.entrySet() ) {
 				CLIOptionDefinition def = optionDefinitions.getCLIOptionDefinitionByName(entry.getKey());
 				if ( def != null ) {
@@ -193,8 +179,8 @@ public class RunProcessRunnerFromSpringConfig {
 	 * @param context
 	 */
 	protected final void addDefaultValues(Context context) {
-		CLIOptionDefinitions cLIOptionDefinitions = getCLIOptionDefinitions(context);
-		for ( CLIOptionDefinition cLIOptionDefinition : cLIOptionDefinitions.getCLIOptionDefinitions() ) {
+		CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(context);
+		for ( CLIOptionDefinition cLIOptionDefinition : cliOptionDefinitions.getCLIOptionDefinitions() ) {
 			String name = cLIOptionDefinition.getName();
 			if ( !context.hasValueForKey(name) ) {
 				String defaultValue = cLIOptionDefinition.getDefaultValue();
@@ -203,14 +189,6 @@ public class RunProcessRunnerFromSpringConfig {
 				}
 			}
 		}
-	}
-	
-	private final CLIOptionDefinitions getCLIOptionDefinitions(Context context, Object provider) {
-		CLIOptionDefinitions defs = new CLIOptionDefinitions();
-		if ( provider != null && provider instanceof ICLIOptionDefinitionProvider ) {
-			((ICLIOptionDefinitionProvider)provider).addCLIOptionDefinitions(defs, context);
-		}
-		return defs;
 	}
 	
 	/**

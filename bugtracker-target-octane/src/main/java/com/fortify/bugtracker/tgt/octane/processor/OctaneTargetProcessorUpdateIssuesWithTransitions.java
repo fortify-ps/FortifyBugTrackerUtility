@@ -43,8 +43,8 @@ import com.fortify.util.rest.json.JSONMap;
 @Component
 public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		OctaneConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		OctaneConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	@Override

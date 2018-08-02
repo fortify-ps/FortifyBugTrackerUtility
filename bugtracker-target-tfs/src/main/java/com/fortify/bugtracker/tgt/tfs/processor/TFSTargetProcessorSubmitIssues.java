@@ -50,10 +50,10 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	private String workItemType;
 	
 	@Override
-	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		TFSConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
-		cLIOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
-		cLIOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PROJECT);
+	public void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		TFSConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
+		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
+		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PROJECT);
 	}
 	
 	public String getTargetName() {

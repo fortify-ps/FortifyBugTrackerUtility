@@ -57,15 +57,10 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	}
 
 	@Override
-	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
-		FoDConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions, context);
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		FoDConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_ID);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME_PATTERNS);
-	}
-	
-	@Override
-	public String getCLIOptionDefinitionAllowedSource() {
-		return FoDSourceReleasesConfiguration.class.getSimpleName()+" mappings";
 	}
 	
 	@Override

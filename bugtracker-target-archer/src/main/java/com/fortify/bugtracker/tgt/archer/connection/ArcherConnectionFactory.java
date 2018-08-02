@@ -32,14 +32,14 @@ import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class ArcherConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_BASE_URL);
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_APPLICATION_NAME);
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_INSTANCE_NAME);
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_NAME);
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_DOMAIN);
-		cLIOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_PASSWORD);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "Archer");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_APPLICATION_NAME);
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_INSTANCE_NAME);
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_USER_DOMAIN);
+		cliOptionDefinitions.add(ICLIOptionsArcher.CLI_ARCHER_PASSWORD);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "Archer");
 	}
 	
 	public static final ArcherAuthenticatingRestConnection getConnection(Context context) {

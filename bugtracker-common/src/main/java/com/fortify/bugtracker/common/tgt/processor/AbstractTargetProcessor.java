@@ -39,8 +39,8 @@ public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObje
 	 * to allow subclasses to add additional context property definitions
 	 */
 	@Override
-	public final void addExtraCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		addBugTrackerCLIOptionDefinitions(cLIOptionDefinitions, context);
+	public final void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		addBugTrackerCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	@Override
@@ -48,10 +48,10 @@ public abstract class AbstractTargetProcessor extends AbstractProcessorBuildObje
 
 	/**
 	 * Subclasses can override this method to add additional bug tracker related {@link CLIOptionDefinitions}
-	 * @param cLIOptionDefinitions
+	 * @param cliOptionDefinitions
 	 * @param context
 	 */
-	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 	
 	
 	

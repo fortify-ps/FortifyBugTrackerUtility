@@ -27,8 +27,6 @@ package com.fortify.processrunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fortify.processrunner.cli.CLIOptionDefinition;
-import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
@@ -46,40 +44,17 @@ public abstract class AbstractProcessRunner implements ICLIOptionDefinitionProvi
 	private static final Log LOG = LogFactory.getLog(AbstractProcessRunner.class);
 
 	/**
-	 * Allow all configured {@link IProcessor} implementations to add
-	 * their {@link CLIOptionDefinitions}
-	 */
-	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
-		addExtraCLIOptionDefinitions(cliOptionDefinitions, context);
-		for ( IProcessor processor : getProcessors(context) ) {
-			processor.addCLIOptionDefinitions(cliOptionDefinitions, context);
-		}
-	}
-	
-	/**
-	 * Subclasses can override this method to add extra {@link CLIOptionDefinition}
-	 * instances.
-	 * @param cliOptionDefinitions
-	 * @param context
-	 */
-	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {}
-
-	/**
 	 * Run the configured processor(s) using the configured context.
 	 * Each configured processor is run with its own individual context.
 	 */
 	public void run(Context context) {
-		IProcessor[] processors = getProcessors(context);
-		for ( IProcessor processor : processors ) {
-			// Create a copy to let each processor have its own independent context
-			Context processorContext = new Context(context);
-			if ( LOG.isDebugEnabled() ) {
-				LOG.debug("[Process] Running processor "+processor+" with context "+context);
-			}
-			if ( process(Phase.PRE_PROCESS, processorContext, processor) ) {
-				if ( process(Phase.PROCESS, processorContext, processor) ) {
-					process(Phase.POST_PROCESS, processorContext, processor);
-				}
+		IProcessor processor = getProcessor(context);
+		if ( LOG.isDebugEnabled() ) {
+			LOG.debug("[Process] Running processor "+processor+" with context "+context);
+		}
+		if ( process(Phase.PRE_PROCESS, context, processor) ) {
+			if ( process(Phase.PROCESS, context, processor) ) {
+				process(Phase.POST_PROCESS, context, processor);
 			}
 		}
 	}
@@ -99,8 +74,8 @@ public abstract class AbstractProcessRunner implements ICLIOptionDefinitionProvi
 	}
 
 	/**
-	 * Get the {@link IProcessor} instances that will be run for this {@link AbstractProcessRunner}
+	 * Get the {@link IProcessor} instance that will be run for this {@link AbstractProcessRunner}
 	 * @return
 	 */
-	public abstract IProcessor[] getProcessors(Context context);
+	public abstract IProcessor getProcessor(Context context);
 }

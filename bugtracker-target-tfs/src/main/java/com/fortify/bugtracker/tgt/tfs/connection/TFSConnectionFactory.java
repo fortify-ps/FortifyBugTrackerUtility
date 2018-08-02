@@ -32,11 +32,11 @@ import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class TFSConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_BASE_URL);
 		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_USER_NAME);
 		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PASSWORD);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "TFS");
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "TFS");
 	}
 	
 	public static final TFSRestConnection getConnection(Context context) {

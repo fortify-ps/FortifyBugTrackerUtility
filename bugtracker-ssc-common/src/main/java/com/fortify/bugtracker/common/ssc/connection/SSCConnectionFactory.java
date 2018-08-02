@@ -40,12 +40,12 @@ import com.fortify.util.rest.connection.ProxyConfig;
  */
 public final class SSCConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_BASE_URL);
-		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_USER_NAME);
-		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_PASSWORD);
-		cLIOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "SSC");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_PASSWORD);
+		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "SSC");
 	}
 	
 	public static final SSCAuthenticatingRestConnection getConnection(Context context) {

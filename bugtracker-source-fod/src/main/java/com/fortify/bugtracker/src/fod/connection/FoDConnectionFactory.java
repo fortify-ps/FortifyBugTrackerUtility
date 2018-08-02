@@ -40,14 +40,14 @@ import com.fortify.util.rest.connection.ProxyConfig;
  */
 public final class FoDConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_BASE_URL);
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_TENANT);
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_USER_NAME);
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_PASSWORD);
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_ID);
-		cLIOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cLIOptionDefinitions, context, "FoD");
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_TENANT);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_PASSWORD);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_ID);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "FoD");
 	}
 	
 	public static final FoDAuthenticatingRestConnection getConnection(Context context) {

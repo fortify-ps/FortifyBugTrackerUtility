@@ -47,14 +47,13 @@ public final class CLIOptionAwareProxyConfiguration {
 	
 	/**
 	 * Add {@link CLIOptionDefinitions} that describe various proxy-related settings.
-	 * @param cLIOptionDefinitions
-	 * @param context
+	 * @param cliOptionDefinitions
 	 * @param name
 	 */
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context, String name) {
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_URL, name+" Proxy URL", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
-		cLIOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_PASSWORD, name+" Proxy Password", false).isPassword(true).dependsOnOptions(name+PRP_SFX_USER_NAME));
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, String name) {
+		cliOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_URL, name+" Proxy URL", false));
+		cliOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_USER_NAME, name+" Proxy User Name", false));
+		cliOptionDefinitions.add(new CLIOptionDefinition(name, name+PRP_SFX_PASSWORD, name+" Proxy Password", false).isPassword(true).dependsOnOptions(name+PRP_SFX_USER_NAME));
 	}
 	
 	/**

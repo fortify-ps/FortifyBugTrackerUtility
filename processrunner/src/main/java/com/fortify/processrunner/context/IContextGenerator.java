@@ -26,7 +26,8 @@ package com.fortify.processrunner.context;
 
 import java.util.Collection;
 
-import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.CLIOptionDefinition;
+import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 
 /**
  * This interface provides the {@link #generateContexts(Context)} method for 
@@ -38,7 +39,7 @@ import com.fortify.processrunner.cli.CLIOptionDefinitions;
  * @author Ruud Senden
  *
  */
-public interface IContextGenerator {
+public interface IContextGenerator extends ICLIOptionDefinitionProvider {
 	/**
 	 * Generate a {@link Collection} of {@link Context} instances, based on the 
 	 * given initialContext
@@ -48,14 +49,9 @@ public interface IContextGenerator {
 	public Collection<Context> generateContexts(Context initialContext);
 
 	/**
-	 * Update the given {@link CLIOptionDefinitions} with mapping information
-	 * @param optionDefinitions
+	 * Update the given {@link Collection} of {@link CLIOptionDefinition} instances 
+	 * with mapping information
+	 * @param cliOptionDefinitions
 	 */
-	public void updateCLIOptionDefinitionsDefaultValueDescriptions(CLIOptionDefinitions optionDefinitions);
-	
-	/**
-	 * Get additional allowed source for {@link CLIOptionDefinitions}
-	 * @return
-	 */
-	public String getCLIOptionDefinitionAllowedSource();
+	public void updateProcessRunnerCLIOptionDefinitions(Collection<CLIOptionDefinition> cliOptionDefinitions);
 }

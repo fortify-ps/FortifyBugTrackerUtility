@@ -24,11 +24,12 @@
  ******************************************************************************/
 package com.fortify.processrunner.cli;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This class holds all configured {@link CLIOptionDefinition} instances
@@ -38,15 +39,10 @@ import java.util.Set;
  *
  */
 public class CLIOptionDefinitions {
+	private static final Collection<CLIOptionDefinition> EMPTY_COLLECTION = Collections.emptyList();
 	private LinkedHashMap<String, CLIOptionDefinition> optionsByName = new LinkedHashMap<>();
-
-	public CLIOptionDefinitions() {}
-	
-	public CLIOptionDefinitions(CLIOptionDefinitions... others) {
-		for ( CLIOptionDefinitions other : others ) {
-			addAll(other);
-		}
-	}
+	private LinkedHashMap<String, Collection<CLIOptionDefinition>> optionsByGroup = new LinkedHashMap<>();
+	private LinkedHashMap<String, Collection<CLIOptionDefinition>> optionsBySource = new LinkedHashMap<>();
 
 	/**
 	 * Add the given {@link CLIOptionDefinition} instances to the {@link Map} of {@link CLIOptionDefinition}s
@@ -54,51 +50,91 @@ public class CLIOptionDefinitions {
 	 * @return
 	 */
 	public CLIOptionDefinitions add(CLIOptionDefinition... cliOptionDefinitions) {
+		return add(null, cliOptionDefinitions);
+	}
+	
+	private CLIOptionDefinitions add(String source, CLIOptionDefinition... cliOptionDefinitions) {
 		for ( CLIOptionDefinition def : cliOptionDefinitions ) {
-			addByName(def);
+			if ( !optionsByName.containsKey(def.getName()) ) {
+				def = def.deepCopy();
+				optionsByName.put(def.getName(), def);
+				optionsByGroup.computeIfAbsent(def.getGroup(), k -> new LinkedHashSet<CLIOptionDefinition>()).add(def);
+			}
+			if ( source != null ) {
+				optionsBySource.computeIfAbsent(source, k -> new LinkedHashSet<CLIOptionDefinition>()).add(optionsByName.get(def.getName()));
+			}
 		}
 		return this;
-	}
-
-	private void addByName(CLIOptionDefinition def) {
-		if ( !optionsByName.containsKey(def.getName()) ) {
-			optionsByName.put(def.getName(), def);
-		}
-	}
-	
-	public boolean containsCLIOptionDefinitionName(String name) {
-		return getCLIOptionDefinitionNames().contains(name);
-	}
-	
-	public Set<String> getCLIOptionDefinitionNames() {
-		return optionsByName.keySet();
 	}
 	
 	public Collection<CLIOptionDefinition> getCLIOptionDefinitions() {
 		return optionsByName.values();
 	}
 	
+	public Collection<String> getCLIOptionDefinitionNames() {
+		return optionsByName.keySet();
+	}
+	
 	public CLIOptionDefinition getCLIOptionDefinitionByName(String name) {
 		return optionsByName.get(name);
 	}
 	
-	public Map<String, LinkedHashSet<CLIOptionDefinition>> getCLIOptionDefinitionsByGroup() {
-		LinkedHashMap<String, LinkedHashSet<CLIOptionDefinition>> result = new LinkedHashMap<>();
-		for ( CLIOptionDefinition def : getCLIOptionDefinitions() ) {
-			result.computeIfAbsent(def.getGroup(), k -> new LinkedHashSet<CLIOptionDefinition>()).add(def);
-		}
+	public boolean containsCLIOptionDefinitionName(String name) {
+		return optionsByName.containsKey(name);
+	}
+	
+	public Collection<String> getCLIOptionDefinitionGroups() {
+		return optionsByGroup.keySet();
+	}
+	
+	public Collection<CLIOptionDefinition> getCLIOptionDefinitionsByGroup(String group) {
+		return optionsByGroup.getOrDefault(group, EMPTY_COLLECTION);
+	}
+	
+	public boolean containsCLIOptionDefinitionGroup(String group) {
+		return optionsByGroup.containsKey(group);
+	}
+	
+	public Collection<String> getCLIOptionDefinitionSources() {
+		return optionsBySource.keySet();
+	}
+	
+	public Collection<CLIOptionDefinition> getCLIOptionDefinitionsBySource(String source) {
+		return optionsBySource.getOrDefault(source, EMPTY_COLLECTION);
+	}
+	
+	public Collection<CLIOptionDefinition> getCLIOptionDefinitionsExludingSource(String sourceToExclude) {
+		ArrayList<CLIOptionDefinition> result = new ArrayList<>(getCLIOptionDefinitions());
+		Collection<CLIOptionDefinition> excludeDefs = getCLIOptionDefinitionsBySource(sourceToExclude);
+		result.removeIf(o -> excludeDefs.contains(o));
 		return result;
+	}
+	
+	public boolean containsCLIOptionDefinitionSource(String source) {
+		return optionsBySource.containsKey(source);
 	}
 
 	public CLIOptionDefinitions addAll(CLIOptionDefinitions defs) {
-		add(defs.getCLIOptionDefinitions().toArray(new CLIOptionDefinition[]{}));
+		if ( defs != null ) {
+			add(defs.getCLIOptionDefinitions().toArray(new CLIOptionDefinition[]{}));
+		}
 		return this;
 	}
 	
-	public CLIOptionDefinitions allowedSources(String... allowedSources) {
-		for ( CLIOptionDefinition def : getCLIOptionDefinitions() ) {
-			def.allowedSources(allowedSources);
+	public CLIOptionDefinitions addAll(ICLIOptionDefinitionProvider provider) {
+		if ( provider != null ) { provider.addCLIOptionDefinitions(this); }
+		return this;
+	}
+	
+	public CLIOptionDefinitions addAll(String source, CLIOptionDefinitions defs) {
+		if ( defs != null ) {
+			add(source, defs.getCLIOptionDefinitions().toArray(new CLIOptionDefinition[]{}));
 		}
+		return this;
+	}
+	
+	public CLIOptionDefinitions addAll(String source, ICLIOptionDefinitionProvider provider) {
+		addAll(source, new CLIOptionDefinitions().addAll(provider));
 		return this;
 	}
 }

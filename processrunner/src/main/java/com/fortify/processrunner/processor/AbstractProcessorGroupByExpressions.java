@@ -70,19 +70,19 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	 * Add context properties for grouping
 	 */
 	@Override
-	public final void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
+	public final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		if ( getGroupTemplateExpression()!=null && !isForceGrouping() ) {
-			cLIOptionDefinitions.add(new CLIOptionDefinition("processing", IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false).isFlag(true));
+			cliOptionDefinitions.add(new CLIOptionDefinition("processing", IContextGrouping.PRP_DISABLE_GROUPING, "Disable grouping of vulnerabilities", false).isFlag(true));
 		}
-		addExtraCLIOptionDefinitions(cLIOptionDefinitions, context);
+		addExtraCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	/**
 	 * Subclasses can override this method to add extra context properties
-	 * @param cLIOptionDefinitions
+	 * @param cliOptionDefinitions
 	 * @param context
 	 */
-	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
+	protected void addExtraCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 
 	/**
 	 * If grouping is enabled, initialize the temporary cache that will hold grouped objects.

@@ -42,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fortify.bugtracker.common.src.config.ISourceContextGeneratorConfiguration;
 import com.fortify.processrunner.cli.CLIOptionDefinition;
-import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.context.IContextGenerator;
@@ -181,12 +180,13 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	}
 	
 	@Override
-	public void updateCLIOptionDefinitionsDefaultValueDescriptions(CLIOptionDefinitions optionDefinitions) {
-		for ( CLIOptionDefinition def : optionDefinitions.getCLIOptionDefinitions() ) {
+	public void updateProcessRunnerCLIOptionDefinitions(Collection<CLIOptionDefinition> defs) {
+		for ( CLIOptionDefinition def : defs ) {
 			String desc = getConfig().getMappingDescriptions().get(def.getName());
 			if ( StringUtils.isNotBlank(desc) ) {
 				def.defaultValueDescription(desc);
 			}
+			def.addAllowedSources(getConfig().getClass().getSimpleName()+" mappings");
 		}
 	}
 

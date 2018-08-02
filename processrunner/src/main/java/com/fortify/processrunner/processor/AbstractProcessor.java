@@ -64,7 +64,7 @@ public abstract class AbstractProcessor implements IProcessor {
 	 * {@link ICLIOptionDefinitionProvider} implementation. By 
 	 * default, this method does not add any context properties.
 	 */
-	public void addCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {}
+	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {}
 	
 	/**
 	 * Process the given {@link Phase} with the given {@link Context}.

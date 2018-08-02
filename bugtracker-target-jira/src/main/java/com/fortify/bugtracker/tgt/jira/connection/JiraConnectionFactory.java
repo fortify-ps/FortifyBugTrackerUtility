@@ -32,11 +32,11 @@ import com.fortify.util.rest.connection.ProxyConfig;
 
 public final class JiraConnectionFactory 
 {
-	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_BASE_URL);
 		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_USER_NAME);
 		cliOptionDefinitions.add(ICLIOptionsJira.CLI_JIRA_PASSWORD);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, context, "Jira");
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "Jira");
 	}
 	
 	public static final JiraRestConnection getConnection(Context context) {

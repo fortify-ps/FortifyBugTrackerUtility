@@ -43,8 +43,8 @@ import com.fortify.util.rest.json.JSONMap;
 @Component
 public class JiraTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
-	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cLIOptionDefinitions, Context context) {
-		JiraConnectionFactory.addCLIOptionDefinitions(cLIOptionDefinitions, context);
+	protected void addBugTrackerCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
+		JiraConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 	}
 	
 	@Override
