@@ -39,10 +39,26 @@ import org.springframework.util.CollectionUtils;
 import com.fortify.processrunner.context.Context;
 
 /**
- * This class describes a single command line option. It contains option name, description, and whether the option 
- * is required to be available in the current {@link Context}. The option definition can optionally be ignored 
- * (not required) if an alternative option has been set ({@link #isAlternativeForOptions(String...)}), or if other 
- * options that the current property depends on have not been set ({@link #dependsOnOptions(String...)}).
+ * This class describes a single command line option. The following properties are available:
+ * <table>
+ *  <tr><td>name</td><td>Command line option name</td></tr>
+ *  <tr><td>group</td><td>Option group, used to group related options together for help output</td></tr>
+ *  <tr><td>description</td><td>Option description to be shown in help output</td></tr>
+ *  <tr><td>required</td><td>Whether the option is required to be available</td></tr>
+ *  <tr><td>defaultValue</td><td>Default value for the option if not specified on the command line</td></tr>
+ *  <tr><td>defaultValueDescription</td><td>Description of default value to be shown in help output. Defaults to 'defaultValue', but allows for providing a description if the default value is dynamically loaded</td></tr>
+ *  <tr><td>isPassword</td><td>Whether the option value is a password (or other sensitive information), to be hidden in help output</td></tr>
+ *  <tr><td>isAlternativeForOptions</td><td>If any of the given alternative options is specified, the current option is considered not required independent of the required flag</td></tr>
+ *  <tr><td>dependsOnOptions</td><td>Option value is only used if any of the given options is specified; the current option is considered not required if any of the given options is not specified</td></tr>
+ *  <tr><td>allowedSources</td><td>By default, all options may be specified on the command line. This property describes additional places where the option value may be specified, for example in configuration files</td></tr>
+ *  <tr><td>allowedValues</td><td>List of allowed values for this option, together with a description for each allowed value</td></tr>
+ *  <tr><td>extraInfo</td><td>Arbitrary additional information to be shown in help output</td></tr>
+ *  <tr><td>isFlag</td><td>Whether this is a flag option, i.e. the option can be specified on its own without any value</td></tr>
+ * </table>
+ * 
+ * Apart from the actual command line option description, this class provides the {@link #getValue(Context)} method
+ * to retrieve the current option value from the given {@link Context}; this method includes checks like whether a
+ * required option is present, and the given value is a valid value based on the 'allowedValues' property.
  * 
  * @author Ruud Senden
  */
