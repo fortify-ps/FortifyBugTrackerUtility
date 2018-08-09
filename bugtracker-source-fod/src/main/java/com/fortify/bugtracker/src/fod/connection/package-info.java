@@ -22,10 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.connection;
 /**
- * This package contains single class for instantiating {@link com.fortify.fod.connection.FoDAuthenticatingRestConnection}
+ * This package contains single class for instantiating {@link com.fortify.client.fod.connection.FoDAuthenticatingRestConnection}
  * instances based on connection properties provided by a given {@link com.fortify.processrunner.context.Context}
  * instance.
  * 
  */
+package com.fortify.bugtracker.src.fod.connection;
+

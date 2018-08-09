@@ -173,16 +173,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.0-M1</version>
+				<version>3.0.1</version>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
 				<executions>
 					<execution>
-						<id>attach-javadocs</id>
+						<id>javadoc</id>
 						<goals>
-							<goal>jar</goal>
+							<goal>javadoc</goal>
 						</goals>
-						<configuration>
-							<failOnError>false</failOnError>
-						</configuration>
+						<phase>package</phase>
 					</execution>
 				</executions>
 			</plugin>

@@ -99,6 +99,28 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<includeDependencySources>true</includeDependencySources>
+					<includeTransitiveDependencySources>true</includeTransitiveDependencySources>
+					<dependencySourceIncludes>
+						<dependencySourceInclude>com.fortify.*:*</dependencySourceInclude>
+					</dependencySourceIncludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>javadoc</id>
+						<goals>
+							<goal>javadoc</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.6</version>
 				<executions>
@@ -141,14 +163,18 @@
 						<configuration>
 							<finalName>FortifyBugTrackerUtility-${project.version}</finalName>
 							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>com.fortify.processrunner.RunProcessRunnerFromCLI</mainClass>
 								</transformer>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 									<resource>META-INF/spring.handlers</resource>
 								</transformer>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 									<resource>META-INF/spring.schemas</resource>
 								</transformer>
 							</transformers>
@@ -201,18 +227,29 @@
 							<outputDirectory>${project.build.directory}</outputDirectory>
 							<thirdPartyFilename>THIRD_PARTY_LICENSES.TXT</thirdPartyFilename>
 							<useMissingFile>true</useMissingFile>
-
+	
 							<licensesOutputDirectory>${project.build.directory}/THIRD_PARTY_LICENSES</licensesOutputDirectory>
 							<licensesOutputFile>${project.build.directory}/THIRD_PARTY_LICENSES.XML</licensesOutputFile>
-
+	
 							<licenseMerges>
-								<licenseMerge>Apache 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|apache_v2</licenseMerge>
-								<licenseMerge>CDDL 1.0|COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0|Common Development and Distribution License (CDDL) v1.0|cddl_v1</licenseMerge>
-								<licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License (LGPL), Version 2.1|GNU Lesser General Public License, version	2.1|lgpl_v2_1</licenseMerge>
-								<licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE, Version 3|GNU Lesser General Public Licence|GNU Lesser General Public License|GNU LESSER GENERAL PUBLIC LICENSE</licenseMerge>
-								<licenseMerge>Dual license: CDDL 1.0 and GPL v2|Dual license consisting of the CDDL v1.0 and GPL v2|CDDL+GPLv2|CDDL+GPL|CDDL+GPL License</licenseMerge>
-								<licenseMerge>Dual license: CDDL 1.1 and GPL v2|Dual license consisting of the CDDL v1.1 and GPL v2|CDDL1_1+GPLv2</licenseMerge>
-								<licenseMerge>Dual License: CDDL 1.0 and GPL V2 with Classpath Exception|CDDL + GPLv2 with classpath exception</licenseMerge>
+								<licenseMerge>Apache 2.0|The Apache Software License, Version
+									2.0|Apache License, Version 2.0|apache_v2</licenseMerge>
+								<licenseMerge>CDDL 1.0|COMMON DEVELOPMENT AND DISTRIBUTION
+									LICENSE (CDDL) Version 1.0|Common Development and Distribution
+									License (CDDL) v1.0|cddl_v1</licenseMerge>
+								<licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License
+									(LGPL), Version 2.1|GNU Lesser General Public License, version
+									2.1|lgpl_v2_1</licenseMerge>
+								<licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE,
+									Version 3|GNU Lesser General Public Licence|GNU Lesser General
+									Public License|GNU LESSER GENERAL PUBLIC LICENSE</licenseMerge>
+								<licenseMerge>Dual license: CDDL 1.0 and GPL v2|Dual license
+									consisting of the CDDL v1.0 and GPL
+									v2|CDDL+GPLv2|CDDL+GPL|CDDL+GPL License</licenseMerge>
+								<licenseMerge>Dual license: CDDL 1.1 and GPL v2|Dual license
+									consisting of the CDDL v1.1 and GPL v2|CDDL1_1+GPLv2</licenseMerge>
+								<licenseMerge>Dual License: CDDL 1.0 and GPL V2 with Classpath
+									Exception|CDDL + GPLv2 with classpath exception</licenseMerge>
 							</licenseMerges>
 						</configuration>
 					</execution>
@@ -281,19 +318,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 	<description>This module provides processrunner-related functionality that is based on multiple/all available bugtracker-related modules. This includes (composite) processors that combine for example FoD with JIRA, and example configuration files.
 
 This module also generates the shaded JAR-file that includes all generic processrunner-related code, processrunner-related code for bug tracker integrations, and all dependencies.</description>

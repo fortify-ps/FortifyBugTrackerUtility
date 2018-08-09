@@ -22,9 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.context;
 /**
  * This package contains a single interface for use with {@link com.fortify.processrunner.context.Context}
  * for managing SSC-specific context properties. 
  * 
  */
+package com.fortify.bugtracker.common.ssc.context;
+

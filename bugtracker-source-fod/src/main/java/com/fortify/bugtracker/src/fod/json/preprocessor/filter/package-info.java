@@ -22,9 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.json.preprocessor.filter;
 /**
  * This package contains FoD-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
  * implementations for filtering FoD {@link com.fortify.util.rest.json.JSONMap} instances.
  * 
  */
+package com.fortify.bugtracker.src.fod.json.preprocessor.filter;
+

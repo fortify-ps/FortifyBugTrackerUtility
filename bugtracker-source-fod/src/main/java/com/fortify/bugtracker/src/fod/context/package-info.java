@@ -22,9 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.context;
 /**
  * This package contains a single interface for use with {@link com.fortify.processrunner.context.Context}
  * for managing FoD-specific context properties. 
  * 
  */
+package com.fortify.bugtracker.src.fod.context;
+

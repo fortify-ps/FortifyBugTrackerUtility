@@ -22,9 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.src.fod.processor;
 /**
  * This package contains various composite {@link com.fortify.processrunner.processor.IProcessor} implementations
  * and related classes for submitting FoD vulnerabilities to bug trackers or other external systems, and
  * performing issue state management. 
  */
+package com.fortify.bugtracker.src.fod.processor;
+

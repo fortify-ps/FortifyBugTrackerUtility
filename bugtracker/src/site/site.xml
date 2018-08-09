@@ -55,6 +55,7 @@
       	</item>
       </item>
       <item name="Troubleshooting" href="troubleshooting.html"/>
+      <item name="JavaDoc" href="apidocs/index.html"/>
     </menu>
   </body>
 </project>

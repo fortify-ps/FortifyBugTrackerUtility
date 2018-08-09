@@ -22,11 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common;
 /**
- * This package contains {@link com.fortify.processrunner.common.BugTrackerProcessRunner}
- * for running {@link com.fortify.processrunner.common.processor.IProcessorSubmitVulnerabilities}
- * and {@link com.fortify.processrunner.common.processor.IProcessorUpdateState}, and the abstract 
- * {@link com.fortify.processrunner.common.AbstractBugTrackerProcessRunnerConfiguration}
- * for configuring these process runners in a Spring application context.
+ * This package contains {@link com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner}
+ * for running {@link com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsToTarget}
+ * and {@link com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOnTarget}.
  */
+package com.fortify.bugtracker.common;
+

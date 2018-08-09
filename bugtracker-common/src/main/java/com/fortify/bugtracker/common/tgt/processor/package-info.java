@@ -22,7 +22,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.tgt.processor;
 /**
  * This package contains various utility and base classes for implementing an
  * integration with a bug tracker or other external system. These classes allow
@@ -30,3 +29,5 @@ package com.fortify.bugtracker.common.tgt.processor;
  * management.
  * 
  */
+package com.fortify.bugtracker.common.tgt.processor;
+

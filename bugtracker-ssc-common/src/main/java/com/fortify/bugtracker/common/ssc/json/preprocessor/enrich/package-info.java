@@ -22,9 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 /**
  * This package contains SSC-specific {@link com.fortify.util.rest.json.preprocessor.IJSONMapPreProcessor}
  * implementations for enriching SSC {@link com.fortify.util.rest.json.JSONMap} instances.
  * 
  */
+package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
+
