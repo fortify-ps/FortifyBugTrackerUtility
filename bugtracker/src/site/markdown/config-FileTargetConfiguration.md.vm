@@ -1,0 +1,8 @@
+#parse("util.vm")
+
+# Export to File Configuration
+
+When submitting vulnerability data to a CSV file, the configuration file must include 
+a bean definition that configures export-related functionality. The following example shows a 
+full bean definition, listing all available properties and corresponding description.
+

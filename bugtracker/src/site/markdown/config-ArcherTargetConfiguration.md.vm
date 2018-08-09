@@ -1,8 +1,8 @@
+#parse("util.vm")
+
 RSA Archer Configuration
 
-  When submitting vulnerability data to RSA Archer, the configuration file must include 
+When submitting vulnerability data to RSA Archer, the configuration file must include 
 a bean definition that configures Archer-related functionality. The following example shows a 
 full bean definition, listing all available properties and corresponding description.
-
-%{snippet|id=bean|file=$basedir/src/site/snippets/TargetConfigurationArcher.xml}
 

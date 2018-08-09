@@ -1,0 +1,8 @@
+#parse("util.vm")
+
+# Native SSC Bug Tracker Configuration
+
+When submitting vulnerability data through a native SSC bug tracker integration, the 
+configuration file must include configures SSC-related functionality. The following example 
+shows a full bean definition, listing all available properties and corresponding description.
+

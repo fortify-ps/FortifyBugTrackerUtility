@@ -1,0 +1,39 @@
+#parse("util.vm")
+
+# FoD Vulnerabilities Source Configuration
+
+When loading vulnerability data from FoD, the configuration file must include a bean
+definition that configures FoD-related functionality.
+
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/FoDToFile.xml" "FoDSourceVulnerabilitiesConfiguration")`
+
+This bean definition supports the following properties:
+
+#printFoDSourceVulnerabilitiesConfigurationProperties()
+
+Following are examples of the bean configuration:
+
+```xml
+#printTagByMatchWithContents("config/FoDToFile.xml" "FoDSourceVulnerabilitiesConfiguration")
+```
+
+```xml
+#printTagByMatchWithContents("config/FoDToOctane.xml" "FoDSourceVulnerabilitiesConfiguration")
+```
+
+#** TODO: Add the following info:
+By default, the following fields can be referenced in configuration files when using FoD
+		     as the source system:
+		     * ${fieldName}
+		       Any field returned by the FoD /api/v3/Releases/{ReleaseId}/vulnerabilities endpoint
+		     * ${deepLink}
+		       Browser-viewable deep link to FoD vulnerability
+		     * ${bugLink}
+		       Native FoD bug link, or bug link as stored in comments (see addBugDataAsComment and addNativeBugLink below)
+		     * ${summary.fieldName} 
+		       Any field returned by the FoD /api/v3/releases/{ReleaseId}/vulnerabilities/{vulnId}/summary endpoint
+		     * TODO: Release fields and deeplink
+*#
+

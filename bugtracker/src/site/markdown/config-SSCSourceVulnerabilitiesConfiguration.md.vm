@@ -1,0 +1,50 @@
+#parse("util.vm")
+
+# SSC Vulnerabilities Source Configuration
+
+When loading vulnerability data from SSC, the configuration file must include a bean
+definition that configures SSC-related functionality.
+
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToFile.xml" "SSCSourceVulnerabilitiesConfiguration")`
+
+This bean definition supports the following properties:
+
+#printSSCSourceVulnerabilitiesConfigurationProperties()
+
+Following are examples of the bean configuration:
+
+```xml
+#printTagByMatchWithContents("config/SSCToFile.xml" "SSCSourceVulnerabilitiesConfiguration")
+```
+
+```xml
+#printTagByMatchWithContents("config/SSCToOctane.xml" "SSCSourceVulnerabilitiesConfiguration")
+```
+
+#** TODO: Add the following info:
+	By default, the following fields can be referenced in this configuration file:
+		     * ${fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions/${projectVersionId}/issues endpoint
+		     * ${deepLink}
+		       Browser-viewable deep link to SSC vulnerability
+		     * ${bugURL}
+		       Native SSC bug link, or bug link as stored in custom tag (see bugLinkCustomTagName and addNativeBugLink below)
+		     * ${details.fieldName} 
+		       Any field returned by the SSC /api/v1/issueDetails/${id} endpoint
+		     * ${#ctx.SSCApplicationVersion.fieldName}
+		       Any field returned by the SSC /api/v1/projectVersions endpoint
+		     * ${#ctx.SSCApplicationVersion.deepLink}
+		       Browser-viewable deep link to SSC application version
+		       
+		     The extraVulnerabilityData property can be used to retrieve additional data from SSC. Each entry defines
+		     a property name as key, and relative API endpoint URI as value. The URI may contain request parameters
+		     like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName}.
+		     
+		     These endpoints are called on-demand whenever a corresponding property is requested, and will be cached
+		     for individual vulnerabilities. If you define any endpoints that are relevant for multiple vulnerabilities
+		     (i.e. related to application version, artifacts, scans, ...), you may want to add ';cache=true' to the
+		     endpoint URI to avoid calling the same endpoint for each vulnerability.
+*#

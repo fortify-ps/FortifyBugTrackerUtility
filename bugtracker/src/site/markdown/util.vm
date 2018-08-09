@@ -1,0 +1,38 @@
+#macro( printContent $fileName $regex )
+#set($inc = $basedir.substring(2).replace("\","/")+"/"+$fileName)
+#set($content = "#include($inc)")
+$content.replaceFirst($regex, '$1')
+#end
+
+#macro( printTagByMatch $fileName $matchTagContent )
+#set($regex = '[\s\S]*(<[\s\S]*?'+$matchTagContent+'[\s\S]*?>)[\s\S]*')
+#printContent( $fileName $regex )  
+#end
+
+#macro( printTagByMatchWithContents $fileName $matchTagContent )
+#set($regex = '[\s\S]*(\s+<(\S+)\s[\s\S]*?'+$matchTagContent+'[\s\S]*?>[\s\S]*?\2)[\s\S]*')
+#printContent( $fileName $regex )     
+#end
+
+#macro( printTagByName $fileName $tagName )
+#set($regex = '[\s\S]*(<'+$tagName+'[\s\S]*?>)[\s\S]*')
+#printContent( $fileName $regex )  
+#end
+
+#macro( printTagByNameWithContents $fileName $tagName )
+#set($regex = '[\s\S]*(\s+<'+$tagName+'[\s\S]*?>[\s\S]*?\2)[\s\S]*')
+#printContent( $fileName $regex )     
+#end
+
+#macro( printProperties $propertyMap )
+#foreach( $key in $propertyMap.keySet() )
+- **$key**: $propertyMap.get($key).replaceAll('\s', ' ')
+  
+#end
+#end
+
+#parse("util-AbstractSourceContextGeneratorConfiguration.vm")
+#parse("util-AbstractSourceVulnerabilitiesConfiguration.vm")
+#parse("util-FoDSourceVulnerabilitiesConfiguration.vm")
+#parse("util-SSCSourceVulnerabilitiesConfiguration.vm")
+

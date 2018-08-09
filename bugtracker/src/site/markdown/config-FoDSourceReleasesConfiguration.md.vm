@@ -1,0 +1,19 @@
+#parse("util.vm")
+
+# FoD Releases Source Configuration
+
+FortifyBugTrackerUtility can automatically select FoD releases to be processed, and map
+releases to command line options, for example to map individual releases to corresponding
+target projects.
+
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/FoDToFile.xml" "FoDSourceReleasesConfiguration")`
+
+#printContextGeneratorInfo( "FoD" "release" "application attribute")
+
+Following is an example of the bean configuration:
+
+```xml
+#printTagByMatchWithContents("config/FoDToFile.xml" "FoDSourceReleasesConfiguration")
+```

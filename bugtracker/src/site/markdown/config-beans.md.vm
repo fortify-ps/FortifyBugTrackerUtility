@@ -1,0 +1,11 @@
+#parse("util.vm")
+
+# Beans element
+All configuration elements are wrapped inside a `<beans`> element. Each configuration file
+must start with the following `<beans>` tag, and end with a corresponding `</beans>` closing tag:
+
+#parse("util.vm")
+```xml
+#printTagByName("config/SSCToOctane.xml" "beans")
+```
+

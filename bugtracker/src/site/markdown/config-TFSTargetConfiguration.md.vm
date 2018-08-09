@@ -1,0 +1,9 @@
+#parse("util.vm")
+
+# Microsoft TFS Configuration
+
+When submitting vulnerability data to Microsoft TFS, the configuration file must include 
+a bean definition that configures TFS-related functionality. The following example shows a 
+full bean definition, listing all available properties and corresponding description.
+
+

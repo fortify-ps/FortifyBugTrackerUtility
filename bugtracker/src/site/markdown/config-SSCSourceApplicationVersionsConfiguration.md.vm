@@ -1,0 +1,24 @@
+#parse("util.vm")
+
+# SSC Application Versions Source Configuration
+
+FortifyBugTrackerUtility can automatically select SSC application versions to be processed, 
+and map application versions to command line options, for example to map individual application
+versions to corresponding target projects.  
+
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToFile.xml" "SSCSourceApplicationVersionsConfiguration")`
+
+#printContextGeneratorInfo( "SSC" "version" "application version attribute" )
+
+Following are some examples of the bean configuration:
+
+```xml
+#printTagByMatchWithContents("config/SSCToFile.xml" "SSCSourceApplicationVersionsConfiguration")
+```
+
+```xml
+#printTagByMatchWithContents("config/SSCToOctane.xml" "SSCSourceApplicationVersionsConfiguration")
+```
+

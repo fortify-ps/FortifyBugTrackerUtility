@@ -1,0 +1,22 @@
+#macro( printAbstractSourceVulnerabilitiesConfigurationProperties $sourceSystemName )
+#set( $propertyMap = {
+	"regExFiltersForVulnerabilitiesToBeSubmitted": "Allows for defining a map of regular expressions, with each entry defining
+			a vulnerability property as the key, and a corresponding regular expression to be matched as the value. Only
+			vulnerabilities for which all of the configured properties match the corresponding regular expressions will be
+			submitted to the target system. Note that vulnerabilities need to be loaded from $sourceSystemName in order
+			to evaluate these regular expressions, so for performance reasons it is recommended to use $sourceSystemName specific
+			filtering options whenever possible.",
+	"isVulnerabilityOpenExpression": "SpEL expression that defines whether a vulnerability should be considered open or closed.
+			If the vulnerability should be considered as 'open', this expression should return true, otherwise this expression
+			should return false.",
+	"extraVulnerabilityData": "Allows for loading extra vulnerability data from $sourceSystemName. This property takes a map, with each 
+			 entry defining a property name as the key, and relative $sourceSystemName API endpoint URI as value. The URI may contain 
+			 request parameters like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName} by the various vulnerability-related expressions defined elsewhere in this configuration file.
+		     These endpoints are called on-demand whenever a corresponding property is requested, and will be cached
+		     for individual vulnerabilities. If you define any endpoints that are relevant for multiple vulnerabilities
+		     (i.e. related to application version/release, artifacts, scans, ...), you may want to add ';cache=true' to the
+		     endpoint URI to avoid calling the same endpoint for each vulnerability."
+})
+#printProperties($propertyMap)
+#end

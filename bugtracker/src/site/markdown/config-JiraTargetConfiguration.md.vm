@@ -1,0 +1,9 @@
+#parse("util.vm")
+
+# Atlassian Jira Configuration
+
+When submitting vulnerability data to Atlassian Jira, the configuration file must include 
+a bean definition that configures Jira-related functionality. The following example shows a 
+full bean definition, listing all available properties and corresponding description.
+
+

@@ -1,3 +1,5 @@
+#parse("util.vm")
+
 # Default values for CLI options
 Every configuration file can contain a util:map bean with id `cliOptionsDefaultValues`. This bean can contain a map of
 default values for one or more command line options. In this map, the key specifies the name of the 
@@ -9,10 +11,7 @@ For example, you could define default SSC URL and credentials using the followin
 file:
 
 ```xml
-<util:map id="cliOptionsDefaultValues">
-	<entry key="SSCBaseUrl" value="https://fortify-ssc.mycompany.com/ssc"/>
-	<entry key="SSCAuthToken" value="688d24c3-a7ef-4ea1-b76f-5ee666393ebc"/>
-</util:map>
+#printTagByMatchWithContents("config-snippets/CLIOptionsDefaultValues.xml" "cliOptionsDefaultValues")
 ```
 
 Note that each configuration file may only have one such element.

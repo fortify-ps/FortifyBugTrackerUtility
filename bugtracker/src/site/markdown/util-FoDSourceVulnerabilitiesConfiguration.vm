@@ -1,0 +1,36 @@
+#macro( printFoDSourceVulnerabilitiesConfigurationProperties )
+#set( $propertyMap = {
+	"filterStringForVulnerabilitiesToBeSubmitted": "Set the FoD filter string to get the list of vulnerabilities to be submitted to
+		     the external system. Information about the format of this filter string can be
+		     found in the FoD API documentation, and you can use the FoD API Explorer to test
+		     your filter strings.",
+	"addBugDataAsComment": "In most cases, FortifyBugTrackerUtility will need to keep track of which
+			FoD vulnerabilities have been submitted to which target issues, for example to avoid
+			re-submitting vulnerabilities that have been submitted previously, and to perform state
+			management. If this property is set to `true`, information about submitted target issues
+			will be stored as FoD vulnerability comments. Alternatively, you can use the `addNativeBugLink`
+			property to store the URL to submitted target issues as native FoD bug links.",
+	"commentTargetName": "By default, FortifyBugTrackerUtility will use the target name to identify
+			relevant vulnerability comments. This property allows you to override the target name,
+			for example if you want to submit vulnerabilities to multiple instances of the same target
+			system, like a Jira system used by development teams, and another Jira system used for
+			risk management. Note that if you change this after vulnerabilities have already been
+			submitted to a target system, FortifyBugTrackerUtility will no longer consider these
+			vulnerabilities as having been submitted previously.",
+	"commentTemplateExpression": "This property can be used to fully customize the format of 
+			vulnerability comments for submitted target issues. This is an SpEL template expression that
+			can optionally reference the `id` property and must reference the `deepLink` property. 
+			Use with care, as FortifyBugTrackerUtility may be unable to identify already submitted
+			vulnerabilities in case of an incorrect expression. Note that if you change this after 
+			vulnerabilities have already been submitted to a target system, FortifyBugTrackerUtility 
+			will no longer consider these vulnerabilities as having been submitted previously.",
+	"addNativeBugLink": "Instead of storing links to target issues a comments (see `addBugDataAsComment` property),
+			these links can also be stored as native FoD bug links. The advantage is that users can then
+			click the bug link in FoD to navigate to the corresponding target issue. For this functionality
+			you will need to configure the relevant FoD applications with the 'Other' bug tracker.
+			This property can be set to either `true` or `false`"
+})
+#printProperties($propertyMap)
+#printAbstractSourceVulnerabilitiesConfigurationProperties("FoD")
+#end
+

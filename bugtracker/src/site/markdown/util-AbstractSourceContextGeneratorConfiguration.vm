@@ -1,0 +1,38 @@
+#macro( printContextGeneratorProperties $sourceSystemName $versionDescription $attributeDescription)
+#set( $propertyMap = {
+	"extraData": "Allows for loading extra data from $sourceSystemName. This property takes a map, with each entry defining
+		     a property name as the key, and relative $sourceSystemName API endpoint URI as value. The URI may contain request parameters
+		     like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through
+		     ${key.fieldName} by the various expressions defined on this configuration bean.",
+	"filterExpression": "SpEL expression for filtering results. This expression should return true if an application $versionDescription should be included, or false if it should be excluded.",
+	"expressionToCLIOptionsMap": "This property takes a map, with each entry defining a SpEL expression as the key, and a comma-separated list of 
+			CLI option 'name=value' pairs as the value. For every application $versionDescription matching the given SpEL expression,
+			the corresponding CLI options will be set.",
+	"attributeToCLIOptionMap": "This property takes a map, with each entry defining an $attributeDescription as the key,
+			and corresponding CLI option name as the value. If the given $attributeDescription contains a value, the corresponding
+			CLI option will be set to the attribute value.",
+	"namePatternToCLIOptionsMap": "This property takes a map, with each entry defining an application $versionDescription
+			name pattern (regular expression) as they key, and a comma-separated list of CLI option 'name=value' pairs as the value. 
+			For every application $versionDescription matching the given name pattern, the corresponding CLI options will be set."
+})
+#printProperties($propertyMap)
+#end
+
+#macro( printContextGeneratorInfo $sourceSystemName $versionDescription $attributeDescription)
+This bean definition supports the following properties:
+
+#printContextGeneratorProperties( $sourceSystemName $versionDescription $attributeDescription )
+#set( $versionsDescription = $versionDescription+'s')
+
+If one or more application $versionsDescription have been specified on the command line, the configuration in this bean
+is only used for generating CLI options corresponding to matching application $versionsDescription, and `filterExpression`
+will be ignored. 
+
+If no application $versionsDescription have been specified on the command line, then the utility will only process
+application $versionsDescription that match any of the expressions defined on this bean, and that have values defined
+for the configured $attributeDescription mappings. For example, if you have defined the `namePatternToCLIOptionsMap`
+property on this bean, then only application $versionsDescription matching any of the configured name patterns will
+be processed. Likewise, if you have defined the `attributeToCLIOptionMap` property, then only application
+$versionsDescription that have a value for the configured $attributeDescription will be processed (unless the
+corresponding CLI option has been manually specified on the command line).
+#end

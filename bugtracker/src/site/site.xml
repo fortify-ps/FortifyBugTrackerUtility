@@ -37,21 +37,21 @@
         <item name="Global">
         	<item name="beans" href="config-beans.html"/>
         	<item name="component-scan" href="config-component-scan.html"/>
-        	<item name="CLI default values" href="config-cliDefaultValues.html"/>
+        	<item name="CLI default values" href="config-cliOptionsDefaultValues.html"/>
         </item>
         <item name="Source">
-        	<item name="FoD Releases" href="config-SourceConfigurationFoDReleases.html"/>
-        	<item name="FoD Vulnerabilities" href="config-SourceConfigurationFoDVulnerabilities.html"/>
-        	<item name="SSC Versions" href="config-SourceConfigurationSSCApplicationVersions.html"/>
-      		<item name="SSC Vulnerabilities" href="config-SourceConfigurationSSCVulnerabilities.html"/>
+        	<item name="FoD Releases" href="config-FoDSourceReleasesConfiguration.html"/>
+        	<item name="FoD Vulnerabilities" href="config-FoDSourceVulnerabilitiesConfiguration.html"/>
+        	<item name="SSC Versions" href="config-SSCSourceApplicationVersionsConfiguration.html"/>
+      		<item name="SSC Vulnerabilities" href="config-SSCSourceVulnerabilitiesConfiguration.html"/>
         </item>
       	<item name="Target">
-	      	<item name="Archer" href="config-TargetConfigurationArcher.html"/>
-	      	<item name="File" href="config-TargetConfigurationFile.html"/>
-	      	<item name="Jira" href="config-TargetConfigurationJira.html"/>
-	      	<item name="Octane" href="config-TargetConfigurationOctane.html"/>
-	      	<item name="TFS" href="config-TargetConfigurationTFS.html"/>
-	      	<item name="SSC" href="config-TargetConfigurationSSC.html"/>
+	      	<item name="Archer" href="config-ArcherTargetConfiguration.html"/>
+	      	<item name="File" href="config-FileTargetConfiguration.html"/>
+	      	<item name="Jira" href="config-JiraTargetConfiguration.html"/>
+	      	<item name="Octane" href="config-OctaneTargetConfiguration.html"/>
+	      	<item name="TFS" href="config-TFSTargetConfiguration.html"/>
+	      	<item name="SSC" href="config-SSCTargetConfiguration.html"/>
       	</item>
       </item>
       <item name="Troubleshooting" href="troubleshooting.html"/>

@@ -97,6 +97,7 @@
 	</dependencies>
 	<build>
 		<plugins>
+		<!-- 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -118,7 +119,7 @@
 						<phase>package</phase>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -269,7 +270,7 @@
 							<outputDirectory>${basedir}/target</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${basedir}/processrunner-config</directory>
+									<directory>${basedir}/config</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>

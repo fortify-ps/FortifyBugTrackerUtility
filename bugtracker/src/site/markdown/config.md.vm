@@ -1,0 +1,26 @@
+#parse("util.vm")
+
+# Configuration File
+As described in the [Usage](usage.html) section, FortifyBugTrackerUtility requires a configuration file in order to do
+any work. FortifyBugTrackerUtility comes with example configuration files for the various combinations of source and
+target systems; you can modify these example configuration files according to your needs.
+
+In general, a configuration file contains the following elements (you can click on each element to see a more detailed description): 
+
+- A [`<beans>`](config-beans.html) element that wraps all other configuration elements.
+- A [`<context:component-scan>`](config-component-scan.html) element for loading source and target implementations.
+- A [`#printTagByMatch("config-snippets/CLIOptionsDefaultValues.xml" "cliOptionsDefaultValues")`](config-cliOptionsDefaultValues.html) for setting default values for command line options.
+- One or more beans describing the configuration of the source system:
+    - FoD releases: [`#printTagByMatch("config/FoDToFile.xml" "FoDSourceReleasesConfiguration")`](config-FoDSourceReleasesConfiguration.html)
+    - FoD vulnerabilities: [`#printTagByMatch("config/FoDToFile.xml" "FoDSourceVulnerabilitiesConfiguration")`](config-FoDSourceVulnerabilitiesConfiguration.html)
+    - SSC application versions: [`#printTagByMatch("config/SSCToFile.xml" "SSCSourceApplicationVersionsConfiguration")`](config-SSCSourceApplicationVersionsConfiguration.html)
+    - SSC vulnerabilities: [`#printTagByMatch("config/SSCToFile.xml" "SSCSourceVulnerabilitiesConfiguration")`](config-SSCSourceVulnerabilitiesConfiguration.html)
+- A bean describing the configuration of the target system (bug tracker, risk management system, file, ...):
+    - RSA Archer: [`#printTagByMatch("config/SSCToArcher.xml" "ArcherTargetConfiguration")`](config-ArcherTargetConfiguration.html)
+    - CSV File: [`#printTagByMatch("config/SSCToFile.xml" "FileTargetConfiguration")`](config-FileTargetConfiguration.html)
+    - Atlassian Jira: [`#printTagByMatch("config/SSCToJira.xml" "JiraTargetConfiguration")`](config-JiraTargetConfiguration.html)
+    - ALM Octane: [`#printTagByMatch("config/SSCToOctane.xml" "OctaneTargetConfiguration")`](config-OctaneTargetConfiguration.html)
+    - TFS: [`#printTagByMatch("config/SSCToTFS.xml" "TFSTargetConfiguration")`](config-TFSTargetConfiguration.html)
+    - Native SSC bug tracker: [`#printTagByMatch("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")`](config-SSCTargetConfiguration.html)
+  
+
