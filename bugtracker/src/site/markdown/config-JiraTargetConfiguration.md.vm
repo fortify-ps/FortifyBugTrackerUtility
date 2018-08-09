@@ -3,7 +3,26 @@
 # Atlassian Jira Configuration
 
 When submitting vulnerability data to Atlassian Jira, the configuration file must include 
-a bean definition that configures Jira-related functionality. The following example shows a 
-full bean definition, listing all available properties and corresponding description.
+a bean definition that configures Jira-related functionality. 
 
+This configuration is defined using the following bean definition in the configuration file:
 
+`#printTagByMatch("config/SSCToJira.xml" "JiraTargetConfiguration")`
+
+This bean definition supports the following properties:
+
+#printAbstractTargetUpdateIssuesWithTransitionsConfiguration("Jira")
+
+Following are examples of the bean configuration:
+
+For SSC:
+
+```xml
+#printTagByMatchWithContents("config/SSCToJira.xml" "JiraTargetConfiguration")
+```
+
+For FoD:
+
+```xml
+#printTagByMatchWithContents("config/FoDToJira.xml" "JiraTargetConfiguration")
+```

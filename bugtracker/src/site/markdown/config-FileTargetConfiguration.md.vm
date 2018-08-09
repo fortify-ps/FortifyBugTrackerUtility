@@ -3,6 +3,26 @@
 # Export to File Configuration
 
 When submitting vulnerability data to a CSV file, the configuration file must include 
-a bean definition that configures export-related functionality. The following example shows a 
-full bean definition, listing all available properties and corresponding description.
+a bean definition that configures export-related functionality. 
 
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToFile.xml" "FileTargetConfiguration")`
+
+This bean definition supports the following properties:
+
+#printAbstractTargetSubmitOnlyConfiguration("File")
+
+Following are examples of the bean configuration:
+
+For SSC:
+
+```xml
+#printTagByMatchWithContents("config/SSCToFile.xml" "FileTargetConfiguration")
+```
+
+For FoD:
+
+```xml
+#printTagByMatchWithContents("config/FoDToFile.xml" "FileTargetConfiguration")
+```

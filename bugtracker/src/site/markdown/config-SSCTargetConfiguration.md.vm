@@ -3,6 +3,18 @@
 # Native SSC Bug Tracker Configuration
 
 When submitting vulnerability data through a native SSC bug tracker integration, the 
-configuration file must include configures SSC-related functionality. The following example 
-shows a full bean definition, listing all available properties and corresponding description.
+configuration file must include configures SSC-related functionality. 
 
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")`
+
+This bean definition supports the following properties:
+
+#printAbstractTargetSubmitOnlyConfiguration("SSC")
+
+Following is an example of the bean configuration for submitting vulnerabilities through the native SSC TFS bug tracker plugin:
+
+```xml
+#printTagByMatchWithContents("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")
+```

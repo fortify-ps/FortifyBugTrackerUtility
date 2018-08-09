@@ -1,0 +1,8 @@
+#macro( printAbstractTargetSubmitOnlyConfiguration $targetSystemName )
+#set( $propertyMap = {
+	"groupTemplateExpression": "TODO",
+	"fields": "TODO",
+	"appendedFields": "TODO"
+})
+#printProperties($propertyMap)
+#end

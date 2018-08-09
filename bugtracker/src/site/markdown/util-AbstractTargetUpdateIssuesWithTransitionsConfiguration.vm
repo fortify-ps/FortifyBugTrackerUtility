@@ -1,0 +1,8 @@
+#macro( printAbstractTargetUpdateIssuesWithTransitionsConfiguration $targetSystemName )
+#set( $propertyMap = {
+	"transitionsForOpeningIssue": "TODO",
+	"transitionsForClosingIssue": "TODO"
+})
+#printAbstractTargetSubmitAndUpdateConfiguration( $targetSystemName )
+#printProperties($propertyMap)
+#end

@@ -3,6 +3,26 @@
 ALM Octane Configuration
 
 When submitting vulnerability data to ALM Octane, the configuration file must include 
-a bean definition that configures Octane-related functionality. The following example shows a 
-full bean definition, listing all available properties and corresponding description.
+a bean definition that configures Octane-related functionality. 
 
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToOctane.xml" "OctaneTargetConfiguration")`
+
+This bean definition supports the following properties:
+
+#printAbstractTargetUpdateIssuesWithTransitionsConfiguration("Octane")
+
+Following are examples of the bean configuration:
+
+For SSC:
+
+```xml
+#printTagByMatchWithContents("config/SSCToOctane.xml" "OctaneTargetConfiguration")
+```
+
+For FoD:
+
+```xml
+#printTagByMatchWithContents("config/FoDToOctane.xml" "OctaneTargetConfiguration")
+```
