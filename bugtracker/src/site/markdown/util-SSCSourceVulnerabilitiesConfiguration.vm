@@ -20,7 +20,7 @@
 			because SSC does not provide native filtering of vulnerabilities based on whether a bug link
 			exists or not. This property can be set to either `true` or `false`",
 	"addNativeBugLinkBugTrackerName": "By default, when `addNativeBugLink` is enabled, FortifyBugTrackerUtility
-			will look for an SSC bug tracker plugin named 'Add Existing Bugs'. In rare cases you may require
+			will look for an SSC bug tracker plugin named `Add Existing Bugs`. In rare cases you may require
 			a customized version of this plugin; if so you can configure a different SSC bug tracker plugin
 			name using this property.",
 	"extraCustomTags": "This property allows for setting SSC custom tags based on target issue state. For
@@ -34,7 +34,7 @@
 		     refreshed. This is a known bug in SSC 16.20 and possibly older versions; SSC
 		     17.10 and up should not need this work-around. Please enable this property if
 		      you consistently get an error
-		     'Conflict detected! There is a newer revision of the selected issue on the server.'
+		     `Conflict detected! There is a newer revision of the selected issue on the server.`
 		     when FortifyBugTrackerUtility tries to update custom tags in SSC."
 })
 #printProperties($propertyMap)
