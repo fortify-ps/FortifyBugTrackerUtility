@@ -1,8 +1,40 @@
 #macro( printAbstractTargetSubmitOnlyConfiguration $targetSystemName )
+#if ( $targetSystemName == "File" )
 #set( $propertyMap = {
-	"groupTemplateExpression": "TODO",
-	"fields": "TODO",
-	"appendedFields": "TODO"
+	"groupTemplateExpression": "Used for grouping vulnerabilities together into a single output file. The given SpEL template 
+			expression will be evaluated to determine the name of the output file.",
+	"fields": "Used for specifying the CSV columns to be exported. This property takes a map, with the column name
+	           as the key, and an SpEL template expression as the value for generating the field value."
+})
+#else
+#set( $propertyMap = {
+	"groupTemplateExpression": "Used for grouping vulnerabilities together into a single target issue. For
+			example, this allows you to group together all Cross-Site Scripting vulnerabilities in a single JSP page, allowing
+			a developer to fix all of these in a single go. Note that grouping is only applied during a single run of
+			FortifyBugTrackerUtility. For example, if the utility is invoked when 2 new XSS vulnerabilities have been introduced 
+			in someFile.jsp, and the utility already submitted 5 XSS vulnerabilities in the same file to a target issue,
+			then a new target issue will be created, instead of appending the new vulnerabilities to the already existing
+			target issue.",
+	"fields": "Used for specifying the fields to be submitted to $targetSystemName. This property takes a map, with the target issue
+			field name as the key, and an SpEL template expression as the value for generating the field value. If grouping is enabled,
+			this property specifies the target fields at group level; the SpEL template expressions will be evaluated on an arbitrary 
+			vulnerability in each group. As such you should only reference vulnerability fields that will be the same for every 
+			vulnerability in a given group. See the `appendedFields` property on how to append information for individual vulnerabilities.",
+	"appendedFields": "This property has the same format as the `fields` property, but the SpEL template expressions will be 
+			evaluated for each individual vulnerability in each group, and the result will be appended to the already existing
+			fields. For example, this allows you to generate a target issue description field containing a list of vulnerability data 
+			for each vulnerability in a group."
+})
+#end
+#printProperties($propertyMap)
+#end
+
+#macro( printSSCTargetSubmitOnlyConfiguration )
+#set( $propertyMap = {
+	"sscBugTrackerName": "This property specifies the name of the native SSC bug tracker plugin through which the vulnerabilities
+			are to be submitted. Application versions that have a different bug tracker plugin configured (or no plugin at all) 
+			will be ignored."
 })
 #printProperties($propertyMap)
+#printAbstractTargetSubmitOnlyConfiguration("SSC")
 #end

@@ -1,8 +1,46 @@
 #macro( printAbstractTargetUpdateIssuesWithTransitionsConfiguration $targetSystemName )
+#printAbstractTargetSubmitOnlyConfiguration( $targetSystemName )
 #set( $propertyMap = {
-	"transitionsForOpeningIssue": "TODO",
-	"transitionsForClosingIssue": "TODO"
+	"fieldsToUpdateDuringStateManagement": "This property takes a comma-separated list of target fields to be updated
+			during state management. Usually you will want to specify the target description field, in order to
+			have the description show accurate vulnerability details like updated vulnerability line numbers
+			or whether individual vulnerabilities are currently open or closed.",
+	"isIssueOpenableExpression": "SpEL expression to identify whether a given target issue is considered
+			re-openable. By default, a target issue is considered re-openable if a valid transition is found 
+			in the `transitionsForOpeningIssue` property. You can provide an additional expression here, for
+			example to disallow FortifyBugTrackerUtility from re-opening specific target issues even if a valid
+			transition exists.",
+	"isIssueCloseableExpression": "SpEL expression to identify whether a given target issue is considered
+			closeable. By default, a target issue is considered closeable if a valid transition is found 
+			in the `transitionsForClosingIssue` property. You can provide an additional expression here, for
+			example to disallow FortifyBugTrackerUtility from closing specific target issues even if a valid
+			transition exists.",
+	"transitionsForOpeningIssue": "This property defines target issue transitions for re-opening issues. The
+			property takes a map, with an SpEL expression as the key, and either a single or list of transitions
+			as the value. If a target issue needs to be re-opened, FortifyBugTrackerUtility will perform the
+			given transition(s) if the corresponding SpEL expression evaluates to `true`. Transitions are
+			specified in the format `Transition Name[Optional comment to be added to the target issue]`",
+	"transitionsForClosingIssue": "This property defines target issue transitions for closing issues. The
+			property takes a map, with an SpEL expression as the key, and either a single or list of transitions
+			as the value. If a target issue needs to be closed, FortifyBugTrackerUtility will perform the
+			given transition(s) if the corresponding SpEL expression evaluates to `true`. Transitions are
+			specified in the format `Transition Name[Optional comment to be added to the target issue]`"
 })
-#printAbstractTargetSubmitAndUpdateConfiguration( $targetSystemName )
 #printProperties($propertyMap)
 #end
+
+## TODO Add information about the properties that can be referenced
+#** TODO Add example with either single or multiple transitions:
+	<property name="transitionsForClosingIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="fields.status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="fields.status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FoDBugTrackerUtility]"/>
+			<!-- Example on performing multiple transitions to reach the target state -->
+			<entry key="fields.status.name matches 'My Custom Status'"><list>
+				<value>IntermediateTransition1</value> <!-- Transition without comment -->
+				<value>IntermediateTransition2[Intermediate transition performed by FoDBugTrackerUtility]</value>
+				<value>FinalTransition[Issue closed by FoDBugTrackerUtility]</value>
+			</list></entry>
+		</map></property>
+*#

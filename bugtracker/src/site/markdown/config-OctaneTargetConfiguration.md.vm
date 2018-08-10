@@ -1,6 +1,6 @@
 #parse("util.vm")
 
-ALM Octane Configuration
+# ALM Octane Configuration
 
 When submitting vulnerability data to ALM Octane, the configuration file must include 
 a bean definition that configures Octane-related functionality. 

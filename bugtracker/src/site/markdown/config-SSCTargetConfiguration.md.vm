@@ -11,7 +11,7 @@ This configuration is defined using the following bean definition in the configu
 
 This bean definition supports the following properties:
 
-#printAbstractTargetSubmitOnlyConfiguration("SSC")
+#printSSCTargetSubmitOnlyConfiguration()
 
 Following is an example of the bean configuration for submitting vulnerabilities through the native SSC TFS bug tracker plugin:
 

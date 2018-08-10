@@ -1,9 +1,0 @@
-#macro( printAbstractTargetSubmitAndUpdateConfiguration $targetSystemName )
-#set( $propertyMap = {
-	"fieldsToUpdateDuringStateManagement": "TODO",
-	"isIssueOpenableExpression": "TODO",
-	"isIssueCloseableExpression": "TODO"
-})
-#printAbstractTargetSubmitOnlyConfiguration( $targetSystemName )
-#printProperties($propertyMap)
-#end
