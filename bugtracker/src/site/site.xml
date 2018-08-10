@@ -31,8 +31,11 @@
   <body>
     <menu name="FortifyBugTrackerUtility">
       <item name="Introduction" href="index.html"/>
+      <item name="Preparations">
+      		<item name="FoD" href="prep-FoD.html"/>
+      		<item name="SSC" href="prep-SSC.html"/>
+      </item>
       <item name="Usage" href="usage.html"/>
-      <item name="SSC Token" href="ssc-tokendefinition.html"/>
       <item name="Configuration" href="config.html">
         <item name="Global">
         	<item name="beans" href="config-beans.html"/>
@@ -52,6 +55,11 @@
 	      	<item name="Octane" href="config-OctaneTargetConfiguration.html"/>
 	      	<item name="TFS" href="config-TFSTargetConfiguration.html"/>
 	      	<item name="SSC" href="config-SSCTargetConfiguration.html"/>
+      	</item>
+      	<item name="Expressions" href="expr-intro.html">
+	      	<item name="FoD" href="expr-fod.html"/>
+	      	<item name="SSC" href="expr-ssc.html"/>
+	      	<item name="Targest" href="expr-targets.html"/>
       	</item>
       </item>
       <item name="Troubleshooting" href="troubleshooting.html"/>
