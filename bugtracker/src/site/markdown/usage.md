@@ -12,24 +12,25 @@ you can view additional options by specifying the `-help` option again:
 
 In order to actually run the utility, you will need to provide appropriate values for all required options. Please make sure to also
 review the optional options though. Note that options can be specified on the command line, but most options also allow default
-values to be specified in the configuration file through the [cliOptionsDefaultValues](config-cliDefaultValues.html) bean in the
+values to be specified in the configuration file through the [cliOptionsDefaultValues](config-cliOptionsDefaultValues.html) bean in the
 configuration file. In addition, option values can be generated for individual FoD releases or SSC application versions; see
-[FoDSourceVulnerabilitiesConfiguration](config-SourceConfigurationFoDReleases.html) and 
-[SSCSourceApplicationVersionsConfiguration](config-SourceConfigurationSSCApplicationVersions.html) respectively for more details.
+[FoDSourceVulnerabilitiesConfiguration](config-FoDSourceVulnerabilitiesConfiguration.html) and 
+[SSCSourceApplicationVersionsConfiguration](config-SSCSourceApplicationVersionsConfiguration.html) respectively for more details.
 
-Following are some examples:
+Following are some examples (based on the default configuration files):
 
-- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123!`
+- Export all Exploitable vulnerabilities for all SSC application versions to CSV files
 
-  This would export all Exploitable vulnerabilities for all SSC application versions to CSV files
-  
-- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns EightBall:.*,RabbitMq:.*`
+    `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123!`
 
-  This would export all Exploitable vulnerabilities for all SSC application versions in the EightBall and RabbitMq applications to CSV files
-  
-- `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToOctane.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns WebGoat:5\.0 -OctaneBaseUrl https://mqast001pngx.saas.hpe.com -OctaneUserName ruud.senden@hpe.com -OctanePassword [password] -OctaneSharedSpaceUid 136002 -OctaneWorkspaceId 1002`
+- Export all Exploitable vulnerabilities for all SSC application versions in the EightBall and RabbitMq applications to CSV files:
 
-  This would export all Exploitable vulnerabilities for the 'WebGoat 5.0' application version to the specified Octane workspace
+    `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToFile.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns EightBall:.*,RabbitMq:.*`
+
+- Export all Exploitable vulnerabilities for the 'WebGoat 5.0' application version to the specified Octane workspace
+
+    `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToOctane.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns WebGoat:5\.0 -OctaneBaseUrl https://mqast001pngx.saas.hpe.com -OctaneUserName ruud.senden@hpe.com -OctanePassword [password] -OctaneSharedSpaceUid 136002 -OctaneWorkspaceId 1002`
+
 
 Before running any actions, you may want to review the configuration file to verify the various selection and grouping
 criteria, and the fields to be submitted to the external system. Please see the configuration-related sections in this documentation.
