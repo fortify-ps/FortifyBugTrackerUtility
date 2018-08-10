@@ -1,6 +1,6 @@
-# Available SSC JSON properties
+# Available SSC properties
 
-The following fields can be referenced in configuration files when using SSC as the source system:
+The following fields can be referenced in SpEL expressions when using SSC as the source system:
 
 * `${fieldName}`
 

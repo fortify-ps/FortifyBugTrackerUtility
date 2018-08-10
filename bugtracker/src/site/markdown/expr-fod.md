@@ -1,6 +1,6 @@
-# Available FoD JSON properties
+# Available FoD properties
 
-The following fields can be referenced in configuration files when using FoD as the source system:
+The following fields can be referenced in SpEL expressions when using FoD as the source system:
 
 * `${fieldName}`
 
