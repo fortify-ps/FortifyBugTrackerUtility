@@ -26,7 +26,7 @@ The following fields can be referenced in configuration files when using SSC as 
 		       
     Browser-viewable deep link to SSC application version
     
-* `${#ctx.SSCApplicationVersion.attributeValuesByName["sttributeName"]}`
+* `${#ctx.SSCApplicationVersion.attributeValuesByName["attributeName"]}`
 		       
     Application version attribute value for given attributeName
 		       
