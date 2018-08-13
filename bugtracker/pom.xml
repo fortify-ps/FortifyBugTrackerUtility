@@ -28,7 +28,7 @@
 	<parent>
 		<groupId>com.fortify.bugtracker</groupId>
 		<artifactId>bugtracker-root</artifactId>
-		<version>3.5-SNAPSHOT</version>
+		<version>3.5</version>
 	</parent>
 	<properties>
 		<!--  Used by .apt.vm files to correctly resolve snippet files -->
@@ -163,18 +163,14 @@
 						<configuration>
 							<finalName>FortifyBugTrackerUtility-${project.version}</finalName>
 							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>com.fortify.processrunner.RunProcessRunnerFromCLI</mainClass>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 									<resource>META-INF/spring.handlers</resource>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 									<resource>META-INF/spring.schemas</resource>
 								</transformer>
 							</transformers>
