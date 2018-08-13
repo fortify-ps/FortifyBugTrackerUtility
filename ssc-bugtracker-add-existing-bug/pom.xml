@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>com.fortify.bugtracker</groupId>
 		<artifactId>bugtracker-root</artifactId>
-		<version>3.5</version>
+		<version>3.6-SNAPSHOT</version>
 	</parent>
 	<description><![CDATA[
 	This SSC bug tracker plugin allows for adding existing bug links to vulnerabilities.
