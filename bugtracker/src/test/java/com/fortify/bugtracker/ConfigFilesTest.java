@@ -41,13 +41,13 @@ import com.fortify.util.spring.SpringContextUtil;
 public class ConfigFilesTest {
 	@Test
 	public void testConfigFiles() {
-		String[] files = new File("processrunner-config").list(new FilenameFilter() {
+		String[] files = new File("config").list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".xml");
 			}
 		});
 		for ( String file : files ) {
-			GenericApplicationContext ctx = SpringContextUtil.loadApplicationContextFromFiles(true, "processrunner-config/"+file);
+			GenericApplicationContext ctx = SpringContextUtil.loadApplicationContextFromFiles(true, "config/"+file);
 			System.out.println(ctx+": "+Arrays.asList(ctx.getBeanDefinitionNames()));
 		}
 	}
