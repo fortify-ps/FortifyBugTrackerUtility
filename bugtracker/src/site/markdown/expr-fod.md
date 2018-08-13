@@ -1,6 +1,43 @@
 # Available FoD properties
 
-The following fields can be referenced in SpEL expressions when using FoD as the source system:
+This section lists the available FoD properties that can be used in the configuration file.
+Properties are listed as template expressions (surrounded by `${` and `}`); for standard
+SpEL expressions like `isVulnerabilityOpenExpression`, you can reference these
+properties directly without the surrounding `${` and `}`.
+
+## Application releases configuration
+
+The `FoDSourceReleasesConfiguration` bean loads application release information
+from FoD in order to generate a list of application releases to be processed, and to map application 
+releases to CLI options. The following FoD application release properties can be referenced in this 
+configuration bean:
+
+* `${fieldName}`
+
+    Any field returned by the FoD `/api/v3/Releases/` endpoint
+
+* `${deepLink}`
+		       
+    Browser-viewable deep link to FoD application release
+    
+* `${applicationWithAttributesMap.fieldName}`
+
+	Any field returned by the FoD `/api/v3/applications` endpoint
+
+* `${applicationWithAttributesMap.deepLink}`
+
+	Browser-viewable deep link to FoD application
+	
+* `${applicationWithAttributesMap.attributesMap["attributeName"]}`
+
+	Application attribute value for given attributeName
+    
+* Any additional fields as loaded through the `extraData` property on [FoDSourceReleasesConfiguration](config-FoDSourceReleasesConfiguration.html). All fields returned by such an endpoint can then be referenced through ${extraDataKey.fieldName}.
+
+## Vulnerabilities and target field mappings
+
+On all other beans, like `FoDSourceVulnerabilitiesConfiguration` and target configurations, the following
+FoD vulnerability properties can be referenced:
 
 * `${fieldName}`
 
@@ -20,22 +57,6 @@ The following fields can be referenced in SpEL expressions when using FoD as the
 		     
 * `${#ctx.Release.fieldName}`
 
-    Any field returned by the FoD `/api/v3/releases` endpoint
-
-* `${#ctx.Release.deepLink}`
+    Any of the fields as listed under 'Application releases configuration' above
 		       
-    Browser-viewable deep link to FoD application release
-    
-* `${#ctx.Release.applicationWithAttributesMap.fieldName}`
-
-	Any field returned by the FoD `/api/v3/applications` endpoint
-
-* `${#ctx.Release.applicationWithAttributesMap.deepLink}`
-
-	Browser-viewable deep link to FoD application
-	
-* `${#ctx.Release.applicationWithAttributesMap.attributesMap["attributeName"]}`
-
-	Application attribute value for given attributeName
-		       
-* Any additional fields as loaded through the `extraVulnerabilityData` property on [FoDSourceVulnerabilitiesConfiguration](config-FoDSourceVulnerabilitiesConfiguration). All fields returned by such an endpoint can then be referenced through ${extraVulnerabilityDataKey.fieldName}.
+* Any additional fields as loaded through the `extraVulnerabilityData` property on [FoDSourceVulnerabilitiesConfiguration](config-FoDSourceVulnerabilitiesConfiguration.html). All fields returned by such an endpoint can then be referenced through ${extraVulnerabilityDataKey.fieldName}.

@@ -48,6 +48,14 @@ change the approach after vulnerabilities have already been submitted to the tar
 utility will consider all previously submitted issues as not having been submitted before, and thus will re-submit all 
 relevant vulnerabilities to the target system. 
 
+## Extra custom tags
+
+FortifyBugTrackerUtility allows for storing additional information about target issues in SSC custom tags; see
+the `extraCustomTags` property in [SSC Vulnerabilities Configuration](config-SSCSourceVulnerabilitiesConfiguration.html).
+Of course, in order to allow FortifyBugTrackerUtility to actually store this information, the custom tags being
+referred to in the `extraCustomTags` property will need to be defined on SSC and assigned to the applicable
+application versions.
+
 ## Application version selection
 
 This information applies to all target integrations.
