@@ -10,6 +10,42 @@ you can view additional options by specifying the `-help` option again:
 
 `java -jar FortifyBugTrackerUtility-[version].jar -configFile FoDToJira.xml -help`
 
+The `-help` option shows available option names, a short option description, and the following information if applicable:
+
+* Default value
+
+    The default value for this option. This can be a hardcoded default value, a default
+    value automatically calculated by the utility, or a default value as configured in
+    the configuration file.
+    
+* Current value:
+
+	The current value for this option. This can be the default value, or a value as currently
+	specified on the command line.
+
+* Allowed values:  
+
+	The list of allowed values for this option; an error will be given if the provided value
+	does not correspond to any of the allowed values.
+	
+* Allowed sources: 
+
+    Describes where this option can be set:
+    
+    * CLI option: Option can be specified on the command line
+    * cliOptionsDefaultValues bean: Option can be configured through the cliOptionsDefaultValues bean
+      in the configuration file
+    * SSCSourceApplicationVersionsConfiguration mappings: Option can be configured
+      through the `SSCSourceApplicationVersionsConfiguration` bean in the configuration file
+    * FoDSourceReleasesConfiguration mappings: Option can be configured
+      through the `FoDSourceReleasesConfiguration` bean in the configuration file
+
+* Used for:      
+
+    Describes whether this option is used for submitting new vulnerabilities, updating state for
+    previously submitted vulnerabilities, or both.
+ 
+
 In order to actually run the utility, you will need to provide appropriate values for all required options. Please make sure to also
 review the optional options though. Note that options can be specified on the command line, but most options also allow default
 values to be specified in the configuration file through the [cliOptionsDefaultValues](config-cliOptionsDefaultValues.html) bean in the
