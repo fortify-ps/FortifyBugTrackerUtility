@@ -26,10 +26,12 @@ package com.fortify.bugtracker.common.tgt.processor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -213,6 +215,8 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 			valueFromConfigString = StringUtils.deleteWhitespace(valueFromConfigString).replaceAll("\\<.*?\\>", "");
 			
 			return !valueFromTargetString.contains(valueFromConfigString);
+		} else if ( valueFromTarget instanceof Collection && valueFromConfig instanceof Collection ) {
+			return !CollectionUtils.isEqualCollection((Collection<?>)valueFromTarget, (Collection<?>)valueFromConfig);
 		}
 		return true;
 	}
