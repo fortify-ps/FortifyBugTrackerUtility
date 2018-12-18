@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.Expression;
@@ -94,8 +95,10 @@ public class MapBuilder {
 				for ( Map.Entry<String, ? extends Expression> entry : expressions.entrySet() ) {
 					String key = entry.getKey();
 					Expression expression = entry.getValue();
-					Object value = getValue(map, key, rootObject, expression);
-					map.put(key, value);
+					if ( StringUtils.isNotBlank(key) && expression != null ) {
+						Object value = getValue(map, key, rootObject, expression);
+						map.put(key, value);
+					}
 				}
 			}
 		}
