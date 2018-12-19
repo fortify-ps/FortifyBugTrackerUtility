@@ -35,7 +35,7 @@ import com.fortify.util.rest.json.JSONMap;
  */
 public interface IContextFoD {
 	public void setRelease(JSONMap release);
-	public String getRelease();
+	public JSONMap getRelease();
 	
 	public void setFoDApplicationAndReleaseName(String applicationAndReleaseName);
 	public String getFoDApplicationAndReleaseName();
