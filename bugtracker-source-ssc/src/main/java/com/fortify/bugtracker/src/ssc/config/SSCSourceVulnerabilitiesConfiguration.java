@@ -56,6 +56,7 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private String addNativeBugLinkBugTrackerName = "Add Existing Bugs";
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private boolean enableRevisionWorkAround = false;
+	private String filterSetId = null;
 	
 	@Override
 	public void updateQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
@@ -117,6 +118,14 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 
 	public void setEnableRevisionWorkAround(boolean enableRevisionWorkAround) {
 		this.enableRevisionWorkAround = enableRevisionWorkAround;
+	}
+
+	public String getFilterSetId() {
+		return filterSetId;
+	}
+
+	public void setFilterSetId(String filterSetId) {
+		this.filterSetId = filterSetId;
 	}
 	
 }
