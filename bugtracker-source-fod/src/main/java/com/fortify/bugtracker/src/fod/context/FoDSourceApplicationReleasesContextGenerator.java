@@ -67,7 +67,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	protected FoDReleasesQueryBuilder createBaseQueryBuilder(Context context) {
 		return FoDConnectionFactory.getConnection(context)
 				.api(FoDReleaseAPI.class).queryReleases()
-				.onDemandApplicationWithAttributesMap()
+				.onDemandApplication()
 				.paramOrderBy("applicationName", FoDOrderByDirection.ASC);
 	}
 	
@@ -119,7 +119,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 
 	@Override
 	protected String getSourceObjectAttributeValue(JSONMap sourceObject, String attributeName) {
-		JSONMap attributesMap = SpringExpressionUtil.evaluateExpression(sourceObject, "applicationWithAttributesMap.attributesMap", JSONMap.class);
+		JSONMap attributesMap = SpringExpressionUtil.evaluateExpression(sourceObject, "application.attributesMap", JSONMap.class);
 		JSONList attributeValues = attributesMap==null?null:attributesMap.get(attributeName, JSONList.class);
 		String attributeValue = CollectionUtils.isEmpty(attributeValues)?null:(String)attributeValues.get(0);
 		return attributeValue;

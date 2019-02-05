@@ -20,15 +20,19 @@ configuration bean:
 		       
     Browser-viewable deep link to FoD application release
     
-* `${applicationWithAttributesMap.fieldName}`
+* `${application.fieldName}`
 
 	Any field returned by the FoD `/api/v3/applications` endpoint
 
-* `${applicationWithAttributesMap.deepLink}`
+* `${application.deepLink}`
 
 	Browser-viewable deep link to FoD application
 	
-* `${applicationWithAttributesMap.attributesMap["attributeName"]}`
+* `${application.bugTracker}`
+
+	Any field returned by the FoD `/api/v3/applications/{ApplicationId}/bug-tracker` endpoint
+	
+* `${application.attributesMap["attributeName"]}`
 
 	Application attribute value for given attributeName
     

@@ -28,6 +28,11 @@ import org.apache.commons.lang.StringUtils;
 
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
+import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId;
+import com.fortify.bugtracker.src.fod.query.IFoDReleaseQueryBuilderUpdater;
+import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
+import com.fortify.processrunner.context.Context;
+import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
@@ -39,7 +44,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * @author Ruud Senden
  *
  */
-public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration {
+public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration implements IFoDReleaseQueryBuilderUpdater {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
 			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
@@ -47,6 +52,13 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private String commentTargetName = null;
 	private TemplateExpression commentTemplateExpression = null;
 	private boolean addNativeBugLink = false;
+	
+	@Override
+	public void updateQueryBuilder(Context context, FoDReleasesQueryBuilder builder) {
+		if ( isAddNativeBugLink() ) {
+			builder.preProcessor(new FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId(MatchMode.INCLUDE, 2, "Other"));
+		}
+	}
 	
 	@Override
 	protected SimpleExpression getDefaultIsVulnerabilityOpenExpression() {
