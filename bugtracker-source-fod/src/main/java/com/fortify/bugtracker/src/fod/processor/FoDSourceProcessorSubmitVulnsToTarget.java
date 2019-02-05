@@ -44,7 +44,6 @@ import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
-import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterSpEL;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 import com.fortify.util.spring.SpringExpressionUtil;
 
@@ -80,8 +79,7 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
 					.paramIncludeFixed(false)
 					.paramIncludeSuppressed(false)
-					.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted())
-					.preProcessor(new JSONMapFilterSpEL(MatchMode.EXCLUDE, "vulnState=='CLOSED'"));
+					.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
 				if ( getConfiguration().isAddNativeBugLink() ) {
