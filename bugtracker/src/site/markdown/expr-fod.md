@@ -55,7 +55,7 @@ FoD vulnerability properties can be referenced:
 		       
     Any field returned by the FoD `/api/v3/releases/{ReleaseId}/vulnerabilities/{vulnId}/summary` endpoint
 		     
-* `${#ctx.Release.fieldName}`
+* `${release.fieldName}`
 
     Any of the fields as listed under 'Application releases configuration' above
 		       

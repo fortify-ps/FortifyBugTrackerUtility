@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fortify.bugtracker.common.src.json.preprocessor.IVulnStateConstants;
 import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
@@ -74,7 +75,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
 public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTargetProcessor implements ITargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssues.class);
 	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
-	private SimpleExpression isVulnStateOpenExpression;
+	private SimpleExpression isVulnStateOpenExpression = SpringExpressionUtil.parseSimpleExpression(IVulnStateConstants.EXPR_IS_VULN_OPEN);
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
 	

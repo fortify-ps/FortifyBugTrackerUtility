@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -24,26 +24,20 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.src.json.preprocessor;
 
-import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
-import com.fortify.util.spring.SpringExpressionUtil;
-import com.fortify.util.spring.expression.SimpleExpression;
-
 /**
- * This implementation of {@link AbstractJSONMapEnrich} will evaluate a configurable expression to 
- * determine whether the current vulnerability is considered open or closed. 
- * The vulnerability state will then be added to the current vulnerability as the 'vulnState' property.
+ * This interface defines some constants related to vulnerability state.
+ * 
+ * @author Ruud Senden
+ *
  */
-public class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich implements IVulnStateConstants {
-	private final SimpleExpression isVulnerabilityOpenExpression;
+public interface IVulnStateConstants {
+	public static final String NAME_VULN_STATE = "vulnState";
+	public static final String EXPR_IS_VULN_OPEN = NAME_VULN_STATE+"=='"+VulnState.OPEN.name()+"'";
 	
-	public JSONMapEnrichWithVulnState(SimpleExpression isVulnerabilityOpenExpression) {
-		this.isVulnerabilityOpenExpression = isVulnerabilityOpenExpression;
-	}
-	
-	@Override
-	protected void enrich(JSONMap json) {
-		boolean isOpen = SpringExpressionUtil.evaluateExpression(json, isVulnerabilityOpenExpression, Boolean.class);
-		json.put(NAME_VULN_STATE, isOpen?VulnState.OPEN.name():VulnState.CLOSED.name());
+	/**
+	 * This enumeration defines possible vulnerability states, either OPEN or CLOSED.
+	 */
+	public static enum VulnState {
+		OPEN, CLOSED
 	}
 }

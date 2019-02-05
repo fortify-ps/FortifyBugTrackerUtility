@@ -38,5 +38,5 @@
 		     when FortifyBugTrackerUtility tries to update custom tags in SSC."
 })
 #printProperties($propertyMap)
-#printAbstractSourceVulnerabilitiesConfigurationProperties("SSC")
+#printAbstractSourceVulnerabilitiesConfigurationProperties("SSC" "removed==false && suppressed==false")
 #end

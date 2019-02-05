@@ -1,4 +1,4 @@
-#macro( printAbstractSourceVulnerabilitiesConfigurationProperties $sourceSystemName )
+#macro( printAbstractSourceVulnerabilitiesConfigurationProperties $sourceSystemName $defaultIsVulnerabilityOpenExpression )
 #set( $propertyMap = {
 	"regExFiltersForVulnerabilitiesToBeSubmitted": "Allows for defining a map of regular expressions, with each entry defining
 			a vulnerability property as the key, and a corresponding regular expression to be matched as the value. Only
@@ -8,7 +8,9 @@
 			filtering options whenever possible.",
 	"isVulnerabilityOpenExpression": "SpEL expression that defines whether a vulnerability should be considered open or closed.
 			If the vulnerability should be considered as 'open', this expression should return true, otherwise this expression
-			should return false.",
+			should return false. If not defined, the following expression will be used as default: '$defaultIsVulnerabilityOpenExpression'.
+			If you do override the default expression, you will usually want to include this default expression. Note that when
+			submitting new issues, any issues for which this expression evaluates to 'false' will not be submitted to the target system.",
 	"extraVulnerabilityData": "Allows for loading extra vulnerability data from $sourceSystemName. This property takes a map, with each 
 			 entry defining a property name as the key, and relative $sourceSystemName API endpoint URI as value. The URI may contain 
 			 request parameters like 'fields' or 'embed'. All fields returned by such an endpoint can then be referenced through

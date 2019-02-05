@@ -31,6 +31,6 @@
 			This property can be set to either `true` or `false`"
 })
 #printProperties($propertyMap)
-#printAbstractSourceVulnerabilitiesConfigurationProperties("FoD")
+#printAbstractSourceVulnerabilitiesConfigurationProperties("FoD" "closedStatus==false && isSuppressed==false && status!=4")
 #end
 

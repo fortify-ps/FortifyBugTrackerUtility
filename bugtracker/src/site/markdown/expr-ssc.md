@@ -50,7 +50,7 @@ SSC vulnerability properties can be referenced:
     FortifyBugTrackerUtility will also add a `customTagName` property to the `customTagValues` 
     object returned by this endpoint; by default SSC only returns the customTagGuid property.
     
-* `${#ctx.SSCApplicationVersion.fieldName}`
+* `${applicationVersion.fieldName}`
 
     Any of the fields as listed under 'Application versions configuration' above
 		       
