@@ -50,6 +50,11 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	protected String getCLIOptionNameForId() {
 		return ICLIOptionsFoD.PRP_FOD_RELEASE_ID;
 	}
+	
+	@Override
+	protected String getCLIOptionNameForName() {
+		return ICLIOptionsFoD.PRP_FOD_RELEASE_NAME;
+	}
 
 	@Override
 	protected String getCLIOptionNameForNamePatterns() {
@@ -60,6 +65,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		FoDConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_ID);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME_PATTERNS);
 	}
 	
@@ -72,8 +78,13 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	}
 	
 	@Override
-	protected void updateQueryBuilderWithId(Context initialContext,	FoDReleasesQueryBuilder queryBuilder) {
+	protected void updateQueryBuilderWithId(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
 		queryBuilder.releaseId(ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
+	}
+	
+	@Override
+	protected void updateQueryBuilderWithName(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
+		queryBuilder.applicationAndOrReleaseName(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME.getValue(initialContext));
 	}
 	
 	@Override

@@ -51,6 +51,11 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	protected String getCLIOptionNameForId() {
 		return ICLIOptionsSSC.PRP_SSC_APPLICATION_VERSION_ID;
 	}
+	
+	@Override
+	protected String getCLIOptionNameForName() {
+		return ICLIOptionsSSC.PRP_SSC_APPLICATION_VERSION_NAME;
+	}
 
 	@Override
 	protected String getCLIOptionNameForNamePatterns() {
@@ -61,6 +66,7 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	public void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		SSCConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
 		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID);
+		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME);
 		cliOptionDefinitions.add(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME_PATTERNS);
 	}
 	
@@ -81,6 +87,10 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 		queryBuilder.id(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
 	}
 
+	@Override
+	protected void updateQueryBuilderWithName(Context initialContext, SSCApplicationVersionsQueryBuilder queryBuilder) {
+		queryBuilder.applicationAndOrVersionName(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME.getValue(initialContext));
+	}
 
 	@Override
 	protected void updateContextForSourceObject(Context context, JSONMap applicationVersion) {

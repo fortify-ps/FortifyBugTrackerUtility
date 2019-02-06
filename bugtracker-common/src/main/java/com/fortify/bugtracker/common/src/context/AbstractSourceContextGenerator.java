@@ -91,6 +91,14 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	
 	/**
 	 * Method to be implemented by concrete implementations to return the CLI option name
+	 * for selecting a source objects by name.
+	 * 
+	 * @return
+	 */
+	protected abstract String getCLIOptionNameForName();
+	
+	/**
+	 * Method to be implemented by concrete implementations to return the CLI option name
 	 * for selecting one or more source objects by a list of name patterns.
 	 * 
 	 * @return
@@ -283,8 +291,10 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 		addOnDemandData(queryBuilder);
 		if ( initialContext.containsKey(getCLIOptionNameForId()) ) {
 			updateQueryBuilderWithId(initialContext, queryBuilder);
+		} else if ( initialContext.containsKey(getCLIOptionNameForName()) ) {
+			updateQueryBuilderWithName(initialContext, queryBuilder);
 		} else if ( initialContext.containsKey(getCLIOptionNameForNamePatterns()) ) {
-			updateQueryBuilderWithContextNamePatterns(initialContext, queryBuilder);
+			updateQueryBuilderWithNamePatterns(initialContext, queryBuilder);
 		} else {
 			updateQueryBuilderWithConfiguredFilterExpression(initialContext, queryBuilder);
 			updateQueryBuilderWithConfiguredNamePatterns(initialContext, queryBuilder);
@@ -316,8 +326,10 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 	
 	// TODO Add default implementation?
 	protected abstract void updateQueryBuilderWithId(Context initialContext, Q queryBuilder);
+	
+	protected abstract void updateQueryBuilderWithName(Context initialContext, Q queryBuilder);
 
-	private void updateQueryBuilderWithContextNamePatterns(Context initialContext,	Q queryBuilder) {
+	private void updateQueryBuilderWithNamePatterns(Context initialContext,	Q queryBuilder) {
 		String namePatternsString = (String)initialContext.get(getCLIOptionNameForNamePatterns());
 		Set<Pattern> namePatterns = parseNamePatternStrings(namePatternsString);
 		JSONMapFilterNamePatterns filter = new JSONMapFilterNamePatterns(MatchMode.INCLUDE, namePatterns);
