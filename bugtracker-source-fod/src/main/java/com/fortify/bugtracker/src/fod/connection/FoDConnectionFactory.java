@@ -64,7 +64,6 @@ public final class FoDConnectionFactory
 		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "FoD");
 		return FoDAuthenticatingRestConnection.builder()
 			.proxy(proxy)
-			.enableSerializationSingleJVM()
 			.baseUrl(ICLIOptionsFoD.CLI_FOD_BASE_URL.getValue(context))
 			.clientId(ICLIOptionsFoD.CLI_FOD_CLIENT_ID.getValue(context))
 			.clientSecret(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET.getValue(context))

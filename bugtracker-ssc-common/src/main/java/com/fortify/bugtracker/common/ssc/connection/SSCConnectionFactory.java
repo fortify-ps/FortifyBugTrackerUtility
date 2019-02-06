@@ -62,7 +62,6 @@ public final class SSCConnectionFactory
 		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "SSC");
 		return SSCAuthenticatingRestConnection.builder()
 			.proxy(proxy)
-			.enableSerializationSingleJVM()
 			.baseUrl(ICLIOptionsSSC.CLI_SSC_BASE_URL.getValue(context))
 			.authToken(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN.getValue(context))
 			.userName(ICLIOptionsSSC.CLI_SSC_USER_NAME.getValue(context))
