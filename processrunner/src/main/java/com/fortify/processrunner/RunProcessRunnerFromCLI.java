@@ -32,16 +32,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.util.HelpPrinter;
+import com.fortify.util.log4j.LogMaskingConverter;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * <p>
@@ -69,23 +66,67 @@ import com.fortify.processrunner.util.HelpPrinter;
  * @author Ruud Senden
  */
 public class RunProcessRunnerFromCLI {
+	private static final String LOG_LEVEL = System.getProperty("logLevel", System.getProperties().containsKey("logFile")?"DEBUG":"OFF");
+	private static final String LOG_FILE = System.getProperty("logFile", getDefaultLogFileName());
 	static {
 		// We need to do this first, before initializing any of the other (static) fields,
-		// to make sure the correct log manager is used
+		// to make sure the correct log configuration is used.
+		System.setProperty("log4j.logLevel", LOG_LEVEL);
+		System.setProperty("log4j.logLevelFortify", Level.getLevel(LOG_LEVEL).compareTo(Level.INFO)>0 ? LOG_LEVEL : "INFO");
+		System.setProperty("log4j.logFile", LOG_FILE);
 		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 	}
+	
+	/**
+	 * Get the default log file name. If the current jar name that we are running 
+	 * from is known, the log file will have the same name as the jar name but 
+	 * with '.log' extension. If the jar name is not known, the default log file 
+	 * name will be 'processrunner.log'.
+	 *  
+	 * @return Default log file name
+	 */
+	protected static final String getDefaultLogFileName() {
+		String result = "processrunner.log";
+		String jarName = getJarName();
+		if ( jarName != null ) {
+			result = StringUtils.removeEnd(jarName, ".jar") + ".log";
+		}
+		return result;
+	}
+	
+	/**
+	 * Get the name of the JAR file used to invoke the utility,
+	 * or null if unknown
+	 * @return
+	 */
+	protected static final String getJarName() {
+		File jar = getJarFile();
+		if (jar == null || "classes".equals(jar.getName()) ) {
+			return null;
+		} else {
+			return jar.getName();
+		}
+	}
+
+	/**
+	 * Get the JAR file used to invoke the utility, or null if
+	 * JAR file cannot be identified
+	 * @return
+	 */
+	protected static final File getJarFile() {
+		try {
+			return new File(RunProcessRunnerFromCLI.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	
 	private static final Log LOG = LogFactory.getLog(RunProcessRunnerFromCLI.class);
 	
 	private static final CLIOptionDefinition CLI_HELP = new CLIOptionDefinition("global", "help", "Show help information", false).isFlag(true);
 	private static final CLIOptionDefinition CLI_CONFIG_FILE = new CLIOptionDefinition("global", "configFile", "Configuration file to use", true);
-	private static final CLIOptionDefinition CLI_LOG_FILE = new CLIOptionDefinition("global", "logFile", "Log file; only used if logLevel is specified", true).defaultValue(getDefaultLogFileName()).dependsOnOptions("logLevel");
-	private static final CLIOptionDefinition CLI_LOG_LEVEL = new CLIOptionDefinition("global", "logLevel", "Log level", false)
-			.allowedValue("TRACE", "Detailed log information; may result in large log files containing sensitive information")
-			.allowedValue("DEBUG", "Debug information; may result in large log files containing sensitive information")
-			.allowedValue("INFO", "Log informational messages")
-			.allowedValue("WARN", "Log only warning, error or fatal messages")
-			.allowedValue("ERROR", "Log only error or fatal messages")
-			.allowedValue("FATAL", "Log only fatal messages");
+	
 
 	/**
 	 * Main method for running a process. This method performs the following actions:
@@ -102,13 +143,20 @@ public class RunProcessRunnerFromCLI {
 	 */
 	public final void run(String[] args) {
 		try {
+			// Avoid logging any password-related context properties
+			// TODO This should be based on the CLIOptionDefinition.isPassword flag
+			//      but in order to get all CLI options we need to load the Spring
+			//      config, and Spring will already log all command line options.
+			LogMaskingConverter.mask("([a-zA-Z]*Password)[ =]\\S+", "$1 [hidden]");
+			LogMaskingConverter.mask("([a-zA-Z]*Token)[ =]\\S+", "$1 [hidden]");
+			
 			CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(null);
-			ContextWithUnknownCLIOptionsList cliContext = parseCLIOptionsAndUpdateLogger(args, cliOptionDefinitions);
+			ContextWithUnknownCLIOptionsList cliContext = parseCLIOptions(args, cliOptionDefinitions);
 			RunProcessRunnerFromSpringConfig springRunner = getSpringRunner(cliContext);
 			if ( springRunner != null ) {
 				// Parse command line again with additional CLIOptionDefinitions from springRunner
 				cliOptionDefinitions = getCLIOptionDefinitions(springRunner);
-				cliContext = parseCLIOptionsAndUpdateLogger(args, cliOptionDefinitions);
+				cliContext = parseCLIOptions(args, cliOptionDefinitions);
 			}
 			if ( CollectionUtils.isNotEmpty(cliContext.getUnknownCLIOptions()) ) {
 				cliContext.getUnknownCLIOptions().forEach(unknownOption -> LOG.warn("[process] Ignoring unknown command line option "+unknownOption));
@@ -133,7 +181,7 @@ public class RunProcessRunnerFromCLI {
 	 */
 	private CLIOptionDefinitions getCLIOptionDefinitions(RunProcessRunnerFromSpringConfig springRunner) {
 		CLIOptionDefinitions result = new CLIOptionDefinitions();
-		result.add(CLI_HELP, CLI_LOG_LEVEL, CLI_LOG_FILE);
+		result.add(CLI_HELP);
 		if ( springRunner != null ) { springRunner.addCLIOptionDefinitions(result); }
 		result.add(CLI_CONFIG_FILE);
 		return result;
@@ -147,10 +195,9 @@ public class RunProcessRunnerFromCLI {
 	 * @param cliOptionDefinitions Describes all available command line options
 	 * @return
 	 */
-	private ContextWithUnknownCLIOptionsList parseCLIOptionsAndUpdateLogger(String[] args, CLIOptionDefinitions cliOptionDefinitions) {
+	private ContextWithUnknownCLIOptionsList parseCLIOptions(String[] args, CLIOptionDefinitions cliOptionDefinitions) {
 		ContextWithUnknownCLIOptionsList result = parseContextFromCLI(cliOptionDefinitions, args);
 		addCLIOptionDefaultValuesToContext(cliOptionDefinitions, result);
-		updateLogConfig(result);
 		return result;
 	}
 
@@ -222,32 +269,6 @@ public class RunProcessRunnerFromCLI {
 	}
 
 	/**
-	 * Update the log configuration based on the current {@link Context}
-	 * 
-	 * @param context
-	 */
-	protected final void updateLogConfig(Context context) {
-		String logLevel = CLI_LOG_LEVEL.getValue(context);
-		if (logLevel != null) {
-			String logFile = CLI_LOG_FILE.getValue(context);
-			LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-		    Configuration configuration = loggerContext.getConfiguration();
-		    FileAppender appender = FileAppender.newBuilder()
-		    		.withName("File")
-		    		.withFileName(logFile)
-		    		.withLayout(PatternLayout.newBuilder().withPattern(PatternLayout.SIMPLE_CONVERSION_PATTERN).build())
-		    		.withAppend(false)
-		    		.build();
-		    appender.start();
-		    configuration.getRootLogger().removeAppender(appender.getName()); // Remove if previously added
-		    configuration.getRootLogger().addAppender(appender, Level.getLevel(logLevel), null);
-		    configuration.getRootLogger().setLevel(Level.getLevel(logLevel));
-		    loggerContext.updateLoggers();
-		    LOG.info("[process] Logging to "+logFile+" with level "+logLevel);
-		}
-	}
-
-	/**
 	 * Print the usage information for this command.
 	 * @param cliOptionDefinitions
 	 * @param context
@@ -257,9 +278,43 @@ public class RunProcessRunnerFromCLI {
 		HelpPrinter hp = new HelpPrinter();
 		hp.append(0, "Usage:");
 		hp.append(2, getBaseCommand() + " [options]");
+		appendLogOptions(hp);
 		appendOptions(hp, context, cliOptionDefinitions);
 		hp.printHelp();
 		System.exit(returnCode);
+	}
+	
+	protected final void appendLogOptions(HelpPrinter hp) {
+		hp.appendEmptyLn();
+		hp.append(0, "Logging options:");
+		hp.append(2, "Logging to file is disabled by default, but can be enabled using the -DlogLevel and -DlogFile options."
+		           + " Note that contrary to all other options listed in the sections below, the logging options must be provided"
+				   + " as Java options, i.e. they must appear before the -jar option.");
+		hp.appendEmptyLn();
+		hp.append(2, "-DlogLevel=<logLevel>");
+		hp.append(4, "Specify the log level");
+		hp.keyValueGroupBuilder()
+			.append("Default value", "DEBUG if -DlogFile is specified, OFF otherwise")
+			.append("Current value", StringUtils.defaultIfBlank(LOG_LEVEL, "<none>"))
+			.append("Allowed values", ImmutableMap.<String, String>builder()
+					.put("TRACE", "Detailed log information; may result in large log files containing sensitive information")
+					.put("DEBUG", "Debug information; may result in large log files containing sensitive information")
+					.put("INFO", "Log informational messages")
+					.put("WARN", "Log only warning, error or fatal messages")
+					.put("ERROR", "Log only error or fatal messages")
+					.put("FATAL", "Log only fatal messages")
+					.put("OFF", "Don't log to file")
+				    .build())
+			.append("Allowed sources", "Java option")
+			.build(4);
+		hp.appendEmptyLn();
+		hp.append(2, "-DlogFile=<logFile>");
+		hp.append(4, "Specify the log file)");
+		hp.keyValueGroupBuilder()
+			.append("Default value", getDefaultLogFileName())
+			.append("Current value", StringUtils.defaultIfBlank(LOG_FILE, "<none>"))
+			.append("Allowed sources", "Java option")
+			.build(4);
 	}
 
 	protected final void appendOptions(HelpPrinter hp, Context context, CLIOptionDefinitions cliOptionDefinitions) {
@@ -290,55 +345,11 @@ public class RunProcessRunnerFromCLI {
 	}
 
 	/**
-	 * Get the default log file name. If the current jar name that we are running 
-	 * from is known, the log file will have the same name as the jar name but 
-	 * with '.log' extension. If the jar name is not known, the default log file 
-	 * name will be 'processrunner.log'.
-	 *  
-	 * @return Default log file name
-	 */
-	protected static final String getDefaultLogFileName() {
-		String result = "processrunner.log";
-		String jarName = getJarName();
-		if ( jarName != null ) {
-			result = StringUtils.removeEnd(jarName, ".jar") + ".log";
-		}
-		return result;
-	}
-
-	/**
 	 * Get the base command for running this utility
 	 * @return
 	 */
 	protected String getBaseCommand() {
-		return "java -jar "+StringUtils.defaultIfBlank(getJarName(), "<jar name>");
-	}
-
-	/**
-	 * Get the name of the JAR file used to invoke the utility,
-	 * or null if unknown
-	 * @return
-	 */
-	protected static final String getJarName() {
-		File jar = getJarFile();
-		if (jar == null || "classes".equals(jar.getName()) ) {
-			return null;
-		} else {
-			return jar.getName();
-		}
-	}
-
-	/**
-	 * Get the JAR file used to invoke the utility, or null if
-	 * JAR file cannot be identified
-	 * @return
-	 */
-	protected static final File getJarFile() {
-		try {
-			return new File(RunProcessRunnerFromCLI.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-		} catch (Exception e) {
-			return null;
-		}
+		return "java [-DlogLevel=<logLevel>] [-DlogFile=<logFile>] -jar "+StringUtils.defaultIfBlank(getJarName(), "<jar name>");
 	}
 	
 	/**

@@ -248,7 +248,9 @@ public abstract class AbstractProcessorGroupByExpressions extends AbstractProces
 	protected void removeGroupsMap(Context context) {
 		if ( isGroupingEnabled(context) ) {
 			context.as(IContextGrouping.class).getGroupByExpressionsGroupsMap().clear();
+			context.as(IContextGrouping.class).setGroupByExpressionsGroupsMap(null);
 			context.as(IContextGrouping.class).getGroupByExpressionsMapDB().close();
+			context.as(IContextGrouping.class).setGroupByExpressionsMapDB(null);
 		}
 	}
 	
