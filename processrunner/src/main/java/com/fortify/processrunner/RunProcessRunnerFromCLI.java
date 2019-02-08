@@ -147,8 +147,7 @@ public class RunProcessRunnerFromCLI {
 			// TODO This should be based on the CLIOptionDefinition.isPassword flag
 			//      but in order to get all CLI options we need to load the Spring
 			//      config, and Spring will already log all command line options.
-			LogMaskingConverter.mask("([a-zA-Z]*Password)[ =]\\S+", "$1 [hidden]");
-			LogMaskingConverter.mask("([a-zA-Z]*Token)[ =]\\S+", "$1 [hidden]");
+			LogMaskingConverter.maskByPatternGroups().patterns("[a-zA-Z]*Password[ =](\\S+)", "[a-zA-Z]*Token[ =](\\S+)").add();
 			
 			CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(null);
 			ContextWithUnknownCLIOptionsList cliContext = parseCLIOptions(args, cliOptionDefinitions);
