@@ -60,10 +60,13 @@
 		</fileSet>
 		<fileSet>
 			<outputDirectory/>
-			<directory>${project.build.directory}/../../../ssc-bugtracker-add-existing-bug/target</directory>
+			<directory>${project.build.directory}/../../ssc-bugtracker-add-existing-bug/target</directory>
 			<includes>
-				<include>ssc-bugtracker-add-existing-bug-?.?.jar</include>
+				<include>ssc-bugtracker-add-existing-bug-*.jar</include>
 			</includes>
+			<excludes>
+				<exclude>ssc-bugtracker-add-existing-bug-*-sources.jar</exclude>
+			</excludes>
 		</fileSet>
 	</fileSets>
 </assembly>
