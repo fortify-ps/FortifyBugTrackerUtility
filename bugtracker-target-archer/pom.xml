@@ -51,8 +51,8 @@
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.client.api.util</groupId>
-			<artifactId>rest-util</artifactId>
+			<groupId>com.fortify.client.api</groupId>
+			<artifactId>common-rest</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>
@@ -66,7 +66,6 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api -->
 		<dependency>
 			<groupId>javax.xml.soap</groupId>
 			<artifactId>javax.xml.soap-api</artifactId>
@@ -75,5 +74,4 @@
 
 	</dependencies>
 	<description>This module provides functionality for submitting issues to Archer. This includes setting up a connection to Archer, an Archer-specific Context interface, and processors for actually submitting issues to Archer.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

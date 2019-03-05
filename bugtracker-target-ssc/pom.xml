@@ -68,5 +68,4 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides functionality for submitting issues through SSC.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

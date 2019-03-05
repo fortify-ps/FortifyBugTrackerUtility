@@ -71,6 +71,5 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
-	<description>This module provides SSC-related processrunner functionality. The main functionality is to retrieve vulnerabilities from SSC and filter them prior to further processing. For now, this functionality is mainly used to submit SSC vulnerabilities to bug trackers like JIRA.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
+	<description>This module provides SSC-related functionality for retrieving vulnerabilities from SSC and filter them prior to further processing, like submitting those vulnerabilities to bug trackers.</description>
 </project>

@@ -51,8 +51,8 @@
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.client.api.util</groupId>
-			<artifactId>rest-util</artifactId>
+			<groupId>com.fortify.client.api</groupId>
+			<artifactId>common-rest</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>
@@ -67,6 +67,5 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
-	<description>This module provides functionality for submitting issues to TFS. This includes setting up a connection to TFS, a TFS-specific Context interface, and processors for actually submitting issues to TFS.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
+	<description>This module provides functionality for submitting issues to TFS. This includes setting up a connection to TFS, a TFS-specific Context interface, and processors for actually submitting issues to TFS</description>
 </project>

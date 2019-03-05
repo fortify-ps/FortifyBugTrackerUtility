@@ -61,8 +61,8 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.client.api.util</groupId>
-			<artifactId>spring-util</artifactId>
+			<groupId>com.fortify.client.api</groupId>
+			<artifactId>common-spring</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>
@@ -82,5 +82,4 @@
 		</dependency>
 	</dependencies>
 	<description>This module provides functionality for submitting issues to a file.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>

@@ -51,8 +51,8 @@
 	<inceptionYear>2016</inceptionYear>
 	<dependencies>
 		<dependency>
-			<groupId>com.fortify.client.api.util</groupId>
-			<artifactId>rest-util</artifactId>
+			<groupId>com.fortify.client.api</groupId>
+			<artifactId>common-rest</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.processrunner</groupId>
@@ -78,5 +78,4 @@
 
 	</dependencies>
 	<description>This module provides functionality for submitting issues to ALM Octane. This includes setting up a connection to Octane, an Octane-specific Context interface, and processors for actually submitting issues to Octane.</description>
-	<url>https://github.com/HPFOD/FoDBugTrackerUtility</url>
 </project>
