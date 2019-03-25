@@ -33,6 +33,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,7 +110,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 			return null;
 		} else {
 			WebTarget target = getBaseResource().path(collection).path("/_apis/wit/workitems").path(issueId);
-			if ( fields!=null ) {
+			if ( ArrayUtils.isNotEmpty(fields) ) {
 				target = target.queryParam("fields", StringUtils.join(fields, ","));
 			}
 			return executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONMap("fields");
