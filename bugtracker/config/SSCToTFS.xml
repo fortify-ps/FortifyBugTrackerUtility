@@ -70,7 +70,7 @@
 
 		<property name="appendedFields"><map>
 			<!-- TODO For some reason TFS encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
-			<entry key="System.Description"><value><![CDATA[
+			<entry key="Microsoft.VSTS.TCM.ReproSteps"><value><![CDATA[
 				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
 			]]></value></entry>
 		</map></property>
