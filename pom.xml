@@ -196,6 +196,14 @@
 					<tagNameFormat>@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M3</version>
+				<configuration>
+					<argLine>-Dlog4j.logLevel=OFF -Dlog4j.logLevelFortify=INFO -Dlog4j.logFile=unittest.log -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager</argLine>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<description>This module contains several sub-modules that together make up the code for submitting FoD or SSC vulnerabilities to bug trackers.
