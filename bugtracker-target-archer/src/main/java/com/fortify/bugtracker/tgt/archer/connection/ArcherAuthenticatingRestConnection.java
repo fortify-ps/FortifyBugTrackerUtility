@@ -147,7 +147,6 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	        		result = new Long(((SOAPElement)o).getTextContent());
 	        	}
 	          }
-	        System.out.println(response);
 		} catch (SOAPException e) {
 			throw new RuntimeException("Error executing SOAP request", e);
 		}
