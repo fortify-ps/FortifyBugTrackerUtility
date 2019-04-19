@@ -37,7 +37,7 @@ import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.util.HelpPrinter;
-import com.fortify.util.log4j.LogMaskingConverter;
+import com.fortify.util.log4j.LogMaskingHelper;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -147,7 +147,7 @@ public class RunProcessRunnerFromCLI {
 			// TODO This should be based on the CLIOptionDefinition.isPassword flag
 			//      but in order to get all CLI options we need to load the Spring
 			//      config, and Spring will already log all command line options.
-			LogMaskingConverter.maskByPatternGroups().patterns("[a-zA-Z]*Password[ =](\\S+)", "[a-zA-Z]*Token[ =](\\S+)").add();
+			LogMaskingHelper.maskByPatternGroups().patterns("[a-zA-Z]*Password[ =](\\S+)", "[a-zA-Z]*Token[ =](\\S+)").add();
 			
 			CLIOptionDefinitions cliOptionDefinitions = getCLIOptionDefinitions(null);
 			ContextWithUnknownCLIOptionsList cliContext = parseCLIOptions(args, cliOptionDefinitions);

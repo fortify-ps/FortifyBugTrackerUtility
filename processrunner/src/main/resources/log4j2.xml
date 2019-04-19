@@ -14,7 +14,7 @@
 	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 	DEALINGS IN THE SOFTWARE. -->
-<Configuration status="WARN" packages="com.fortify.util.log4j">
+<Configuration status="WARN" packages="com.fortify.processrunner.util.log">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %mm%n" />
