@@ -4,6 +4,13 @@
 		     the external system. Please see the Syntax Guide for the SSC search box for
 		     information about the syntax for this filter. You can use the same SSC search
 		     box to test your filter strings.",
+	"filterSetId": "By default, the utility will select vulnerabilities to be submitted from the
+	         default SSC filter set. This property allows for specifying a different filter set.
+	         For example, you could define a filter set that is specifically designed to select
+	         the vulnerabilities to be submitted to a bug tracker. This would allow for optimized
+	         retrieval of those vulnerabilities, without having to depend on the more limited 
+	         filterStringForVulnerabilitiesToBeSubmitted and less efficient 
+	         regExFiltersForVulnerabilitiesToBeSubmitted properties."
 	"bugLinkCustomTagName": "In most cases, FortifyBugTrackerUtility will need to keep track of which
 			SSC vulnerabilities have been submitted to which target issues, for example to avoid
 			re-submitting vulnerabilities that have been submitted previously, and to perform state

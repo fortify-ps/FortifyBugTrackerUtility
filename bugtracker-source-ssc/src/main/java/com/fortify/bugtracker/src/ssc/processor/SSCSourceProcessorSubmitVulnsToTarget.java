@@ -98,9 +98,9 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
 					.paramQm(QueryMode.issues)
-					.includeHidden(false)
-					.includeRemoved(false)
-					.includeSuppressed(false)
+					.paramShowHidden(false)
+					.paramShowRemoved(false)
+					.paramShowSuppressed(false)
 					.paramQ(getFullSSCFilterString());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));

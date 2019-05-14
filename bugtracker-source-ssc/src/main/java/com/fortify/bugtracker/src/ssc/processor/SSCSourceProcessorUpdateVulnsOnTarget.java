@@ -82,9 +82,10 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
 					.paramQm(QueryMode.issues)
-					.includeHidden(false)
-					.includeRemoved(true)
-					.includeSuppressed(true);
+					// For updating state we want to include all vulnerabilities, including hidden, removed and suppressed
+					.paramShowHidden(true)
+					.paramShowRemoved(true)
+					.paramShowSuppressed(true);
 			if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
 				builder.paramQ(getConfiguration().getBugLinkCustomTagName()+":!<none>");
 			}
