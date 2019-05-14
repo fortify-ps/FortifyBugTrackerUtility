@@ -47,7 +47,7 @@
 		</developer>
 	</developers>
 	<scm>
-		<developerConnection>scm:git:https://github.com/fod-dev/FoDBugTrackerUtility.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/fortify-ps/FortifyBugTrackerUtility.git</developerConnection>
 		<tag>master</tag>
 	</scm>
 	<inceptionYear>2016</inceptionYear>

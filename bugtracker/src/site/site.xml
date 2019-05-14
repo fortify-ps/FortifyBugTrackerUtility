@@ -26,7 +26,7 @@
 <project name="FortifyBugTrackerUtility">
   <bannerLeft>
     <name>FortifyBugTrackerUtility</name>
-    <href>https://github.com/fod-dev/FoDBugTrackerUtility</href>
+    <href>https://github.com/fortify-ps/FortifyBugTrackerUtility</href>
   </bannerLeft>
   <body>
     <menu name="FortifyBugTrackerUtility">
