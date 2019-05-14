@@ -1,4 +1,4 @@
-# Fortify on Demand bug tracker integrations
+# FortifyBugTrackerUtility
 
 Disclaimer
 ====
@@ -28,3 +28,68 @@ lists the currently supported functionalities.
 | SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC TFS bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
 
 For more information about configuring and running the utility, please see the documentation included with the binary distribution.
+
+Note that this utility provides functionality that is similar to the bug tracker integrations
+provided with FoD and SSC, however it takes a different approach than these product-provided 
+integrations (with various advantages and disadvantages as described in the documentation).
+This is a stand-alone utility that can be invoked manually from the command line, or automatically 
+from for example build jobs or as a scheduled task. In particular, note that the utility jar file 
+cannot be loaded as a bug tracker plugin in either FoD or SSC.
+
+
+Building from source
+====
+
+Prerequisites
+----
+
+### Tools
+In order to retrieve the source code and build the project, you will need to have the following tools installed:
+
+* Git client
+* Maven 3.x
+
+### Fortify Client API dependencies
+Development/snapshot versions of this project (i.e. the master branch or other non-release branches) may depend on
+a snapshot version of fortify-client-api. You can verify this by searching the root pom.xml file in this project 
+for the following dependency declaration:
+
+```xml
+<dependency>
+	<groupId>com.fortify.client.api</groupId>
+	<artifactId>client-api-root</artifactId>
+	<version>5.2-SNAPSHOT</version>
+	<type>pom</type>
+	<scope>import</scope>
+</dependency>
+```
+
+If, as illustrated in this example, the version of this dependency ends with `-SNAPSHOT`, you will first need to 
+build this dependency and install the corresponding artifacts in your local Maven repository by following these steps:
+
+* `git clone https://github.com/fortify-ps/fortify-client-api.git`
+* `cd fortify-client-api`
+* `mvn clean install`
+
+Notes:
+
+* Non-snapshot versions of fortify-client-api are available at https://github.com/fortify-ps/FortifyMavenRepo,
+  which is automatically included during the build of this project. As such, non-snapshot versions of 
+  fortify-client-api do not need to be built and installed manually.
+* By nature, snapshot versions are unstable and may change at any time. As such, you may need to repeat the
+  steps described above if there are any changes in fortify-client-api. Also, there is no guarantee that this 
+  project will build without errors with the latest snapshot version of fortify-client-api. In this case, you 
+  may need to check out a specific commit of fortify-client-api. 
+  
+Building the project
+----
+Once all prerequisites have been met, you can use the following commands to build this project:
+
+* `git clone https://github.com/fortify-ps/FortifyBugTrackerUtility.git`
+* `cd FortifyBugTrackerUtility`
+* `git checkout [branch or tag that you want to build]`
+* `mvn clean package`
+
+Once completed, build output like executable JAR file, sample configuration files, and the 
+binary distribution zip file, can be found in the bugtracker/target directory.
+
