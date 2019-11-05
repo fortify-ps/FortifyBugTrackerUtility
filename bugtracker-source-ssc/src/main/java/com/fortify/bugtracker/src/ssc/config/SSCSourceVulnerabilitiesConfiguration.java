@@ -57,6 +57,9 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private boolean enableRevisionWorkAround = false;
 	private String filterSetId = null;
+	private boolean includeSuppressed = false;
+	private boolean includeHidden = false;
+	private boolean includeRemoved = false;
 	
 	@Override
 	public void updateQueryBuilder(Context context, SSCApplicationVersionsQueryBuilder builder) {
@@ -126,6 +129,30 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 
 	public void setFilterSetId(String filterSetId) {
 		this.filterSetId = filterSetId;
+	}
+
+	public boolean isIncludeSuppressed() {
+		return includeSuppressed;
+	}
+
+	public void setIncludeSuppressed(boolean includeSuppressed) {
+		this.includeSuppressed = includeSuppressed;
+	}
+
+	public boolean isIncludeHidden() {
+		return includeHidden;
+	}
+
+	public void setIncludeHidden(boolean includeHidden) {
+		this.includeHidden = includeHidden;
+	}
+
+	public boolean isIncludeRemoved() {
+		return includeRemoved;
+	}
+
+	public void setIncludeRemoved(boolean includeRemoved) {
+		this.includeRemoved = includeRemoved;
 	}
 	
 }

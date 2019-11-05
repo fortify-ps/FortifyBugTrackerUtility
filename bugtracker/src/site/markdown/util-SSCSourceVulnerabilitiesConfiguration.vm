@@ -42,7 +42,29 @@
 		     17.10 and up should not need this work-around. Please enable this property if
 		      you consistently get an error
 		     `Conflict detected! There is a newer revision of the selected issue on the server.`
-		     when FortifyBugTrackerUtility tries to update custom tags in SSC."
+		     when FortifyBugTrackerUtility tries to update custom tags in SSC.",
+	"includeHidden": "By default, hidden issues are not included when submitting vulnerabilities
+	         to the target system. Setting this property to `true` will also include hidden 
+	         issues. Note that this should only be used in special cases; usually it would be 
+	         better to create a separate, dedicated filter set for selecting the appropriate 
+	         issues to be submitted, and selecting this filter set using the `filterSetId` 
+	         property.",
+	"includeSuppressed": "By default, suppressed issues are not included when submitting 
+	         vulnerabilities to the target system. Setting this property to `true` will also 
+	         include suppressed issues. Note that this will result in the utility loading 
+	         suppressed issues from SSC, however by default these issues still won't be submitted
+	         to the target system due to the default `isVulnerabilityOpenExpression` marking
+	         suppressed issues as Closed. As such, setting this property to `true` will only
+	         be effective if you also provide a custom `isVulnerabilityOpenExpression`
+	         expression that marks suppressed issues as Open.",
+	"includeRemoved": "By default, removed issues are not included when submitting 
+	         vulnerabilities to the target system. Setting this property to `true` will also 
+	         include removed issues. Note that this will result in the utility loading 
+	         removed issues from SSC, however by default these issues still won't be submitted
+	         to the target system due to the default `isVulnerabilityOpenExpression` marking
+	         removed issues as Closed. As such, setting this property to `true` will only
+	         be effective if you also provide a custom `isVulnerabilityOpenExpression`
+	         expression that marks removed issues as Open."
 })
 #printProperties($propertyMap)
 #printAbstractSourceVulnerabilitiesConfigurationProperties("SSC" "removed==false && suppressed==false")
