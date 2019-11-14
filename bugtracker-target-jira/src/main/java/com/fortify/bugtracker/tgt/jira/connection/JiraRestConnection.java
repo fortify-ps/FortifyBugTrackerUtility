@@ -125,7 +125,7 @@ public final class JiraRestConnection extends AbstractRestConnection {
 				.queryParam("jql", jql) // TODO Use post instead to support long queries?
 				.queryParam("maxResults", 2);
 		JSONList issues = executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONList("issues");
-		if ( issues.size() > 0 ) { throw new IllegalStateException("Multiple JIRA tickets found matching jql '"+jql+"'"); }
+		if ( issues.size() > 1 ) { throw new IllegalStateException("Multiple JIRA tickets found matching jql '"+jql+"'"); }
 		return issues.size()==0 ? null : issues.getValues("key", String.class).get(0);
 	}
 	
