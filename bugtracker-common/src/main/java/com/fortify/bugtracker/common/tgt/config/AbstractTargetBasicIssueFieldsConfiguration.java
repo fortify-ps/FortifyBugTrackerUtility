@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC
- *
+ * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,29 +22,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.jira.config;
+package com.fortify.bugtracker.common.tgt.config;
 
-import com.fortify.bugtracker.common.tgt.config.AbstractTargetUpdateIssuesWithTransitionsConfiguration;
+import java.util.LinkedHashMap;
 
-public class JiraTargetConfiguration extends AbstractTargetUpdateIssuesWithTransitionsConfiguration {
-	private String issueType;
-	private JiraTargetNestedParentIssueConfiguration parentIssue;
+import com.fortify.util.spring.expression.TemplateExpression;
 
-	public String getIssueType() {
-		return issueType;
+/**
+ * Abstract base class for target issue fields configuration.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public abstract class AbstractTargetBasicIssueFieldsConfiguration {
+	private LinkedHashMap<String,TemplateExpression> fields;
+	public LinkedHashMap<String, TemplateExpression> getFields() {
+		return fields;
 	}
-
-	public void setIssueType(String issueType) {
-		this.issueType = issueType;
+	public void setFields(LinkedHashMap<String, TemplateExpression> fields) {
+		this.fields = fields;
 	}
-
-	public JiraTargetNestedParentIssueConfiguration getParentIssue() {
-		return parentIssue;
-	}
-
-	public void setParentIssue(JiraTargetNestedParentIssueConfiguration parentIssue) {
-		this.parentIssue = parentIssue;
-	}
-	
-	
 }

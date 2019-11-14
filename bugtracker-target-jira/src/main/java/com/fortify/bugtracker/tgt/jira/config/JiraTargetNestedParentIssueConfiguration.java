@@ -24,11 +24,12 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.jira.config;
 
-import com.fortify.bugtracker.common.tgt.config.AbstractTargetUpdateIssuesWithTransitionsConfiguration;
+import com.fortify.bugtracker.common.tgt.config.AbstractTargetNestedParentIssueConfiguration;
+import com.fortify.util.spring.expression.TemplateExpression;
 
-public class JiraTargetConfiguration extends AbstractTargetUpdateIssuesWithTransitionsConfiguration {
+public class JiraTargetNestedParentIssueConfiguration extends AbstractTargetNestedParentIssueConfiguration<JiraTargetNestedParentIssueConfiguration> {
 	private String issueType;
-	private JiraTargetNestedParentIssueConfiguration parentIssue;
+	private TemplateExpression jqlExpression;
 
 	public String getIssueType() {
 		return issueType;
@@ -38,13 +39,11 @@ public class JiraTargetConfiguration extends AbstractTargetUpdateIssuesWithTrans
 		this.issueType = issueType;
 	}
 
-	public JiraTargetNestedParentIssueConfiguration getParentIssue() {
-		return parentIssue;
+	public TemplateExpression getJqlExpression() {
+		return jqlExpression;
 	}
 
-	public void setParentIssue(JiraTargetNestedParentIssueConfiguration parentIssue) {
-		this.parentIssue = parentIssue;
+	public void setJqlExpression(TemplateExpression jqlExpression) {
+		this.jqlExpression = jqlExpression;
 	}
-	
-	
 }

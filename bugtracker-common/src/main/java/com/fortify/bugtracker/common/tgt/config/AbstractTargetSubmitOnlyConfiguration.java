@@ -35,9 +35,8 @@ import com.fortify.util.spring.expression.TemplateExpression;
  * @author Ruud Senden
  *
  */
-public abstract class AbstractTargetSubmitOnlyConfiguration implements ITargetSubmitIssuesConfiguration {
+public abstract class AbstractTargetSubmitOnlyConfiguration extends AbstractTargetBasicIssueFieldsConfiguration implements ITargetSubmitIssuesConfiguration {
 	private TemplateExpression groupTemplateExpression;
-	private LinkedHashMap<String,TemplateExpression> fields;
 	private LinkedHashMap<String,TemplateExpression> appendedFields;
 	
 	public TemplateExpression getGroupTemplateExpression() {
@@ -45,12 +44,6 @@ public abstract class AbstractTargetSubmitOnlyConfiguration implements ITargetSu
 	}
 	public void setGroupTemplateExpression(TemplateExpression groupTemplateExpression) {
 		this.groupTemplateExpression = groupTemplateExpression;
-	}
-	public LinkedHashMap<String, TemplateExpression> getFields() {
-		return fields;
-	}
-	public void setFields(LinkedHashMap<String, TemplateExpression> fields) {
-		this.fields = fields;
 	}
 	public LinkedHashMap<String, TemplateExpression> getAppendedFields() {
 		return appendedFields;

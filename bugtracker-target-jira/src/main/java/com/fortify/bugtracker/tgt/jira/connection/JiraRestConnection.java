@@ -119,6 +119,16 @@ public final class JiraRestConnection extends AbstractRestConnection {
 		return executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONMap("fields");
 	}
 	
+	public String getIssueKeyForJql(String jql) {
+		WebTarget target = getBaseResource()
+				.path("/rest/api/latest/search")
+				.queryParam("jql", jql) // TODO Use post instead to support long queries?
+				.queryParam("maxResults", 2);
+		JSONList issues = executeRequest(HttpMethod.GET, target, JSONMap.class).getOrCreateJSONList("issues");
+		if ( issues.size() > 0 ) { throw new IllegalStateException("Multiple JIRA tickets found matching jql '"+jql+"'"); }
+		return issues.size()==0 ? null : issues.getValues("key", String.class).get(0);
+	}
+	
 	private String getIssueId(TargetIssueLocator targetIssueLocator) {
 		String id = targetIssueLocator.getId();
 		if ( StringUtils.isBlank(id) ) {

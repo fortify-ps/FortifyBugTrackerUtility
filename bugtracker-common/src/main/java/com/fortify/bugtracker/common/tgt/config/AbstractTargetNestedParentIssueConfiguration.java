@@ -22,29 +22,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.jira.config;
+package com.fortify.bugtracker.common.tgt.config;
 
-import com.fortify.bugtracker.common.tgt.config.AbstractTargetUpdateIssuesWithTransitionsConfiguration;
+/**
+ * Configuration class for defining a parent issue to which
+ * a new child issue should be attached. This class allows for
+ * defining a hierarchy of parent issues.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class AbstractTargetNestedParentIssueConfiguration<T extends AbstractTargetNestedParentIssueConfiguration<T>> extends AbstractTargetBasicIssueFieldsConfiguration {
+	private T parentIssue;
 
-public class JiraTargetConfiguration extends AbstractTargetUpdateIssuesWithTransitionsConfiguration {
-	private String issueType;
-	private JiraTargetNestedParentIssueConfiguration parentIssue;
-
-	public String getIssueType() {
-		return issueType;
-	}
-
-	public void setIssueType(String issueType) {
-		this.issueType = issueType;
-	}
-
-	public JiraTargetNestedParentIssueConfiguration getParentIssue() {
+	public T getParentIssue() {
 		return parentIssue;
 	}
 
-	public void setParentIssue(JiraTargetNestedParentIssueConfiguration parentIssue) {
+	public void setParentIssue(T parentIssue) {
 		this.parentIssue = parentIssue;
 	}
-	
 	
 }

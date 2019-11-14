@@ -82,7 +82,7 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 	@Override
 	protected boolean processMap(Context context, String groupName, List<Object> currentGroup, LinkedHashMap<String, Object> map) {
 		try {
-			TargetIssueLocator targetIssueLocator = submitIssue(context, map); 
+			TargetIssueLocator targetIssueLocator = submitIssue(context, groupName, currentGroup, map); 
 			if ( targetIssueLocator != null ) {
 				LOG.info(String.format("[%s] Submitted %d vulnerabilities to %s", getTargetName(), currentGroup.size(), targetIssueLocator.getDeepLink()));
 				if ( vulnerabilityUpdater != null ) {
@@ -97,13 +97,32 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 	}
 	
 	/**
-	 * Subclasses must implement this method to actually submit a {@link Map} with issue data
-	 * to the bug tracker.
+	 * Subclasses must override either {@link #submitIssue(Context, LinkedHashMap)}
+	 * or {@link #submitIssue(Context, String, List, LinkedHashMap)} to actually
+	 * submit the given {@link Map} with issue data to the bug tracker. Which method
+	 * an implementation should override depends on whether the implementation requires
+	 * access to the original vulnerability data.
 	 * @param context
 	 * @param issueData
 	 * @return
 	 */
-	protected abstract TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData);
+	protected TargetIssueLocator submitIssue(Context context, String groupName, List<Object> currentGroup, LinkedHashMap<String, Object> issueData) {
+		return submitIssue(context, issueData);
+	}
+
+	/**
+	 * Subclasses must override either {@link #submitIssue(Context, LinkedHashMap)}
+	 * or {@link #submitIssue(Context, String, List, LinkedHashMap)} to actually
+	 * submit the given {@link Map} with issue data to the bug tracker. Which method
+	 * an implementation should override depends on whether the implementation requires
+	 * access to the original vulnerability data.
+	 * @param context
+	 * @param issueData
+	 * @return
+	 */
+	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
+		throw new RuntimeException("Target implementation does not provide method for submitting issues");
+	}
 	
 	/**
 	 * Set the {@link INewIssueVulnerabilityUpdater} instance used to update vulnerabilities in the source system
