@@ -119,6 +119,8 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	
 	private String getIssueId(TargetIssueLocator targetIssueLocator) {
 		String id = targetIssueLocator.getId();
+		// Gets the id from the tfs bug link url.
+		// Tfs url is no longer having bugId as query parameter. So the below one doesn't work. It alwasy return null.
 		if ( StringUtils.isBlank(id) ) {
 			String deepLink = targetIssueLocator.getDeepLink();
 			@SuppressWarnings("deprecation")
@@ -129,6 +131,13 @@ public final class TFSRestConnection extends AbstractRestConnection {
 				  return param.getValue();
 			  }
 			}
+		}
+		// Get the bug id from the tfs bug link url (https://domain/bla/blabla/bugId)
+		if(StringUtils.isBlank(id)){
+			String deepLink = targetIssueLocator.getDeepLink();
+			String[] deepLinkSplit = deepLink.split("/", 0);
+			int length = deepLinkSplit.length;
+			return deepLinkSplit[length-1].trim();
 		}
 		return id;
 	}
