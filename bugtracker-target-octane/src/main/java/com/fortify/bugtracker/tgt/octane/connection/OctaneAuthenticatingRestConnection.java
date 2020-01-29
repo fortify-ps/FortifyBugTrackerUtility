@@ -126,7 +126,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		Map<String, Object> issueData = new HashMap<String, Object>();
 		issueData.put("phase.type", "phase");
 		issueData.put("phase.name", transitionName);
-		// TODO Can we add a comment immediately when updating the work item, or do we need 2 separate REST calls?
 		updateIssue(targetIssueLocator, issueData);
 		addComment(targetIssueLocator, comment);
 		// TODO Check new state
@@ -134,13 +133,11 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	}
 	
 	public void addComment(TargetIssueLocator targetIssueLocator, String comment) {
-		// TODO The code below for some reason results in a Forbidden error, so for now we just don't submit any comments
-		/**
-		OctaneIssueId octaneIssueId = OctaneIssueId.parseFromSubmittedIssue(submittedIssue);
+		OctaneIssueId octaneIssueId = OctaneIssueId.parseFromSubmittedIssue(targetIssueLocator);
 		
 		JSONMap data = new JSONMap();
 		data.putPath("text", comment);
-		data.putPath("owner_work_item.type", "work_item");
+		data.putPath("owner_work_item.type", "defect");
 		data.putPath("owner_work_item.id", octaneIssueId.getIssueId());
 		JSONMap request = new JSONMap();
 		request.put("data", new JSONMap[]{data});
@@ -152,7 +149,6 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getWorkspaceId())
 				.path("/comments"),
 				Entity.entity(request, "application/json"), JSONMap.class);
-		*/
 	}
 	
 	public String getWorkItemId(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String featureName) {
