@@ -120,17 +120,32 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	private String getIssueId(TargetIssueLocator targetIssueLocator) {
 		String id = targetIssueLocator.getId();
 		if ( StringUtils.isBlank(id) ) {
-			String deepLink = targetIssueLocator.getDeepLink();
-			@SuppressWarnings("deprecation")
-			List<NameValuePair> params = URLEncodedUtils.parse(URI.create(deepLink), "UTF-8");
-
-			for (NameValuePair param : params) {
-			  if ( "id".equals(param.getName()) ) {
-				  return param.getValue();
-			  }
-			}
+			// According to reports, this no longer works for recent TFS versions
+			// However we keep this approach in here for previously submitted issues
+			id = getIssueIdFromIdParameter(targetIssueLocator);
+		}
+		if ( StringUtils.isBlank(id) ) {
+			id = getIssueIdFromPath(targetIssueLocator);
 		}
 		return id;
+	}
+
+	private String getIssueIdFromIdParameter(TargetIssueLocator targetIssueLocator) {
+		String deepLink = targetIssueLocator.getDeepLink();
+		@SuppressWarnings("deprecation")
+		List<NameValuePair> params = URLEncodedUtils.parse(URI.create(deepLink), "UTF-8");
+
+		for (NameValuePair param : params) {
+		  if ( "id".equals(param.getName()) ) {
+			  return param.getValue();
+		  }
+		}
+		return null;
+	}
+	
+	private String getIssueIdFromPath(TargetIssueLocator targetIssueLocator) {
+		// TODO Check whether the return value looks like a valid id?
+		return StringUtils.substringAfterLast(targetIssueLocator.getDeepLink(), "/");
 	}
 	
 	/**
