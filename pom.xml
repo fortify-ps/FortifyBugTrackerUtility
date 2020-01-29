@@ -57,8 +57,8 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>FortifyMavenRepo</id>
-			<url>https://raw.githubusercontent.com/fortify-ps/FortifyMavenRepo/master</url>
+			<id>FortifyPSMavenRepo</id>
+			<url>https://dl.bintray.com/fortify-ps/maven</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
@@ -84,8 +84,8 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
-				<artifactId>client-api-root</artifactId>
-				<version>5.3</version>
+				<artifactId>fortify-client-api</artifactId>
+				<version>5.4-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
