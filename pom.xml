@@ -60,6 +60,13 @@
 			<id>FortifyPSMavenRepo</id>
 			<url>https://dl.bintray.com/fortify-ps/maven</url>
 			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>FortifyPSMavenRepo-SNAPSHOT</id>
+			<url>http://oss.jfrog.org/oss-snapshot-local</url>
+			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
