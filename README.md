@@ -93,3 +93,8 @@ Once all prerequisites have been met, you can use the following commands to buil
 Once completed, build output like executable JAR file, sample configuration files, and the 
 binary distribution zip file, can be found in the bugtracker/target directory.
 
+
+# Licensing
+
+See [LICENSE.TXT](LICENSE.TXT)
+
