@@ -31,10 +31,10 @@ import com.fortify.bugtracker.common.src.context.AbstractSourceContextGenerator;
 import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
 import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
+import com.fortify.bugtracker.common.ssc.helper.SSCHelperFactory;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterListenerLoggerApplicationVersion;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration;
 import com.fortify.client.ssc.api.SSCApplicationVersionAPI;
-import com.fortify.client.ssc.api.query.builder.EmbedType;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
@@ -80,7 +80,7 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	protected SSCApplicationVersionsQueryBuilder createBaseQueryBuilder(Context context) {
 		return SSCConnectionFactory.getConnection(context)
 				.api(SSCApplicationVersionAPI.class).queryApplicationVersions()
-				.embedAttributeValuesByName(EmbedType.PRELOAD);
+				.embedAttributeValuesByName(SSCHelperFactory.getSSCAttributeDefinitionHelper(context));
 	}
 	
 	@Override

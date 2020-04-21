@@ -139,7 +139,7 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 		} 
 		if ( !customTagValues.isEmpty() ) {
 			conn.api(SSCCustomTagAPI.class).updateCustomTags(applicationVersionId)
-				.withHelper(SSCHelperFactory.getSSCCustomTagHelper(context))
+				.withCustomTagHelper(SSCHelperFactory.getSSCCustomTagHelper(context))
 				.byName(customTagValues)
 				.forVulnerabilities(vulnerabilities)
 				.execute();

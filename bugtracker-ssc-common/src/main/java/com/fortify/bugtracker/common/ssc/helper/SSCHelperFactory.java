@@ -25,6 +25,8 @@
 package com.fortify.bugtracker.common.ssc.helper;
 
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.client.ssc.api.SSCAttributeDefinitionAPI;
+import com.fortify.client.ssc.api.SSCAttributeDefinitionAPI.SSCAttributeDefinitionHelper;
 import com.fortify.client.ssc.api.SSCCustomTagAPI;
 import com.fortify.client.ssc.api.SSCCustomTagAPI.SSCCustomTagHelper;
 import com.fortify.processrunner.context.Context;
@@ -42,18 +44,26 @@ public final class SSCHelperFactory
 		IContextSSCHelper ctx = context.as(IContextSSCHelper.class);
 		SSCCustomTagHelper result = ctx.getCustomTagHelper();
 		if ( result == null ) {
-			result = createCustomTagHelper(context);
+			result = SSCConnectionFactory.getConnection(context).api(SSCCustomTagAPI.class).getCustomTagHelper();
 			ctx.setCustomTagHelper(result);
 		}
 		return result;
 	}
 
-	private static final SSCCustomTagHelper createCustomTagHelper(Context context) {
-		return SSCConnectionFactory.getConnection(context).api(SSCCustomTagAPI.class).getCustomTagHelper();
+	public static final SSCAttributeDefinitionHelper getSSCAttributeDefinitionHelper(Context context) {
+		IContextSSCHelper ctx = context.as(IContextSSCHelper.class);
+		SSCAttributeDefinitionHelper result = ctx.getAttributeDefinitionHelper();
+		if ( result == null ) {
+			result = SSCConnectionFactory.getConnection(context).api(SSCAttributeDefinitionAPI.class).getAttributeDefinitionHelper();
+			ctx.setAttributeDefinitionHelper(result);
+		}
+		return result;
 	}
 	
 	private interface IContextSSCHelper {
 		public void setCustomTagHelper(SSCCustomTagHelper customTagHelper);
 		public SSCCustomTagHelper getCustomTagHelper();
+		public void setAttributeDefinitionHelper(SSCAttributeDefinitionHelper attributeDefinitionHelper);
+		public SSCAttributeDefinitionHelper getAttributeDefinitionHelper();
 	}
 }

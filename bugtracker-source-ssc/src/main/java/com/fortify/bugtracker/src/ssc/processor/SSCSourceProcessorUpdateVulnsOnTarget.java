@@ -104,7 +104,7 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 			SSCAuthenticatingRestConnection conn = SSCConnectionFactory.getConnection(context);
 			String applicationVersionId = ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(context);
 			conn.api(SSCCustomTagAPI.class).updateCustomTags(applicationVersionId)
-				.withHelper(SSCHelperFactory.getSSCCustomTagHelper(context))
+				.withCustomTagHelper(SSCHelperFactory.getSSCCustomTagHelper(context))
 				.byName(customTagValues)
 				.forVulnerabilities(vulnerabilities)
 				.execute();
