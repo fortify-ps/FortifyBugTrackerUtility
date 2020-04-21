@@ -38,6 +38,7 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorSubmitVulnsTo
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.ssc.cli.ICLIOptionsSSC;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.bugtracker.common.ssc.helper.SSCHelperFactory;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.enrich.SSCJSONMapEnrichWithRevisionFromDetails;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterHasBugURL;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
@@ -137,7 +138,11 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 			customTagValues.put(getConfiguration().getBugLinkCustomTagName(), targetIssueLocatorAndFields.getLocator().getDeepLink());
 		} 
 		if ( !customTagValues.isEmpty() ) {
-			conn.api(SSCCustomTagAPI.class).setCustomTagValues(applicationVersionId, customTagValues, vulnerabilities);
+			conn.api(SSCCustomTagAPI.class).updateCustomTags(applicationVersionId)
+				.withHelper(SSCHelperFactory.getSSCCustomTagHelper(context))
+				.byName(customTagValues)
+				.forVulnerabilities(vulnerabilities)
+				.execute();
 			LOG.info("[SSC] Updated custom tag values for SSC vulnerabilities");
 		}
 		if ( getConfiguration().isAddNativeBugLink() ) {

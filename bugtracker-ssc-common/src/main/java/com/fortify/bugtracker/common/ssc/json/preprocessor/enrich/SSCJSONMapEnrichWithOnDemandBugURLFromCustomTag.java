@@ -41,30 +41,30 @@ import com.fortify.util.spring.SpringExpressionUtil;
  *
  */
 public class SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag extends AbstractJSONMapEnrich {
-	private final String customTagName;
-	public SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(String customTagName) {
-		this.customTagName = customTagName;
+	private final String customTagGuid;
+	public SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag(String customTagGuid) {
+		this.customTagGuid = customTagGuid;
 	}
 	
 	@Override
 	protected void enrich(JSONMap json) {
-		if ( StringUtils.isNotBlank(customTagName) ) {
-			json.put("bugURL", new SSCJSONMapOnDemandLoaderBugURLFromCustomTag(customTagName));
+		if ( StringUtils.isNotBlank(customTagGuid) ) {
+			json.put("bugURL", new SSCJSONMapOnDemandLoaderBugURLFromCustomTag(customTagGuid));
 		}
 	}
 	
 	private static class SSCJSONMapOnDemandLoaderBugURLFromCustomTag extends AbstractJSONMapOnDemandLoader {
 		private static final long serialVersionUID = 1L;
-		private final String customTagName;
+		private final String customTagGuid;
 		
-		public SSCJSONMapOnDemandLoaderBugURLFromCustomTag(String customTagName) {
+		public SSCJSONMapOnDemandLoaderBugURLFromCustomTag(String customTagGuid) {
 			super(true);
-			this.customTagName = customTagName;
+			this.customTagGuid = customTagGuid;
 		}
 
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
-			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("customTagName", customTagName, "textValue", String.class);
+			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("guid", customTagGuid, "textValue", String.class);
 		}
 	}
 

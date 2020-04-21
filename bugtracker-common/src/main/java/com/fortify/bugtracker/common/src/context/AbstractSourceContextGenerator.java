@@ -317,9 +317,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 			for ( Map.Entry<String, String> entry : extraData.entrySet() ) {
 				String propertyName = entry.getKey();
 				String uriString = StringUtils.substringBeforeLast(entry.getValue(), ";");
-				// TODO Parse properly as properties, to allow additional properties if ever necessary
-				boolean useCache = "useCache=true".equals(StringUtils.substringAfterLast(entry.getValue(), ";"));
-				queryBuilder.onDemand(propertyName, uriString, useCache?propertyName:null);
+				queryBuilder.onDemand(propertyName, uriString);
 			}
 		}
 	}
