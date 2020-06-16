@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>com.fortify.bugtracker</groupId>
 		<artifactId>bugtracker-root</artifactId>
-		<version>3.10-SNAPSHOT</version>
+		<version>4.0</version>
 	</parent>
 	<organization>
 		<name>Micro Focus Fortify</name>
