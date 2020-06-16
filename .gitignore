@@ -54,3 +54,4 @@ local.properties
 sonar-project.properties
 /target/
 *.zip
+bugtracker/.sts4-cache
