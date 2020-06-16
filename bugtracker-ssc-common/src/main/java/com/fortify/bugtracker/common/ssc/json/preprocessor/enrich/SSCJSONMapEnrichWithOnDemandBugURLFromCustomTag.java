@@ -64,7 +64,7 @@ public class SSCJSONMapEnrichWithOnDemandBugURLFromCustomTag extends AbstractJSO
 
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
-			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("guid", customTagGuid, "textValue", String.class);
+			return SpringExpressionUtil.evaluateExpression(parent, "details.customTagValues", JSONList.class).mapValue("customTagGuid", customTagGuid, "textValue", String.class);
 		}
 	}
 
