@@ -67,10 +67,6 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.xml.soap</groupId>
 			<artifactId>javax.xml.soap-api</artifactId>
 			<version>1.3.8</version>

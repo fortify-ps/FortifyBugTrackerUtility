@@ -85,12 +85,12 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext,	SSCApplicationVersionsQueryBuilder queryBuilder) {
-		queryBuilder.id(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
+		queryBuilder.id(false, ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
 	}
 
 	@Override
 	protected void updateQueryBuilderWithName(Context initialContext, SSCApplicationVersionsQueryBuilder queryBuilder) {
-		queryBuilder.applicationAndOrVersionName(ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME.getValue(initialContext));
+		queryBuilder.applicationAndOrVersionName(false, ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME.getValue(initialContext));
 	}
 
 	@Override

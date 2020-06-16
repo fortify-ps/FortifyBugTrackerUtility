@@ -33,6 +33,7 @@ import com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterListenerLoggerRelease;
 import com.fortify.client.fod.api.FoDReleaseAPI;
+import com.fortify.client.fod.api.query.builder.FoDOrderBy;
 import com.fortify.client.fod.api.query.builder.FoDOrderByDirection;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
@@ -74,7 +75,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 		return FoDConnectionFactory.getConnection(context)
 				.api(FoDReleaseAPI.class).queryReleases()
 				.onDemandApplication()
-				.paramOrderBy("applicationName", FoDOrderByDirection.ASC);
+				.paramOrderBy(new FoDOrderBy("applicationName", FoDOrderByDirection.ASC));
 	}
 	
 	@Override

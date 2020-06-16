@@ -27,7 +27,6 @@ package com.fortify.bugtracker.src.ssc.processor;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -82,15 +81,13 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 		@Override
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
-					.paramQm(QueryMode.issues)
+					.paramQm(false, QueryMode.issues)
 					// For updating state we want to include all vulnerabilities, including hidden, removed and suppressed
 					.paramShowHidden(true)
 					.paramShowRemoved(true)
-					.paramShowSuppressed(true);
-			if ( StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
-				builder.paramQ(getConfiguration().getBugLinkCustomTagName()+":!<none>");
-			}
-			builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
+					.paramShowSuppressed(true)
+					.paramQ(true, getConfiguration().getBugLinkCustomTagName()+":!<none>")
+					.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
 			if ( getConfiguration().isEnableRevisionWorkAround() ) {
 				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
 			}
