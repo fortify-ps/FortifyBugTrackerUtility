@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  (c) Copyright 2020 Micro Focus or one of its affiliates, a Micro Focus company
+  
+  Permission is hereby granted, free of charge, to any person obtaining a 
+  copy of this software and associated documentation files (the 
+  "Software"), to deal in the Software without restriction, including without 
+  limitation the rights to use, copy, modify, merge, publish, distribute, 
+  sublicense, and/or sell copies of the Software, and to permit persons to 
+  whom the Software is furnished to do so, subject to the following 
+  conditions:
+  
+  The above copyright notice and this permission notice shall be included 
+  in all copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY 
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+  IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+		
+	<!--
+		This configuration file contains a basic configuration for submitting vulnerabilities
+		from FoD to Jira, and does not describe all possible configuration options. Please 
+		see FortifyBugTrackerUtility documentation for more information about the various 
+		configuration components and properties. 
+	 -->
+	
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.jira"/>
+	
+	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
+		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
+			severityString:Critical|High+isSuppressed=false
+		</value></property>
+		
+		<!-- Note that previous versions of this sample used to store bug data as comments instead of using native bug links -->
+		<property name="addBugDataAsComment" value="false"/>
+		<property name="addNativeBugLink" value="true"/>
+		<property name="allowedBugTrackerTypes" value="None, Other"/>
+		
+		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
+			closedStatus==false && isSuppressed==false
+		]]></value></property>
+	</bean>
+	
+	<bean class="com.fortify.bugtracker.tgt.jira.config.JiraTargetConfiguration">
+		<property name="issueType" value="Task"/>
+		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
+		
+		<property name="parentIssue">
+			<bean class="com.fortify.bugtracker.tgt.jira.config.JiraTargetNestedParentIssueConfiguration">
+				<property name="jqlExpression" value="summary=${summary}"/>
+				<property name="fields"><map>
+					<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+					<entry key="description" value="TODO: Add details and recommendations from issue details"/>
+					<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+					<entry key="labels" value="${{'FoD'}}"/>
+				</map></property>
+			</bean>
+		</property>
+	
+		<property name="fields"><map>
+			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
+			<entry key="description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
+			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+			<entry key="labels" value="${{'FoD'}}"/>
+		</map></property>
+
+		<property name="appendedFields"><map>
+			<entry key="description" value="\n\nId: ${id}\nState: ${vulnState}\nLine: ${lineNumber?:'Unknown'}\nLink: ${deepLink}"/>
+		</map></property>
+		
+		<property name="fieldsToUpdateDuringStateManagement" value="description"/>
+	
+		<property name="transitionsForOpeningIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="fields.status.name matches 'Closed|Resolved'" value="Reopen Issue[Issue re-opened by FortifyBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="fields.status.name matches 'Done'" value="To Do[Issue re-opened by FortifyBugTrackerUtility]"/>
+		</map></property>
+		<property name="transitionsForClosingIssue"><map>
+			<!-- JIRA default workflow -->
+			<entry key="fields.status.name matches 'Open|In Progress|Reopened'" value="Close Issue[Issue closed by FortifyBugTrackerUtility]"/>
+			<!-- JIRA Software Simplified Workflow -->
+			<entry key="fields.status.name matches 'To Do|In Progress|In Review'" value="Done[Issue closed by FortifyBugTrackerUtility]"/>
+		</map></property>
+	</bean>
+
+	
+</beans>

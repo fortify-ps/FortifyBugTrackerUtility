@@ -12,6 +12,10 @@ This configuration is defined using the following bean definition in the configu
 This bean definition supports the following properties:
 
 #printAbstractTargetUpdateIssuesWithTransitionsConfiguration("Jira")
+- **parentIssue**: Optionally, the utility can automatically organize Jira issues in a parent/child relationship.
+The utility will check whether a parent issue already exists using the configured JQL (Jira Query Language) expression;
+the parent issue will be created using the configured parent issue fields if it does not yet exist. See the 
+`FoDToJiraWithParents.xml` and `SSCToJiraWithParents.xml` sample configuration files for more information.
 
 Following are examples of the bean configuration:
 
@@ -26,3 +30,4 @@ For FoD:
 ```xml
 #printTagByMatchWithContents("config/FoDToJira.xml" "JiraTargetConfiguration")
 ```
+

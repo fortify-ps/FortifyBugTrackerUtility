@@ -1,5 +1,5 @@
 #macro( printContent $fileName $regex )
-## Remove drive letter on Windows as Velocity doesn't like it, and replace backslahes with forward slashes
+## Remove drive letter on Windows as Velocity doesn't like it, and replace backslashes with forward slashes
 #set($inc = $basedir.replaceFirst('.:','').replace("\","/")+"/"+$fileName)
 #set($content = "#include($inc)")
 $content.replaceFirst($regex, '$1')
