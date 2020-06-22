@@ -4,12 +4,31 @@
 		     the external system. Information about the format of this filter string can be
 		     found in the FoD API documentation, and you can use the FoD API Explorer to test
 		     your filter strings.",
-	"addBugDataAsComment": "In most cases, FortifyBugTrackerUtility will need to keep track of which
+	"addNativeBugLink": "In most cases, FortifyBugTrackerUtility will need to keep track of which
 			FoD vulnerabilities have been submitted to which target issues, for example to avoid
 			re-submitting vulnerabilities that have been submitted previously, and to perform state
 			management. If this property is set to `true`, information about submitted target issues
-			will be stored as FoD vulnerability comments. Alternatively, you can use the `addNativeBugLink`
-			property to store the URL to submitted target issues as native FoD bug links.",
+			will be stored as native FoD bug links. Alternatively, bug links can be stored in FoD 
+			vulnerability comments; see the `addBugDataAsComment` property below. Note that storing
+			native bug links is the recommended approach for the primary bug tracker integration, as this
+			provides better user experience (users can click the 'View Bug' button to navigate to the 
+			corresponding target issue), and results in better performance during bug state management.",
+	"allowedBugTrackerTypes": "When adding native bug links, the utility can check whether the FoD application
+			has been configured with one of the bug tracker types listed in this property. The utility will 
+			reject submitting any vulnerabilities to a target system if the bug tracker configured on FoD does 
+			not match any of the allowed bug tracker types listed in this property. The special value `None`
+			can be used to match any FoD applications that do not have a bug tracker configured; this is
+			only supported on FoD 20.2 and higher. This property will be ignored if `addNativeBugLink` 
+			is set to false, or if this property is set to an empty list. For backward compatibility, the 
+			default value of this property is `Other`. Most common is to use either '`Other`' or 
+			'`None, Other`', with the latter allowing the utility to process release for which no bug tracker 
+			has been explicitly configured on FoD.",
+	"addBugDataAsComment": "As an alternative to the `addNativeBugLink` property, information about submitted 
+			target issues will be stored as FoD vulnerability comments if this property is set to `true`. Note
+			that this is only recommended if the native FoD bug link field is to be used for other purposes
+			(for example if vulnerabilities are to be submitted to multiple external systems), or if you have
+			been running the utility with `addBugDataAsComment` enabled in the past. Changing between the
+			two methods for storing the bug link will result in all vulnerabilities being resubmitted.",
 	"commentTargetName": "By default, FortifyBugTrackerUtility will use the target name to identify
 			relevant vulnerability comments. This property allows you to override the target name,
 			for example if you want to submit vulnerabilities to multiple instances of the same target
@@ -23,12 +42,7 @@
 			Use with care, as FortifyBugTrackerUtility may be unable to identify already submitted
 			vulnerabilities in case of an incorrect expression. Note that if you change this after 
 			vulnerabilities have already been submitted to a target system, FortifyBugTrackerUtility 
-			will no longer consider these vulnerabilities as having been submitted previously.",
-	"addNativeBugLink": "Instead of storing links to target issues a comments (see `addBugDataAsComment` property),
-			these links can also be stored as native FoD bug links. The advantage is that users can then
-			click the bug link in FoD to navigate to the corresponding target issue. For this functionality
-			you will need to configure the relevant FoD applications with the 'Other' bug tracker.
-			This property can be set to either `true` or `false`"
+			will no longer consider these vulnerabilities as having been submitted previously."
 })
 #printProperties($propertyMap)
 #printAbstractSourceVulnerabilitiesConfigurationProperties("FoD" "closedStatus==false && isSuppressed==false && status!=4")

@@ -24,6 +24,10 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.json.preprocessor.filter;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fortify.client.fod.json.preprocessor.filter.FoDJSONMapFilterReleaseHasBugTrackerTypeId;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
 
@@ -34,18 +38,15 @@ import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogge
  * @author Ruud Senden
  *
  */
-public class FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId extends FoDJSONMapFilterReleaseHasBugTrackerTypeId {
-	public FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId(MatchMode matchMode, int bugTrackerTypeId) {
-		super(matchMode, bugTrackerTypeId);
+public class FoDJSONMapFilterWithLoggerReleaseHasBugTrackerType extends FoDJSONMapFilterReleaseHasBugTrackerType {
+	public FoDJSONMapFilterWithLoggerReleaseHasBugTrackerType(MatchMode matchMode, Set<String> allowedBugTrackerTypes) {
+		super(matchMode, allowedBugTrackerTypes);
 		addFilterListeners(new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
 				null,
-				"application ${json.applicationName} ${textObjectIsOrIsnt} configured with bug tracker type id "+bugTrackerTypeId));
+				"application ${json.applicationName} ${textObjectIsOrIsnt} configured with one of bug tracker types "+allowedBugTrackerTypes));
 	}
-	
-	public FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId(MatchMode matchMode, int bugTrackerTypeId, String bugTrackerTypeName) {
-		super(matchMode, bugTrackerTypeId);
-		addFilterListeners(new FoDJSONMapFilterListenerLoggerRelease(LogLevel.INFO,
-				null,
-				"application ${json.applicationName} ${textObjectIsOrIsnt} configured with bug tracker type '"+bugTrackerTypeName+"'"));
+
+	public FoDJSONMapFilterWithLoggerReleaseHasBugTrackerType(MatchMode matchMode, String[] allowedBugTrackerTypes) {
+		this(matchMode, new HashSet<String>(Arrays.asList(allowedBugTrackerTypes)));
 	}
 }

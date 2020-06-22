@@ -24,11 +24,12 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.config;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
-import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId;
+import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterWithLoggerReleaseHasBugTrackerType;
 import com.fortify.bugtracker.src.fod.query.IFoDReleaseQueryBuilderUpdater;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
@@ -52,11 +53,12 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private String commentTargetName = null;
 	private TemplateExpression commentTemplateExpression = null;
 	private boolean addNativeBugLink = false;
+	private String[] allowedBugTrackerTypes = {"Other"};
 	
 	@Override
 	public void updateQueryBuilder(Context context, FoDReleasesQueryBuilder builder) {
-		if ( isAddNativeBugLink() ) {
-			builder.preProcessor(new FoDJSONMapFilterWithLoggerReleaseHasBugTrackerTypeId(MatchMode.INCLUDE, 2, "Other"));
+		if ( isAddNativeBugLink() && ArrayUtils.isNotEmpty(getAllowedBugTrackerTypes()) ) {
+			builder.preProcessor(new FoDJSONMapFilterWithLoggerReleaseHasBugTrackerType(MatchMode.INCLUDE, getAllowedBugTrackerTypes()));
 		}
 	}
 	
@@ -95,7 +97,13 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	public void setAddNativeBugLink(boolean addNativeBugLink) {
 		this.addNativeBugLink = addNativeBugLink;
 	}
-	
+	public String[] getAllowedBugTrackerTypes() {
+		return allowedBugTrackerTypes;
+	}
+	public void setAllowedBugTrackerTypes(String[] allowedBugTrackerTypes) {
+		this.allowedBugTrackerTypes = allowedBugTrackerTypes;
+	}
+
 	public TargetIssueLocatorCommentHelper getTargetIssueLocatorCommentHelper(String defaultTargetName) {
 		if ( commentTemplateExpression != null ) {
 			return TargetIssueLocatorCommentHelper.fromTemplateExpression(commentTemplateExpression);
