@@ -47,8 +47,10 @@
 			severityString:Critical|High+isSuppressed=false
 		</value></property>
 		
-		<property name="addBugDataAsComment" value="true"/>
-		<property name="addNativeBugLink" value="false"/>
+		<!-- Note that previous versions of this sample used to store bug data as comments instead of using native bug links -->
+		<property name="addBugDataAsComment" value="false"/>
+		<property name="addNativeBugLink" value="true"/>
+		<property name="allowedBugTrackerTypes" value="None, Other"/>
 		
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
 			closedStatus==false && isSuppressed==false
