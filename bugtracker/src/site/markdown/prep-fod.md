@@ -29,12 +29,14 @@ FortifyBugTrackerUtility supports the following approaches for storing informati
 
 - Storing the target issue link as a native FoD bug link
 
-	In order to use this approach, you will need to configure the FoD application to use bug tracker 
-	'Other'. FortifyBugTrackerUtility 	will then add the target issue link as a native bug link for
-	each submitted vulnerability. The main advantage is that users can simply click the 'View Bug' 
+	With this approach, FortifyBugTrackerUtility will add the target issue link as a native bug link 
+	for each submitted vulnerability. The main advantage is that users can simply click the 'View Bug' 
 	icon in FoD to navigate to the corresponding target issue. Main disadvantage
 	is that FoD only supports a single bug tracker plugin for each application version, so you can
-	no longer use any of the other native FoD bug tracker plugins.
+	no longer use any of the other native FoD bug tracker plugins. For FoD versions before 20.2,
+	this approach required the 'Other' bug tracker to be configured in FoD, but with 20.2 or later
+	FoD will automatically configure the 'Other' bug tracker whenever a bug link is being added to
+	a vulnerability.
 	  
 Which approach will be used by FortifyBugTrackerUtility can be specified in the configuration file; see 
 [FoD Vulnerabilities Configuration](config-FoDSourceVulnerabilitiesConfiguration.html).
