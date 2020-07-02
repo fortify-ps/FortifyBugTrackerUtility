@@ -12,6 +12,12 @@ you can view additional options by specifying the `-help` option again:
 
 The `-help` option shows available option names, a short option description, and the following information if applicable:
 
+* Environment Variable
+
+    Instead of providing an option value on the command line, options can also be passed
+    to the utility through environment variables. The help output shows the name of the
+    corresponding environment variable for each command line option. 
+
 * Default value
 
     The default value for this option. This can be a hardcoded default value, a default
@@ -20,8 +26,8 @@ The `-help` option shows available option names, a short option description, and
     
 * Current value:
 
-	The current value for this option. This can be the default value, or a value as currently
-	specified on the command line.
+	The current value for this option. This can be the default value, a value as specified 
+	in an environment variable, or a value as currently specified on the command line.
 
 * Allowed values:  
 
