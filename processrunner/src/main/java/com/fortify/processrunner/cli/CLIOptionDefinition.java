@@ -73,6 +73,7 @@ public class CLIOptionDefinition implements Serializable {
 	private String defaultValue = null;
 	private String defaultValueDescription = null;
 	private boolean isPassword = false;
+	private String envName;
 	private String[] isAlternativeForOptions = null;
 	private String[] dependsOnOptions = null;
 	private String[] allowedSources = {ALLOWED_SOURCE_CLI};
@@ -92,6 +93,7 @@ public class CLIOptionDefinition implements Serializable {
 		this.name = name;
 		this.description = description;
 		this.required = required;
+		this.envName = "FBTU_"+name.toUpperCase();
 	}
 	
 	public String getGroup() {
@@ -141,7 +143,7 @@ public class CLIOptionDefinition implements Serializable {
 	public boolean isRequired() {
 		return required;
 	}
-
+	
 	/**
 	 * Get the configured default value
 	 * @return
@@ -160,6 +162,39 @@ public class CLIOptionDefinition implements Serializable {
 	 */
 	public boolean isPassword() {
 		return isPassword;
+	}
+	
+	/**
+	 * Get the environment variable name
+	 * @return
+	 */
+	public String getEnvName() {
+		return envName;
+	}
+	
+	/**
+	 * Get the environment variable value
+	 * @return
+	 */
+	public String getEnvValue() {
+		return System.getenv(getEnvName());
+	}
+	
+	/**
+	 * Get the environment variable value description
+	 * @return
+	 */
+	public String getEnvValueDescription() {
+		return getValueDescription(getEnvValue());
+	}
+	
+	/**
+	 * Get the environment variable value if defined, default value otherwise
+	 * @return
+	 */
+	public String getEnvOrDefaultValue() {
+		String envValue = getEnvValue();
+		return StringUtils.isNotEmpty(envValue) ? envValue : defaultValue;
 	}
 	
 	/**
@@ -225,6 +260,16 @@ public class CLIOptionDefinition implements Serializable {
 	 */
 	public CLIOptionDefinition isPassword(boolean isPassword) {
 		this.isPassword = isPassword;
+		return this;
+	}
+	
+	/**
+	 * Set the environment variable name
+	 * @param isPassword
+	 * @return
+	 */
+	public CLIOptionDefinition envName(String envName) {
+		this.envName = envName;
 		return this;
 	}
 
@@ -297,7 +342,7 @@ public class CLIOptionDefinition implements Serializable {
 	public String getValue(Context context) {
 		String result = getValueFromContext(context);
 		if ( StringUtils.isBlank(result) ) {
-			result = getDefaultValue();
+			result = getEnvOrDefaultValue();
 			context.put(getName(), result);
 		}
 		if ( StringUtils.isBlank(result) && isRequiredAndNotIgnored(context) ) {

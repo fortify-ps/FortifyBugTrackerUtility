@@ -259,9 +259,9 @@ public class RunProcessRunnerFromCLI {
 		for ( CLIOptionDefinition cliOptionDefinition : cliOptionDefinitions.getCLIOptionDefinitions() ) {
 			String name = cliOptionDefinition.getName();
 			if ( !context.hasValueForKey(name) ) {
-				String defaultValue = cliOptionDefinition.getDefaultValue();
-				if ( StringUtils.isNotBlank(defaultValue) ) {
-					context.put(name, defaultValue);
+				String envOrDefaultValue = cliOptionDefinition.getEnvOrDefaultValue();
+				if ( StringUtils.isNotBlank(envOrDefaultValue) ) {
+					context.put(name, envOrDefaultValue);
 				}
 			}
 		}
@@ -330,6 +330,7 @@ public class RunProcessRunnerFromCLI {
 					hp.append(2, "-" + o.getName() + (o.isFlag()?" ":" <value> ") + (o.isRequiredAndNotIgnored(context) ? "(required)" : "(optional)"));
 					hp.append(4, o.getDescription());
 					hp.keyValueGroupBuilder()
+						.append("Environment Variable", o.getEnvName())
 						.append("Default value", o.getDefaultValueDescription())
 						.append("Current value", o.getCurrentValueDescription(context))
 						.append("Requires options", o.getDependsOnOptions())
