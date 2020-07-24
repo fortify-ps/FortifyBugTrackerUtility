@@ -27,7 +27,7 @@ lists the currently supported functionalities.
 | Microsoft TFS  | Yes     | Yes      | Yes      | Yes              | Additional state transitions may need to be configured |
 | SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC TFS bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
 
-For more information about configuring and running the utility, please see the documentation included with the binary distribution.
+For more information about configuring and running the utility, please see the documentation included with the [binary distribution](https://github.com/fortify-ps/FortifyBugTrackerUtility/releases).
 
 Note that this utility provides functionality that is similar to the bug tracker integrations
 provided with FoD and SSC, however it takes a different approach than these product-provided 
