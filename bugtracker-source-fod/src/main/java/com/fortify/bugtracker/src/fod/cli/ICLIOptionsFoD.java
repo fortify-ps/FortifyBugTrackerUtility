@@ -34,6 +34,7 @@ public interface ICLIOptionsFoD {
 	String PRP_FOD_CLIENT_SECRET = "FoDClientSecret";
 	String PRP_FOD_USER_NAME = "FoDUserName";
 	String PRP_FOD_PASSWORD = "FoDPassword";
+	String PRP_FOD_SCOPES = "FoDScopes";
 	String PRP_FOD_RELEASE_ID = "FoDReleaseId";
 	String PRP_FOD_RELEASE_NAME = "FoDReleaseName";
 	String PRP_FOD_RELEASE_NAME_PATTERNS = "FoDReleaseNamePatterns";
@@ -44,6 +45,7 @@ public interface ICLIOptionsFoD {
 	CLIOptionDefinition CLI_FOD_CLIENT_SECRET = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_CLIENT_SECRET, "FoD client secret", true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
 	CLIOptionDefinition CLI_FOD_USER_NAME = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_USER_NAME, "FoD user name", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_CLIENT_ID);
 	CLIOptionDefinition CLI_FOD_PASSWORD = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_PASSWORD, "FoD password", true).isPassword(true).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME);
+	CLIOptionDefinition CLI_FOD_SCOPES = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_SCOPES, "FoD scopes", true).isPassword(false).dependsOnOptions(ICLIOptionsFoD.PRP_FOD_USER_NAME, ICLIOptionsFoD.PRP_FOD_PASSWORD).defaultValue("view-apps,view-issues,manage-issues");
 	CLIOptionDefinition CLI_FOD_RELEASE_ID = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_RELEASE_ID,"FoD release id from which to retrieve vulnerabilities",true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_RELEASE_NAME, PRP_FOD_RELEASE_NAME_PATTERNS);
 	CLIOptionDefinition CLI_FOD_RELEASE_NAME = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_RELEASE_NAME, "FoD application release name (<application name>[:<release name>]). If release name is not specified, all releases within the given application will be processed", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_RELEASE_ID, ICLIOptionsFoD.PRP_FOD_RELEASE_NAME_PATTERNS);
 	CLIOptionDefinition CLI_FOD_RELEASE_NAME_PATTERNS = new CLIOptionDefinition("FoD", ICLIOptionsFoD.PRP_FOD_RELEASE_NAME_PATTERNS, "FoD application release names (<application name pattern>:<release name pattern>), separated by comma's", true).isAlternativeForOptions(ICLIOptionsFoD.PRP_FOD_RELEASE_ID, ICLIOptionsFoD.PRP_FOD_RELEASE_NAME);

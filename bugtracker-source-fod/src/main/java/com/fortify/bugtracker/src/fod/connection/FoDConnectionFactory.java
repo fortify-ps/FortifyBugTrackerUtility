@@ -45,6 +45,7 @@ public final class FoDConnectionFactory
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_TENANT);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_USER_NAME);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_PASSWORD);
+		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_SCOPES);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_ID);
 		cliOptionDefinitions.add(ICLIOptionsFoD.CLI_FOD_CLIENT_SECRET);
 		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "FoD");
@@ -70,6 +71,7 @@ public final class FoDConnectionFactory
 			.tenant(ICLIOptionsFoD.CLI_FOD_TENANT.getValue(context))
 			.userName(ICLIOptionsFoD.CLI_FOD_USER_NAME.getValue(context))
 			.password(ICLIOptionsFoD.CLI_FOD_PASSWORD.getValue(context))
+			.scopes(ICLIOptionsFoD.CLI_FOD_SCOPES.getValue(context).split(","))
 			.build();
 	}
 	
