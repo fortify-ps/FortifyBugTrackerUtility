@@ -57,6 +57,14 @@
 	</properties>
 	<repositories>
 		<repository>
+			<!-- Look in Maven Central first, to avoid hitting BinTray for every non-Fortify artifact -->
+			<id>Maven Central</id>
+			<url>https://repo.maven.apache.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>FortifyPSMavenRepo</id>
 			<url>https://dl.bintray.com/fortify-ps/maven</url>
 			<snapshots>
