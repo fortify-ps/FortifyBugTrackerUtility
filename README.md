@@ -58,13 +58,13 @@ for the following dependency declaration:
 <dependency>
 	<groupId>com.fortify.client.api</groupId>
 	<artifactId>client-api-root</artifactId>
-	<version>5.2-SNAPSHOT</version>
+	<version>5.10-SNAPSHOT</version>
 	<type>pom</type>
 	<scope>import</scope>
 </dependency>
 ```
 
-If, as illustrated in this example, the version of this dependency ends with `-SNAPSHOT`, you will first need to 
+If, as illustrated in this example, the version of this dependency ends with `-SNAPSHOT`, you may first need to 
 build this dependency and install the corresponding artifacts in your local Maven repository by following these steps:
 
 * `git clone https://github.com/fortify-ps/fortify-client-api.git`
