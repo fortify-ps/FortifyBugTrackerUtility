@@ -21,7 +21,7 @@ In general, a configuration file contains the following elements (you can click 
     - CSV File: [`#printTagByMatch("config/SSCToFile.xml" "FileTargetConfiguration")`](config-FileTargetConfiguration.html)
     - Atlassian Jira: [`#printTagByMatch("config/SSCToJira.xml" "JiraTargetConfiguration")`](config-JiraTargetConfiguration.html)
     - ALM Octane: [`#printTagByMatch("config/SSCToOctane.xml" "OctaneTargetConfiguration")`](config-OctaneTargetConfiguration.html)
-    - TFS: [`#printTagByMatch("config/SSCToTFS.xml" "TFSTargetConfiguration")`](config-TFSTargetConfiguration.html)
-    - Native SSC bug tracker: [`#printTagByMatch("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")`](config-SSCTargetConfiguration.html)
+    - Azure DevOps: [`#printTagByMatch("config/SSCToAzureDevOps.xml" "ADOTargetConfiguration")`](config-ADOTargetConfiguration.html)
+    - Native SSC bug tracker: [`#printTagByMatch("config/SSCToJiraViaSSC.xml" "SSCTargetConfiguration")`](config-SSCTargetConfiguration.html)
   
 

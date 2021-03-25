@@ -1,0 +1,28 @@
+#parse("util.vm")
+
+# Microsoft Azure DevOps (ADO) Configuration
+
+When submitting vulnerability data to Azure DevOps, the configuration file must include 
+a bean definition that configures ADO-related functionality. 
+
+This configuration is defined using the following bean definition in the configuration file:
+
+`#printTagByMatch("config/SSCToAzureDevOps.xml" "ADOTargetConfiguration")`
+
+This bean definition supports the following properties:
+
+#printAbstractTargetUpdateIssuesWithTransitionsConfiguration("ADO")
+
+Following are examples of the bean configuration:
+
+For SSC:
+
+```xml
+#printTagByMatchWithContents("config/SSCToAzureDevOps.xml" "ADOTargetConfiguration")
+```
+
+For FoD:
+
+```xml
+#printTagByMatchWithContents("config/FoDToAzureDevOps.xml" "ADOTargetConfiguration")
+```

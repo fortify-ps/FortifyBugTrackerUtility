@@ -35,7 +35,7 @@
 		
 	<!--
 		This configuration file contains a basic configuration for submitting vulnerabilities
-		from SSC through the native SSC TFS bug tracker integration, and does not describe all 
+		from SSC through the native SSC Jira bug tracker integration, and does not describe all 
 		possible configuration options. Please see FortifyBugTrackerUtility documentation for 
 		more information about the various configuration components and properties. 
 	 -->
@@ -47,7 +47,7 @@
 	</bean>
 	
 	<bean class="com.fortify.bugtracker.tgt.ssc.config.SSCTargetConfiguration">
-		<property name="sscBugTrackerName" value="TFS/Visual Studio Online"/>
+		<property name="sscBugTrackerName" value="Jira"/>
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 	</bean>
 	

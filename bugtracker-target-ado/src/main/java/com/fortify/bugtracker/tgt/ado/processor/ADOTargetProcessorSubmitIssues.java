@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.processor;
+package com.fortify.bugtracker.tgt.ado.processor;
 
 import java.util.LinkedHashMap;
 
@@ -33,48 +33,48 @@ import org.springframework.stereotype.Component;
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorSubmitIssues;
-import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
-import com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration;
-import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
-import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
+import com.fortify.bugtracker.tgt.ado.cli.ICLIOptionsADO;
+import com.fortify.bugtracker.tgt.ado.config.ADOTargetConfiguration;
+import com.fortify.bugtracker.tgt.ado.connection.ADOConnectionFactory;
+import com.fortify.bugtracker.tgt.ado.connection.ADORestConnection;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.JSONMap;
 
 /**
  * This {@link AbstractTargetProcessorSubmitIssues} implementation
- * submits issues to TFS.
+ * submits issues to ADO.
  */
 @Component
-public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
+public class ADOTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmitIssues {
 	private String workItemType;
 	
 	@Override
 	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
-		TFSConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PROJECT);
+		ADOConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_COLLECTION);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_PROJECT);
 	}
 	
 	public String getTargetName() {
-		return "TFS";
+		return "ADO";
 	}
 	
 	@Override
 	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
-		TFSRestConnection conn = TFSConnectionFactory.getConnection(context);
+		ADORestConnection conn = ADOConnectionFactory.getConnection(context);
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
 		return conn.submitIssue(
-			ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), 
-			ICLIOptionsTFS.CLI_TFS_PROJECT.getValue(context), getWorkItemType(), issueData);
+			ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), 
+			ICLIOptionsADO.CLI_ADO_PROJECT.getValue(context), getWorkItemType(), issueData);
 	}
 	
 	@Override
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return TFSConnectionFactory.getConnection(context)
-						.getWorkItemFields(ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), targetIssueLocator);
+				return ADOConnectionFactory.getConnection(context)
+						.getWorkItemFields(ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), targetIssueLocator);
 			}
 		};
 	}
@@ -88,7 +88,7 @@ public class TFSTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	}
 	
 	@Autowired
-	public void setConfiguration(TFSTargetConfiguration config) {
+	public void setConfiguration(ADOTargetConfiguration config) {
 		setWorkItemType(config.getWorkItemType());
 	}
 	

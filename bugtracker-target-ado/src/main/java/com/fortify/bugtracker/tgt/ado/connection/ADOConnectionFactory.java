@@ -22,45 +22,45 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.connection;
+package com.fortify.bugtracker.tgt.ado.connection;
 
-import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
+import com.fortify.bugtracker.tgt.ado.cli.ICLIOptionsADO;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.util.rest.CLIOptionAwareProxyConfiguration;
 import com.fortify.util.rest.connection.ProxyConfig;
 
-public final class TFSConnectionFactory 
+public final class ADOConnectionFactory 
 {
 	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_BASE_URL);
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_USER_NAME);
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_PASSWORD);
-		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "TFS");
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_BASE_URL);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_USER_NAME);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_PASSWORD);
+		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "ADO");
 	}
 	
-	public static final TFSRestConnection getConnection(Context context) {
-		IContextTFSConnection ctx = context.as(IContextTFSConnection.class);
-		TFSRestConnection result = ctx.getTFSConnection();
+	public static final ADORestConnection getConnection(Context context) {
+		IContextADOConnection ctx = context.as(IContextADOConnection.class);
+		ADORestConnection result = ctx.getADOConnection();
 		if ( result == null ) {
 			result = createConnection(context);
-			ctx.setTFSConnection(result);
+			ctx.setADOConnection(result);
 		}
 		return result;
 	}
 
-	private static final TFSRestConnection createConnection(Context context) {
-		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "TFS");
-		return TFSRestConnection.builder()
+	private static final ADORestConnection createConnection(Context context) {
+		ProxyConfig proxy = CLIOptionAwareProxyConfiguration.getProxyConfiguration(context, "ADO");
+		return ADORestConnection.builder()
 			.proxy(proxy)
-			.baseUrl(ICLIOptionsTFS.CLI_TFS_BASE_URL.getValue(context))
-			.userName(ICLIOptionsTFS.CLI_TFS_USER_NAME.getValue(context))
-			.password(ICLIOptionsTFS.CLI_TFS_PASSWORD.getValue(context))
+			.baseUrl(ICLIOptionsADO.CLI_ADO_BASE_URL.getValue(context))
+			.userName(ICLIOptionsADO.CLI_ADO_USER_NAME.getValue(context))
+			.password(ICLIOptionsADO.CLI_ADO_PASSWORD.getValue(context))
 			.build();
 	}
 	
-	private interface IContextTFSConnection {
-		public void setTFSConnection(TFSRestConnection connection);
-		public TFSRestConnection getTFSConnection();
+	private interface IContextADOConnection {
+		public void setADOConnection(ADORestConnection connection);
+		public ADORestConnection getADOConnection();
 	}
 }

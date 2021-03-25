@@ -84,7 +84,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.bugtracker</groupId>
-			<artifactId>bugtracker-target-tfs</artifactId>
+			<artifactId>bugtracker-target-ado</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fortify.bugtracker</groupId>

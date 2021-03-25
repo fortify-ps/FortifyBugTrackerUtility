@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2020 Micro Focus or one of its affiliates, a Micro Focus company
- * 
+ * (c) Copyright 2020 Micro Focus or one of its affiliates
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,9 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.connection;
+package com.fortify.bugtracker.tgt.ado.config;
 
-import com.fortify.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
+import com.fortify.bugtracker.common.tgt.config.AbstractTargetUpdateIssuesWithTransitionsConfiguration;
 
-public class TFSRestConnectionConfig<T extends TFSRestConnectionConfig<T>> extends AbstractRestConnectionWithCredentialsConfig<T> {
+public class ADOTargetConfiguration extends AbstractTargetUpdateIssuesWithTransitionsConfiguration {
+	private String workItemType = "Bug";
+
+	public String getWorkItemType() {
+		return workItemType;
+	}
+
+	public void setWorkItemType(String workItemType) {
+		this.workItemType = workItemType;
+	}
 }

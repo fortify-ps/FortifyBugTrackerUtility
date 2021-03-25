@@ -90,7 +90,7 @@
 		<module>bugtracker-target-ssc</module>
 		<module>bugtracker-target-jira</module>
 		<module>bugtracker-target-file</module>
-		<module>bugtracker-target-tfs</module>
+		<module>bugtracker-target-ado</module>
 		<module>bugtracker-target-archer</module>
 		<module>bugtracker-target-octane</module>
 		<module>bugtracker</module>
@@ -154,7 +154,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.fortify.bugtracker</groupId>
-				<artifactId>bugtracker-target-tfs</artifactId>
+				<artifactId>bugtracker-target-ado</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>

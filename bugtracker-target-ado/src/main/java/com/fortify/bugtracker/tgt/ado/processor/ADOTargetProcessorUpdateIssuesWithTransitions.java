@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.processor;
+package com.fortify.bugtracker.tgt.ado.processor;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -35,29 +35,29 @@ import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
-import com.fortify.bugtracker.tgt.tfs.cli.ICLIOptionsTFS;
-import com.fortify.bugtracker.tgt.tfs.connection.TFSConnectionFactory;
-import com.fortify.bugtracker.tgt.tfs.connection.TFSRestConnection;
+import com.fortify.bugtracker.tgt.ado.cli.ICLIOptionsADO;
+import com.fortify.bugtracker.tgt.ado.connection.ADOConnectionFactory;
+import com.fortify.bugtracker.tgt.ado.connection.ADORestConnection;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.JSONMap;
 
 @Component
-public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
+public class ADOTargetProcessorUpdateIssuesWithTransitions extends AbstractTargetProcessorUpdateIssuesWithTransitions {
 	@Override
 	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
-		TFSConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
-		cliOptionDefinitions.add(ICLIOptionsTFS.CLI_TFS_COLLECTION);
+		ADOConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_COLLECTION);
 	}
 	
 	@Override
 	public String getTargetName() {
-		return "TFS";
+		return "ADO";
 	}
 	
 	@Override
 	protected URI getTargetURI(Context context) {
-		return getTFSConnection(context).getBaseUrl();
+		return getADOConnection(context).getBaseUrl();
 	}
 	
 	@Override
@@ -65,8 +65,8 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 		return new ITargetIssueFieldsUpdater() {
 			@Override
 			public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
-				String collection = ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context);
-				return getTFSConnection(context).updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
+				String collection = ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context);
+				return getADOConnection(context).updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
 			}
 		};
 	}
@@ -75,23 +75,23 @@ public class TFSTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return getTFSConnection(context).getWorkItemFields(ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context), targetIssueLocator);
+				return getADOConnection(context).getWorkItemFields(ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), targetIssueLocator);
 			}
 		};
 	}
 	
-	protected TFSRestConnection getTFSConnection(Context context) {
-		return TFSConnectionFactory.getConnection(context);
+	protected ADORestConnection getADOConnection(Context context) {
+		return ADOConnectionFactory.getConnection(context);
 	}
 	
 	@Override
 	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
-		String collection = ICLIOptionsTFS.CLI_TFS_COLLECTION.getValue(context);
+		String collection = ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context);
 		Map<String, Object> fields = new LinkedHashMap<String, Object>();
 		if ( comment != null ) {
 			fields.put("System.History", comment);
 		}
 		fields.put("System.State", transitionName);
-		return getTFSConnection(context).updateIssueData(collection, targetIssueLocator, fields);
+		return getADOConnection(context).updateIssueData(collection, targetIssueLocator, fields);
 	}
 }

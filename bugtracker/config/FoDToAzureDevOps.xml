@@ -35,12 +35,12 @@
 		
 	<!--
 		This configuration file contains a basic configuration for submitting vulnerabilities
-		from FoD to TFS, and does not describe all possible configuration options. Please 
+		from FoD to Azure DevOps, and does not describe all possible configuration options. Please 
 		see FortifyBugTrackerUtility documentation for more information about the various 
 		configuration components and properties. 
 	 -->	
 	
-	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.tfs"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.ado"/>
 	
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
 		<property name="filterStringForVulnerabilitiesToBeSubmitted"><value>
@@ -57,7 +57,7 @@
 		]]></value></property>
 	</bean>
 	
-	<bean class="com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration">
+	<bean class="com.fortify.bugtracker.tgt.ado.config.ADOTargetConfiguration">
 		<property name="workItemType" value="Bug"/>
 		
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>

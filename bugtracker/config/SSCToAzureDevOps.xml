@@ -35,30 +35,30 @@
 		
 	<!--
 		This configuration file contains a basic configuration for submitting vulnerabilities
-		from SSC to TFS, and does not describe all possible configuration options. Please 
+		from SSC to Azure DevOps, and does not describe all possible configuration options. Please 
 		see FortifyBugTrackerUtility documentation for more information about the various 
 		configuration components and properties. 
 	 -->	
 	
-	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.tfs"/>
+	<context:component-scan base-package="com.fortify.bugtracker.src.ssc, com.fortify.bugtracker.tgt.ado"/>
 	
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
 		<property name="attributeToCLIOptionMap"><map>
-			<entry key="TFS Collection" value="TFSCollection"/>
-			<entry key="TFS Project" value="TFSProject"/>
+			<entry key="ADO Collection" value="ADOCollection"/>
+			<entry key="ADO Project" value="ADOProject"/>
 		</map></property>
 	</bean>	
 	
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration">
 		<property name="filterStringForVulnerabilitiesToBeSubmitted" value="analysis:exploitable"/>
-		<property name="bugLinkCustomTagName" value="TFSBugLink"/>
+		<property name="bugLinkCustomTagName" value="ADOBugLink"/> <!-- You may need to rename any existing TFSBugLink custom tag -->
 		
 		<property name="extraCustomTags"><map>
-			<entry key="TFSIssueState" value="${fields['System.State']}"/>
+			<entry key="ADOIssueState" value="${fields['System.State']}"/> <!-- You may need to rename any existing TFSIssueState custom tag -->
 		</map></property>
 	</bean>
 
-	<bean class="com.fortify.bugtracker.tgt.tfs.config.TFSTargetConfiguration">
+	<bean class="com.fortify.bugtracker.tgt.ado.config.ADOTargetConfiguration">
 		<property name="workItemType" value="Bug"/>
 		<property name="groupTemplateExpression" value="${issueName}+${fullFileName}"/>
 		
@@ -69,7 +69,7 @@
 		</map></property>
 
 		<property name="appendedFields"><map>
-			<!-- TODO For some reason TFS encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
+			<!-- TODO For some reason ADO encodes the '!' in the href for the deep link to the SSC vulnerability, causing the link to be not properly handled by SSC -->
 			<entry key="Microsoft.VSTS.TCM.ReproSteps"><value><![CDATA[
 				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
 			]]></value></entry>

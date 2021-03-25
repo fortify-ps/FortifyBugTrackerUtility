@@ -7,14 +7,14 @@ configuration file must include configures SSC-related functionality.
 
 This configuration is defined using the following bean definition in the configuration file:
 
-`#printTagByMatch("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")`
+`#printTagByMatch("config/SSCToJiraViaSSC.xml" "SSCTargetConfiguration")`
 
 This bean definition supports the following properties:
 
 #printSSCTargetSubmitOnlyConfiguration()
 
-Following is an example of the bean configuration for submitting vulnerabilities through the native SSC TFS bug tracker plugin:
+Following is an example of the bean configuration for submitting vulnerabilities through the native SSC JIRA bug tracker plugin:
 
 ```xml
-#printTagByMatchWithContents("config/SSCToTFSViaSSC.xml" "SSCTargetConfiguration")
+#printTagByMatchWithContents("config/SSCToJiraViaSSC.xml" "SSCTargetConfiguration")
 ```

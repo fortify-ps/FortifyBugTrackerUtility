@@ -24,7 +24,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>bugtracker-target-tfs</artifactId>
+	<artifactId>bugtracker-target-ado</artifactId>
 	<parent>
 		<groupId>com.fortify.bugtracker</groupId>
 		<artifactId>bugtracker-root</artifactId>
@@ -67,5 +67,5 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 	</dependencies>
-	<description>This module provides functionality for submitting issues to TFS. This includes setting up a connection to TFS, a TFS-specific Context interface, and processors for actually submitting issues to TFS</description>
+	<description>This module provides functionality for submitting issues to Azure DevOps (ADO). This includes setting up a connection to Azure DevOps, an ADO-specific Context interface, and processors for actually submitting issues to Azure DevOps</description>
 </project>

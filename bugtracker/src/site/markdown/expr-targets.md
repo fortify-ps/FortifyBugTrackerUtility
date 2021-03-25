@@ -31,5 +31,5 @@ For integrations that do support state management, the following target issue pr
     
     * Atlassian Jira: All fields returned by the `/rest/api/latest/issue/{id}` endpoint
     * ALM Octane: All fields returned by the `/api/shared_spaces/{sharedSpaceUid}/workspaces/{workspaceId}/defects/{id}` endpoint
-    * Microsoft TFS: All fields returned by the `/_apis/wit/workitems/{id}` endpoint
+    * Microsoft Azure DevOps: All fields returned by the `/_apis/wit/workitems/{id}` endpoint
 

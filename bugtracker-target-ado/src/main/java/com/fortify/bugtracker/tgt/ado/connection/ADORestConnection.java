@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.bugtracker.tgt.tfs.connection;
+package com.fortify.bugtracker.tgt.ado.connection;
 
 import java.net.URI;
 import java.util.List;
@@ -48,10 +48,10 @@ import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
-public final class TFSRestConnection extends AbstractRestConnection {
-	private static final Log LOG = LogFactory.getLog(TFSRestConnection.class);
+public final class ADORestConnection extends AbstractRestConnection {
+	private static final Log LOG = LogFactory.getLog(ADORestConnection.class);
 	
-	public TFSRestConnection(TFSRestConnectionConfig<?> config) {
+	public ADORestConnection(ADORestConnectionConfig<?> config) {
 		super(config);
 	}
 	
@@ -66,7 +66,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	}
 	
 	public TargetIssueLocator submitIssue(String collection, String project, String workItemType, Map<String, Object> fields) {
-		LOG.trace(String.format("[TFS] Submitting issue: %s", fields));
+		LOG.trace(String.format("[ADO] Submitting issue: %s", fields));
 		WebTarget target = getBaseResource()
 				.path(collection).path(project).path("/_apis/wit/workitems").path("$"+workItemType);
 		
@@ -82,7 +82,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 		if ( issueId == null ) {
 			return false;
 		} else {
-			LOG.trace(String.format("[TFS] Updating issue data for %s: %s", targetIssueLocator.getDeepLink(), fields)); 
+			LOG.trace(String.format("[ADO] Updating issue data for %s: %s", targetIssueLocator.getDeepLink(), fields)); 
 			WebTarget target = getBaseResource()
 					.path(collection).path("/_apis/wit/workitems").path(issueId);
 			executeRequest("PATCH", target, Entity.entity(getOperations(fields), "application/json-patch+json"), null);
@@ -103,10 +103,10 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	}
 	
 	public JSONMap getWorkItemFields(String collection, TargetIssueLocator targetIssueLocator, String... fields) {
-		LOG.trace(String.format("[TFS] Retrieving issue data for %s", targetIssueLocator.getDeepLink())); 
+		LOG.trace(String.format("[ADO] Retrieving issue data for %s", targetIssueLocator.getDeepLink())); 
 		String issueId = getIssueId(targetIssueLocator);
 		if ( issueId == null ) {
-			LOG.warn(String.format("[TFS] Cannot get work item id from URL %s", targetIssueLocator.getDeepLink()));
+			LOG.warn(String.format("[ADO] Cannot get work item id from URL %s", targetIssueLocator.getDeepLink()));
 			return null;
 		} else {
 			WebTarget target = getBaseResource().path(collection).path("/_apis/wit/workitems").path(issueId);
@@ -120,7 +120,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	private String getIssueId(TargetIssueLocator targetIssueLocator) {
 		String id = targetIssueLocator.getId();
 		if ( StringUtils.isBlank(id) ) {
-			// According to reports, this no longer works for recent TFS versions
+			// According to reports, this no longer works for recent ADO versions
 			// However we keep this approach in here for previously submitted issues
 			id = getIssueIdFromIdParameter(targetIssueLocator);
 		}
@@ -149,25 +149,25 @@ public final class TFSRestConnection extends AbstractRestConnection {
 	}
 	
 	/**
-	 * This method returns an {@link TFSRestConnectionBuilder} instance
-	 * that allows for building {@link TFSRestConnection} instances.
+	 * This method returns an {@link ADORestConnectionBuilder} instance
+	 * that allows for building {@link ADORestConnection} instances.
 	 * @return
 	 */
-	public static final TFSRestConnectionBuilder builder() {
-		return new TFSRestConnectionBuilder();
+	public static final ADORestConnectionBuilder builder() {
+		return new ADORestConnectionBuilder();
 	}
 	
 	/**
-	 * This class provides a builder pattern for configuring an {@link TFSRestConnection} instance.
+	 * This class provides a builder pattern for configuring an {@link ADORestConnection} instance.
 	 * It re-uses builder functionality from {@link AbstractRestConnectionConfig}, and adds a
-	 * {@link #build()} method to build an {@link TFSRestConnection} instance.
+	 * {@link #build()} method to build an {@link ADORestConnection} instance.
 	 * 
 	 * @author Ruud Senden
 	 */
-	public static final class TFSRestConnectionBuilder extends TFSRestConnectionConfig<TFSRestConnectionBuilder> implements IRestConnectionBuilder<TFSRestConnection> {
+	public static final class ADORestConnectionBuilder extends ADORestConnectionConfig<ADORestConnectionBuilder> implements IRestConnectionBuilder<ADORestConnection> {
 		@Override
-		public TFSRestConnection build() {
-			return new TFSRestConnection(this);
+		public ADORestConnection build() {
+			return new ADORestConnection(this);
 		}
 	}
 	

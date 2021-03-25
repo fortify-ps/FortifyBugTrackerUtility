@@ -3,7 +3,7 @@ In order to run the utility, you will need to have a Java 8 Runtime Environment 
 
 `java -jar FortifyBugTrackerUtility-[version].jar -help`
 
-In order to do any useful work, the utility requires a configuration file. The utility comes bundled with multiple sample configuration files for different use cases. Currently there are configuration files to submit issues from either FoD or SSC to Jira, CSV File, ALM Octane, RSA Archer, and TFS/Visual Studio Online. 
+In order to do any useful work, the utility requires a configuration file. The utility comes bundled with multiple sample configuration files for different use cases. Currently there are configuration files to submit issues from either FoD or SSC to Jira, CSV File, ALM Octane, RSA Archer, and Azure DevOps. 
 
 The configuration file can be specified using the `-configFile` option. Once a valid configuration file has been specified,
 you can view additional options by specifying the `-help` option again:

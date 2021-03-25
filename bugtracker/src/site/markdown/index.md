@@ -26,6 +26,6 @@ The following table lists the target systems that are currently supported, toget
 | CSV File      | Yes      | Yes      | No       | No               | By default, a separate output file is written for each application version/release. All relevant vulnerabilities are exported on each run, overwriting any existing files |
 | Atlassian Jira | Yes     | Yes      | Yes      | Yes              | May require customizations if custom Jira configurations are being used |
 | ALM Octane     | Yes     | Yes      | Yes      | Yes              | State transition comments are not yet supported |
-| Microsoft TFS  | Yes     | Yes      | Yes      | Yes              | Additional state transitions may need to be configured |
-| SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC TFS bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
+| Azure DevOps   | Yes     | Yes      | Yes      | Yes              | Additional state transitions may need to be configured |
+| SSC Bug Trackers | No    | Yes      | Yes      | Performed by SSC | Sample configuration for SSC Jira bug tracker included, other SSC bug trackers require corresponding configuration files to be added |
 
