@@ -41,8 +41,8 @@ import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapsFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This {@link IProcessor} implementation allows for writing data from the 
@@ -56,7 +56,7 @@ public class FileTargetProcessorSubmitIssues extends AbstractProcessorBuildObjec
 	private static final Log LOG = LogFactory.getLog(FileTargetProcessorSubmitIssues.class);
 	
 	public FileTargetProcessorSubmitIssues() {
-		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
+		setRootExpression(DefaultExpressionHelper.get().parseSimpleExpression("CurrentVulnerability"));
 	}
 	
 	public String getTargetName() {

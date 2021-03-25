@@ -34,9 +34,9 @@ import com.fortify.bugtracker.src.fod.query.IFoDReleaseQueryBuilderUpdater;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class holds all FoD-related configuration properties used to submit vulnerabilities
@@ -47,7 +47,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  */
 public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration implements IFoDReleaseQueryBuilderUpdater {
 	private static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION =
-			SpringExpressionUtil.parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
+			DefaultExpressionHelper.get().parseSimpleExpression("closedStatus==false && isSuppressed==false && status!=4");
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
 	private boolean addBugDataAsComment = false;
 	private String commentTargetName = null;

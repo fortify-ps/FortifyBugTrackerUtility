@@ -42,6 +42,7 @@ import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssues;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
 import com.fortify.client.ssc.api.SSCCustomTagAPI;
+import com.fortify.client.ssc.api.json.embed.SSCEmbedConfig;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
@@ -92,6 +93,11 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
 			}
 			return builder;
+		}
+		
+		@Override
+		protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+			queryBuilder.embed(SSCEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
 		}
 	}
 

@@ -47,8 +47,8 @@ import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * <p>This abstract {@link IProcessor} implementation can update issue state for previously submitted issues,
@@ -75,7 +75,7 @@ import com.fortify.util.spring.expression.SimpleExpression;
 public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTargetProcessor implements ITargetProcessorUpdateIssues {
 	private static final Log LOG = LogFactory.getLog(AbstractTargetProcessorUpdateIssues.class);
 	private IExistingIssueVulnerabilityUpdater vulnerabilityUpdater;
-	private SimpleExpression isVulnStateOpenExpression = SpringExpressionUtil.parseSimpleExpression(IVulnStateConstants.EXPR_IS_VULN_OPEN);
+	private SimpleExpression isVulnStateOpenExpression = DefaultExpressionHelper.get().parseSimpleExpression(IVulnStateConstants.EXPR_IS_VULN_OPEN);
 	private SimpleExpression vulnBugIdExpression;
 	private SimpleExpression vulnBugLinkExpression;
 	
@@ -83,7 +83,7 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
 	 */
 	public AbstractTargetProcessorUpdateIssues() {
-		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
+		setRootExpression(DefaultExpressionHelper.get().parseSimpleExpression("CurrentVulnerability"));
 	}
 	
 	/**
@@ -247,8 +247,8 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	 */
 	protected TargetIssueLocator getTargetIssueLocator(Object vulnerability) {
 		TargetIssueLocator result = new TargetIssueLocator(
-			SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugIdExpression, String.class),
-			SpringExpressionUtil.evaluateExpression(vulnerability, vulnBugLinkExpression, String.class)
+			DefaultExpressionHelper.get().evaluateExpression(vulnerability, vulnBugIdExpression, String.class),
+			DefaultExpressionHelper.get().evaluateExpression(vulnerability, vulnBugLinkExpression, String.class)
 		);
 		return result;
 	}
@@ -283,7 +283,7 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	
 	private boolean hasOpenVulnerabilities(List<Object> currentGroup) {
 		for ( Object o : currentGroup ) {
-			if ( SpringExpressionUtil.evaluateExpression(o, getIsVulnStateOpenExpression(), Boolean.class) ) {
+			if ( DefaultExpressionHelper.get().evaluateExpression(o, getIsVulnStateOpenExpression(), Boolean.class) ) {
 				return true;
 			}
 		}

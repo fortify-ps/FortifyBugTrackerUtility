@@ -39,7 +39,7 @@ import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This abstract {@link IProcessor} implementation allows for submitting issues to external systems
@@ -59,7 +59,7 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 	 * This constructor sets the root expression on our parent to 'CurrentVulnerability'
 	 */
 	public AbstractTargetProcessorSubmitIssues() {
-		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
+		setRootExpression(DefaultExpressionHelper.get().parseSimpleExpression("CurrentVulnerability"));
 	}
 	
 	/**

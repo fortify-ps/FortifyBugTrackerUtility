@@ -46,6 +46,7 @@ import com.fortify.bugtracker.common.tgt.processor.ITargetProcessorSubmitIssues;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceVulnerabilitiesConfiguration;
 import com.fortify.client.ssc.api.SSCBugTrackerAPI;
 import com.fortify.client.ssc.api.SSCCustomTagAPI;
+import com.fortify.client.ssc.api.json.embed.SSCEmbedConfig;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQueryBuilder.QueryMode;
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
@@ -124,6 +125,11 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 			}
 			// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
 			return result;
+		}
+		
+		@Override
+		protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+			queryBuilder.embed(SSCEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
 		}
 	}
 	

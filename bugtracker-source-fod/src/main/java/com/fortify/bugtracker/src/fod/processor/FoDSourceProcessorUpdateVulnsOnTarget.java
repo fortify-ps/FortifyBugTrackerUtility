@@ -30,6 +30,7 @@ import com.fortify.bugtracker.common.src.processor.ISourceProcessorUpdateVulnsOn
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssues;
 import com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
+import com.fortify.client.fod.api.json.embed.FoDEmbedConfig;
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
@@ -66,16 +67,21 @@ public class FoDSourceProcessorUpdateVulnsOnTarget extends AbstractFoDSourceVuln
 		@Override
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
-					.paramIncludeFixed(true)
-					.paramIncludeSuppressed(true)
+					.paramIncludeFixed(false, true)
+					.paramIncludeSuppressed(false, true)
 					.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));
 			if ( getConfiguration().isAddNativeBugLink() ) {
-				builder.paramFilterAnd("bugSubmitted","true");
+				builder.paramFilterAnd(false, "bugSubmitted","true");
 			}
 			if ( getConfiguration().isAddBugDataAsComment() ) {
-				builder.paramFilterAnd("hasComments","true");
+				builder.paramFilterAnd(false, "hasComments","true");
 			}
 			return builder;
+		}
+		
+		@Override
+		protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+			queryBuilder.embed(FoDEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
 		}
 	}
 }

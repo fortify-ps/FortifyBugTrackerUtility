@@ -46,7 +46,7 @@ import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 public final class TFSRestConnection extends AbstractRestConnection {
 	private static final Log LOG = LogFactory.getLog(TFSRestConnection.class);
@@ -73,7 +73,7 @@ public final class TFSRestConnection extends AbstractRestConnection {
 		JSONMap submitResult = executeRequest("PATCH", target, Entity.entity(getOperations(fields), "application/json-patch+json"), JSONMap.class);
 		
 		String submittedIssueId = submitResult.get("id", String.class);
-		String submittedIssueBrowserURL = SpringExpressionUtil.evaluateExpression(submitResult, "_links.html.href", String.class);
+		String submittedIssueBrowserURL = DefaultExpressionHelper.get().evaluateSimpleExpression(submitResult, "_links.html.href", String.class);
 		return new TargetIssueLocator(submittedIssueId, submittedIssueBrowserURL);
 	}
 	

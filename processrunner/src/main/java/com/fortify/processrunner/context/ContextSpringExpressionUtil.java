@@ -24,11 +24,17 @@
  ******************************************************************************/
 package com.fortify.processrunner.context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.PropertyAccessor;
+import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.context.expression.MapAccessorIgnoreNonExistingProperties;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class extends {@link SpringExpressionUtil} with methods
@@ -40,19 +46,18 @@ import com.fortify.util.spring.SpringExpressionUtil;
  * TODO Do we still need this, now that (most) on-demand loaders no longer need access to the context?
  *
  */
-public class ContextSpringExpressionUtil extends SpringExpressionUtil {
-	
-	/**
-	 * Create a Spring {@link StandardEvaluationContext} instance based
-	 * on {@link SpringExpressionUtil#createStandardEvaluationContext()},
-	 * adding the current {@link Context} as variable 'ctx'.
-	 * 
-	 * @param context
-	 * @return
-	 */
+public class ContextSpringExpressionUtil {
 	public static final StandardEvaluationContext createStandardEvaluationContext(Context context) {
-		StandardEvaluationContext result = createStandardEvaluationContext();
+		StandardEvaluationContext result = new StandardEvaluationContext();
+		result.setPropertyAccessors(createPropertyAccessors());
 		result.setVariable("ctx", context);
+		return result;
+	}
+	
+	protected static final List<PropertyAccessor> createPropertyAccessors() {
+		List<PropertyAccessor> result = new ArrayList<PropertyAccessor>();
+		result.add(new ReflectivePropertyAccessor());
+		result.add(new MapAccessorIgnoreNonExistingProperties());
 		return result;
 	}
 	
@@ -67,7 +72,8 @@ public class ContextSpringExpressionUtil extends SpringExpressionUtil {
 	 * @return
 	 */
 	public static final <T> T evaluateExpression(Context context, Object input, Expression expression, Class<T> returnType) {
-		return evaluateExpression(createStandardEvaluationContext(context), input, expression, returnType);
+		if ( input==null || expression==null ) { return null; }
+		return expression.getValue(createStandardEvaluationContext(context), input, returnType);
 	}
 	
 	/**
@@ -81,7 +87,7 @@ public class ContextSpringExpressionUtil extends SpringExpressionUtil {
 	 * @return
 	 */
 	public static final <T> T evaluateExpression(Context context, Object input, String expression, Class<T> returnType) {
-		return evaluateExpression(createStandardEvaluationContext(context), input, expression, returnType);
+		return evaluateExpression(context, input, DefaultExpressionHelper.get().parseSimpleExpression(expression), returnType);
 	}
 
 	/**
@@ -95,6 +101,6 @@ public class ContextSpringExpressionUtil extends SpringExpressionUtil {
 	 * @return
 	 */
 	public static final <T> T evaluateTemplateExpression(Context context, Object input, String expression, Class<T> returnType) {
-		return evaluateTemplateExpression(createStandardEvaluationContext(context), input, expression, returnType);
+		return evaluateExpression(context, input, DefaultExpressionHelper.get().parseTemplateExpression(expression), returnType);
 	}
 }

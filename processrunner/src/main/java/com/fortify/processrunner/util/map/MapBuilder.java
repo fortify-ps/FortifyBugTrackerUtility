@@ -35,8 +35,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fortify.util.spring.SpringExpressionUtil;
-
 /**
  * This class allows for building a {@link Map} based on configured
  * {@link IMapUpdater} instances.
@@ -115,7 +113,7 @@ public class MapBuilder {
 		}
 		@Override
 		protected Object getValue(Map<String, Object> map, String key, Object rootObject, Expression expression) {
-			return SpringExpressionUtil.evaluateExpression(evaluationContext, rootObject, expression, Object.class);
+			return expression==null || rootObject==null ? null : expression.getValue(evaluationContext, rootObject);
 		}
 	}
 	
@@ -147,7 +145,7 @@ public class MapBuilder {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		protected Object appendValue(Object value, Object rootObject, Expression expression) {
-			Object valueToAppend = SpringExpressionUtil.evaluateExpression(evaluationContext, rootObject, expression, Object.class); 
+			Object valueToAppend = expression==null || rootObject==null ? null : expression.getValue(evaluationContext, rootObject);
 			if ( value instanceof String ) {
 				value = value+""+valueToAppend;
 			} else if ( value instanceof Collection ) {

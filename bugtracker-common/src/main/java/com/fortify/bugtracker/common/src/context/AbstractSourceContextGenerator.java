@@ -54,8 +54,8 @@ import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterSpEL;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 import com.fortify.util.rest.query.IRestConnectionQuery;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This abstract {@link IContextGenerator} implementation generates {@link Context} instances
@@ -271,7 +271,7 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 			for ( Entry<String, Object> entry : contextWithValueExpressionsToMerge.entrySet() ) {
 				String ctxPropertyName = entry.getKey();
 				if ( !targetContext.containsKey(ctxPropertyName) ) {
-					Object ctxPropertyValue = SpringExpressionUtil.evaluateTemplateExpression(sourceObject, (String)entry.getValue(), Object.class);
+					Object ctxPropertyValue = DefaultExpressionHelper.get().evaluateTemplateExpression(sourceObject, (String)entry.getValue(), Object.class);
 					targetContext.put(ctxPropertyName, ctxPropertyValue);
 				}
 			}
@@ -317,10 +317,12 @@ public abstract class AbstractSourceContextGenerator<C extends ISourceContextGen
 			for ( Map.Entry<String, String> entry : extraData.entrySet() ) {
 				String propertyName = entry.getKey();
 				String uriString = StringUtils.substringBeforeLast(entry.getValue(), ";");
-				queryBuilder.onDemand(propertyName, uriString);
+				addOnDemandProperty(queryBuilder, propertyName, uriString);
 			}
 		}
 	}
+	
+	protected abstract void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString);
 	
 	// TODO Add default implementation?
 	protected abstract void updateQueryBuilderWithId(Context initialContext, Q queryBuilder);

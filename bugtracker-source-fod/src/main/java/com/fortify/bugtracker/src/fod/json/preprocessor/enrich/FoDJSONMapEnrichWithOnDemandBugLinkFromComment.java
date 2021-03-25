@@ -33,7 +33,7 @@ import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This {@link AbstractJSONMapEnrich} implementation adds an on-demand bugLink property
@@ -67,7 +67,7 @@ public class FoDJSONMapEnrichWithOnDemandBugLinkFromComment extends AbstractJSON
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
 			Pattern commentMatchPattern = commentHelper.getMatchPattern();
-			JSONList comments = SpringExpressionUtil.evaluateExpression(parent, "summary?.comments", JSONList.class);
+			JSONList comments = DefaultExpressionHelper.get().evaluateSimpleExpression(parent, "summary?.comments", JSONList.class);
 			if ( CollectionUtils.isNotEmpty(comments) ) {
 				for ( JSONMap commentObject : comments.asValueType(JSONMap.class) ) {
 					String comment = commentObject.get("comment", String.class);

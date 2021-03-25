@@ -26,8 +26,8 @@ package com.fortify.bugtracker.common.src.json.preprocessor;
 
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This implementation of {@link AbstractJSONMapEnrich} will evaluate a configurable expression to 
@@ -43,7 +43,7 @@ public class JSONMapEnrichWithVulnState extends AbstractJSONMapEnrich implements
 	
 	@Override
 	protected void enrich(JSONMap json) {
-		boolean isOpen = SpringExpressionUtil.evaluateExpression(json, isVulnerabilityOpenExpression, Boolean.class);
+		boolean isOpen = DefaultExpressionHelper.get().evaluateExpression(json, isVulnerabilityOpenExpression, Boolean.class);
 		json.put(NAME_VULN_STATE, isOpen?VulnState.OPEN.name():VulnState.CLOSED.name());
 	}
 }

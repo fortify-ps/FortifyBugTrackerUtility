@@ -46,7 +46,7 @@ import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -85,7 +85,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 	
 	public TargetIssueLocator submitIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData) {
 		JSONMap result = submitOrUpdateIssue(sharedSpaceAndWorkspaceId, issueData, HttpMethod.POST);
-		String id = SpringExpressionUtil.evaluateExpression(result, "data?.get(0)?.id", String.class);
+		String id = DefaultExpressionHelper.get().evaluateSimpleExpression(result, "data?.get(0)?.id", String.class);
 		if ( id == null ) {
 			throw new RuntimeException("Error getting Octane Work Item Id from response: "+result.toString());
 		}

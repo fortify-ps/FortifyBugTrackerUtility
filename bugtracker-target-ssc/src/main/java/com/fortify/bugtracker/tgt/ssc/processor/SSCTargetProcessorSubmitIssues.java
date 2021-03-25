@@ -51,7 +51,7 @@ import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class submits a set of vulnerabilities through a native SSC bug tracker integration.
@@ -67,7 +67,7 @@ public class SSCTargetProcessorSubmitIssues extends AbstractProcessorBuildObject
 	private String sscBugTrackerName;
 	
 	public SSCTargetProcessorSubmitIssues() {
-		setRootExpression(SpringExpressionUtil.parseSimpleExpression("CurrentVulnerability"));
+		setRootExpression(DefaultExpressionHelper.get().parseSimpleExpression("CurrentVulnerability"));
 	}
 	
 	public String getTargetName() {

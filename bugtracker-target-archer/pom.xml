@@ -67,11 +67,14 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.xml.soap</groupId>
 			<artifactId>javax.xml.soap-api</artifactId>
 			<version>1.3.8</version>
 		</dependency>
-
 	</dependencies>
 	<description>This module provides functionality for submitting issues to Archer. This includes setting up a connection to Archer, an Archer-specific Context interface, and processors for actually submitting issues to Archer.</description>
 </project>

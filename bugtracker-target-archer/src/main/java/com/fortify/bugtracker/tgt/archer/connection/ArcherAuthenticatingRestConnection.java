@@ -49,7 +49,7 @@ import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
 import com.fortify.util.rest.connection.IRestConnectionBuilder;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class provides a token-authenticated REST connection
@@ -72,17 +72,17 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	
 	private final void cacheFieldData() {
 		JSONMap application = getApplication();
-		this.applicationId = SpringExpressionUtil.evaluateExpression(application, "RequestedObject.Id", Long.class);
+		this.applicationId = DefaultExpressionHelper.get().evaluateSimpleExpression(application, "RequestedObject.Id", Long.class);
 		List<JSONMap> fields = getFieldsForApplication();
 		// TODO What if application defines multiple levels?
-		this.levelId = SpringExpressionUtil.evaluateExpression(fields, "#this[0].LevelId", Long.class);
+		this.levelId = DefaultExpressionHelper.get().evaluateSimpleExpression(fields, "#this[0].LevelId", Long.class);
 		if ( LOG.isDebugEnabled() ) {
 			LOG.debug("[Archer] Available fields: "+fields);
 		}
 		for ( JSONMap field : fields ) {
 			FieldContentAdder adder = new FieldContentAdder(this, field);
-			fieldNamesToFieldContentAdderMap.put(SpringExpressionUtil.evaluateExpression(field, "Name", String.class), adder);
-			fieldNamesToFieldContentAdderMap.put(SpringExpressionUtil.evaluateExpression(field, "Alias", String.class), adder);
+			fieldNamesToFieldContentAdderMap.put(DefaultExpressionHelper.get().evaluateSimpleExpression(field, "Name", String.class), adder);
+			fieldNamesToFieldContentAdderMap.put(DefaultExpressionHelper.get().evaluateSimpleExpression(field, "Alias", String.class), adder);
 		}
 	}
 
@@ -172,7 +172,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			}
 		}
 		JSONMap result = executeRequest(HttpMethod.POST, getBaseResource().path("api/core/content"), Entity.entity(data, "application/json"), JSONMap.class);
-		String id = SpringExpressionUtil.evaluateExpression(result, "RequestedObject.Id", String.class);
+		String id = DefaultExpressionHelper.get().evaluateSimpleExpression(result, "RequestedObject.Id", String.class);
 		return new TargetIssueLocator(id, getDeepLink(id));
 	}
 	
@@ -193,8 +193,8 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		public FieldContentAdder(ArcherAuthenticatingRestConnection conn, JSONMap field) {
 			this.conn = conn;
 			this.field = field;
-			this.fieldId = SpringExpressionUtil.evaluateExpression(field, "Id", Long.class);
-			this.fieldType = SpringExpressionUtil.evaluateExpression(field, "Type", Integer.class);
+			this.fieldId = DefaultExpressionHelper.get().evaluateSimpleExpression(field, "Id", Long.class);
+			this.fieldType = DefaultExpressionHelper.get().evaluateSimpleExpression(field, "Type", Integer.class);
 			this.fieldContentValueRetriever = FieldContentValueRetrieverFactory.getFieldContentValueRetriever(field);
 		}
 		
@@ -221,7 +221,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 		private static final Map<Integer, IFieldContentValueRetriever> fieldTypeToContentValueRetrieverMap = getFieldTypeToContentValueRetrieverMap();
 		
 		public static final IFieldContentValueRetriever getFieldContentValueRetriever(JSONMap field) {
-			int fieldType = SpringExpressionUtil.evaluateExpression(field, "Type", Integer.class);
+			int fieldType = DefaultExpressionHelper.get().evaluateSimpleExpression(field, "Type", Integer.class);
 			return fieldTypeToContentValueRetrieverMap.get(fieldType);
 		}
 		
@@ -244,7 +244,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 			private static final Map<Long, JSONList> valueListsByIdMap = new HashMap<Long, JSONList>();
 			public Object getFieldContentValue(ArcherAuthenticatingRestConnection conn, JSONMap field, Object value) {
 				JSONMap result = new JSONMap();
-				Long relatedValuesListId = SpringExpressionUtil.evaluateExpression(field, "RelatedValuesListId", Long.class);
+				Long relatedValuesListId = DefaultExpressionHelper.get().evaluateSimpleExpression(field, "RelatedValuesListId", Long.class);
 				JSONList valuesListArray = getValueListArray(conn, relatedValuesListId);
 				// TODO Map multiple values if value is array/list type
 				// TODO Is it safe to use case-insensitive lookup?

@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.fortify.util.rest.json.JSONMap;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class is used to generate Archer tokens for accessing the
@@ -59,7 +59,7 @@ public final class ArcherTokenFactoryRest {
 	}
 	
 	private TokenData getTokenData(JSONMap json) {
-		return new TokenData(SpringExpressionUtil.evaluateExpression(json, "RequestedObject.SessionToken", String.class));
+		return new TokenData(DefaultExpressionHelper.get().evaluateSimpleExpression(json, "RequestedObject.SessionToken", String.class));
 	}
 
 	private static final class TokenData {

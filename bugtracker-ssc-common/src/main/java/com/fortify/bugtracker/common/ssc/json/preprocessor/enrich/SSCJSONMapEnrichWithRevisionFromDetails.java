@@ -27,7 +27,7 @@ package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.ondemand.AbstractJSONMapOnDemandLoader;
 import com.fortify.util.rest.json.preprocessor.enrich.AbstractJSONMapEnrich;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This {@link AbstractJSONMapEnrich} implementation adds an on-demand revision property to the
@@ -55,7 +55,7 @@ public class SSCJSONMapEnrichWithRevisionFromDetails extends AbstractJSONMapEnri
 
 		@Override
 		public Object getOnDemand(String propertyName, JSONMap parent) {
-			return SpringExpressionUtil.evaluateExpression(parent, "details.revision", String.class);
+			return DefaultExpressionHelper.get().evaluateSimpleExpression(parent, "details.revision", String.class);
 		}
 	}
 

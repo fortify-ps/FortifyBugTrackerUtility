@@ -35,6 +35,7 @@ import com.fortify.bugtracker.common.ssc.helper.SSCHelperFactory;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterListenerLoggerApplicationVersion;
 import com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration;
 import com.fortify.client.ssc.api.SSCApplicationVersionAPI;
+import com.fortify.client.ssc.api.json.embed.SSCEmbedConfig;
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
@@ -43,7 +44,8 @@ import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 @Component
 public class SSCSourceApplicationVersionsContextGenerator extends AbstractSourceContextGenerator<SSCSourceApplicationVersionsConfiguration, SSCApplicationVersionsQueryBuilder> implements ICLIOptionDefinitionProvider {
@@ -81,6 +83,11 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 		return SSCConnectionFactory.getConnection(context)
 				.api(SSCApplicationVersionAPI.class).queryApplicationVersions()
 				.embedAttributeValuesByName(SSCHelperFactory.getSSCAttributeDefinitionHelper(context));
+	}
+	
+	@Override
+	protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+		queryBuilder.embed(SSCEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
 	}
 	
 	@Override
@@ -139,7 +146,7 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 
 	@Override
 	protected String getSourceObjectName(JSONMap sourceObject) {
-		return SpringExpressionUtil.evaluateTemplateExpression(sourceObject, "${project.name}:${name}", String.class);
+		return DefaultExpressionHelper.get().evaluateTemplateExpression(sourceObject, "${project.name}:${name}", String.class);
 	}
 
 }

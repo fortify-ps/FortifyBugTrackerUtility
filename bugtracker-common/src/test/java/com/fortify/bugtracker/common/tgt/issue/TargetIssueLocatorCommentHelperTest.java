@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 public class TargetIssueLocatorCommentHelperTest {
 
@@ -46,7 +46,7 @@ public class TargetIssueLocatorCommentHelperTest {
 		String id = "someId";
 		String deepLink = "http://somehost:port/path?q1=abc&q2=def#xyz";
 		testCommentHelper(TargetIssueLocatorCommentHelper.fromTemplateExpression(
-				SpringExpressionUtil.parseTemplateExpression("BlaBla ${id} -- ${deepLink}")),
+				DefaultExpressionHelper.get().parseTemplateExpression("BlaBla ${id} -- ${deepLink}")),
 			id, id, deepLink, deepLink);
 	}
 	
@@ -55,7 +55,7 @@ public class TargetIssueLocatorCommentHelperTest {
 		String id = "someId";
 		String deepLink = "http://somehost:port/path?q1=abc&q2=def#xyz";
 		testCommentHelper(TargetIssueLocatorCommentHelper.fromTemplateExpression(
-				SpringExpressionUtil.parseTemplateExpression("BlaBla ${deepLink}")),
+				DefaultExpressionHelper.get().parseTemplateExpression("BlaBla ${deepLink}")),
 			id, null, deepLink, deepLink);
 	}
 	
@@ -64,7 +64,7 @@ public class TargetIssueLocatorCommentHelperTest {
 		String id = "someId";
 		String deepLink = "http://somehost:port/path?q1=abc&q2=def#xyz";
 		testCommentHelper(TargetIssueLocatorCommentHelper.fromTemplateExpression(
-				SpringExpressionUtil.parseTemplateExpression("BlaBla ${id}")),
+				DefaultExpressionHelper.get().parseTemplateExpression("BlaBla ${id}")),
 			id, id, deepLink, null);
 	}
 	
@@ -73,7 +73,7 @@ public class TargetIssueLocatorCommentHelperTest {
 		String id = "someId";
 		String deepLink = "http://somehost:port/path?q1=abc&q2=def#xyz";
 		testCommentHelper(TargetIssueLocatorCommentHelper.fromTemplateExpression(
-				SpringExpressionUtil.parseTemplateExpression("BlaBla $ { ' [ ] ' } '${id}' -- '${deepLink}'")),
+				DefaultExpressionHelper.get().parseTemplateExpression("BlaBla $ { ' [ ] ' } '${id}' -- '${deepLink}'")),
 			id, id, deepLink, deepLink);
 	}
 

@@ -29,8 +29,8 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.regex.Pattern;
 
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.TemplateExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This helper class allows for generating and parsing comments with information about submitted issues.
@@ -87,7 +87,7 @@ public class TargetIssueLocatorCommentHelper implements Serializable {
 	 * @return
 	 */
 	public final String getCommentForSubmittedIssue(TargetIssueLocator targetIssueLocator) {
-		return SpringExpressionUtil.evaluateExpression(targetIssueLocator, getTemplateExpression(), String.class);
+		return DefaultExpressionHelper.get().evaluateExpression(targetIssueLocator, getTemplateExpression(), String.class);
 	}
 	
 	/**
@@ -109,7 +109,7 @@ public class TargetIssueLocatorCommentHelper implements Serializable {
 
 	// TODO Cache in transient variable
 	public final TemplateExpression getTemplateExpression() {
-		return SpringExpressionUtil.parseTemplateExpression(templateExpressionString);
+		return DefaultExpressionHelper.get().parseTemplateExpression(templateExpressionString);
 	}
 
 	// TODO Cache in transient variable

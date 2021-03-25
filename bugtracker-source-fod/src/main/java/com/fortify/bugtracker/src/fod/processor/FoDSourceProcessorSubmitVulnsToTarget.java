@@ -38,6 +38,7 @@ import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterHasBugLink;
 import com.fortify.client.fod.api.FoDBugTrackerAPI;
 import com.fortify.client.fod.api.FoDVulnerabilityAPI;
+import com.fortify.client.fod.api.json.embed.FoDEmbedConfig;
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
@@ -45,7 +46,7 @@ import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * TODO Update JavaDoc?
@@ -77,13 +78,13 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
-					.paramIncludeFixed(false)
-					.paramIncludeSuppressed(false)
-					.paramFilterAnd(getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
+					.paramIncludeFixed(false, false)
+					.paramIncludeSuppressed(false, false)
+					.paramFilterAnd(true, getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
 				if ( getConfiguration().isAddNativeBugLink() ) {
-					builder.paramFilterAnd("bugSubmitted", "false");
+					builder.paramFilterAnd(false, "bugSubmitted", "false");
 				}
 			}
 			if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {
@@ -91,13 +92,18 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 			}
 			return builder;
 		}
+		
+		@Override
+		protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+			queryBuilder.embed(FoDEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
+		}
 	}
 
 	@SuppressWarnings("unchecked") @Override
 	public void updateVulnerabilityStateForNewIssue(Context context, String bugTrackerName, TargetIssueLocatorAndFields targetIssueLocatorAndFields, Collection<Object> vulnerabilities) {
 		FoDAuthenticatingRestConnection conn = FoDConnectionFactory.getConnection(context);
 		String releaseId = ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(context);
-		Collection<String> vulnIds = SpringExpressionUtil.evaluateExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
+		Collection<String> vulnIds = DefaultExpressionHelper.get().evaluateSimpleExpression(vulnerabilities, "#root.![vulnId]", Collection.class);
 		if ( getConfiguration().isAddBugDataAsComment() ) {
 			String comment = getConfiguration().getTargetIssueLocatorCommentHelper(bugTrackerName).getCommentForSubmittedIssue(targetIssueLocatorAndFields.getLocator());
 			conn.api(FoDVulnerabilityAPI.class).addCommentToVulnerabilities(releaseId, comment, vulnIds);

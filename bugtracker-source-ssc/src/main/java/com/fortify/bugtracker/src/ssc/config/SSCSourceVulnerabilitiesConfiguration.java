@@ -35,9 +35,9 @@ import com.fortify.bugtracker.common.ssc.query.ISSCApplicationVersionQueryBuilde
 import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
-import com.fortify.util.spring.SpringExpressionUtil;
 import com.fortify.util.spring.expression.SimpleExpression;
 import com.fortify.util.spring.expression.TemplateExpression;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * This class holds all SSC-related configuration properties used to submit vulnerabilities
@@ -48,7 +48,7 @@ import com.fortify.util.spring.expression.TemplateExpression;
  */
 public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnerabilitiesConfiguration implements ISSCApplicationVersionQueryBuilderUpdater {
 	static final SimpleExpression DEFAULT_IS_VULNERABILITY_OPEN_EXPRESSION = 
-			SpringExpressionUtil.parseSimpleExpression("removed==false && suppressed==false");
+			DefaultExpressionHelper.get().parseSimpleExpression("removed==false && suppressed==false");
 	
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
 	private String bugLinkCustomTagName = null;

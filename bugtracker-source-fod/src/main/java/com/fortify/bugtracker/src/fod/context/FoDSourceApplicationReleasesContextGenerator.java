@@ -33,6 +33,7 @@ import com.fortify.bugtracker.src.fod.config.FoDSourceReleasesConfiguration;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
 import com.fortify.bugtracker.src.fod.json.preprocessor.filter.FoDJSONMapFilterListenerLoggerRelease;
 import com.fortify.client.fod.api.FoDReleaseAPI;
+import com.fortify.client.fod.api.json.embed.FoDEmbedConfig;
 import com.fortify.client.fod.api.query.builder.FoDOrderBy;
 import com.fortify.client.fod.api.query.builder.FoDOrderByDirection;
 import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
@@ -43,7 +44,8 @@ import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterListenerLogger.LogLevel;
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 @Component
 public class FoDSourceApplicationReleasesContextGenerator extends AbstractSourceContextGenerator<FoDSourceReleasesConfiguration, FoDReleasesQueryBuilder> implements ICLIOptionDefinitionProvider {
@@ -75,17 +77,22 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 		return FoDConnectionFactory.getConnection(context)
 				.api(FoDReleaseAPI.class).queryReleases()
 				.onDemandApplication()
-				.paramOrderBy(new FoDOrderBy("applicationName", FoDOrderByDirection.ASC));
+				.paramOrderBy(false, new FoDOrderBy("applicationName", FoDOrderByDirection.ASC));
+	}
+	
+	@Override
+	protected void addOnDemandProperty(AbstractRestConnectionQueryBuilder<?, ?> queryBuilder, String propertyName, String uriString) {
+		queryBuilder.embed(FoDEmbedConfig.builder().propertyName(propertyName).uri(uriString).build());
 	}
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
-		queryBuilder.releaseId(ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
+		queryBuilder.releaseId(true, ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
 	}
 	
 	@Override
 	protected void updateQueryBuilderWithName(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
-		queryBuilder.applicationAndOrReleaseName(ICLIOptionsFoD.CLI_FOD_RELEASE_NAME.getValue(initialContext));
+		queryBuilder.applicationAndOrReleaseName(true, ICLIOptionsFoD.CLI_FOD_RELEASE_NAME.getValue(initialContext));
 	}
 	
 	@Override
@@ -131,7 +138,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 
 	@Override
 	protected String getSourceObjectAttributeValue(JSONMap sourceObject, String attributeName) {
-		JSONMap attributesMap = SpringExpressionUtil.evaluateExpression(sourceObject, "application.attributesMap", JSONMap.class);
+		JSONMap attributesMap = DefaultExpressionHelper.get().evaluateSimpleExpression(sourceObject, "application.attributesMap", JSONMap.class);
 		JSONList attributeValues = attributesMap==null?null:attributesMap.get(attributeName, JSONList.class);
 		String attributeValue = CollectionUtils.isEmpty(attributeValues)?null:(String)attributeValues.get(0);
 		return attributeValue;
@@ -139,7 +146,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 
 	@Override
 	protected String getSourceObjectName(JSONMap sourceObject) {
-		return SpringExpressionUtil.evaluateTemplateExpression(sourceObject, "${applicationName}:${releaseName}", String.class);
+		return DefaultExpressionHelper.get().evaluateTemplateExpression(sourceObject, "${applicationName}:${releaseName}", String.class);
 	}
 
 }

@@ -25,7 +25,7 @@
 package com.fortify.processrunner.cli;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import com.fortify.processrunner.context.Context;
 
@@ -346,9 +345,7 @@ public class CLIOptionDefinition implements Serializable {
 			context.put(getName(), result);
 		}
 		if ( StringUtils.isBlank(result) && isRequiredAndNotIgnored(context) ) {
-			// TODO Clean this up
-			@SuppressWarnings("unchecked")
-			List<String> optionNames = new ArrayList<String>(CollectionUtils.arrayToList(getIsAlternativeForOptions()));
+			List<String> optionNames = Arrays.asList(isAlternativeForOptions);
 			optionNames.add(getName());
 			throw new IllegalArgumentException("Required CLI option "+StringUtils.join(optionNames, " or ")+" not defined");
 		}

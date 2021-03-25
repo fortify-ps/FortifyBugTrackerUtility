@@ -34,7 +34,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.fortify.util.spring.SpringExpressionUtil;
+import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
 
 /**
  * <p>This class defines the process runner context. It is basically a 
@@ -83,7 +83,7 @@ public class Context extends HashMap<String, Object> {
 	}
 	
 	public <T> T get(String key, Class<T> returnType) {
-		return SpringExpressionUtil.evaluateExpression(this, key, returnType);
+		return DefaultExpressionHelper.get().evaluateSimpleExpression(this, key, returnType);
 	}
 	
 	/**
