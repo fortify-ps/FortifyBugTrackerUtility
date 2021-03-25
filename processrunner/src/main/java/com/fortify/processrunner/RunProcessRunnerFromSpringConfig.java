@@ -87,6 +87,7 @@ public class RunProcessRunnerFromSpringConfig {
 				LOG.error("[Process] Error during process run: "+t.getLocalizedMessage(), t);
 			}
 		}
+		runner.close(initialContext);
 		LOG.info("[Process] Processing complete");
 	}
 

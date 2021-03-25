@@ -77,4 +77,12 @@ public final class FoDConnectionFactory
 		public void setFoDConnection(FoDAuthenticatingRestConnection connection);
 		public FoDAuthenticatingRestConnection getFoDConnection();
 	}
+
+	public static void closeConnection(Context context) {
+		IContextFoDConnection ctx = context.as(IContextFoDConnection.class);
+		FoDAuthenticatingRestConnection conn = ctx.getFoDConnection();
+		if ( conn != null ) {
+			conn.close();
+		}
+	}
 }

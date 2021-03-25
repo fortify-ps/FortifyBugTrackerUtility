@@ -100,7 +100,7 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>fortify-client-api-bom</artifactId>
-				<version>5.9</version>
+				<version>5.10-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

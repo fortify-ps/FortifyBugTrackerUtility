@@ -27,6 +27,8 @@ package com.fortify.bugtracker.src.fod;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
+import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
+import com.fortify.processrunner.context.Context;
 
 /**
  * FoD-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunner}
@@ -40,5 +42,10 @@ public class FoDBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner 
 	@Override
 	protected String getSourceName() {
 		return "FoD";
+	}
+	
+	@Override
+	public void close(Context context) {
+		FoDConnectionFactory.closeConnection(context);
 	}
 }

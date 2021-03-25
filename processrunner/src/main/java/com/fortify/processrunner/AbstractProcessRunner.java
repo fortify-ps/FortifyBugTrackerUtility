@@ -57,6 +57,8 @@ public abstract class AbstractProcessRunner implements ICLIOptionDefinitionProvi
 			}
 		}
 	}
+	
+	public void close(Context context) {}
 
 	/**
 	 * Run the given phase with the given context on the given processor.

@@ -66,11 +66,20 @@ public final class SSCConnectionFactory
 			.authToken(ICLIOptionsSSC.CLI_SSC_AUTH_TOKEN.getValue(context))
 			.userName(ICLIOptionsSSC.CLI_SSC_USER_NAME.getValue(context))
 			.password(ICLIOptionsSSC.CLI_SSC_PASSWORD.getValue(context))
+			.tokenDescription("FortifyBugTrackerUtility access token")
 			.build();
 	}
 	
 	private interface IContextSSCConnection {
 		public void setSSCConnection(SSCAuthenticatingRestConnection connection);
 		public SSCAuthenticatingRestConnection getSSCConnection();
+	}
+
+	public static final void closeConnection(Context context) {
+		IContextSSCConnection ctx = context.as(IContextSSCConnection.class);
+		SSCAuthenticatingRestConnection conn = ctx.getSSCConnection();
+		if ( conn != null ) {
+			conn.close();
+		}
 	}
 }

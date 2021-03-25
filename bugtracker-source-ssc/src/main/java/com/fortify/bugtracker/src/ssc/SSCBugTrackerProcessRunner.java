@@ -27,6 +27,8 @@ package com.fortify.bugtracker.src.ssc;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
+import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.processrunner.context.Context;
 
 /**
  * SSC-specific Spring configuration class; see {@link AbstractBugTrackerProcessRunner}
@@ -40,5 +42,10 @@ public class SSCBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner 
 	@Override
 	protected String getSourceName() {
 		return "SSC";
+	}
+	
+	@Override
+	public void close(Context context) {
+		SSCConnectionFactory.closeConnection(context);
 	}
 }
