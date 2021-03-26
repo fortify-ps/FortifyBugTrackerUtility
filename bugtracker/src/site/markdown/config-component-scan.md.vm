@@ -16,7 +16,7 @@ Each configuration file must specify which source and target system to use throu
     - ado
     - ssc 
      
-As an example, the following element would select FoD as the source system, and Azure DevOps as the target system: `#printTagByName("config/FoDToAzureDevOps.xml" "context:component-scan")`
+As an example, the following element would select FoD as the source system, and Jira as the target system: `#printTagByName("config/FoDToJira.xml" "context:component-scan")`
 
 Note that each configuration file may only have one `<context:component-scan>` element that selects one source system and one target system. If you require multiple source/target system combinations, these should all have their own configuration file. 
 

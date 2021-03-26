@@ -7,7 +7,7 @@ a bean definition that configures ADO-related functionality.
 
 This configuration is defined using the following bean definition in the configuration file:
 
-`#printTagByMatch("config/SSCToAzureDevOps.xml" "ADOTargetConfiguration")`
+`#printTagByMatch("config/SSCToADO.xml" "ADOTargetConfiguration")`
 
 This bean definition supports the following properties:
 
@@ -18,11 +18,11 @@ Following are examples of the bean configuration:
 For SSC:
 
 ```xml
-#printTagByMatchWithContents("config/SSCToAzureDevOps.xml" "ADOTargetConfiguration")
+#printTagByMatchWithContents("config/SSCToADO.xml" "ADOTargetConfiguration")
 ```
 
 For FoD:
 
 ```xml
-#printTagByMatchWithContents("config/FoDToAzureDevOps.xml" "ADOTargetConfiguration")
+#printTagByMatchWithContents("config/FoDToADO.xml" "ADOTargetConfiguration")
 ```
