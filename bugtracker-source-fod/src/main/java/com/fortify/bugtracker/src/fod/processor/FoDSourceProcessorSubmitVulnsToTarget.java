@@ -44,6 +44,7 @@ import com.fortify.client.fod.connection.FoDAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.preprocessor.filter.JSONMapFilterRegEx;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
@@ -78,13 +79,13 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
-					.paramIncludeFixed(false, false)
-					.paramIncludeSuppressed(false, false)
-					.paramFilterAnd(true, getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
+					.paramIncludeFixed(IfBlank.ERROR(), false)
+					.paramIncludeSuppressed(IfBlank.ERROR(), false)
+					.paramFilterAnd(IfBlank.SKIP(), getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));
 				if ( getConfiguration().isAddNativeBugLink() ) {
-					builder.paramFilterAnd(false, "bugSubmitted", "false");
+					builder.paramFilterAnd(IfBlank.ERROR(), "bugSubmitted", "false");
 				}
 			}
 			if ( getConfiguration().getRegExFiltersForVulnerabilitiesToBeSubmitted()!=null ) {

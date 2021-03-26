@@ -55,6 +55,7 @@ import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.context.ContextSpringExpressionUtil;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
@@ -99,11 +100,11 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 		@Override
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
-					.paramQm(false, QueryMode.issues)
+					.paramQm(IfBlank.ERROR(), QueryMode.issues)
 					.paramShowHidden(getConfiguration().isIncludeHidden())
 					.paramShowSuppressed(getConfiguration().isIncludeSuppressed())
 					.paramShowRemoved(getConfiguration().isIncludeRemoved())
-					.paramQ(true, getFullSSCFilterString());
+					.paramQ(IfBlank.SKIP(), getFullSSCFilterString());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.EXCLUDE));
 			}

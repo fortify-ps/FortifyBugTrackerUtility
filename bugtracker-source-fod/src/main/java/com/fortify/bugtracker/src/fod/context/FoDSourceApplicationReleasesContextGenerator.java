@@ -40,6 +40,7 @@ import com.fortify.client.fod.api.query.builder.FoDReleasesQueryBuilder;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
@@ -77,7 +78,7 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 		return FoDConnectionFactory.getConnection(context)
 				.api(FoDReleaseAPI.class).queryReleases()
 				.onDemandApplication()
-				.paramOrderBy(false, new FoDOrderBy("applicationName", FoDOrderByDirection.ASC));
+				.paramOrderBy(IfBlank.ERROR(), new FoDOrderBy("applicationName", FoDOrderByDirection.ASC));
 	}
 	
 	@Override
@@ -87,12 +88,12 @@ public class FoDSourceApplicationReleasesContextGenerator extends AbstractSource
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
-		queryBuilder.releaseId(true, ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
+		queryBuilder.releaseId(IfBlank.SKIP(), ICLIOptionsFoD.CLI_FOD_RELEASE_ID.getValue(initialContext));
 	}
 	
 	@Override
 	protected void updateQueryBuilderWithName(Context initialContext, FoDReleasesQueryBuilder queryBuilder) {
-		queryBuilder.applicationAndOrReleaseName(true, ICLIOptionsFoD.CLI_FOD_RELEASE_NAME.getValue(initialContext));
+		queryBuilder.applicationAndOrReleaseName(IfBlank.SKIP(), ICLIOptionsFoD.CLI_FOD_RELEASE_NAME.getValue(initialContext));
 	}
 	
 	@Override

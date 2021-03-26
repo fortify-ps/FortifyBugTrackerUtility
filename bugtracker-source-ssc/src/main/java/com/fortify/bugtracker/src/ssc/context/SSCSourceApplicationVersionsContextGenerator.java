@@ -40,6 +40,7 @@ import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionsQueryBuild
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
 import com.fortify.processrunner.cli.ICLIOptionDefinitionProvider;
 import com.fortify.processrunner.context.Context;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
 import com.fortify.util.rest.json.preprocessor.filter.IJSONMapFilterListener;
@@ -92,12 +93,12 @@ public class SSCSourceApplicationVersionsContextGenerator extends AbstractSource
 	
 	@Override
 	protected void updateQueryBuilderWithId(Context initialContext,	SSCApplicationVersionsQueryBuilder queryBuilder) {
-		queryBuilder.id(false, ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
+		queryBuilder.id(IfBlank.ERROR(), ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_ID.getValue(initialContext));
 	}
 
 	@Override
 	protected void updateQueryBuilderWithName(Context initialContext, SSCApplicationVersionsQueryBuilder queryBuilder) {
-		queryBuilder.applicationAndOrVersionName(false, ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME.getValue(initialContext));
+		queryBuilder.applicationAndOrVersionName(IfBlank.ERROR(), ICLIOptionsSSC.CLI_SSC_APPLICATION_VERSION_NAME.getValue(initialContext));
 	}
 
 	@Override

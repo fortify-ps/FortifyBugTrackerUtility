@@ -48,6 +48,7 @@ import com.fortify.client.ssc.api.query.builder.SSCApplicationVersionIssuesQuery
 import com.fortify.client.ssc.connection.SSCAuthenticatingRestConnection;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
@@ -82,12 +83,12 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 		@Override
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			SSCApplicationVersionIssuesQueryBuilder builder = createSSCVulnerabilityBaseQueryBuilder(context)
-					.paramQm(false, QueryMode.issues)
+					.paramQm(IfBlank.ERROR(), QueryMode.issues)
 					// For updating state we want to include all vulnerabilities, including hidden, removed and suppressed
 					.paramShowHidden(true)
 					.paramShowRemoved(true)
 					.paramShowSuppressed(true)
-					.paramQ(true, getConfiguration().getBugLinkCustomTagName()+":!<none>")
+					.paramQ(IfBlank.SKIP(), getConfiguration().getBugLinkCustomTagName()+":!<none>")
 					.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
 			if ( getConfiguration().isEnableRevisionWorkAround() ) {
 				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());

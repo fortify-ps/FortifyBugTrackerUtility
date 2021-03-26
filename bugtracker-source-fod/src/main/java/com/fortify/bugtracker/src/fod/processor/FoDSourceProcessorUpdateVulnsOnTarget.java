@@ -34,6 +34,7 @@ import com.fortify.client.fod.api.json.embed.FoDEmbedConfig;
 import com.fortify.client.fod.api.query.builder.FoDReleaseVulnerabilitiesQueryBuilder;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
+import com.fortify.util.applier.ifblank.IfBlank;
 import com.fortify.util.rest.json.preprocessor.filter.AbstractJSONMapFilter.MatchMode;
 import com.fortify.util.rest.query.AbstractRestConnectionQueryBuilder;
 
@@ -67,14 +68,14 @@ public class FoDSourceProcessorUpdateVulnsOnTarget extends AbstractFoDSourceVuln
 		@Override
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
-					.paramIncludeFixed(false, true)
-					.paramIncludeSuppressed(false, true)
+					.paramIncludeFixed(IfBlank.ERROR(), true)
+					.paramIncludeSuppressed(IfBlank.ERROR(), true)
 					.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.INCLUDE));
 			if ( getConfiguration().isAddNativeBugLink() ) {
-				builder.paramFilterAnd(false, "bugSubmitted","true");
+				builder.paramFilterAnd(IfBlank.ERROR(), "bugSubmitted","true");
 			}
 			if ( getConfiguration().isAddBugDataAsComment() ) {
-				builder.paramFilterAnd(false, "hasComments","true");
+				builder.paramFilterAnd(IfBlank.ERROR(), "hasComments","true");
 			}
 			return builder;
 		}
