@@ -52,7 +52,6 @@ public class ADOTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	@Override
 	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		ADOConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
-		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_COLLECTION);
 		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_PROJECT);
 	}
 	
@@ -64,9 +63,7 @@ public class ADOTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 	protected TargetIssueLocator submitIssue(Context context, LinkedHashMap<String, Object> issueData) {
 		ADORestConnection conn = ADOConnectionFactory.getConnection(context);
 		issueData.put("System.Title", StringUtils.abbreviate((String)issueData.get("System.Title"), 254));
-		return conn.submitIssue(
-			ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), 
-			ICLIOptionsADO.CLI_ADO_PROJECT.getValue(context), getWorkItemType(), issueData);
+		return conn.submitIssue(ICLIOptionsADO.CLI_ADO_PROJECT.getValue(context), getWorkItemType(), issueData);
 	}
 	
 	@Override
@@ -74,7 +71,7 @@ public class ADOTargetProcessorSubmitIssues extends AbstractTargetProcessorSubmi
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
 				return ADOConnectionFactory.getConnection(context)
-						.getWorkItemFields(ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), targetIssueLocator);
+						.getWorkItemFields(targetIssueLocator);
 			}
 		};
 	}

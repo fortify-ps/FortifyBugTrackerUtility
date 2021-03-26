@@ -44,7 +44,6 @@
 	
 	<bean class="com.fortify.bugtracker.src.ssc.config.SSCSourceApplicationVersionsConfiguration">
 		<property name="attributeToCLIOptionMap"><map>
-			<entry key="ADO Collection" value="ADOCollection"/>
 			<entry key="ADO Project" value="ADOProject"/>
 		</map></property>
 	</bean>	

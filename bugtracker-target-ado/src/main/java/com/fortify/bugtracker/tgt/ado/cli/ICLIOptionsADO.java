@@ -31,13 +31,11 @@ public interface ICLIOptionsADO {
 	String PRP_ADO_BASE_URL = "ADOBaseUrl";
 	String PRP_ADO_USER_NAME = "ADOUserName";
 	String PRP_ADO_PASSWORD = "ADOPassword";
-	String PRP_ADO_COLLECTION = "ADOCollection";
 	String PRP_ADO_PROJECT = "ADOProject";
 	
 	CLIOptionDefinition CLI_ADO_BASE_URL = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_BASE_URL, "Azure DevOps base URL", true);
 	CLIOptionDefinition CLI_ADO_USER_NAME = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_USER_NAME, "Azure DevOps user name", true);
 	CLIOptionDefinition CLI_ADO_PASSWORD = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_PASSWORD, "Azure DevOps password", true).isPassword(true);
-	CLIOptionDefinition CLI_ADO_COLLECTION = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_COLLECTION, "Azure DevOps collection containing the project to submit vulnerabilities to", true);
 	CLIOptionDefinition CLI_ADO_PROJECT = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_PROJECT, "Azure DevOps project to submit vulnerabilities to", true);
 	
 }

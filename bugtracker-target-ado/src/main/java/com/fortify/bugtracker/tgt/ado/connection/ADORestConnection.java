@@ -65,10 +65,9 @@ public final class ADORestConnection extends AbstractRestConnection {
 		return super.updateBuilder(builder).accept("application/json; api-version=1.0", "application/json-patch+json; api-version=1.0");
 	}
 	
-	public TargetIssueLocator submitIssue(String collection, String project, String workItemType, Map<String, Object> fields) {
+	public TargetIssueLocator submitIssue(String project, String workItemType, Map<String, Object> fields) {
 		LOG.trace(String.format("[ADO] Submitting issue: %s", fields));
-		WebTarget target = getBaseResource()
-				.path(collection).path(project).path("/_apis/wit/workitems").path("$"+workItemType);
+		WebTarget target = getBaseResource().path(project).path("/_apis/wit/workitems").path("$"+workItemType);
 		
 		JSONMap submitResult = executeRequest("PATCH", target, Entity.entity(getOperations(fields), "application/json-patch+json"), JSONMap.class);
 		
@@ -77,14 +76,13 @@ public final class ADORestConnection extends AbstractRestConnection {
 		return new TargetIssueLocator(submittedIssueId, submittedIssueBrowserURL);
 	}
 	
-	public boolean updateIssueData(String collection, TargetIssueLocator targetIssueLocator, Map<String, Object> fields) {
+	public boolean updateIssueData(TargetIssueLocator targetIssueLocator, Map<String, Object> fields) {
 		String issueId = getIssueId(targetIssueLocator);
 		if ( issueId == null ) {
 			return false;
 		} else {
 			LOG.trace(String.format("[ADO] Updating issue data for %s: %s", targetIssueLocator.getDeepLink(), fields)); 
-			WebTarget target = getBaseResource()
-					.path(collection).path("/_apis/wit/workitems").path(issueId);
+			WebTarget target = getBaseResource().path("/_apis/wit/workitems").path(issueId);
 			executeRequest("PATCH", target, Entity.entity(getOperations(fields), "application/json-patch+json"), null);
 			return true;
 		}
@@ -102,14 +100,14 @@ public final class ADORestConnection extends AbstractRestConnection {
 		return result;
 	}
 	
-	public JSONMap getWorkItemFields(String collection, TargetIssueLocator targetIssueLocator, String... fields) {
+	public JSONMap getWorkItemFields(TargetIssueLocator targetIssueLocator, String... fields) {
 		LOG.trace(String.format("[ADO] Retrieving issue data for %s", targetIssueLocator.getDeepLink())); 
 		String issueId = getIssueId(targetIssueLocator);
 		if ( issueId == null ) {
 			LOG.warn(String.format("[ADO] Cannot get work item id from URL %s", targetIssueLocator.getDeepLink()));
 			return null;
 		} else {
-			WebTarget target = getBaseResource().path(collection).path("/_apis/wit/workitems").path(issueId);
+			WebTarget target = getBaseResource().path("/_apis/wit/workitems").path(issueId);
 			if ( ArrayUtils.isNotEmpty(fields) ) {
 				target = target.queryParam("fields", StringUtils.join(fields, ","));
 			}

@@ -35,7 +35,6 @@ import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
 import com.fortify.bugtracker.common.tgt.processor.AbstractTargetProcessorUpdateIssuesWithTransitions;
-import com.fortify.bugtracker.tgt.ado.cli.ICLIOptionsADO;
 import com.fortify.bugtracker.tgt.ado.connection.ADOConnectionFactory;
 import com.fortify.bugtracker.tgt.ado.connection.ADORestConnection;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
@@ -47,7 +46,6 @@ public class ADOTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	@Override
 	public void addTargetCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		ADOConnectionFactory.addCLIOptionDefinitions(cliOptionDefinitions);
-		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_COLLECTION);
 	}
 	
 	@Override
@@ -65,8 +63,7 @@ public class ADOTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 		return new ITargetIssueFieldsUpdater() {
 			@Override
 			public boolean updateIssueFields(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields, LinkedHashMap<String, Object> issueFields) {
-				String collection = ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context);
-				return getADOConnection(context).updateIssueData(collection, targetIssueLocatorAndFields.getLocator(), issueFields);
+				return getADOConnection(context).updateIssueData(targetIssueLocatorAndFields.getLocator(), issueFields);
 			}
 		};
 	}
@@ -75,7 +72,7 @@ public class ADOTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return getADOConnection(context).getWorkItemFields(ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context), targetIssueLocator);
+				return getADOConnection(context).getWorkItemFields(targetIssueLocator);
 			}
 		};
 	}
@@ -86,12 +83,11 @@ public class ADOTargetProcessorUpdateIssuesWithTransitions extends AbstractTarge
 	
 	@Override
 	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
-		String collection = ICLIOptionsADO.CLI_ADO_COLLECTION.getValue(context);
 		Map<String, Object> fields = new LinkedHashMap<String, Object>();
 		if ( comment != null ) {
 			fields.put("System.History", comment);
 		}
 		fields.put("System.State", transitionName);
-		return getADOConnection(context).updateIssueData(collection, targetIssueLocator, fields);
+		return getADOConnection(context).updateIssueData(targetIssueLocator, fields);
 	}
 }
