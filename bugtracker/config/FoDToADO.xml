@@ -58,6 +58,12 @@
 	</bean>
 	
 	<bean class="com.fortify.bugtracker.tgt.ado.config.ADOTargetConfiguration">
+		<!-- Note that work item type 'Bug' is not available in all Azure DevOps work item processes. -->
+		<!-- When changing the work item type, you may also need to update the name of the field where the
+		     description is stored, as 'Microsoft.VSTS.TCM.ReproSteps' may not be available or visible for
+		     other work item types. For example, for work item type 'Task' you may want to use 'System.Description'
+		     instead. Note that you will need to change the field name in both the 'fields' and 'appendedFields'
+		     properties. -->
 		<property name="workItemType" value="Bug"/>
 		
 		<property name="groupTemplateExpression" value="${category}+${primaryLocationFull}"/>
@@ -69,20 +75,33 @@
 		</map></property>
 
 		<property name="appendedFields"><map>
-			<entry key="System.Description"><value><![CDATA[
+			<!--  Append individual issue data to the given field. 
+			      Note that the same field must exist in the fields property above -->
+			<entry key="Microsoft.VSTS.TCM.ReproSteps"><value><![CDATA[
 				<br/>\n<br/>\nId: ${id}<br/>\nState: ${vulnState}<br/>\nLine: ${lineNumber?:'Unknown'}<br/>\nLink: <a href="${deepLink}">${deepLink}</a>
 			]]></value></entry>
 		</map></property>
 		
 		<property name="fieldsToUpdateDuringStateManagement" value="Microsoft.VSTS.TCM.ReproSteps"/>
 		
+		<!-- These transitions are based on Azure DevOps Agile work item process, covering work item types 
+		     Bug, Issue and Task. You may need to update these when using a different work item process or 
+		     work item type. -->
 		<property name="transitionsForOpeningIssue"><map>
-			<entry key="fields.workItemType=='Bug' and fields.state=='Done'" value="Committed[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="fields.workItemType=='Bug' and fields.state=='Removed'" value="New[Issue re-opened by FortifyBugTrackerUtility" />
-			<entry key="fields.workItemType=='Bug' and fields.state matches 'Resolved|Closed'" value="Active[Issue re-opened by FortifyBugTrackerUtility" />
+			<entry key="fields['System.WorkItemType']=='Bug' and fields['System.State'] matches 'Resolved|Closed'" 
+			       value="Active[Issue re-opened by FortifyBugTrackerUtility]" />
+			<entry key="fields['System.WorkItemType']=='Issue' and fields['System.State'] matches 'Closed'" 
+			       value="Active[Issue re-opened by FortifyBugTrackerUtility]" />
+			<entry key="fields['System.WorkItemType']=='Task' and fields['System.State'] matches 'Closed|Removed'" 
+			       value="Active[Issue re-opened by FortifyBugTrackerUtility]" />
 		</map></property>
 		<property name="transitionsForClosingIssue"><map>
-			<!-- TODO Add transitions for closing issues -->
+			<entry key="fields['System.WorkItemType']=='Bug' and fields['System.State'] matches 'New|Active'" 
+			       value="Resolved[Issue closed by FortifyBugTrackerUtility]" />
+			<entry key="fields['System.WorkItemType']=='Issue' and fields['System.State'] matches 'Active'" 
+			       value="Closed[Issue closed by FortifyBugTrackerUtility]" />
+			<entry key="fields['System.WorkItemType']=='Task' and fields['System.State'] matches 'New|Active'" 
+			       value="Closed[Issue closed by FortifyBugTrackerUtility]" />
 		</map></property>
 	</bean>
 
