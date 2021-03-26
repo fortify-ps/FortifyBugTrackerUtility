@@ -29,13 +29,11 @@ import com.fortify.processrunner.cli.CLIOptionDefinition;
 public interface ICLIOptionsADO {
 
 	String PRP_ADO_BASE_URL = "ADOBaseUrl";
-	String PRP_ADO_USER_NAME = "ADOUserName";
-	String PRP_ADO_PASSWORD = "ADOPassword";
+	String PRP_ADO_PAT = "ADOPAT";
 	String PRP_ADO_PROJECT = "ADOProject";
 	
 	CLIOptionDefinition CLI_ADO_BASE_URL = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_BASE_URL, "Azure DevOps base URL", true);
-	CLIOptionDefinition CLI_ADO_USER_NAME = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_USER_NAME, "Azure DevOps user name", true);
-	CLIOptionDefinition CLI_ADO_PASSWORD = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_PASSWORD, "Azure DevOps password", true).isPassword(true);
+	CLIOptionDefinition CLI_ADO_PAT = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_PAT, "Azure DevOps Personal Access Token (PAT)", true).isPassword(true);
 	CLIOptionDefinition CLI_ADO_PROJECT = new CLIOptionDefinition("ADO", ICLIOptionsADO.PRP_ADO_PROJECT, "Azure DevOps project to submit vulnerabilities to", true);
 	
 }

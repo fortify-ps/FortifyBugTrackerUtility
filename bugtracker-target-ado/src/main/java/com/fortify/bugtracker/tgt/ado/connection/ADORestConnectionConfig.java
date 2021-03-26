@@ -24,7 +24,29 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.ado.connection;
 
-import com.fortify.util.rest.connection.AbstractRestConnectionWithCredentialsConfig;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 
-public class ADORestConnectionConfig<T extends ADORestConnectionConfig<T>> extends AbstractRestConnectionWithCredentialsConfig<T> {
+import com.fortify.util.rest.connection.AbstractRestConnectionConfig;
+import com.fortify.util.rest.connection.ICredentialsProvider;
+
+public class ADORestConnectionConfig<T extends ADORestConnectionConfig<T>> extends AbstractRestConnectionConfig<T> implements ICredentialsProvider {
+	private String pat;
+	
+	public T pat(String pat) {
+		setPat(pat); return getThis();
+	}
+
+	private void setPat(String pat) {
+		this.pat = pat;
+	}
+	
+	public String getPat() {
+		return pat;
+	}
+	
+	@Override
+	public Credentials getCredentials() {
+		return new UsernamePasswordCredentials("", getPat());
+	}
 }

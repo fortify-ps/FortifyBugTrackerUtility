@@ -34,8 +34,7 @@ public final class ADOConnectionFactory
 {
 	public static final void addCLIOptionDefinitions(CLIOptionDefinitions cliOptionDefinitions) {
 		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_BASE_URL);
-		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_USER_NAME);
-		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_PASSWORD);
+		cliOptionDefinitions.add(ICLIOptionsADO.CLI_ADO_PAT);
 		CLIOptionAwareProxyConfiguration.addCLIOptionDefinitions(cliOptionDefinitions, "ADO");
 	}
 	
@@ -54,8 +53,7 @@ public final class ADOConnectionFactory
 		return ADORestConnection.builder()
 			.proxy(proxy)
 			.baseUrl(ICLIOptionsADO.CLI_ADO_BASE_URL.getValue(context))
-			.userName(ICLIOptionsADO.CLI_ADO_USER_NAME.getValue(context))
-			.password(ICLIOptionsADO.CLI_ADO_PASSWORD.getValue(context))
+			.pat(ICLIOptionsADO.CLI_ADO_PAT.getValue(context))
 			.build();
 	}
 	
