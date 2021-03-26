@@ -50,10 +50,11 @@
         </item>
       	<item name="Target">
 	      	<item name="Archer" href="config-ArcherTargetConfiguration.html"/>
+	      	<item name="Azure DevOps" href="config-ADOTargetConfiguration.html"/>
 	      	<item name="File" href="config-FileTargetConfiguration.html"/>
 	      	<item name="Jira" href="config-JiraTargetConfiguration.html"/>
 	      	<item name="Octane" href="config-OctaneTargetConfiguration.html"/>
-	      	<item name="Azure DevOps" href="config-ADOTargetConfiguration.html"/>
+	      	<item name="TFS" href="config-TFSTargetConfiguration.html"/>
 	      	<item name="SSC" href="config-SSCTargetConfiguration.html"/>
       	</item>
       	<item name="Expressions" href="expr-intro.html">

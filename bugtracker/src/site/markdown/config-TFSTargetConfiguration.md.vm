@@ -1,0 +1,27 @@
+#parse("util.vm")
+
+# Microsoft Team Foundation Server (TFS) Configuration
+
+Earlier versions of FortifyBugTrackerUtility provided functionality for submitting vulnerability data 
+to Microsoft Team Foundation Server (TFS) and its cloud equivalent Visual Studio Online (VSO). Both of 
+these products have now been replaced by Azure DevOps (ADO), so FortifyBugTrackerUtility has been updated 
+accordingly. Users that have used older versions of FortifyBugTrackerUtility to submit vulnerability data 
+to TFS, VSO or ADO should note the following changes when upgrading to a new version of FortifyBugTrackerUtility:
+
+* Configuration files have been updated:
+    * `FoDToTFS.xml` renamed to `FoDToADO.xml`
+    * `SSCToTFS.xml` renamed to `SSCToADO.xml`
+    * Various fixes and improvements related to field definitions and transitions 
+* Command line options have been updated:
+    * All command line options starting with `-TFS` now start with `-ADO`
+    * The `-TFSCollection` option has been removed; the collection or organization should now be included in the base URL
+    * The `-TFSUserName` and `-TFSPassword` options have been replaced by the single `-ADOPAT` option to authenticate with a Personal Access Token
+* Where relevant, names for storing bug links have been updated:
+    * When storing bug links in comments for FoD, you may want to set the `commentTargetName` property to `TFS` in the `FoDToADO.xml` configuration file, in order for the utility to pick up any previously existing bug links
+    * When storing bug links in a custom tag for SSC, you may want to rename the custom tag to `ADOBugLink` or update `SSCToADO.xml` to use `TFSBugLink` instead of `ADOBugLink`
+    
+Various other fixes and improvements have been implemented, for example to prevent unnecessary updates of the
+work item description in Azure DevOps if the vulnerability data hasn't changed. 
+    
+Please see [Microsoft Azure DevOps (ADO) Configuration](config-ADOTargetConfiguration.html) for more information about the
+Azure DevOps integration.
