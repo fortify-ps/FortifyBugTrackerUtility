@@ -212,14 +212,30 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 		} else if ( valueFromTarget instanceof String && valueFromConfig instanceof String ) {
 			String valueFromTargetString = (String)valueFromTarget;
 			String valueFromConfigString = (String)valueFromConfig;
-			valueFromTargetString = StringUtils.deleteWhitespace(valueFromTargetString).replaceAll("\\<.*?\\>", "");
-			valueFromConfigString = StringUtils.deleteWhitespace(valueFromConfigString).replaceAll("\\<.*?\\>", "");
+			valueFromTargetString = normalizeFieldValueForCompare(valueFromTargetString);
+			valueFromConfigString = normalizeFieldValueForCompare(valueFromConfigString);
 			
 			return !valueFromTargetString.contains(valueFromConfigString);
 		} else if ( valueFromTarget instanceof Collection && valueFromConfig instanceof Collection ) {
 			return !CollectionUtils.isEqualCollection((Collection<?>)valueFromTarget, (Collection<?>)valueFromConfig);
 		}
 		return true;
+	}
+
+	/**
+	 * Normalize the given field value to allow comparison of the current target value
+	 * with current calculated value. This default implementation removes all whitespace,
+	 * attempts to remove all HTML tags and entities using a simple regex, and removes all 
+	 * non-alphanumeric characters.
+	 * @param valueFromTargetString
+	 * @return
+	 */
+	protected String normalizeFieldValueForCompare(String value) {
+		return StringUtils
+				.deleteWhitespace(value)
+				.replaceAll("\\<.*?\\>", "")
+				.replaceAll("&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});", "")
+				.replaceAll("\\W", "");
 	}
 
 	private boolean openIssueIfNecessary(Context context, TargetIssueLocatorAndFields targetIssueLocatorAndFields) {
