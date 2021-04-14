@@ -20,11 +20,14 @@
 	"addNativeBugLink": "Instead of storing links to target issues in a custom tag (see `bugLinkCustomTagName` property),
 			these links can also be stored as native SSC bug links. The advantage is that users can then
 			click the bug link in SSC to navigate to the corresponding target issue. For this functionality
-			you will need to install the 'Add Existing Bugs' plugin in SSC and activate it for the relevant
-			application versions. Main disadvantages of this functionality are that SSC only supports a
-			single bug tracker plugin for each application version (disallowing you to store links to 
-			multiple target systems), and reduced performance when running FortifyBugTrackerUtility
-			because SSC does not provide native filtering of vulnerabilities based on whether a bug link
+			you will need to install the ['Register Bug Links' plugin](https://github.com/fortify-ps/fortify-ssc-bugtracker-register-buglinks) 
+			in SSC and activate it for the relevant application versions. Note that this plugin replaces the
+			former 'Add Existing Bugs' plugin. Main disadvantages of adding native bug links using the 
+			'Register Bug Links' plugin are a potential security risk due to the possibility to store arbitrary links 
+			(see [plugin warning](https://github.com/fortify-ps/fortify-ssc-bugtracker-register-buglinks#warning),
+			the fact that SSC only supports a single bug tracker plugin for each application version 
+			(disallowing you to store links to multiple target systems), and reduced performance when running 
+			FortifyBugTrackerUtility because SSC does not provide native filtering of vulnerabilities based on whether a bug link
 			exists or not. This property can be set to either `true` or `false`",
 	"addNativeBugLinkBugTrackerName": "By default, when `addNativeBugLink` is enabled, FortifyBugTrackerUtility
 			will look for an SSC bug tracker plugin named `Add Existing Bugs`. In rare cases you may require

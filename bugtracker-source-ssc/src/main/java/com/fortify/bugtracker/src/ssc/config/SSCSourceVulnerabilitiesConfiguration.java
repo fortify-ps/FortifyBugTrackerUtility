@@ -53,7 +53,7 @@ public class SSCSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private String filterStringForVulnerabilitiesToBeSubmitted = null;
 	private String bugLinkCustomTagName = null;
 	private boolean addNativeBugLink = false;
-	private String addNativeBugLinkBugTrackerName = "Add Existing Bugs";
+	private String addNativeBugLinkBugTrackerName = "Register Bug Links";
 	private Map<String,TemplateExpression> extraCustomTags = null;
 	private boolean enableRevisionWorkAround = false;
 	private String filterSetId = null;
