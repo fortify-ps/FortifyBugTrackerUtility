@@ -27,6 +27,7 @@ package com.fortify.bugtracker.src.ssc.processor;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -88,12 +89,17 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 					.paramShowHidden(true)
 					.paramShowRemoved(true)
 					.paramShowSuppressed(true)
-					.paramQ(IfBlank.SKIP(), getConfiguration().getBugLinkCustomTagName()+":!<none>")
+					.paramQ(IfBlank.SKIP(), getBugLinkCustomTagQuery())
 					.preProcessor(new SSCJSONMapFilterHasBugURL(MatchMode.INCLUDE));
 			if ( getConfiguration().isEnableRevisionWorkAround() ) {
 				builder.preProcessor(new SSCJSONMapEnrichWithRevisionFromDetails());
 			}
 			return builder;
+		}
+
+		private String getBugLinkCustomTagQuery() {
+			String bugLinkCustomTagName = getConfiguration().getBugLinkCustomTagName();
+			return StringUtils.isBlank(bugLinkCustomTagName) ? null : (bugLinkCustomTagName+":!<none>");
 		}
 		
 		@Override
