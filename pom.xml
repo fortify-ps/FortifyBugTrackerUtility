@@ -82,7 +82,6 @@
 	</repositories>
 	<modules>
 		<module>processrunner</module>
-		<module>ssc-bugtracker-add-existing-bug</module>
 		<module>bugtracker-common</module>
 		<module>bugtracker-source-fod</module>
 		<module>bugtracker-ssc-common</module>
@@ -100,7 +99,7 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>fortify-client-api-bom</artifactId>
-				<version>5.10-SNAPSHOT</version>
+				<version>5.11-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
