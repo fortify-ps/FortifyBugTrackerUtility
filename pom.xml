@@ -65,15 +65,8 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>FortifyPSMavenRepo</id>
-			<url>https://dl.bintray.com/fortify-ps/maven</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>FortifyPSMavenRepo-SNAPSHOT</id>
-			<url>http://oss.jfrog.org/oss-snapshot-local</url>
+			<id>OSSRH-Snapshot</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
@@ -99,7 +92,7 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>fortify-client-api-bom</artifactId>
-				<version>5.11-SNAPSHOT</version>
+				<version>6.0.0.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
