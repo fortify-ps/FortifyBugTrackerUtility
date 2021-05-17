@@ -26,7 +26,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.fortify.bugtracker</groupId>
 	<artifactId>bugtracker-root</artifactId>
-	<version>4.3-SNAPSHOT</version>
+	<version>4.3</version>
 	<packaging>pom</packaging>
 	<organization>
 		<name>Micro Focus Fortify</name>
@@ -48,7 +48,7 @@
 	</developers>
 	<scm>
 		<developerConnection>scm:git:https://github.com/fortify-ps/FortifyBugTrackerUtility.git</developerConnection>
-		<tag>master</tag>
+		<tag>4.3</tag>
 	</scm>
 	<inceptionYear>2016</inceptionYear>
 	<properties>
