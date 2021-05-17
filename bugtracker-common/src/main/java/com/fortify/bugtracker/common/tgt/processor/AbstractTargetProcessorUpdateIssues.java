@@ -44,6 +44,7 @@ import com.fortify.bugtracker.common.tgt.config.ITargetUpdateIssuesConfiguration
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsUpdater;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorAndFields;
+import com.fortify.processrunner.cli.ExitCodeHelper;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.IProcessor;
 import com.fortify.util.rest.json.JSONMap;
@@ -126,6 +127,7 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 			}
 		} catch ( RuntimeException re ) {
 			LOG.error(String.format("[%s] Error updating issue %s", getTargetName(), targetIssueLocator.getDeepLink()), re);
+			ExitCodeHelper.reportTransientError();
 		}
 		return true;
 	}

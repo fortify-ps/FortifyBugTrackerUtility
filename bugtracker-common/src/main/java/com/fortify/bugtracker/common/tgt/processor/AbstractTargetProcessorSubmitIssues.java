@@ -36,6 +36,7 @@ import com.fortify.bugtracker.common.src.updater.IExistingIssueVulnerabilityUpda
 import com.fortify.bugtracker.common.src.updater.INewIssueVulnerabilityUpdater;
 import com.fortify.bugtracker.common.tgt.config.ITargetSubmitIssuesConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocator;
+import com.fortify.processrunner.cli.ExitCodeHelper;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.processor.AbstractProcessorBuildObjectMapFromGroupedObjects;
 import com.fortify.processrunner.processor.IProcessor;
@@ -91,6 +92,7 @@ public abstract class AbstractTargetProcessorSubmitIssues extends AbstractTarget
 			}
 		} catch ( RuntimeException re ) {
 			LOG.error(String.format("[%s] Error submitting vulnerabilities for group %s", getTargetName(), groupName), re);
+			ExitCodeHelper.reportTransientError();
 		}
 		
 		return true;

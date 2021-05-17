@@ -35,6 +35,7 @@ import org.apache.logging.log4j.Level;
 
 import com.fortify.processrunner.cli.CLIOptionDefinition;
 import com.fortify.processrunner.cli.CLIOptionDefinitions;
+import com.fortify.processrunner.cli.ExitCodeHelper;
 import com.fortify.processrunner.context.Context;
 import com.fortify.processrunner.util.HelpPrinter;
 import com.fortify.util.log4j.LogMaskingHelper;
@@ -166,7 +167,7 @@ public class RunProcessRunnerFromCLI {
 			springRunner.run(cliOptionDefinitions, cliContext);
 		} catch (RuntimeException e) {
 			LOG.error("[Process] Error processing", e);
-			System.exit(1);
+			ExitCodeHelper.reportPermanentErrorAndExit();
 		}
 	}
 	
@@ -358,6 +359,7 @@ public class RunProcessRunnerFromCLI {
 	 */
 	public static final void main(String[] args) {
 		new RunProcessRunnerFromCLI().run(args);
+		ExitCodeHelper.exit();
 	}
 	
 	/**
