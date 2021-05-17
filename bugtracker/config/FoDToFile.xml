@@ -61,7 +61,7 @@
 		     can use any FoD vulnerability attribute. Commonly used attributes
 		     for this expression include closedStatus and isSuppressed. -->
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
-			closedStatus==false && isSuppressed==false
+			closedStatus==false && isSuppressed==false && status!='Fix Validated'
 		]]></value></property>
 	</bean>
 	

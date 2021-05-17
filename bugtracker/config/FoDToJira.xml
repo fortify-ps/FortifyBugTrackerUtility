@@ -53,7 +53,7 @@
 		<property name="allowedBugTrackerTypes" value="None, Other"/>
 		
 		<property name="isVulnerabilityOpenExpression"><value><![CDATA[
-			closedStatus==false && isSuppressed==false
+			closedStatus==false && isSuppressed==false && status!='Fix Validated'
 		]]></value></property>
 	</bean>
 	
