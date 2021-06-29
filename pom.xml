@@ -92,7 +92,7 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>fortify-client-api-bom</artifactId>
-				<version>6.0.0.RELEASE</version>
+				<version>6.0.3.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
