@@ -99,11 +99,11 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 		submitOrUpdateIssue(issueId.getSharedSpaceAndWorkspaceId(), issueData, HttpMethod.PUT);
 	}
 	
-	public JSONMap getIssueDetails(TargetIssueLocator targetIssueLocator) {
+	public JSONMap getIssueDetails(TargetIssueLocator targetIssueLocator, String... fields) {
 		OctaneIssueId fullId = OctaneIssueId.parseFromSubmittedIssue(targetIssueLocator);
 		OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId = fullId.getSharedSpaceAndWorkspaceId();
 		String issueId = fullId.getIssueId();
-		return getIssueDetails(sharedSpaceAndWorkspaceId, issueId, "phase");
+		return getIssueDetails(sharedSpaceAndWorkspaceId, issueId, fields);
 	}
 	
 	private JSONMap getIssueDetails(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, String issueId, String... fields) {
@@ -115,7 +115,7 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path("/defects")
 				.path(issueId);
 		if ( fields != null && fields.length > 0 ) {
-			request.queryParam("fields", StringUtils.join(fields, ","));
+			request = request.queryParam("fields", StringUtils.join(fields, ","));
 		}
 		JSONMap result = executeRequest(HttpMethod.GET, request, JSONMap.class);
 		addEntityNamesForIds(sharedSpaceAndWorkspaceId, result);
@@ -197,7 +197,9 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path(entityName), JSONMap.class).get("data", JSONList.class);
+				.path(entityName)
+				.queryParam("fields", "id,name"), JSONMap.class).
+				get("data", JSONList.class);
 	}
 	
 	private JSONMap submitOrUpdateIssue(OctaneSharedSpaceAndWorkspaceId sharedSpaceAndWorkspaceId, Map<String, Object> issueData, String httpMethod) {

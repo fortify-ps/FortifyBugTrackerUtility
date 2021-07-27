@@ -25,7 +25,9 @@
 package com.fortify.bugtracker.tgt.octane.processor;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -76,7 +78,7 @@ public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTa
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return OctaneConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator);
+				return OctaneConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator, getIssueDetailFields());
 			}
 		};
 	}
@@ -84,6 +86,13 @@ public class OctaneTargetProcessorUpdateIssuesWithTransitions extends AbstractTa
 	@Override
 	protected boolean transition(Context context, TargetIssueLocator targetIssueLocator, String transitionName, String comment) {
 		return getOctaneConnection(context).transition(targetIssueLocator, transitionName, comment);
+	}
+	
+	private final String[] getIssueDetailFields() {
+		Set<String> s = new HashSet<>();
+		s.addAll(getFields().keySet());
+		s.add("phase");
+		return s.toArray(new String[] {});
 	}
 
 }

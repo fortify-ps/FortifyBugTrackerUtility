@@ -70,8 +70,12 @@ public class OctaneTargetProcessorSubmitIssues extends AbstractTargetProcessorSu
 	protected ITargetIssueFieldsRetriever getTargetIssueFieldsRetriever() {
 		return new ITargetIssueFieldsRetriever() {
 			public JSONMap getIssueFieldsFromTarget(Context context, TargetIssueLocator targetIssueLocator) {
-				return OctaneConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator);
+				return OctaneConnectionFactory.getConnection(context).getIssueDetails(targetIssueLocator, getIssueDetailFields());
 			}
 		};
+	}
+	
+	private final String[] getIssueDetailFields() {
+		return new String[] { "phase" };
 	}
 }
