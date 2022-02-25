@@ -79,8 +79,8 @@ public class FoDSourceProcessorSubmitVulnsToTarget extends AbstractFoDSourceVuln
 		public AbstractRestConnectionQueryBuilder<?, ?> createBaseVulnerabilityQueryBuilder(Context context) {
 			// TODO Properly take isVulnerabilityOpenExpression into account, instead of just depending on paramIncludeFixed and paramIncludeSuppressed 
 			FoDReleaseVulnerabilitiesQueryBuilder builder = createFoDVulnerabilityBaseQueryBuilder(context)
-					.paramIncludeFixed(IfBlank.ERROR(), false)
-					.paramIncludeSuppressed(IfBlank.ERROR(), false)
+					.paramIncludeFixed(IfBlank.SKIP(), getConfiguration().isIncludeFixed())
+					.paramIncludeSuppressed(IfBlank.SKIP(), getConfiguration().isIncludeSuppressed())
 					.paramFilterAnd(IfBlank.SKIP(), getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted());
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() ) {
 				builder.preProcessor(new FoDJSONMapFilterHasBugLink(MatchMode.EXCLUDE));

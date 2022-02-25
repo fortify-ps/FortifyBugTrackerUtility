@@ -54,6 +54,8 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	private TemplateExpression commentTemplateExpression = null;
 	private boolean addNativeBugLink = false;
 	private String[] allowedBugTrackerTypes = {"Other"};
+	private boolean includeSuppressed = false;
+	private boolean includeFixed = false;
 	
 	@Override
 	public void updateQueryBuilder(Context context, FoDReleasesQueryBuilder builder) {
@@ -102,6 +104,18 @@ public class FoDSourceVulnerabilitiesConfiguration extends AbstractSourceVulnera
 	}
 	public void setAllowedBugTrackerTypes(String[] allowedBugTrackerTypes) {
 		this.allowedBugTrackerTypes = allowedBugTrackerTypes;
+	}
+	public boolean isIncludeSuppressed() {
+		return includeSuppressed;
+	}
+	public void setIncludeSuppressed(boolean includeSuppressed) {
+		this.includeSuppressed = includeSuppressed;
+	}
+	public boolean isIncludeFixed() {
+		return includeFixed;
+	}
+	public void setIncludeFixed(boolean includeFixed) {
+		this.includeFixed = includeFixed;
 	}
 
 	public TargetIssueLocatorCommentHelper getTargetIssueLocatorCommentHelper(String defaultTargetName) {
