@@ -27,6 +27,8 @@ package com.fortify.processrunner;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
@@ -81,6 +83,7 @@ public class RunProcessRunnerFromSpringConfig {
 		Collection<Context> contexts = getContexts(initialContext);
 		for ( Context context : contexts ) {
 			try {
+			    LOG.info(runner.getProcessingMessage(context));
 				checkContext(cliOptionDefinitions, context);
 				runner.run(context);
 			} catch (Throwable t) {
@@ -132,7 +135,6 @@ public class RunProcessRunnerFromSpringConfig {
 				}
 			}
 		}
-		
 	}
 
 	/**
@@ -166,20 +168,27 @@ public class RunProcessRunnerFromSpringConfig {
 		}
 		return result;
 	}
-
+	
 	/**
-	 * Check the given {@link Context} for any missing context property values, based on
-	 * the available {@link CLIOptionDefinitions}
-	 * @param context
-	 */
-	protected final void checkContext(CLIOptionDefinitions cliOptionDefinitions, Context context) {
-		for ( CLIOptionDefinition cLIOptionDefinition : cliOptionDefinitions.getCLIOptionDefinitions() ) {
-			String name = cLIOptionDefinition.getName();
-			if ( cLIOptionDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
-				throw new IllegalStateException("ERROR: Required option -"+name+" not set");
-			}
-		}
-	}
+     * Check the given {@link Context} for any missing context property values, based on
+     * the available {@link CLIOptionDefinitions}
+     * @param context
+     */
+    protected final void checkContext(CLIOptionDefinitions cliOptionDefinitions, Context context) {
+        for ( CLIOptionDefinition cLIOptionDefinition : cliOptionDefinitions.getCLIOptionDefinitions() ) {
+            String name = cLIOptionDefinition.getName();
+            if ( cLIOptionDefinition.isRequiredAndNotIgnored(context) && !context.hasValueForKey(name) ) {
+                throw new IllegalStateException(String.format("ERROR: Required option -%s not set\n\tPlease configure this option using one of the following sources: %s",
+                        name,
+                        getAllowedSources(cLIOptionDefinition)));
+            }
+        }
+    }
+    
+    private String getAllowedSources(CLIOptionDefinition cLIOptionDefinition) {
+        return Stream.of(cLIOptionDefinition.getAllowedSources())
+                .collect(Collectors.joining("\n\t- "));
+    }
 	
 	/**
 	 * Check whether the given configuration file exists and is readable. 

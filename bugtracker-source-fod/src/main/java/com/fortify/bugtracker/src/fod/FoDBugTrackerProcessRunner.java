@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
 import com.fortify.bugtracker.src.fod.connection.FoDConnectionFactory;
+import com.fortify.bugtracker.src.fod.context.IContextFoD;
 import com.fortify.processrunner.context.Context;
 
 /**
@@ -47,5 +48,11 @@ public class FoDBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner 
 	@Override
 	public void close(Context context) {
 		FoDConnectionFactory.closeConnection(context);
+	}
+	
+	@Override
+    protected String getProcessingMessage(Context context) {
+        IContextFoD ctx = context.as(IContextFoD.class);
+        return String.format("[FoD] Processing release: %s", ctx.getFoDApplicationAndReleaseName());
 	}
 }

@@ -79,4 +79,12 @@ public abstract class AbstractProcessRunner implements ICLIOptionDefinitionProvi
 	 * @return
 	 */
 	public abstract IProcessor getProcessor(Context context);
+
+    /**
+     * Method to be implemented by subclasses to provide a message stating 'Processing ...',
+     * identifying which source entity is being represented by the given context.
+     * @param context
+     * @return
+     */
+    protected abstract String getProcessingMessage(Context context);
 }

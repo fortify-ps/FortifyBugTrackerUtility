@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.AbstractBugTrackerProcessRunner;
 import com.fortify.bugtracker.common.ssc.connection.SSCConnectionFactory;
+import com.fortify.bugtracker.common.ssc.context.IContextSSCCommon;
 import com.fortify.processrunner.context.Context;
 
 /**
@@ -48,4 +49,10 @@ public class SSCBugTrackerProcessRunner extends AbstractBugTrackerProcessRunner 
 	public void close(Context context) {
 		SSCConnectionFactory.closeConnection(context);
 	}
+	
+	@Override
+    protected String getProcessingMessage(Context context) {
+        IContextSSCCommon ctx = context.as(IContextSSCCommon.class);
+        return String.format("[SSC] Processing application version: %s", ctx.getSSCApplicationAndVersionName());
+    }
 }
