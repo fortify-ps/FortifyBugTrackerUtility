@@ -37,7 +37,7 @@ import com.fortify.util.spring.expression.helper.DefaultExpressionHelper;
  * This class is used to generate Archer tokens for accessing the
  * Archer REST API. Given a base URL, authentication data and
  * optional proxy configuration, it will call the Archer
- * /api/core/security/login API to request a REST token.
+ * /platformapi/core/security/login API to request a REST token.
  */
 public final class ArcherTokenFactoryRest {
 	static final Log LOG = LogFactory.getLog(ArcherTokenFactoryRest.class);
@@ -51,7 +51,7 @@ public final class ArcherTokenFactoryRest {
 	
 	public String getToken() {
 		if ( tokenData == null ) {
-			JSONMap json = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/api/core/security/login"), Entity.entity(authData, "application/json"), JSONMap.class);
+			JSONMap json = conn.executeRequest(HttpMethod.POST, conn.getBaseResource().path("/platformapi/core/security/login"), Entity.entity(authData, "application/json"), JSONMap.class);
 			tokenData = getTokenData(json);
 			LOG.info("[Archer] Obtained Archer access token");
 		}

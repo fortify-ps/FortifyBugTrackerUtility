@@ -87,14 +87,14 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	}
 
 	protected List<JSONMap> getFieldsForApplication() {
-		JSONList fields = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/fielddefinition/application").path(applicationId+""), JSONList.class);
+		JSONList fields = executeRequest(HttpMethod.GET, getBaseResource().path("/platformapi/core/system/fielddefinition/application").path(applicationId+""), JSONList.class);
 		return fields.getValues("RequestedObject", JSONMap.class);
 	}
 
 	protected JSONMap getApplication() {
 		LOG.info("[Archer] Loading information from application "+applicationName);
 		String filter = "Name eq '"+applicationName+"'";
-		JSONList apps = executeRequest(HttpMethod.GET, getBaseResource().path("api/core/system/application").queryParam("$filter", filter), JSONList.class);
+		JSONList apps = executeRequest(HttpMethod.GET, getBaseResource().path("/platformapi/core/system/application").queryParam("$filter", filter), JSONList.class);
 		LOG.debug("[Archer] List of applications matching filter "+filter+": "+apps);
 		JSONMap result = apps.find("RequestedObject.Name", applicationName, JSONMap.class);
 		if ( LOG.isDebugEnabled() ) {
@@ -171,7 +171,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 				adder.addFieldContent(fieldContents, key, value);
 			}
 		}
-		JSONMap result = executeRequest(HttpMethod.POST, getBaseResource().path("api/core/content"), Entity.entity(data, "application/json"), JSONMap.class);
+		JSONMap result = executeRequest(HttpMethod.POST, getBaseResource().path("/platformapi/core/content"), Entity.entity(data, "application/json"), JSONMap.class);
 		String id = DefaultExpressionHelper.get().evaluateSimpleExpression(result, "RequestedObject.Id", String.class);
 		return new TargetIssueLocator(id, getDeepLink(id));
 	}
