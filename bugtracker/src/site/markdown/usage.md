@@ -71,7 +71,7 @@ Following are some examples (based on the default configuration files):
 
 - Export all Exploitable vulnerabilities for the 'WebGoat 5.0' application version to the specified Octane workspace
 
-    `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToOctane.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns WebGoat:5\.0 -OctaneBaseUrl https://mqast001pngx.saas.hpe.com -OctaneUserName ruud.senden@hpe.com -OctanePassword [password] -OctaneSharedSpaceUid 136002 -OctaneWorkspaceId 1002`
+    `java -jar FortifyBugTrackerUtility-[version].jar -configFile SSCToOctane.xml -SSCBaseUrl http://localhost:1810/ssc -SSCUserName ssc -SSCPassword Fortify123! -SSCApplicationVersionNamePatterns WebGoat:5\.0 -OctaneBaseUrl [OctaneURL] -OctaneUserName [user] -OctanePassword [password] -OctaneSharedSpaceUid 136002 -OctaneWorkspaceId 1002`
 
 
 Before running any actions, you may want to review the configuration file to verify the various selection and grouping
