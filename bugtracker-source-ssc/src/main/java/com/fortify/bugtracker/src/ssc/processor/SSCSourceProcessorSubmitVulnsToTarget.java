@@ -122,7 +122,7 @@ public class SSCSourceProcessorSubmitVulnsToTarget extends AbstractSSCSourceVuln
 			String result = getConfiguration().getFilterStringForVulnerabilitiesToBeSubmitted();
 			if ( getVulnerabilityProcessor().isIgnorePreviouslySubmittedIssues() && StringUtils.isNotBlank(getConfiguration().getBugLinkCustomTagName()) ) {
 				result = StringUtils.isBlank(result) ? "" : (result+" ");
-				result += getConfiguration().getBugLinkCustomTagName()+":<none>";
+				result += "["+getConfiguration().getBugLinkCustomTagName()+"]:<none>";
 			}
 			// SSC doesn't allow filtering on bugURL, so this is handled in createFilterForVulnerabilitiesToBeSubmitted
 			return result;

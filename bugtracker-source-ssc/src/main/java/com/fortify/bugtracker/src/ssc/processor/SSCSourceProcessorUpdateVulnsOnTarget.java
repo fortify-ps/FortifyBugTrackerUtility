@@ -99,7 +99,7 @@ public class SSCSourceProcessorUpdateVulnsOnTarget extends AbstractSSCSourceVuln
 
 		private String getBugLinkCustomTagQuery() {
 			String bugLinkCustomTagName = getConfiguration().getBugLinkCustomTagName();
-			return StringUtils.isBlank(bugLinkCustomTagName) ? null : (bugLinkCustomTagName+":!<none>");
+			return StringUtils.isBlank(bugLinkCustomTagName) ? null : ("["+bugLinkCustomTagName+"]:!<none>");
 		}
 		
 		@Override
