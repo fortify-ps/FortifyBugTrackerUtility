@@ -124,6 +124,7 @@ Below is the token definition to be added to serviceContext.xml. Notes:
 				<value>POST=/api/v\d+/projectVersions/\d+/issues/action</value>
 				<value>PUT=/api/v\d+/projectVersions/\d+/bugfilingrequirements</value>
 				<value>PUT=/api/v\d+/projectVersions/\d+/issueSearchOptions</value>
+				<value>POST=/api/v\d+/bulk/?</value>
 			</list>
 		</property>
 		<property name="terminalActions">
