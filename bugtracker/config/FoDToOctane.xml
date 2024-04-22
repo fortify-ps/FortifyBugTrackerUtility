@@ -99,7 +99,7 @@
 			<entry key="parent.type" value="work_item"/>
 			<entry key="parent.name" value="Backlog"/>
 			<entry key="severity.type" value='list_node'/>
-			<entry key="severity.name" value="${{'Critical':'Critical','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+			<entry key="severity.name" value="${severityString)}"/>
 			<!-- 
 				The following fields have beend added to Octane/ValueEdge to support integration.
 				They might not exist in your instance. If they do, add them to the default Defect
