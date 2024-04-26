@@ -45,9 +45,9 @@
 		which you want to default, e.g. "FoDBaseUrl", "OctaneBaseUrl". You can also set/override any of the below 
 		on the command line, e.g.
 
-		>FortifyBugTrackerUtility.bat -configFile .\FoDToOctane.xml -FoDClientId YOUR_CLIENT_ID \
-			-FoDClientSecret YOUR_CLIENT_SECRET -FoDReleaseId 1159568 \
-			-OctaneSharedSpaceUid 416002 -OctaneWorkspaceId 79003 \
+		>FortifyBugTrackerUtility.bat -configFile .\FoDToOctane.xml -FoDBaseUrl YOUR_FOD_URL -FoDClientId YOUR_CLIENT_ID \
+			-FoDClientSecret YOUR_CLIENT_SECRET -FoDReleaseId YOUR_FOD_RELEASE_ID \
+			-OctaneBaseUrl YOUR_OCTANE_URL -OctaneSharedSpaceUid YOUR_SHARED_SPACE_ID -OctaneWorkspaceId YOUR_WORKSPACE_ID \
 			-OctaneClientId YOUR_CLIENT_ID -OctaneClientSecret YOUR_CLIENT_SECRET
 	
 	-->
@@ -99,18 +99,26 @@
 			<entry key="parent.type" value="work_item"/>
 			<entry key="parent.name" value="Backlog"/>
 			<entry key="severity.type" value='list_node'/>
-			<entry key="severity.name" value="${severityString)}"/>
+        	<entry key="severity.name" value="${severityString}"/>
 			<!-- 
-				The following fields have beend added to Octane/ValueEdge to support integration.
-				They might not exist in your instance. If they do, add them to the default Defect
-				form for better visibility. 
+				The following fields have been added to ALM Octane/ValueEdge to support integration.
+				However, they might not exist in old instances, please check and uncomment to
+				support better mapping/traceability between ALM Octane/ValueEdge and Fortify.
 			-->
+			<!--
 			<entry key="category.type" value="list_node"/>
 			<entry key="category.name" value="Security"/>
 			<entry key="item_origin.type" value="list_node"/>
 			<entry key="item_origin.name" value="Fortify"/>
-			<!--entry key="detected_in_release.type" value="release"/-->
-			<!--entry key="detected_in_release.name" value="YOUR_OCTANE_RELEASE"/--> 
+			-->
+			<!--
+				It is recommended to map your FoD Release to a Release in ALM Octane/ValueEdge
+				by uncommenting the below and setting an appropriate name
+			-->
+			<!--
+			<entry key="detected_in_release.type" value="release"/>
+			<entry key="detected_in_release.name" value="YOUR_OCTANE_RELEASE"/>
+			-->
 		</map></property>
 		
 		<property name="appendedFields"><map>
