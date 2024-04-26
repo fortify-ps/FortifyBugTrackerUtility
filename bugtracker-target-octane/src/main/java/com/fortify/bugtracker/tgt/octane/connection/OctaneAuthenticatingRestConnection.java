@@ -147,7 +147,8 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(octaneIssueId.getSharedSpaceAndWorkspaceId().getWorkspaceId())
-				.path("/comments"),
+				.path("/comments")
+				.request().header("HPECLIENTTYPE", "OCTANE_MIGRATION"),
 				Entity.entity(request, "application/json"), JSONMap.class);
 	}
 	
@@ -213,7 +214,8 @@ public class OctaneAuthenticatingRestConnection extends OctaneBasicRestConnectio
 				.path(sharedSpaceAndWorkspaceId.getSharedSpaceUid())
 				.path("/workspaces/")
 				.path(sharedSpaceAndWorkspaceId.getWorkspaceId())
-				.path("/defects"),
+				.path("/defects")
+				.request().header("HPECLIENTTYPE", "OCTANE_MIGRATION"),
 				Entity.entity(data, "application/json"), JSONMap.class);
 	}
 	

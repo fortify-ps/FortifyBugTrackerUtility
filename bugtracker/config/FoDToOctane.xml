@@ -40,6 +40,31 @@
 		configuration components and properties. 
 	 -->
 	
+	<!-- 
+		The following map lists all of the options that can be set for the integration, uncomment any
+		which you want to default, e.g. "FoDBaseUrl", "OctaneBaseUrl". You can also set/override any of the below 
+		on the command line, e.g.
+
+		>FortifyBugTrackerUtility.bat -configFile .\FoDToOctane.xml -FoDBaseUrl YOUR_FOD_URL -FoDClientId YOUR_CLIENT_ID \
+			-FoDClientSecret YOUR_CLIENT_SECRET -FoDReleaseId YOUR_FOD_RELEASE_ID \
+			-OctaneBaseUrl YOUR_OCTANE_URL -OctaneSharedSpaceUid YOUR_SHARED_SPACE_ID -OctaneWorkspaceId YOUR_WORKSPACE_ID \
+			-OctaneClientId YOUR_CLIENT_ID -OctaneClientSecret YOUR_CLIENT_SECRET
+	
+	-->
+	<util:map id="cliOptionsDefaultValues">
+		<!--entry key="FoDBaseUrl" value="https://ams.fortify.com" /-->
+		<!--entry key="FoDTenant" value="YOUR_TENANT_ID" /-->
+		<!--entry key="FoDClientId" value="YOUR_CLIENT_ID" /-->
+		<!--entry key="FoDClientSecret" value="YOUR_CLIENT_SECRET" /-->
+		<!--entry key="FoDReleaseId" value="YOUR_RELEASE_ID" /-->
+		<!--entry key="FoDReleaseName" value="YOUR_APPLICATION_NAME:YOUR_RELEASE_NAME" /-->
+		<!--entry key="OctaneBaseUrl" value="https://almoctane-ams.saas.microfocus.com/" /-->
+		<!--entry key="OctaneSharedSpaceUid" value="YOUR_SHARED_SPACE_ID" /-->
+		<!--entry key="OctaneWorkspaceId" value="YOUR_WORKSPACE_ID" /-->	
+		<!--entry key="OctaneClientId" value="YOUR_CLIENT_ID" /-->
+		<!--entry key="OctaneClientSecret" value="YOUR_CLIENT_SECRET" /-->
+	</util:map>
+
 	<context:component-scan base-package="com.fortify.bugtracker.src.fod, com.fortify.bugtracker.tgt.octane"/>
 	
 	<bean class="com.fortify.bugtracker.src.fod.config.FoDSourceVulnerabilitiesConfiguration">	
@@ -73,6 +98,27 @@
 			<entry key="phase.name" value="New"/>
 			<entry key="parent.type" value="work_item"/>
 			<entry key="parent.name" value="Backlog"/>
+			<entry key="severity.type" value='list_node'/>
+        	<entry key="severity.name" value="${severityString}"/>
+			<!-- 
+				The following fields have been added to ALM Octane/ValueEdge to support integration.
+				However, they might not exist in old instances, please check and uncomment to
+				support better mapping/traceability between ALM Octane/ValueEdge and Fortify.
+			-->
+			<!--
+			<entry key="category.type" value="list_node"/>
+			<entry key="category.name" value="Security"/>
+			<entry key="item_origin.type" value="list_node"/>
+			<entry key="item_origin.name" value="Fortify"/>
+			-->
+			<!--
+				It is recommended to map your FoD Release to a Release in ALM Octane/ValueEdge
+				by uncommenting the below and setting an appropriate name
+			-->
+			<!--
+			<entry key="detected_in_release.type" value="release"/>
+			<entry key="detected_in_release.name" value="YOUR_OCTANE_RELEASE"/>
+			-->
 		</map></property>
 		
 		<property name="appendedFields"><map>
