@@ -64,7 +64,9 @@
 		<property name="fields"><map>
 			<entry key="summary" value="FoD Detected ${category} at ${primaryLocationFull}"/>
 			<entry key="description" value="--- Changes to the description will be overwritten when FortifyBugTrackerUtility updates issues states ---\n\nCategory: ${category} at ${primaryLocationFull}"/>
-			<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>
+						
+			<!--<entry key="priority.name" value="${{'Critical':'Highest','High':'High','Medium':'Medium','Low':'Low'}.get(severityString)}"/>-->
+			<entry key="priority.id" value="${severity == 1 ? '11002' : severity == 2 ? '11003' : severity == 3 ? '11004' : '11005' }"/>
 			<entry key="labels" value="${{'FoD'}}"/>
 		</map></property>
 
