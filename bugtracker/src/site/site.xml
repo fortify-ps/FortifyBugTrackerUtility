@@ -32,8 +32,8 @@
     <menu name="FortifyBugTrackerUtility">
       <item name="Introduction" href="index.html"/>
       <item name="Preparations">
-      		<item name="FoD" href="prep-FoD.html"/>
-      		<item name="SSC" href="prep-SSC.html"/>
+      		<item name="FoD" href="prep-fod.html"/>
+      		<item name="SSC" href="prep-ssc.html"/>
       </item>
       <item name="Usage" href="usage.html"/>
       <item name="Configuration" href="config.html">
