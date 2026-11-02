@@ -13,6 +13,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - run: mvn clean package
+        env:
+          MAVEN_OPTS: --add-opens=java.base/java.lang=ALL-UNNAMED
       - uses: fortify/shared-github/actions/3rdparty/actions/upload-artifact/v7@e7a2003e8f79827bec58ca05223ccbf001694e14
         with:
           name: build-artifacts
