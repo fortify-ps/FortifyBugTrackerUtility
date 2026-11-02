@@ -26,7 +26,7 @@ package com.fortify.bugtracker.src.ssc.config;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.common.ssc.json.preprocessor.filter.SSCJSONMapFilterWithLoggerApplicationVersionHasAllCustomTags;

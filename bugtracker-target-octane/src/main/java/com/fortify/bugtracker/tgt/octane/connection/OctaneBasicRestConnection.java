@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.octane.connection;
 
-import javax.ws.rs.client.Invocation.Builder;
+import jakarta.ws.rs.client.Invocation.Builder;
 
 import com.fortify.util.rest.connection.AbstractRestConnection;
 import com.fortify.util.rest.connection.AbstractRestConnectionConfig;

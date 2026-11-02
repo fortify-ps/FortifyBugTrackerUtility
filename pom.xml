@@ -52,8 +52,8 @@
 	</scm>
 	<inceptionYear>2016</inceptionYear>
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	<repositories>
 		<repository>
@@ -92,7 +92,7 @@
 			<dependency>
 				<groupId>com.fortify.client.api</groupId>
 				<artifactId>fortify-client-api-bom</artifactId>
-				<version>6.1.8.RELEASE</version>
+				<version>7.0.0.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

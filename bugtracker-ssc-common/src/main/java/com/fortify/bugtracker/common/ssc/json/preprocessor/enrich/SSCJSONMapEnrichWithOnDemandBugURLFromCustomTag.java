@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.bugtracker.common.ssc.json.preprocessor.enrich;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fortify.util.rest.json.JSONList;
 import com.fortify.util.rest.json.JSONMap;
