@@ -24,8 +24,8 @@
  ******************************************************************************/
 package com.fortify.bugtracker.src.fod.config;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fortify.bugtracker.common.src.config.AbstractSourceVulnerabilitiesConfiguration;
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;

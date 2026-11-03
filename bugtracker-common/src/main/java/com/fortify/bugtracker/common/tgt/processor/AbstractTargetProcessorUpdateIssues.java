@@ -31,9 +31,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,8 +229,8 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	 * with current calculated value. This default implementation removes all whitespace,
 	 * attempts to remove all HTML tags and entities using a simple regex, and removes all 
 	 * non-alphanumeric characters.
-	 * @param valueFromTargetString
-	 * @return
+	 * @param value The target field value to normalize before comparison.
+	 * @return The normalized field value.
 	 */
 	protected String normalizeFieldValueForCompare(String value) {
 		return StringUtils

@@ -26,7 +26,7 @@ package com.fortify.bugtracker.src.fod.json.preprocessor.enrich;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.fortify.bugtracker.common.tgt.issue.TargetIssueLocatorCommentHelper;
 import com.fortify.util.rest.json.JSONList;

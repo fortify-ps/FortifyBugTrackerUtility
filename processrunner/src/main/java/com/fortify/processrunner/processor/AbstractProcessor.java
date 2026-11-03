@@ -26,7 +26,7 @@ package com.fortify.processrunner.processor;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -107,8 +107,8 @@ public abstract class AbstractProcessor implements IProcessor {
 	/**
 	 * Pre-process the given {@link Context}. By default this
 	 * method does nothing and simply returns true.
-	 * @param context
-	 * @return
+	 * @param context The context containing data for this processing phase.
+	 * @return {@code true} to continue processing; {@code false} otherwise.
 	 */
 	protected boolean preProcess(Context context) {
 		return true;
@@ -117,8 +117,8 @@ public abstract class AbstractProcessor implements IProcessor {
 	/**
 	 * Process the given {@link Context}. By default this
 	 * method does nothing and simply returns true.
-	 * @param context
-	 * @return
+	 * @param context The context containing data for this processing phase.
+	 * @return {@code true} to continue processing; {@code false} otherwise.
 	 */
 	protected boolean process(Context context) {
 		return true;
@@ -127,8 +127,8 @@ public abstract class AbstractProcessor implements IProcessor {
 	/**
 	 * Post-process the given {@link Context}. By default this
 	 * method does nothing and simply returns true.
-	 * @param context
-	 * @return
+	 * @param context The context containing data for this processing phase.
+	 * @return {@code true} to continue processing; {@code false} otherwise.
 	 */
 	protected boolean postProcess(Context context) {
 		return true;

@@ -26,7 +26,7 @@ package com.fortify.bugtracker.tgt.octane.connection;
 
 import java.net.URI;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection.IOctaneCredentials;
 import com.fortify.bugtracker.tgt.octane.connection.OctaneAuthenticatingRestConnection.OctaneClientCredentials;

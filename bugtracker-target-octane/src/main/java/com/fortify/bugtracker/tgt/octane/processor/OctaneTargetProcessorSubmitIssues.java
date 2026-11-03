@@ -26,7 +26,7 @@ package com.fortify.bugtracker.tgt.octane.processor;
 
 import java.util.LinkedHashMap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.fortify.bugtracker.common.tgt.issue.ITargetIssueFieldsRetriever;

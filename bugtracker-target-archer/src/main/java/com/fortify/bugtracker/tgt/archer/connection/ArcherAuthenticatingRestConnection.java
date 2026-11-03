@@ -30,16 +30,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation.Builder;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.Node;
+import jakarta.xml.soap.SOAPBody;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPPart;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -139,8 +140,7 @@ public class ArcherAuthenticatingRestConnection extends ArcherBasicRestConnectio
 	        		.header("SOAPAction", "\"http://archer-tech.com/webservices/CreateValuesListValue\"")
 	        		.accept("text/xml"),
 	        		Entity.entity(message, "text/xml"), SOAPMessage.class);
-	        @SuppressWarnings("unchecked")
-			Iterator<Object> it = response.getSOAPBody().getChildElements();
+	        Iterator<Node> it = response.getSOAPBody().getChildElements();
 	        while (it.hasNext()){
 	        	Object o = it.next();
 	        	if ( o instanceof SOAPElement ) {	

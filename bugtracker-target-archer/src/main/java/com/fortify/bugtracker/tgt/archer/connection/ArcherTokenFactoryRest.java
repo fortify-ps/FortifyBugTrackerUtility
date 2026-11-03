@@ -24,8 +24,8 @@
  ******************************************************************************/
 package com.fortify.bugtracker.tgt.archer.connection;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.client.Entity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
