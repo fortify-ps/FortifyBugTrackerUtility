@@ -229,8 +229,8 @@ public abstract class AbstractTargetProcessorUpdateIssues extends AbstractTarget
 	 * with current calculated value. This default implementation removes all whitespace,
 	 * attempts to remove all HTML tags and entities using a simple regex, and removes all 
 	 * non-alphanumeric characters.
-	 * @param valueFromTargetString
-	 * @return
+	 * @param value The target field value to normalize before comparison.
+	 * @return The normalized field value.
 	 */
 	protected String normalizeFieldValueForCompare(String value) {
 		return StringUtils

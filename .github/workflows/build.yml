@@ -7,15 +7,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: fortify/shared-github/actions/3rdparty/actions/checkout/v6@e7a2003e8f79827bec58ca05223ccbf001694e14
-      - uses: fortify/shared-github/actions/3rdparty/actions/setup-java/v5@e7a2003e8f79827bec58ca05223ccbf001694e14
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
       - run: mvn clean package
         env:
           MAVEN_OPTS: --add-opens=java.base/java.lang=ALL-UNNAMED
-      - uses: fortify/shared-github/actions/3rdparty/actions/upload-artifact/v7@e7a2003e8f79827bec58ca05223ccbf001694e14
+      - uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
           path: bugtracker/target/*-dist.zip

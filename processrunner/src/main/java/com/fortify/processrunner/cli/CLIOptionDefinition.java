@@ -265,8 +265,8 @@ public class CLIOptionDefinition implements Serializable {
 	
 	/**
 	 * Set the environment variable name
-	 * @param isPassword
-	 * @return
+	 * @param envName The environment variable used to provide this option's value.
+	 * @return This option definition.
 	 */
 	public CLIOptionDefinition envName(String envName) {
 		this.envName = envName;

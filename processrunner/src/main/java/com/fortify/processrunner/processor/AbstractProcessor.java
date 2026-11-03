@@ -107,8 +107,8 @@ public abstract class AbstractProcessor implements IProcessor {
 	/**
 	 * Pre-process the given {@link Context}. By default this
 	 * method does nothing and simply returns true.
-	 * @param context
-	 * @return
+	 * @param context The context containing data for this processing phase.
+	 * @return {@code true} to continue processing; {@code false} otherwise.
 	 */
 	protected boolean preProcess(Context context) {
 		return true;
